@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Debugger: Fix the Sort</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Custom Scrollbar for a premium look */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Code Editor Base Styles */
+        .code-container {
+            position: relative;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 24px;
+            height: 100%;
+            overflow-y: auto;
+            background-color: #0f172a;
+        }
+
+        .line-numbers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 100%;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            text-align: right;
+            padding-right: 8px;
+            color: #64748b;
+            background-color: #0f172a;
+            border-right: 1px solid #334155;
+            user-select: none;
+            z-index: 10;
+        }
+
+        #code-editor {
+            position: absolute;
+            top: 0;
+            left: 40px;
+            width: calc(100% - 40px);
+            min-height: 100%;
+            padding: 16px;
+            color: #e2e8f0;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            white-space: pre;
+            overflow: hidden;
+            z-index: 20;
+        }
+
+        /* The highlight overlay for the active executing line */
+        #active-line-highlight {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 24px;
+            background-color: rgba(56, 189, 248, 0.2);
+            border-left: 3px solid #38bdf8;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+            transition: top 0.15s ease;
+        }
+
+        /* Array Box Transitions */
+        .array-box {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .box-comparing {
+            transform: scale(1.1);
+            background-color: #fcd34d !important;
+            color: #78350f !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+            z-index: 10;
+        }
+        
+        .box-sorted {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+        }
+
+        .box-inserting {
+            transform: translateY(-10px);
+            background-color: #38bdf8 !important;
+            color: #0c4a6e !important;
+            border-color: #0ea5e9 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 h-screen flex flex-col overflow-hidden font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md shrink-0">
+        <div class="flex items-center gap-3">
+            <i class="ph ph-bug text-3xl text-sky-400"></i>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide">Algorithm Debugger</h1>
+                <p class="text-xs text-slate-400 font-medium">A-Level CS Sorting Logic Simulator</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4 bg-slate-900 p-2 rounded-lg border border-slate-700">
+            <div class="flex items-center gap-2">
+                <i class="ph ph-list-numbers text-slate-400"></i>
+                <select id="algo-select" class="bg-slate-800 border border-slate-600 text-sm rounded px-3 py-1.5 focus:outline-none focus:border-sky-500 transition-colors">
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                </select>
+            </div>
+            <div class="w-px h-6 bg-slate-700"></div>
+            <div class="flex items-center gap-2">
+                <i class="ph ph-target text-slate-400"></i>
+                <select id="level-select" class="bg-slate-800 border border-slate-600 text-sm rounded px-3 py-1.5 focus:outline-none focus:border-sky-500 transition-colors">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Panel: Code Editor -->
+        <section class="w-1/2 flex flex-col border-r border-slate-700 bg-slate-900 relative">
+            <div class="px-4 py-2 bg-slate-800 border-b border-slate-700 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2 text-sm text-slate-300 font-mono">
+                    <i class="ph ph-terminal-window text-sky-400"></i>
+                    <span>pseudocode.txt</span>
+                </div>
+                <button id="reset-code-btn" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                    <i class="ph ph-arrow-counter-clockwise"></i> Reset Code
+                </button>
+            </div>
+            
+            <div class="flex-1 relative code-container" id="editor-wrapper">
+                <div id="line-numbers" class="line-numbers">1</div>
+                <div id="active-line-highlight"></div>
+                <textarea id="code-editor" spellcheck="false"></textarea>
+            </div>
+            
+            <div id="compiler-error" class="hidden bg-red-900/50 border-t border-red-500 text-red-200 p-3 text-sm font-mono flex items-start gap-2 shrink-0">
+                <i class="ph ph-warning-circle text-lg mt-0.5"></i>
+                <span id="compiler-error-text">Compilation error: Check syntax.</span>
+            </div>
+        </section>
+
+        <!-- Right Panel: Visualizer & Controls -->
+        <section class="w-1/2 flex flex-col bg-slate-800">
+            
+            <!-- Array Display -->
+            <div class="p-8 flex-1 flex flex-col justify-center items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-700 to-slate-800 relative">
+                <h2 class="absolute top-4 left-6 text-sm font-semibold text-slate-400 uppercase tracking-wider">Live Visualizer</h2>
+                
+                <div id="array-container" class="flex gap-3 mt-4">
+                    <!-- Array boxes generated here -->
+                </div>
+                
+                <div id="status-message" class="mt-8 text-lg font-medium h-6 text-sky-400 transition-all opacity-0">
+                    Ready to run...
+                </div>
+            </div>
+
+            <!-- Variables Watcher -->
+            <div class="border-t border-slate-700 bg-slate-900 p-6 shrink-0">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="ph ph-eye"></i> Variable Watcher
+                </h3>
+                <div id="variables-grid" class="grid grid-cols-4 gap-4 font-mono text-sm">
+                    <!-- Variables injected here -->
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="border-t border-slate-700 bg-slate-800 p-4 px-6 flex justify-between items-center shrink-0">
+                <button id="scramble-btn" class="px-4 py-2 rounded border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2">
+                    <i class="ph ph-shuffle"></i> Scramble Array
+                </button>
+                
+                <div class="flex gap-3">
+                    <button id="step-btn" class="px-5 py-2 rounded bg-slate-700 text-white font-medium hover:bg-slate-600 transition-all flex items-center gap-2 shadow">
+                        <i class="ph ph-step-forward"></i> Step
+                    </button>
+                    <button id="run-btn" class="px-6 py-2 rounded bg-sky-600 text-white font-medium hover:bg-sky-500 transition-all flex items-center gap-2 shadow shadow-sky-900/50">
+                        <i class="ph ph-play"></i> Run Code
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- CHALLENGE DATA ---
+        const CHALLENGES = {
+            bubble: [
+                {
+                    id: 'b0', name: "Level 0: Working Sort",
+                    desc: "This is the correct algorithm. Run it to see how it works.",
+                    code: `set i = 0\nwhile i < len(myArray) - 1\n  set j = 0\n  while j < len(myArray) - 1 - i\n    if myArray[j] > myArray[j + 1]\n      temp = myArray[j]\n      myArray[j] = myArray[j + 1]\n      myArray[j + 1] = temp\n    end if\n    j = j + 1\n  end while\n  i = i + 1\nend while`
+                },
+                {
+                    id: 'b1', name: "Bug 1: Wrong Direction",
+                    desc: "This sort isn't producing an ascending list. Can you find the logical error?",
+                    code: `set i = 0\nwhile i < len(myArray) - 1\n  set j = 0\n  while j < len(myArray) - 1 - i\n    if myArray[j] < myArray[j + 1] \n      temp = myArray[j]\n      myArray[j] = myArray[j + 1]\n      myArray[j + 1] = temp\n    end if\n    j = j + 1\n  end while\n  i = i + 1\nend while`
+                },
+                {
+                    id: 'b2', name: "Bug 2: The Overwrite",
+                    desc: "Values are duplicating and disappearing! Fix the swap logic.",
+                    code: `set i = 0\nwhile i < len(myArray) - 1\n  set j = 0\n  while j < len(myArray) - 1 - i\n    if myArray[j] > myArray[j + 1]\n      myArray[j] = myArray[j + 1]\n      myArray[j + 1] = temp\n      temp = myArray[j]\n    end if\n    j = j + 1\n  end while\n  i = i + 1\nend while`
+                },
+                {
+                    id: 'b3', name: "Bug 3: The Premature Stop",
+                    desc: "The algorithm stops before finishing the job. Check the boundaries.",
+                    code: `set i = 0\nwhile i < len(myArray) - 2\n  set j = 0\n  while j < len(myArray) - 1 - i\n    if myArray[j] > myArray[j + 1]\n      temp = myArray[j]\n      myArray[j] = myArray[j + 1]\n      myArray[j + 1] = temp\n    end if\n    j = j + 1\n  end while\n  i = i + 1\nend while`
+                }
+            ],
+            insertion: [
+                {
+                    id: 'i0', name: "Level 0: Working Sort",
+                    desc: "The correct Insertion Sort algorithm.",
+                    code: `num_items = LEN(items)\nFOR index = 1 TO num_items - 1\n  item_to_insert = items[index]\n  position = index - 1\n  WHILE position >= 0 AND items[position] > item_to_insert\n    items[position + 1] = items[position]\n    position = position - 1\n  ENDWHILE\n  items[position + 1] = item_to_insert\nNEXT index`
+                },
+                {
+                    id: 'i1', name: "Bug 1: The Wrong Direction",
+                    desc: "The comparison operator is facing the wrong way.",
+                    code: `num_items = LEN(items)\nFOR index = 1 TO num_items - 1\n  item_to_insert = items[index]\n  position = index - 1\n  WHILE position >= 0 AND items[position] < item_to_insert\n    items[position + 1] = items[position]\n    position = position - 1\n  ENDWHILE\n  items[position + 1] = item_to_insert\nNEXT index`
+                },
+                {
+                    id: 'i2', name: "Bug 2: Endless Loop / Index Error",
+                    desc: "The inner loop's position variable is moving the wrong way!",
+                    code: `num_items = LEN(items)\nFOR index = 1 TO num_items - 1\n  item_to_insert = items[index]\n  position = index - 1\n  WHILE position >= 0 AND items[position] > item_to_insert\n    items[position + 1] = items[position]\n    position = position + 1\n  ENDWHILE\n  items[position + 1] = item_to_insert\nNEXT index`
+                }
+            ]
+        };
+
+        // --- STATE & DOM ELEMENTS ---
+        let currentArray = [];
+        let originalArray = [];
+        let runnerInterval = null;
+        let algorithmGenerator = null;
+        let isRunning = false;
+        let currentLineHighlight = -1;
+
+        const elSelectAlgo = document.getElementById('algo-select');
+        const elSelectLevel = document.getElementById('level-select');
+        const elEditor = document.getElementById('code-editor');
+        const elLineNumbers = document.getElementById('line-numbers');
+        const elHighlight = document.getElementById('active-line-highlight');
+        const elArrayContainer = document.getElementById('array-container');
+        const elVarsGrid = document.getElementById('variables-grid');
+        const elStatus = document.getElementById('status-message');
+        const elCompilerError = document.getElementById('compiler-error');
+        const elCompilerErrorText = document.getElementById('compiler-error-text');
+
+        const btnRun = document.getElementById('run-btn');
+        const btnStep = document.getElementById('step-btn');
+        const btnScramble = document.getElementById('scramble-btn');
+        const btnResetCode = document.getElementById('reset-code-btn');
+
+        // --- TRANSPILER ---
+        // Converts pseudo-code string into a JavaScript Generator function string
+        function transpileToGenerator(code) {
+            let js = `
+            let i=0, j=0, temp=0, index=0, position=0, item_to_insert=0;
+            let myArray = arr;
+            let items = arr;
+            let num_items = arr.length;
+            let len = function(a) { return a.length; };
+            let MAX_STEPS = 2000;
+            let steps = 0;
+            `;
+            let lines = code.split('\n');
+            
+            for(let n = 0; n < lines.length; n++) {
+                let line = lines[n].trim();
+                let isBlockClosing = false;
+
+                if(!line || line.startsWith('//')) {
+                   js += `yield {line: ${n}, vars: {i, j, temp, index, position, item_to_insert, num_items}, arr: [...arr]};\n`;
+                   continue;
+                }
+
+                // Protect against infinite loops
+                js += `if(++steps > MAX_STEPS) throw new Error("Infinite Loop Detected");\n`;
+
+                // Common replacements
+                line = line.replace(/len\(myArray\[\]\)/g, "arr.length");
+                line = line.replace(/len\(myArray\)/gi, "arr.length");
+                line = line.replace(/LEN\(items\)/gi, "arr.length");
+                line = line.replace(/\bAND\b/gi, "&&").replace(/\bOR\b/gi, "||");
+
+                // Keyword translations
+                if (line.match(/^set\s+([a-zA-Z_]\w*)\s*=\s*(.*)$/i)) {
+                    line = line.replace(/^set\s+([a-zA-Z_]\w*)\s*=\s*(.*)$/i, "$1 = $2;");
+                } else if (line.match(/^while\s+(.*)$/i) && !line.match(/^end\s*while/i)) {
+                    line = line.replace(/^while\s+(.*)$/i, "while ($1) {");
+                } else if (line.match(/^if\s+(.*)$/i) && !line.match(/^end\s*if/i)) {
+                    line = line.replace(/^if\s+(.*)$/i, "if ($1) {");
+                } else if (line.match(/^end\s*while/i) || line.match(/^ENDWHILE/i) || line.match(/^end\s*if/i) || line.match(/^ENDIF/i) || line.match(/^NEXT\s+[a-zA-Z_]\w*/i)) {
+                    line = "}";
+                    isBlockClosing = true;
+                } else if (line.match(/^FOR\s+([a-zA-Z_]\w*)\s*=\s*(.*?)\s+TO\s+(.*)$/i)) {
+                    let match = line.match(/^FOR\s+([a-zA-Z_]\w*)\s*=\s*(.*?)\s+TO\s+(.*)$/i);
+                    line = `for (${match[1]} = ${match[2]}; ${match[1]} <= ${match[3]}; ${match[1]}++) {`;
+                } else {
+                    if(!line.endsWith(';') && !line.endsWith('{') && !line.endsWith('}')) {
+                        line += ';';
+                    }
+                }
+
+                // Before executing the logic of the line, yield the state so we can see the highlight
+                if(!isBlockClosing) {
+                    js += `yield {line: ${n}, vars: {i, j, temp, index, position, item_to_insert, num_items}, arr: [...arr]};\n`;
+                }
+                
+                js += `${line}\n`;
+
+                // If block closing, yield after it closes
+                if (isBlockClosing) {
+                    js += `yield {line: ${n}, vars: {i, j, temp, index, position, item_to_insert, num_items}, arr: [...arr]};\n`;
+                }
+            }
+            return `return function*(arr) { ${js} };`;
+        }
+
+
+        // --- UI & LOGIC HANDLERS ---
+        function init() {
+            populateLevels();
+            setupEventListeners();
+            loadChallenge();
+            generateRandomArray();
+        }
+
+        function setupEventListeners() {
+            elSelectAlgo.addEventListener('change', () => {
+                populateLevels();
+                loadChallenge();
+                generateRandomArray();
+            });
+
+            elSelectLevel.addEventListener('change', () => {
+                loadChallenge();
+                generateRandomArray();
+            });
+
+            btnResetCode.addEventListener('click', loadChallenge);
+            btnScramble.addEventListener('click', generateRandomArray);
+            
+            btnRun.addEventListener('click', toggleRunState);
+            btnStep.addEventListener('click', executeStep);
+
+            // Sync Editor Line Numbers and Highlight Overlay
+            elEditor.addEventListener('input', updateLineNumbers);
+            elEditor.addEventListener('scroll', () => {
+                const scroll = elEditor.scrollTop;
+                document.getElementById('editor-wrapper').scrollTop = scroll;
+                elLineNumbers.style.transform = `translateY(-${scroll}px)`;
+                elHighlight.style.transform = `translateY(-${scroll}px)`;
+            });
+
+            // Prevent executing malicious pasted code (basic sanitizer for UI)
+            elEditor.addEventListener('paste', (e) => {
+                setTimeout(updateLineNumbers, 10);
+            });
+        }
+
+        function populateLevels() {
+            const algo = elSelectAlgo.value;
+            const levels = CHALLENGES[algo];
+            elSelectLevel.innerHTML = '';
+            levels.forEach((lvl, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = lvl.name;
+                elSelectLevel.appendChild(opt);
+            });
+        }
+
+        function loadChallenge() {
+            const algo = elSelectAlgo.value;
+            const levelIdx = elSelectLevel.value;
+            const challenge = CHALLENGES[algo][levelIdx];
+            
+            elEditor.value = challenge.code;
+            updateLineNumbers();
+            resetExecution();
+            setStatus(challenge.desc, 'text-slate-400');
+        }
+
+        function updateLineNumbers() {
+            const linesCount = elEditor.value.split('\n').length;
+            let linesHtml = '';
+            for (let i = 1; i <= linesCount; i++) {
+                linesHtml += `<div>${i}</div>`;
+            }
+            elLineNumbers.innerHTML = linesHtml;
+        }
+
+        function setHighlight(lineIndex) {
+            currentLineHighlight = lineIndex;
+            if (lineIndex < 0) {
+                elHighlight.style.display = 'none';
+                return;
+            }
+            elHighlight.style.display = 'block';
+            elHighlight.style.top = `${lineIndex * 24 + 16}px`; // 24px line height + 16px padding
+        }
+
+        function generateRandomArray() {
+            const size = 6;
+            originalArray = [];
+            for (let i = 0; i < size; i++) {
+                originalArray.push(Math.floor(Math.random() * 20));
+            }
+            resetExecution();
+        }
+
+        function resetExecution() {
+            stopRunTimer();
+            currentArray = [...originalArray];
+            algorithmGenerator = null;
+            elCompilerError.classList.add('hidden');
+            elEditor.disabled = false;
+            elEditor.classList.remove('opacity-70');
+            btnRun.innerHTML = `<i class="ph ph-play"></i> Run Code`;
+            btnRun.classList.replace('bg-rose-600', 'bg-sky-600');
+            btnRun.classList.replace('hover:bg-rose-500', 'hover:bg-sky-500');
+            btnRun.classList.replace('shadow-rose-900/50', 'shadow-sky-900/50');
+            
+            setHighlight(-1);
+            renderArray(currentArray);
+            renderVariables({ i: '-', j: '-', temp: '-', index: '-', position: '-', item_to_insert: '-' });
+            setStatus('Ready to run...', 'text-slate-400');
+        }
+
+        function renderArray(arr, activeVars = null) {
+            elArrayContainer.innerHTML = '';
+            
+            const algo = elSelectAlgo.value;
+            let compareIdx1 = -1, compareIdx2 = -1;
+            let insertIdx = -1;
+
+            if (activeVars) {
+                if (algo === 'bubble') {
+                    compareIdx1 = activeVars.j;
+                    compareIdx2 = activeVars.j + 1;
+                } else if (algo === 'insertion') {
+                    compareIdx1 = activeVars.position;
+                    compareIdx2 = activeVars.position + 1;
+                    insertIdx = activeVars.index;
+                }
+            }
+
+            arr.forEach((val, idx) => {
+                const box = document.createElement('div');
+                box.className = 'array-box w-14 h-14 flex items-center justify-center bg-slate-800 border-2 border-slate-600 rounded-lg text-xl font-bold shadow-lg';
+                box.textContent = val;
+
+                // Highlight Logic based on Algorithm characteristics
+                if (activeVars) {
+                    if (idx === compareIdx1 || idx === compareIdx2) {
+                        box.classList.add('box-comparing');
+                    }
+                    if (algo === 'insertion' && idx === insertIdx) {
+                        box.classList.add('box-inserting');
+                    }
+                }
+                
+                elArrayContainer.appendChild(box);
+            });
+        }
+
+        function renderVariables(vars) {
+            elVarsGrid.innerHTML = '';
+            const algo = elSelectAlgo.value;
+            const toShow = algo === 'bubble' ? ['i', 'j', 'temp'] : ['index', 'position', 'item_to_insert', 'num_items'];
+            
+            toShow.forEach(key => {
+                const val = vars[key] !== undefined ? vars[key] : '-';
+                const el = document.createElement('div');
+                el.className = 'bg-slate-800 border border-slate-700 p-2 rounded flex flex-col items-center justify-center';
+                el.innerHTML = `<span class="text-xs text-slate-500 mb-1">${key}</span><span class="text-sky-300 font-bold">${val}</span>`;
+                elVarsGrid.appendChild(el);
+            });
+        }
+
+        function setStatus(msg, colorClass) {
+            elStatus.textContent = msg;
+            elStatus.className = `mt-8 text-lg font-medium h-6 transition-all opacity-100 ${colorClass}`;
+        }
+
+        function toggleRunState() {
+            if (isRunning) {
+                stopRunTimer();
+                btnRun.innerHTML = `<i class="ph ph-play"></i> Continue`;
+                btnRun.classList.replace('bg-rose-600', 'bg-sky-600');
+                btnRun.classList.replace('hover:bg-rose-500', 'hover:bg-sky-500');
+                btnRun.classList.replace('shadow-rose-900/50', 'shadow-sky-900/50');
+            } else {
+                startExecution();
+            }
+        }
+
+        function startExecution() {
+            if (!algorithmGenerator) {
+                try {
+                    const jsCode = transpileToGenerator(elEditor.value);
+                    const func = new Function(jsCode)();
+                    currentArray = [...originalArray];
+                    algorithmGenerator = func(currentArray);
+                    
+                    elCompilerError.classList.add('hidden');
+                    elEditor.disabled = true;
+                    elEditor.classList.add('opacity-70');
+                } catch (e) {
+                    elCompilerErrorText.textContent = `Compilation Error: Please check your pseudocode syntax.`;
+                    elCompilerError.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            isRunning = true;
+            btnRun.innerHTML = `<i class="ph ph-pause"></i> Pause`;
+            btnRun.classList.replace('bg-sky-600', 'bg-rose-600');
+            btnRun.classList.replace('hover:bg-sky-500', 'hover:bg-rose-500');
+            btnRun.classList.replace('shadow-sky-900/50', 'shadow-rose-900/50');
+            setStatus('Executing...', 'text-sky-400');
+            
+            runnerInterval = setInterval(executeStep, 300);
+        }
+
+        function stopRunTimer() {
+            isRunning = false;
+            if (runnerInterval) clearInterval(runnerInterval);
+        }
+
+        function executeStep() {
+            if (!algorithmGenerator) {
+                startExecution();
+                stopRunTimer(); // If stepped, just run once
+            }
+
+            try {
+                const result = algorithmGenerator.next();
+                
+                if (result.done) {
+                    finishExecution();
+                    return;
+                }
+
+                const state = result.value;
+                setHighlight(state.line);
+                renderVariables(state.vars);
+                renderArray(state.arr, state.vars);
+                
+                // Auto-scroll editor to follow execution
+                const offset = state.line * 24;
+                if (offset > elEditor.scrollTop + elEditor.clientHeight - 48 || offset < elEditor.scrollTop) {
+                    elEditor.scrollTop = offset - elEditor.clientHeight / 2;
+                }
+
+            } catch (e) {
+                stopRunTimer();
+                setStatus(`Runtime Error: ${e.message}`, 'text-rose-500');
+            }
+        }
+
+        function finishExecution() {
+            stopRunTimer();
+            setHighlight(-1);
+            
+            // Check if correctly sorted
+            const sortedCheck = [...originalArray].sort((a,b) => a-b);
+            const isSorted = JSON.stringify(currentArray) === JSON.stringify(sortedCheck);
+            
+            // Render final clean array
+            elArrayContainer.innerHTML = '';
+            currentArray.forEach((val) => {
+                const box = document.createElement('div');
+                box.className = `array-box w-14 h-14 flex items-center justify-center border-2 rounded-lg text-xl font-bold shadow-lg ${isSorted ? 'box-sorted' : 'bg-slate-800 border-rose-500 text-rose-400'}`;
+                box.textContent = val;
+                elArrayContainer.appendChild(box);
+            });
+
+            if (isSorted) {
+                setStatus('Success! The array is perfectly sorted.', 'text-emerald-400');
+            } else {
+                setStatus('Algorithm finished, but the array is NOT sorted correctly.', 'text-rose-500');
+            }
+
+            // Reset UI state to allow fixing
+            elEditor.disabled = false;
+            elEditor.classList.remove('opacity-70');
+            algorithmGenerator = null;
+            btnRun.innerHTML = `<i class="ph ph-play"></i> Run Code`;
+            btnRun.classList.replace('bg-rose-600', 'bg-sky-600');
+            btnRun.classList.replace('hover:bg-rose-500', 'hover:bg-sky-500');
+            btnRun.classList.replace('shadow-rose-900/50', 'shadow-sky-900/50');
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

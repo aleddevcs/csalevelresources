@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Mastery: Database Detective & Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .sql-console {
+            font-family: 'Courier New', Courier, monospace;
+            background: #1e293b;
+            border: 1px solid #334155;
+            resize: none;
+            color: #60a5fa;
+            transition: all 0.3s ease;
+        }
+
+        .sql-console:focus {
+            border-color: #3b82f6;
+            background: #0f172a;
+        }
+
+        .table-container {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .correct-cell {
+            background-color: rgba(34, 197, 94, 0.3) !important;
+            transition: background-color 0.5s;
+        }
+
+        .block-btn {
+            background: #334155;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .block-btn:hover {
+            background: #475569;
+            border-color: #60a5fa;
+            color: white;
+        }
+
+        .block-btn:active {
+            transform: scale(0.95);
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes success-glow {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            100% { box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0); }
+        }
+        .success-glow { animation: success-glow 1s ease-out; }
+
+        .score-pop {
+            animation: pop 0.4s ease-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: #4ade80; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Header -->
+    <header class="bg-slate-900 border-b border-slate-700 p-4 shadow-xl flex-shrink-0">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <h1 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fas fa-database text-blue-500"></i>
+                    SQL Mastery: <span class="text-blue-400">A-Level</span>
+                </h1>
+                <div class="h-8 w-px bg-slate-700"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Total Score</span>
+                    <span id="total-score" class="text-xl font-black text-blue-400">0</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 w-64">
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-500 h-full transition-all duration-500" style="width: 10%;"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col lg:flex-row overflow-hidden h-full">
+        
+        <!-- Left Panel: Instructions -->
+        <section class="w-full lg:w-1/3 p-6 border-r border-slate-700 overflow-y-auto bg-slate-900/50 flex flex-col gap-6">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-600 shadow-lg">
+                <h2 id="level-title" class="text-blue-400 font-bold mb-2 uppercase text-xs tracking-widest">Loading Mission...</h2>
+                <p id="scenario-text" class="text-slate-200 leading-relaxed text-sm"></p>
+            </div>
+
+            <div class="bg-blue-900/20 p-5 rounded-xl border border-blue-500/30">
+                <h3 class="text-blue-300 font-bold mb-2 flex items-center gap-2 text-sm uppercase">
+                    <i class="fas fa-bullseye"></i> Task Objective
+                </h3>
+                <div id="objective-text" class="text-sm text-blue-100 font-medium space-y-2"></div>
+            </div>
+
+            <div class="mt-auto">
+                <div class="bg-slate-800/80 rounded-lg p-4 border border-slate-700">
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase mb-2">Schema Reference</h4>
+                    <div id="schema-dynamic" class="text-[11px] font-mono text-slate-400 space-y-1"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Workspace -->
+        <section class="flex-grow flex flex-col p-6 bg-slate-950 overflow-hidden gap-6">
+            
+            <div class="flex-grow bg-slate-900 rounded-xl border border-slate-800 shadow-2xl p-4 overflow-hidden flex flex-col min-h-[150px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Live Table View</h3>
+                    <div id="table-status" class="text-[9px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-400/20 uppercase font-bold">Ready</div>
+                </div>
+                <div id="table-view" class="table-container flex-grow overflow-auto rounded-lg border border-slate-800 bg-slate-950/30"></div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                
+                <!-- Toggle Mode -->
+                <div class="flex justify-between items-end">
+                    <div class="flex gap-2">
+                        <button id="btn-mode-type" onclick="setMode('typing')" class="px-3 py-1 text-[10px] font-bold uppercase rounded border transition-all">
+                            <i class="fas fa-keyboard mr-1"></i> Type (100 pts)
+                        </button>
+                        <button id="btn-mode-build" onclick="setMode('builder')" class="px-3 py-1 text-[10px] font-bold uppercase rounded border transition-all">
+                            <i class="fas fa-th-large mr-1"></i> Build (50 pts)
+                        </button>
+                    </div>
+                    <button onclick="clearConsole()" class="text-[10px] text-red-400 hover:underline uppercase font-bold">Reset</button>
+                </div>
+
+                <!-- Building Blocks -->
+                <div id="builder-container" class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Jumbled Blocks + Distractors</span>
+                    </div>
+                    <div id="block-groups" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto"></div>
+                </div>
+
+                <!-- Query Terminal -->
+                <div class="flex flex-col gap-2">
+                    <textarea id="sql-input" spellcheck="false" class="sql-console w-full h-24 p-4 rounded-xl focus:outline-none focus:ring-2 shadow-inner" placeholder="-- Type your SQL statement here..."></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-4">
+                    <button id="run-btn" onclick="checkQuery()" class="flex-grow bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <i class="fas fa-play text-xs"></i> EXECUTE QUERY
+                    </button>
+                    <button id="next-btn" onclick="nextLevel()" class="hidden bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-12 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3">
+                        NEXT TASK <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div id="feedback" class="p-4 rounded-xl text-xs font-bold hidden border"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            let currentLevel = 0;
+            let totalScore = 0;
+            let usedBuilderThisLevel = false;
+            let currentMode = 'typing';
+
+            const levels = [
+                {
+                    title: "Mission 1: The Architect",
+                    scenario: "We need a secure table to store faculty records. Your command must include PRIMARY KEY and NOT NULL constraints as per syllabus standards.",
+                    objective: "Build a table named <b>Teachers</b> with:<br>1. <b>TeacherID</b> (CHAR 4, Primary Key, NOT NULL)<br>2. <b>TeacherName</b> (CHAR 40, NOT NULL)<br>3. <b>DOB</b> (DateTime, NOT NULL).",
+                    blocks: ["CREATE TABLE", "Teachers", "(", "TeacherID", "PRIMARY KEY", "CHAR(4)", "NOT NULL", ",", "TeacherName", "CHAR(40)", "NOT NULL", ",", "DOB", "DateTime", "NOT NULL", ")", ";"],
+                    distractors: ["SELECT", "VARCHAR", "DROP", "INT", "FROM", "*", "INSERT", "TeachersID"],
+                    expected: [/CREATE\s+TABLE\s+Teachers/i, /TeacherID\s+PRIMARY\s+KEY\s+CHAR\(4\)\s+NOT\s+NULL/i, /TeacherName\s+CHAR\(40\)\s+NOT\s+NULL/i, /DOB\s+DateTime\s+NOT\s+NULL/i],
+                    hint: "CREATE TABLE Teachers ( TeacherID PRIMARY KEY CHAR(4) NOT NULL, ... )",
+                    schema: "NO TABLES DEFINED",
+                    tableData: null
+                },
+                {
+                    title: "Mission 2: Population",
+                    scenario: "Data entry time. Add 'Earrings' to the Item table.",
+                    objective: "Add a record to <b>Item</b>: itemNo 'CT00111', stock 13, name 'Earrings', price 97.",
+                    blocks: ["INSERT INTO", "Item", "(", "itemNo", ",", "stockLevel", ",", "itemName", ",", "price", ")", "VALUES", "(", "'CT00111'", ",", "13", ",", "'Earrings'", ",", "97", ")", ";"],
+                    distractors: ["UPDATE", "SET", "CREATE", "CHAR", "WHERE", "VALUES INTO"],
+                    expected: [/INSERT\s+INTO\s+Item/i, /CT00111/i, /'Earrings'/i, /13/i, /97/i],
+                    hint: "INSERT INTO Table (Cols...) VALUES (Vals...);",
+                    tableData: {
+                        headers: ["itemNo", "stockLevel", "itemName", "price"],
+                        rows: [["CT00011", "7", "Bracelet", "101"], ["CT00014", "11", "Necklace", "123"], ["CT00016", "4", "Ring", "81"]]
+                    },
+                    schema: "<strong>Item</strong>: itemNo, stockLevel, itemName, price"
+                },
+                {
+                    title: "Mission 3: Adjustment",
+                    scenario: "Update the price of the Ring.",
+                    objective: "Update <b>Item</b>. Set <b>price</b> to <b>93</b> where <b>itemNo</b> is 'CT00016'.",
+                    blocks: ["UPDATE", "Item", "SET", "price", "=", "93", "WHERE", "itemNo", "=", "'CT00016'", ";"],
+                    distractors: ["INSERT", "CHANGE", "TO", "INTO", "MODIFY"],
+                    expected: [/UPDATE\s+Item/i, /SET\s+price\s*=\s*93/i, /WHERE\s+itemNo\s*=\s*'CT00016'/i],
+                    hint: "UPDATE Table SET col = val WHERE condition;",
+                    tableData: {
+                        headers: ["itemNo", "stockLevel", "itemName", "price"],
+                        rows: [["CT00011", "7", "Bracelet", "101"], ["CT00014", "11", "Necklace", "123"], ["CT00016", "4", "Ring", "81"], ["CT00111", "13", "Earrings", "97"]]
+                    },
+                    schema: "<strong>Item</strong>: itemNo, stockLevel, itemName, price"
+                },
+                {
+                    title: "Mission 4: Selection",
+                    scenario: "Identify items priced under £300.",
+                    objective: "Find <b>Description</b> and <b>Price</b> from <b>Product</b> where <b>Price < 300</b>.",
+                    blocks: ["SELECT", "Description", ",", "Price", "FROM", "Product", "WHERE", "Price", "<", "300", ";"],
+                    distractors: ["*", "UPDATE", "INSERT", "ALL", "TABLE"],
+                    expected: [/SELECT\s+Description\s*,\s*Price/i, /FROM\s+Product/i, /WHERE\s+Price\s*<\s*300/i],
+                    hint: "SELECT cols FROM table WHERE condition;",
+                    tableData: {
+                        headers: ["ProductID", "Description", "Model", "Price"],
+                        rows: [["108", "Cooker", "Ultrachef", "342.80"], ["112", "Dishwasher", "Speedclean", "291.50"], ["134", "Freezer", "IceKing", "188.80"], ["196", "Cooker", "MasterKitchen", "405.60"]]
+                    },
+                    schema: "<strong>Product</strong>: ProductID, Description, Model, Price"
+                },
+                {
+                    title: "Mission 5: Nested Logic",
+                    scenario: "Find customers who bought a 'Cooker' using a subquery.",
+                    objective: "List <b>Customer</b> and <b>OrderDate</b> from <b>Order</b> where Product Description is 'Cooker'.",
+                    blocks: ["SELECT", "Customer", ",", "OrderDate", "FROM", "Order", "WHERE", "ProductID", "=", "(", "SELECT", "ProductID", "FROM", "Product", "WHERE", "Description", "=", "'Cooker'", ")", ";"],
+                    distractors: ["JOIN", "ON", "EXISTS", "UPDATE", "SET"],
+                    expected: [/SELECT\s+Customer\s*,\s*OrderDate/i, /FROM\s+Order/i, /WHERE\s+ProductID\s*=\s*\(\s*SELECT\s+ProductID/i],
+                    hint: "SELECT ... FROM Order WHERE ProductID = (SELECT ProductID FROM Product WHERE ...)",
+                    tableData: {
+                        headers: ["OrderID", "Customer", "ProductID", "OrderDate", "Delivered"],
+                        rows: [["6291", "R. Kelling", "108", "23 Mar 2020", "True"], ["7821", "G. Hambleton", "112", "07 Apr 2020", "False"], ["9215", "P. Yang", "108", "19 May 2020", "False"], ["9851", "S. West", "196", "22 May 2020", "True"]]
+                    },
+                    schema: "<strong>Order</strong> & <strong>Product</strong> Tables"
+                }
+            ];
+
+            function shuffle(array) {
+                let curr = array.length, rand;
+                while (curr != 0) {
+                    rand = Math.floor(Math.random() * curr);
+                    curr--;
+                    [array[curr], array[rand]] = [array[rand], array[curr]];
+                }
+                return array;
+            }
+
+            window.setMode = function(mode) {
+                currentMode = mode;
+                const builder = document.getElementById('builder-container');
+                const sqlInput = document.getElementById('sql-input');
+                const btnType = document.getElementById('btn-mode-type');
+                const btnBuild = document.getElementById('btn-mode-build');
+
+                if (mode === 'builder') {
+                    usedBuilderThisLevel = true;
+                    builder.classList.remove('hidden');
+                    sqlInput.readOnly = true;
+                    sqlInput.placeholder = "-- Use the blocks above to build your query...";
+                    btnBuild.className = "px-3 py-1 text-[10px] font-bold uppercase rounded border bg-blue-600 border-blue-600 text-white";
+                    btnType.className = "px-3 py-1 text-[10px] font-bold uppercase rounded border border-slate-700 text-slate-500 hover:text-slate-300";
+                    setupBlocks(levels[currentLevel]);
+                } else {
+                    builder.classList.add('hidden');
+                    sqlInput.readOnly = false;
+                    sqlInput.placeholder = "-- Type your SQL statement here...";
+                    btnType.className = "px-3 py-1 text-[10px] font-bold uppercase rounded border bg-amber-600 border-amber-600 text-white";
+                    btnBuild.className = "px-3 py-1 text-[10px] font-bold uppercase rounded border border-slate-700 text-slate-500 hover:text-slate-300";
+                }
+                clearConsole();
+            }
+
+            function setupBlocks(level) {
+                const container = document.getElementById('block-groups');
+                container.innerHTML = "";
+                const combined = shuffle([...level.blocks, ...level.distractors]);
+                combined.forEach(text => {
+                    const btn = document.createElement('button');
+                    btn.className = "block-btn";
+                    btn.innerText = text;
+                    btn.onclick = () => {
+                        const input = document.getElementById('sql-input');
+                        const needsSpace = input.value !== "" && !input.value.endsWith('(') && !input.value.endsWith(' ') && text !== ';' && text !== ',' && text !== ')';
+                        input.value += (needsSpace ? " " : "") + text;
+                    };
+                    container.appendChild(btn);
+                });
+            }
+
+            function initLevel() {
+                const level = levels[currentLevel];
+                usedBuilderThisLevel = false;
+                document.getElementById('level-title').innerText = level.title;
+                document.getElementById('scenario-text').innerHTML = level.scenario;
+                document.getElementById('objective-text').innerHTML = level.objective;
+                document.getElementById('progress-bar').style.width = ((currentLevel + 1) / levels.length * 100) + "%";
+                document.getElementById('schema-dynamic').innerHTML = level.schema;
+                
+                setMode('typing'); // Default to typing for max points
+                renderTable(level.tableData);
+                
+                document.getElementById('feedback').classList.add('hidden');
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('run-btn').classList.remove('hidden');
+            }
+
+            function renderTable(data) {
+                const view = document.getElementById('table-view');
+                if (!data) {
+                    view.innerHTML = `<div class="flex items-center justify-center h-full text-slate-600 italic text-xs p-10 text-center">Empty structure. Perform a CREATE command to view engine metadata.</div>`;
+                    return;
+                }
+                let html = `<table class="w-full text-left text-[11px] border-collapse">
+                    <thead><tr class="bg-slate-800 text-slate-300">
+                        ${data.headers.map(h => `<th class="p-2 border border-slate-700 uppercase tracking-tighter">${h}</th>`).join('')}
+                    </tr></thead>
+                    <tbody class="divide-y divide-slate-800">
+                        ${data.rows.map((row, idx) => `
+                            <tr id="row-${idx}" class="hover:bg-slate-800/50 transition-colors">
+                                ${row.map(cell => `<td class="p-2 text-slate-400 font-mono">${cell}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+                view.innerHTML = html;
+            }
+
+            window.checkQuery = function() {
+                const input = document.getElementById('sql-input').value.trim();
+                const level = levels[currentLevel];
+                if (!input) { showFeedback("Console is empty.", "error"); return; }
+
+                const isCorrect = level.expected.every(regex => regex.test(input));
+                if (isCorrect) {
+                    const points = usedBuilderThisLevel ? 50 : 100;
+                    totalScore += points;
+                    updateScoreDisplay();
+                    showFeedback(`SUCCESS! +${points} Points Awarded.`, "success");
+                    handleVisuals();
+                    document.getElementById('run-btn').classList.add('hidden');
+                    document.getElementById('next-btn').classList.remove('hidden');
+                } else {
+                    let err = "Syntax Error. ";
+                    if (currentLevel === 0 && !input.includes('PRIMARY KEY')) err += "Missing Primary Key. ";
+                    if (input.toUpperCase().includes('UPDATE') && !input.includes('WHERE')) err += "Warning: Missing WHERE clause!";
+                    showFeedback(err + " Hint: " + level.hint, "error");
+                }
+            };
+
+            function updateScoreDisplay() {
+                const el = document.getElementById('total-score');
+                el.innerText = totalScore;
+                el.classList.add('score-pop');
+                setTimeout(() => el.classList.remove('score-pop'), 400);
+            }
+
+            function handleVisuals() {
+                const data = levels[currentLevel].tableData;
+                if (!data) return;
+                if (currentLevel === 1) { 
+                    data.rows.push(["CT00111", "13", "Earrings", "97"]);
+                    renderTable(data);
+                    document.querySelector('tbody tr:last-child').classList.add('correct-cell');
+                } else if (currentLevel === 2) {
+                    const rIdx = data.rows.findIndex(r => r[0] === 'CT00016');
+                    if (rIdx !== -1) {
+                        data.rows[rIdx][3] = "93";
+                        renderTable(data);
+                        document.getElementById(`row-${rIdx}`).classList.add('correct-cell');
+                    }
+                } else if (currentLevel === 3) {
+                    data.rows.forEach((row, i) => {
+                        if (parseFloat(row[3]) >= 300) document.getElementById(`row-${i}`).style.opacity = "0.2";
+                        else document.getElementById(`row-${i}`).classList.add('correct-cell');
+                    });
+                } else if (currentLevel === 4) {
+                     data.rows.forEach((row, i) => {
+                        if (row[2] === "108" || row[2] === "196") document.getElementById(`row-${i}`).classList.add('correct-cell');
+                        else document.getElementById(`row-${i}`).style.opacity = "0.2";
+                    });
+                }
+            }
+
+            function showFeedback(msg, type) {
+                const f = document.getElementById('feedback');
+                f.classList.remove('hidden', 'bg-red-900/40', 'text-red-300', 'border-red-500/50', 'bg-green-900/40', 'text-green-300', 'border-green-500/50', 'success-glow');
+                f.innerHTML = msg;
+                if (type === "success") f.classList.add('bg-green-900/40', 'text-green-300', 'border-green-500/50', 'success-glow');
+                else f.classList.add('bg-red-900/40', 'text-red-300', 'border-red-500/50');
+                f.classList.remove('hidden');
+            }
+
+            window.clearConsole = function() {
+                document.getElementById('sql-input').value = "";
+                document.getElementById('feedback').classList.add('hidden');
+            };
+
+            window.nextLevel = function() {
+                if (currentLevel < levels.length - 1) {
+                    currentLevel++;
+                    initLevel();
+                } else {
+                    document.body.innerHTML = `<div class="h-screen flex items-center justify-center flex-col gap-6 text-center p-10 bg-slate-950">
+                        <i class="fas fa-trophy text-yellow-500 text-9xl"></i>
+                        <h1 class="text-4xl font-bold">SQL MASTER: FINAL SCORE ${totalScore}</h1>
+                        <p class="text-slate-400 max-w-md">You have cleared all missions and verified every query. You are now a certified SQL specialist.</p>
+                        <button onclick="location.reload()" class="bg-blue-600 px-10 py-3 rounded-full font-bold">RESTART TRAINING</button>
+                    </div>`;
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', initLevel);
+        })();
+    </script>
+</body>
+</html>

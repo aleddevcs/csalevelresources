@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Level Resource Portal</title>
+    <style>
+        /* CSS STYLES - This makes it look good */
+        :root {
+            --primary: #2c3e50;
+            --cs-color: #e67e22;    /* Orange for CS */
+            --access-color: #3498db; /* Blue for Access */
+            --digi-color: #2ecc71;   /* Green for DigiTech */
+            --bg: #f4f7f6;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        header h1 { margin: 0; font-size: 2.5rem; }
+        header p { margin: 10px 0 0; opacity: 0.8; }
+
+        h2 {
+            margin-top: 40px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Category Color Indicators */
+        .section-cs { border-left: 8px solid var(--cs-color); padding-left: 15px; }
+        .section-access { border-left: 8px solid var(--access-color); padding-left: 15px; }
+        .section-digi { border-left: 8px solid var(--digi-color); padding-left: 15px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eee;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+            border-color: #ddd;
+        }
+
+        /* Dynamic border colors for cards */
+        .card.cs { border-top: 5px solid var(--cs-color); }
+        .card.access { border-top: 5px solid var(--access-color); }
+        .card.digi { border-top: 5px solid var(--digi-color); }
+
+        .card h3 { margin: 0 0 12px 0; color: var(--primary); }
+        .card p { font-size: 0.95rem; color: #555; line-height: 1.5; flex-grow: 1; }
+
+        .tag {
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 20px;
+            align-self: flex-start;
+            margin-top: 15px;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            margin: 60px 0 30px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Resource Portal</h1>
+        <p>A-Level & Access Interactive Learning Modules</p>
+    </header>
+
+    <h2 class="section-cs">Computer Science</h2>
+    <div class="grid">
+        <a href="unit1_question_bank.html" class="card cs" style="background-color: #fffaf0; border: 2px dashed var(--cs-color);">
+            <h3>📝 Unit 1 Question Bank</h3>
+            <p>Comprehensive exam-style questions covering Hardware, Software, Data Structures, and Algorithms.</p>
+            <span class="tag" style="background: var(--cs-color); color: white;">AS Unit 1 Assessment</span>
+        </a>
+          <a href="Unit3_Revision_Hub_Analysis_Checklist_Confidence.html" class="card cs" style="background-color: #f0f7ff; border: 2px solid var(--cs-color);">
+            <h3>🚀 Unit 3 Revision Hub</h3>
+            <p>The ultimate revision center for Unit 3.</p>
+            <span class="tag" style="background: var(--cs-color); color: white;">A2 Unit 3 Assessment</span>
+        </a>
+        <a href="Unit4_Revision_Hub.html" class="card cs" style="background-color: #f0f7ff; border: 2px solid var(--cs-color);">
+            <h3>🚀 Unit 4 Revision Hub</h3>
+            <p>The ultimate revision center for Relational Databases, Normalisation, and Data Structures. Includes mock questions and key terms.</p>
+            <span class="tag" style="background: var(--cs-color); color: white;">A2 Unit 4 Assessment</span>
+        </a>
+        <a href="A2CSTopic5SQLResource.html" class="card cs">
+            <h3>SQL Resource</h3>
+            <p>Database management, queries, and relational algebra interactive practice.</p>
+            <span class="tag">A2 Topic 5</span>
+        </a>
+
+        <a href="A2CSU5PHPDebugger.html" class="card cs">
+            <h3>PHP Debugger</h3>
+            <p>Interactive environment for identifying and resolving server-side code errors.</p>
+            <span class="tag">A2 Unit 5</span>
+        </a>
+
+        <a href="ASBubbleInsertionSort.html" class="card cs">
+            <h3>Sorting Algorithms</h3>
+            <p>Visual demonstration and step-by-step logic for Bubble and Insertion sorts.</p>
+            <span class="tag">AS Algorithms</span>
+        </a>
+
+        <a href="ASUnit1Topic9SearchAlgo.html" class="card cs">
+            <h3>Search Algorithms</h3>
+            <p>Comparing performance and logic between Linear and Binary search methods.</p>
+            <span class="tag">AS Unit 1</span>
+        </a>
+        <a href="A2CSU4T5.html" class="card cs">
+            <h3>Big Data & Distributed Processing</h3>
+            <p>Exploring the 3 Vs (Volume, Velocity, Variety) and how distributed databases handle massive datasets.</p>
+            <span class="tag">A2 Topic 5</span>
+        </a>
+        <a href="A2CSU4T4.html" class="card cs">
+            <h3>Multi-level Indexing & Overflow</h3>
+            <p>Visualising index blocks, cylinder/track indexing, and handling overflow areas in file structures.</p>
+            <span class="tag">A2 Topic 4</span>
+        </a>
+        
+        <a href="pseudocode_resource.html" class="card cs">
+            <h3>Writing Pseudocode</h3>
+            <p>Mastering standard syntax for assignment, selection, and iteration in exam-style logic.</p>
+            <span class="tag">AS Unit 1 (Topic 9)</span>
+        </a>
+    </div>
+
+<h2 class="section-access">Access to Computing</h2>
+    <div class="grid">
+        <a href="ASUnit2Topic1ProgParadigms.html" class="card access">
+            <h3>Programming Paradigms</h3>
+            <p>Exploring the differences between Low-Level (Machine/Assembly) and High-Level languages.</p>
+            <span class="tag">Unit 2.1</span>
+        </a>
+
+        <a href="compiler_vs_interpreter_visualiser.html" class="card access">
+            <h3>Compiler vs. Interpreter</h3>
+            <p>A visual breakdown of how code is translated and executed in different environments.</p>
+            <span class="tag">Unit 2.2</span>
+        </a>
+
+        <a href="compilation_analysis_game.html" class="card access">
+            <h3>Compilation Analysis Game</h3>
+            <p>Test your knowledge of Lexical, Syntax, and Semantic analysis phases.</p>
+            <span class="tag">Unit 2.2</span>
+        </a>
+    </div>
+
+<h2 class="section-digi">Digital Technology</h2>
+    <div class="grid">
+        <a href="ASDigiTech14B.html" class="card digi">
+            <h3>UCD Design (14B)</h3>
+            <p>User-Centered Design principles and interactive prototyping fundamentals.</p>
+            <span class="tag">Unit 14B</span>
+        </a>
+
+        <a href="ASDigiTechU14C.html" class="card digi">
+            <h3>Digital User Experience (14C)</h3>
+            <p>Exploring DUX metrics (conversion/retention), ergonomics, and HCI across wearables and VR.</p>
+            <span class="tag">Unit 14C</span>
+        </a>
+    </div>
+
+    <footer>
+        <p>Generated for A-Level Interactive Lessons &copy; 2026</p>
+    </footer>
+</div>
+
+</body>
+</html>

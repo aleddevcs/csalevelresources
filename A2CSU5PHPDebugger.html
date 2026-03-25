@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Data Detective: PHP/SQL Trace & Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+        }
+
+        .pane {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            height: 500px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .pane-header {
+            background-color: #334155;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .highlight {
+            transition: all 0.3s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .error-glow {
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .audit-log {
+            background-color: #020617;
+            border-top: 2px solid #3b82f6;
+            font-family: 'Fira Code', monospace;
+            height: 150px;
+            overflow-y: auto;
+        }
+
+        .step-inactive { opacity: 0.5; filter: grayscale(1); }
+        .step-active { opacity: 1; filter: none; border-color: #3b82f6; }
+
+        select {
+            background: #0f172a;
+            color: #60a5fa;
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+            padding: 0 4px;
+            cursor: pointer;
+        }
+
+        .database-table th {
+            background-color: #334155;
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #475569;
+        }
+
+        .database-table td {
+            padding: 8px;
+            border: 1px solid #475569;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header & Progress -->
+    <header class="max-w-6xl mx-auto mb-8">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white">The Data Detective</h1>
+                <p class="text-slate-400">A-Level Digital Technology: Practical Coding Auditor</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="resetLab()" class="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 rounded-lg transition">Reset Lab</button>
+                <button id="traceBtn" onclick="runTrace()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition shadow-lg shadow-blue-900/20">Trace Data Flow</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+            <div id="step1" class="border-b-4 border-blue-500 pb-2 transition-all duration-500">
+                <span class="text-xs font-bold uppercase text-blue-400">Task 1</span>
+                <p class="font-semibold">The Naming Audit</p>
+            </div>
+            <div id="step2" class="border-b-4 border-slate-700 pb-2 transition-all duration-500 step-inactive">
+                <span class="text-xs font-bold uppercase text-slate-500">Task 2</span>
+                <p class="font-semibold">The Method Audit</p>
+            </div>
+            <div id="step3" class="border-b-4 border-slate-700 pb-2 transition-all duration-500 step-inactive">
+                <span class="text-xs font-bold uppercase text-slate-500">Task 3</span>
+                <p class="font-semibold">The SQL Audit</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <!-- PANE 1: HTML -->
+        <div class="pane flex flex-col">
+            <div class="pane-header flex justify-between">
+                <span>login.php (Front-end)</span>
+                <span class="text-orange-400">HTML</span>
+            </div>
+            <div class="p-4 code-font leading-relaxed whitespace-pre" id="htmlCode">
+&lt;!-- HTML Form --&gt;
+&lt;form action="signin.php" <span id="htmlMethod" class="highlight">method="POST"</span>&gt;
+  &lt;label&gt;Email Address:&lt;/label&gt;
+  &lt;input type="email" 
+         <span id="htmlInputName" class="highlight">name="user_email"</span> 
+         id="emailInput"&gt;
+
+  &lt;label&gt;Password:&lt;/label&gt;
+  &lt;input type="password" 
+         name="password"&gt;
+
+  &lt;input type="submit" value="Log In"&gt;
+&lt;/form&gt;
+            </div>
+        </div>
+
+        <!-- PANE 2: PHP -->
+        <div class="pane flex flex-col">
+            <div class="pane-header flex justify-between">
+                <span>signin.php (Middleware)</span>
+                <span class="text-blue-400">PHP</span>
+            </div>
+            <div class="p-4 code-font leading-relaxed whitespace-pre" id="phpCode">
+&lt;?php
+session_start();
+include 'connection.php';
+
+// Retrieve data from request
+$email = <span id="phpPostKey" class="highlight">$_POST['email']</span>;
+$pass  = $_POST['password'];
+
+if ($email && $pass) {
+    // Prepare SQL Statement
+    $sql = "SELECT * FROM users WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    
+    // Bind parameters
+    <span id="phpBind" class="highlight">$stmt->bind_param("ss", $email, $pass);</span>
+    
+    $stmt->execute();
+    $result = $stmt->get_result();
+}
+?&gt;
+            </div>
+        </div>
+
+        <!-- PANE 3: DB/SQL -->
+        <div class="pane flex flex-col">
+            <div class="pane-header flex justify-between">
+                <span>Database Engine</span>
+                <span class="text-green-400">SQL</span>
+            </div>
+            <div class="p-4 flex flex-col gap-6">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-500 mb-2 uppercase">Active Query</h4>
+                    <div id="sqlQuery" class="code-font p-3 bg-slate-900 rounded border border-slate-700 text-green-400">
+                        SELECT * FROM users WHERE email = <span id="sqlPlaceholder" class="highlight text-yellow-400">?</span>;
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-500 mb-2 uppercase">Table: users</h4>
+                    <table class="w-full text-xs database-table">
+                        <thead>
+                            <tr><th>id</th><th>email</th><th>password (hashed)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>admin@school.ac.uk</td><td>$2y$10$92IX...</td></tr>
+                            <tr><td>2</td><td>student@test.com</td><td>$2y$10$81PX...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="visualFeedback" class="mt-auto p-4 rounded-lg bg-slate-800 border border-slate-700 text-center">
+                    <p class="text-sm text-slate-400 italic">Ready to trace...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Console / Audit Log -->
+    <section class="max-w-6xl mx-auto">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+            <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Server Audit Log</h2>
+        </div>
+        <div id="console" class="audit-log p-4 text-sm leading-6">
+            <div class="text-slate-500">[SYSTEM] Initialization complete. Waiting for data trace...</div>
+        </div>
+    </section>
+
+    <!-- UI Overlay for Level Success -->
+    <div id="successModal" class="fixed inset-0 bg-slate-950/80 hidden items-center justify-center z-[100] backdrop-blur-sm">
+        <div class="bg-slate-800 p-8 rounded-2xl border border-blue-500 max-w-md w-full shadow-2xl text-center">
+            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-green-500">
+                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold mb-2" id="modalTitle">Audit Successful!</h3>
+            <p class="text-slate-400 mb-6" id="modalBody">The data flow is now secure and logically sound.</p>
+            <button onclick="nextLevel()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition">Advance to Next Task</button>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let currentLevel = 1;
+        let isFixed = false;
+        let isTracing = false;
+
+        const config = {
+            1: {
+                title: "The Naming Audit",
+                desc: "Check if the HTML input name matches the PHP POST key.",
+                failMsg: "FATAL ERROR: Undefined index 'email' in signin.php on line 6.",
+                hint: "Look closely at the 'name' attribute in login.php and compare it to the '$_POST' key in signin.php. They must be identical!",
+                htmlSnippet: `&lt;!-- HTML Form --&gt;
+&lt;form action="signin.php" <span id="htmlMethod" class="highlight">method="POST"</span>&gt;
+  &lt;label&gt;Email Address:&lt;/label&gt;
+  &lt;input type="email" 
+         <span id="htmlInputName" class="highlight border-2 border-red-500 error-glow">name="user_email"</span> 
+         id="emailInput"&gt;
+
+  &lt;label&gt;Password:&lt;/label&gt;
+  &lt;input type="password" 
+         name="password"&gt;
+
+  &lt;input type="submit" value="Log In"&gt;
+&lt;/form&gt;`,
+                fixOptions: [
+                    { val: "user_email", label: 'name="user_email"' },
+                    { val: "email", label: 'name="email"' }
+                ],
+                targetFix: "email"
+            },
+            2: {
+                title: "The Method Audit",
+                desc: "Ensure the transfer method matches on both ends.",
+                failMsg: "NOTICE: Array key 'email' not found. $_POST is empty.",
+                hint: "The form is sending data via GET (the URL), but the script is looking for POST headers. Change the method!",
+                htmlSnippet: `&lt;!-- HTML Form --&gt;
+&lt;form action="signin.php" <span id="htmlMethod" class="highlight border-2 border-red-500 error-glow">method="GET"</span>&gt;
+  &lt;label&gt;Email Address:&lt;/label&gt;
+  &lt;input type="email" 
+         <span id="htmlInputName" class="highlight">name="email"</span> 
+         id="emailInput"&gt;
+
+  &lt;label&gt;Password:&lt;/label&gt;
+  &lt;input type="password" 
+         name="password"&gt;
+
+  &lt;input type="submit" value="Log In"&gt;
+&lt;/form&gt;`,
+                fixOptions: [
+                    { val: "GET", label: 'method="GET"' },
+                    { val: "POST", label: 'method="POST"' }
+                ],
+                targetFix: "POST"
+            },
+            3: {
+                title: "The SQL Audit",
+                desc: "Match the number of parameters to the prepared statement.",
+                failMsg: "CRITICAL SQL ERROR: Parameter count mismatch. Expected 1, got 2.",
+                hint: "Count the number of '?' in the SQL query. Now look at bind_param. Does the number of variables match the number of placeholders?",
+                htmlSnippet: `&lt;!-- HTML Form --&gt;
+&lt;form action="signin.php" <span id="htmlMethod" class="highlight">method="POST"</span>&gt;
+  &lt;label&gt;Email Address:&lt;/label&gt;
+  &lt;input type="email" <span id="htmlInputName" class="highlight">name="email"</span> id="emailInput"&gt;
+  &lt;input type="password" name="password"&gt;
+  &lt;input type="submit" value="Log In"&gt;
+&lt;/form&gt;`,
+                phpSnippet: `&lt;?php
+session_start();
+include 'connection.php';
+
+$email = <span id="phpPostKey" class="highlight">$_POST['email']</span>;
+$pass  = $_POST['password'];
+
+if ($email && $pass) {
+    $sql = "SELECT * FROM users WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    
+    // Bind parameters
+    <span id="phpBind" class="highlight border-2 border-red-500 error-glow">$stmt->bind_param("ss", $email, $pass);</span>
+    
+    $stmt->execute();
+}
+?&gt;`,
+                fixOptions: [
+                    { val: "ss", label: 'bind_param("ss", $email, $pass)' },
+                    { val: "s", label: 'bind_param("s", $email)' }
+                ],
+                targetFix: "s"
+            }
+        };
+
+        function initLevel() {
+            const c = config[currentLevel];
+            document.getElementById('console').innerHTML = `<div class="text-blue-400">[MISSION] Task ${currentLevel}: ${c.title}</div><div class="text-slate-500">${c.desc}</div>`;
+            
+            // Set up code blocks based on level
+            if (currentLevel === 1 || currentLevel === 2) {
+                document.getElementById('htmlCode').innerHTML = c.htmlSnippet;
+                setupFixDropdown(currentLevel === 1 ? 'htmlInputName' : 'htmlMethod');
+            } else if (currentLevel === 3) {
+                document.getElementById('htmlCode').innerHTML = c.htmlSnippet;
+                document.getElementById('phpCode').innerHTML = c.phpSnippet;
+                setupFixDropdown('phpBind');
+            }
+
+            // Update Header
+            for (let i = 1; i <= 3; i++) {
+                const el = document.getElementById(`step${i}`);
+                if (i === currentLevel) el.className = "border-b-4 border-blue-500 pb-2 transition-all duration-500";
+                else if (i < currentLevel) el.className = "border-b-4 border-green-500 pb-2 transition-all duration-500";
+                else el.className = "border-b-4 border-slate-700 pb-2 transition-all duration-500 step-inactive";
+            }
+        }
+
+        function setupFixDropdown(elementId) {
+            const parent = document.getElementById(elementId);
+            if (!parent) return;
+            
+            const select = document.createElement('select');
+            select.id = "fixer";
+            
+            const defOption = document.createElement('option');
+            defOption.text = "-- Fix Code --";
+            defOption.disabled = true;
+            defOption.selected = true;
+            select.appendChild(defOption);
+
+            config[currentLevel].fixOptions.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = opt.val;
+                o.text = opt.label;
+                select.appendChild(o);
+            });
+
+            select.onchange = (e) => {
+                isFixed = e.target.value === config[currentLevel].targetFix;
+                logToConsole(`[USER] Modified code to: ${e.target.value}`, "text-yellow-500");
+                parent.classList.remove('error-glow', 'border-red-500');
+                if (isFixed) parent.classList.add('border-green-500');
+            };
+
+            parent.innerHTML = '';
+            parent.appendChild(select);
+        }
+
+        function logToConsole(msg, colorClass = "text-slate-300") {
+            const con = document.getElementById('console');
+            const div = document.createElement('div');
+            div.className = colorClass;
+            div.innerHTML = `> ${msg}`;
+            con.appendChild(div);
+            con.scrollTop = con.scrollHeight;
+        }
+
+        async function runTrace() {
+            if (isTracing) return;
+            isTracing = true;
+            document.getElementById('traceBtn').disabled = true;
+            
+            try {
+                logToConsole("Initializing trace...", "text-blue-400");
+                const visual = document.getElementById('visualFeedback');
+                visual.innerHTML = `<p class="text-sm text-blue-400 animate-pulse">Tracing Data Packet...</p>`;
+
+                // Step 1: HTML Highlight
+                await wait(800);
+                const htmlTarget = (currentLevel === 2) ? 'htmlMethod' : 'htmlInputName';
+                const htmlEl = document.getElementById(htmlTarget);
+                if (htmlEl) htmlEl.classList.add('highlight-active');
+                logToConsole("Data extracted from HTML form element.");
+
+                // Step 2: Path Animation Check
+                await wait(1000);
+                if (currentLevel === 2 && !isFixed) {
+                    logToConsole(config[currentLevel].failMsg, "text-red-500 font-bold");
+                    logToConsole(`HINT: ${config[currentLevel].hint}`, "text-orange-400");
+                    visual.innerHTML = `<p class="text-sm text-red-500">Method Mismatch: Data lost in transit.</p>`;
+                    endTrace();
+                    return;
+                }
+
+                // Step 3: PHP Highlight
+                logToConsole("Passing data to signin.php via Server headers...");
+                await wait(800);
+                const phpKeyEl = document.getElementById('phpPostKey');
+                if (phpKeyEl) phpKeyEl.classList.add('highlight-active');
+                
+                if (currentLevel === 1 && !isFixed) {
+                    logToConsole(config[currentLevel].failMsg, "text-red-500 font-bold");
+                    logToConsole(`HINT: ${config[currentLevel].hint}`, "text-orange-400");
+                    visual.innerHTML = `<p class="text-sm text-red-500">Naming Conflict: PHP cannot find 'email'.</p>`;
+                    endTrace();
+                    return;
+                }
+
+                // Step 4: SQL Highlight
+                logToConsole("PHP processing... preparing SQL statement.");
+                await wait(800);
+                const phpBindEl = document.getElementById('phpBind');
+                if (phpBindEl) phpBindEl.classList.add('highlight-active');
+                
+                if (currentLevel === 3 && !isFixed) {
+                    logToConsole(config[currentLevel].failMsg, "text-red-500 font-bold");
+                    logToConsole(`HINT: ${config[currentLevel].hint}`, "text-orange-400");
+                    visual.innerHTML = `<p class="text-sm text-red-500">SQL Error: Parameter mismatch.</p>`;
+                    endTrace();
+                    return;
+                }
+
+                await wait(800);
+                const sqlEl = document.getElementById('sqlPlaceholder');
+                if (sqlEl) sqlEl.classList.add('highlight-active');
+                logToConsole("SQL Query executed successfully.", "text-green-500");
+                visual.innerHTML = `<p class="text-sm text-green-500">Success! Record found in Database.</p>`;
+
+                showSuccess();
+                endTrace();
+            } catch (err) {
+                console.error(err);
+                logToConsole("CRITICAL UI ERROR: Trace failed. Resetting...", "text-red-500");
+                endTrace();
+            }
+        }
+
+        function endTrace() {
+            isTracing = false;
+            document.getElementById('traceBtn').disabled = false;
+            setTimeout(() => {
+                document.querySelectorAll('.highlight-active').forEach(el => el.classList.remove('highlight-active'));
+            }, 2000);
+        }
+
+        function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        function showSuccess() {
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        function nextLevel() {
+            document.getElementById('successModal').style.display = 'none';
+            if (currentLevel < 3) {
+                currentLevel++;
+                isFixed = false;
+                initLevel();
+            } else {
+                logToConsole("ALL AUDITS COMPLETE. You are a Certified Data Detective!", "text-yellow-400 font-bold");
+                document.getElementById('modalTitle').innerText = "Course Completed!";
+                document.getElementById('modalBody').innerText = "You have mastered the HTML-PHP-SQL pipeline debugging basics.";
+                const btn = document.querySelector('#successModal button');
+                btn.innerText = "Restart Lab";
+                btn.onclick = () => location.reload();
+                showSuccess();
+            }
+        }
+
+        function resetLab() {
+            location.reload();
+        }
+
+        window.onload = initLevel;
+    </script>
+</body>
+</html>

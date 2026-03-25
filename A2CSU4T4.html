@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Level Computer Science: Data Organisation Lab</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #475569;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        p.subtitle { margin: 5px 0 0; color: var(--secondary); font-size: 0.9rem; }
+
+        .module {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .module h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 12px;
+        }
+
+        /* Module 1: Indexing */
+        .index-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .level-col {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .level-col.active { opacity: 1; border: 2px solid var(--primary); }
+
+        .level-header {
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .block:hover { border-color: var(--primary); transform: translateY(-1px); }
+        .block.correct { background: var(--success); color: white; border-color: var(--success); }
+        .block.wrong { background: var(--danger); color: white; animation: shake 0.3s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        /* Module 2: Overflow */
+        .overflow-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            flex-grow: 1;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:hover { opacity: 0.9; }
+        button.secondary { background: var(--secondary); }
+
+        .split-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: var(--secondary);
+            color: white;
+            padding: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .slot {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            border-bottom: 1px solid var(--border);
+            height: 36px;
+            align-items: center;
+        }
+
+        .slot:last-child { border-bottom: none; }
+
+        .slot-idx {
+            background: var(--bg);
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+        }
+
+        .slot-val { padding: 0 10px; font-family: monospace; font-size: 0.9rem; }
+        
+        .overflow-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff1f2;
+            border: 1px dashed var(--danger);
+            border-radius: 6px;
+            min-height: 40px;
+        }
+
+        .overflow-item {
+            display: inline-block;
+            background: white;
+            border: 1px solid var(--danger);
+            padding: 2px 6px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Overlay/Message */
+        .message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: #1e293b;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .split-view { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>A-Level Data Organisation Lab</h1>
+        <p class="subtitle">Topic 4: Multi-level Indexing & Overflow Management</p>
+    </header>
+
+    <!-- Module 1 -->
+    <section class="module">
+        <h2>4.2.3 Multi-Level Indexing Explorer</h2>
+        <p style="font-size: 0.9rem; color: var(--secondary);">
+            <strong>Scenario:</strong> You need to retrieve <strong>Record 5472</strong> from a large database. 
+            Use the index hierarchy to navigate to the correct data block on disk.
+        </p>
+
+        <div class="index-grid">
+            <div class="level-col active" id="l1-col">
+                <div class="level-header">Level 1 Index</div>
+                <div class="block" onclick="checkStep(1, 4000)">4000</div>
+                <div class="block" onclick="checkStep(1, 5000)">5000</div>
+                <div class="block" onclick="checkStep(1, 6000)">6000</div>
+                <div class="block" onclick="checkStep(1, 7000)">7000</div>
+            </div>
+
+            <div class="level-col" id="l2-col">
+                <div class="level-header">Level 2 Index</div>
+                <div class="block" onclick="checkStep(2, 5300)">5300</div>
+                <div class="block" onclick="checkStep(2, 5400)">5400</div>
+                <div class="block" onclick="checkStep(2, 5500)">5500</div>
+                <div class="block" onclick="checkStep(2, 5600)">5600</div>
+            </div>
+
+            <div class="level-col" id="l3-col">
+                <div class="level-header">Level 3 Index</div>
+                <div class="block" onclick="checkStep(3, 5460)">5460</div>
+                <div class="block" onclick="checkStep(3, 5470)">5470</div>
+                <div class="block" onclick="checkStep(3, 5480)">5480</div>
+                <div class="block" onclick="checkStep(3, 5490)">5490</div>
+            </div>
+
+            <div class="level-col" id="disk-col">
+                <div class="level-header">Data Block (Disk)</div>
+                <div class="block" id="final-block" onclick="finishSearch()" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                    Block 5470-5479
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Module 2 -->
+    <section class="module">
+        <h2>4.2.4 Overflow & Re-organisation</h2>
+        <p style="font-size: 0.9rem; color: var(--secondary);">
+            Compare how different strategies handle collisions. Use <strong>Key MOD 10</strong>.
+        </p>
+
+        <div class="overflow-controls">
+            <input type="number" id="keyInput" placeholder="Enter Primary Key (e.g. 157)">
+            <button onclick="insertKey()">Insert Key</button>
+            <button class="secondary" onclick="resetOverflow()">Reset / Re-org</button>
+        </div>
+
+        <div class="split-view">
+            <!-- Progressive -->
+            <div>
+                <div class="table-container">
+                    <div class="table-header">Progressive Overflow (Linear Probing)</div>
+                    <div id="prog-table"></div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 8px;">
+                    Searches for the next available slot sequentially.
+                </p>
+            </div>
+
+            <!-- Separate -->
+            <div>
+                <div class="table-container">
+                    <div class="table-header">Separate Overflow Area</div>
+                    <div id="sep-table"></div>
+                </div>
+                <div class="overflow-box">
+                    <div style="font-size: 0.7rem; font-weight: bold; color: var(--danger); margin-bottom: 5px;">LINKED OVERFLOW AREA:</div>
+                    <div id="overflow-list"></div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 8px;">
+                    Uses pointers to a separate file or area for collisions.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div id="toast" class="message-box"></div>
+
+<script>
+    /* --- HELPERS --- */
+    function showMsg(text, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.innerText = text;
+        toast.style.display = 'block';
+        toast.style.backgroundColor = type === 'error' ? '#dc2626' : (type === 'success' ? '#16a34a' : '#1e293b');
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+
+    /* --- MODULE 1: INDEXING --- */
+    let currentStep = 1;
+    const targetPath = { 1: 5000, 2: 5400, 3: 5470 };
+
+    function checkStep(level, val) {
+        if (level !== currentStep) {
+            showMsg("Follow the hierarchy! Start with Level " + currentStep, "error");
+            return;
+        }
+
+        const blocks = event.target.parentElement.querySelectorAll('.block');
+        if (val === targetPath[level]) {
+            event.target.classList.add('correct');
+            document.getElementById(`l${level}-col`).classList.remove('active');
+            currentStep++;
+            if (currentStep <= 3) {
+                document.getElementById(`l${currentStep}-col`).classList.add('active');
+                showMsg("Pointer located. Jumping to next level index.", "success");
+            } else {
+                document.getElementById('disk-col').classList.add('active');
+                showMsg("Index path complete. Data block identified on disk.", "success");
+            }
+        } else {
+            event.target.classList.add('wrong');
+            showMsg("Incorrect range. 5472 is not in this index block.", "error");
+            setTimeout(() => event.target.classList.remove('wrong'), 500);
+        }
+    }
+
+    function finishSearch() {
+        if (currentStep < 4) {
+            showMsg("Locate the data block through the index levels first!", "error");
+            return;
+        }
+        showMsg("RAM: Block 5470-5479 Loaded. Found Record 5472.", "success");
+        setTimeout(() => {
+            currentStep = 1;
+            document.querySelectorAll('.block').forEach(b => b.classList.remove('correct'));
+            document.querySelectorAll('.level-col').forEach(c => c.classList.remove('active'));
+            document.getElementById('l1-col').classList.add('active');
+        }, 3000);
+    }
+
+    /* --- MODULE 2: OVERFLOW --- */
+    const tableSize = 10;
+    let progStorage = new Array(tableSize).fill(null);
+    let sepStorage = new Array(tableSize).fill(null);
+    let overflowStorage = [];
+
+    function renderTables() {
+        const progContainer = document.getElementById('prog-table');
+        const sepContainer = document.getElementById('sep-table');
+        progContainer.innerHTML = '';
+        sepContainer.innerHTML = '';
+
+        for (let i = 0; i < tableSize; i++) {
+            progContainer.innerHTML += `
+                <div class="slot" id="p-slot-${i}">
+                    <div class="slot-idx">${i}</div>
+                    <div class="slot-val">${progStorage[i] || ''}</div>
+                </div>`;
+            sepContainer.innerHTML += `
+                <div class="slot" id="s-slot-${i}">
+                    <div class="slot-idx">${i}</div>
+                    <div class="slot-val">${sepStorage[i] || ''}</div>
+                </div>`;
+        }
+
+        const overList = document.getElementById('overflow-list');
+        overList.innerHTML = '';
+        overflowStorage.forEach(v => {
+            overList.innerHTML += `<span class="overflow-item">${v}</span>`;
+        });
+    }
+
+    function insertKey() {
+        const input = document.getElementById('keyInput');
+        const val = parseInt(input.value);
+        if (isNaN(val)) return;
+
+        const hash = val % 10;
+        let collisionDetected = false;
+
+        // Progressive Logic
+        let pIndex = hash;
+        let placedP = false;
+        for (let i = 0; i < tableSize; i++) {
+            let attempt = (pIndex + i) % tableSize;
+            if (progStorage[attempt] === null) {
+                progStorage[attempt] = val;
+                placedP = true;
+                if (i > 0) collisionDetected = true;
+                break;
+            }
+        }
+
+        // Separate Logic
+        if (sepStorage[hash] === null) {
+            sepStorage[hash] = val;
+        } else {
+            overflowStorage.push(val);
+            collisionDetected = true;
+        }
+
+        renderTables();
+        input.value = '';
+        if (collisionDetected) {
+            showMsg("Collision occurred! Overflow strategy applied.", "info");
+        }
+    }
+
+    function resetOverflow() {
+        progStorage = new Array(tableSize).fill(null);
+        sepStorage = new Array(tableSize).fill(null);
+        overflowStorage = [];
+        renderTables();
+        showMsg("File Re-organised. Tables cleared.", "success");
+    }
+
+    // Init
+    window.onload = renderTables;
+</script>
+
+</body>
+</html>

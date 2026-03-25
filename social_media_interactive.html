@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.1.5 — Social Media Interactive Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080f;
+    --surface: #111119;
+    --surface2: #1a1a28;
+    --border: rgba(255,255,255,0.08);
+    --text: #e4e4f0;
+    --muted: #888899;
+    --accent-a: #7c6cfc;
+    --accent-b: #00d4aa;
+    --accent-c: #ff6b6b;
+    --accent-d: #ffc86b;
+    --positive: #00d4aa;
+    --negative: #ff6b6b;
+    --radius: 14px;
+    --transition: 0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4;}
+
+  /* ── HEADER ── */
+  header{position:relative;z-index:10;padding:2.5rem 2rem 0;max-width:1100px;margin:0 auto;}
+  .header-eyebrow{font-size:.75rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+  header h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;line-height:1.1;background:linear-gradient(135deg,#fff 0%,#aaa9cc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem;}
+  .header-sub{color:var(--muted);font-size:.95rem;margin-bottom:2rem;}
+
+  /* ── TABS ── */
+  .tab-nav{display:flex;gap:.5rem;flex-wrap:wrap;position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:0 2rem;}
+  .tab-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.05em;padding:.6rem 1.4rem;border-radius:50px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:.5rem;}
+  .tab-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2);}
+  .tab-btn.active[data-tab="a"]{background:var(--accent-a);border-color:var(--accent-a);color:#fff;}
+  .tab-btn.active[data-tab="b"]{background:var(--accent-b);border-color:var(--accent-b);color:#000;}
+  .tab-btn.active[data-tab="c"]{background:var(--accent-c);border-color:var(--accent-c);color:#fff;}
+  .tab-btn.active[data-tab="d"]{background:var(--accent-d);border-color:var(--accent-d);color:#000;}
+  .tab-dot{width:8px;height:8px;border-radius:50%;}
+  .tab-btn[data-tab="a"] .tab-dot{background:var(--accent-a);}
+  .tab-btn[data-tab="b"] .tab-dot{background:var(--accent-b);}
+  .tab-btn[data-tab="c"] .tab-dot{background:var(--accent-c);}
+  .tab-btn[data-tab="d"] .tab-dot{background:var(--accent-d);}
+  .tab-btn.active .tab-dot{background:rgba(255,255,255,.5);}
+
+  /* ── MAIN ── */
+  main{max-width:1100px;margin:0 auto;padding:2rem 2rem 4rem;position:relative;z-index:10;}
+  .section-panel{display:none;animation:fadeUp .35s ease forwards;}
+  .section-panel.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+  .section-heading{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;margin-bottom:.4rem;}
+  .section-desc{color:var(--muted);font-size:.9rem;margin-bottom:1.2rem;}
+
+  /* ── NOTES / TASKS TOGGLE ── */
+  .view-toggle{display:flex;gap:.4rem;margin-bottom:1.8rem;background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:.3rem;width:fit-content;}
+  .view-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;padding:.45rem 1.2rem;border-radius:50px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:var(--transition);}
+  .view-btn:hover{color:var(--text);}
+  .view-btn.active{background:var(--surface2);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.4);}
+
+  .notes-view,.tasks-view{display:none;}
+  .notes-view.active,.tasks-view.active{display:block;animation:fadeUp .3s ease forwards;}
+
+  /* ── SHARED NOTES STYLES ── */
+  .types-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;}
+  .type-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:var(--transition);position:relative;}
+  .type-card:hover{border-color:rgba(124,108,252,.5);transform:translateY(-3px);box-shadow:0 12px 40px rgba(124,108,252,.15);}
+  .type-card-header{padding:1.2rem;display:flex;align-items:flex-start;gap:.8rem;}
+  .type-emoji{font-size:1.8rem;line-height:1;flex-shrink:0;}
+  .type-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--text);line-height:1.3;margin-bottom:.2rem;}
+  .type-examples{font-size:.75rem;color:var(--accent-a);font-weight:500;}
+  .type-expand-btn{position:absolute;bottom:.8rem;right:.8rem;width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--muted);transition:var(--transition);}
+  .type-card.open .type-expand-btn{background:var(--accent-a);color:#fff;border-color:var(--accent-a);transform:rotate(45deg);}
+  .type-body{display:none;padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);}
+  .type-card.open .type-body{display:block;}
+  .type-purpose{font-size:.8rem;color:var(--muted);margin-bottom:.8rem;padding-top:.8rem;font-style:italic;}
+  .feat-list{list-style:none;display:flex;flex-direction:column;gap:.35rem;}
+  .feat-list li{font-size:.8rem;color:var(--text);display:flex;align-items:flex-start;gap:.5rem;}
+  .feat-list li::before{content:'›';color:var(--accent-a);font-weight:700;flex-shrink:0;margin-top:.05rem;}
+
+  .functions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.8rem;}
+  .func-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:var(--transition);}
+  .func-card:hover{border-color:rgba(0,212,170,.4);}
+  .func-header{padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;}
+  .func-icon-wrap{width:42px;height:42px;border-radius:10px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;transition:var(--transition);}
+  .func-card.open .func-icon-wrap{background:rgba(0,212,170,.2);border-color:var(--accent-b);}
+  .func-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;}
+  .func-tagline{font-size:.78rem;color:var(--muted);}
+  .func-chevron{margin-left:auto;color:var(--muted);font-size:.9rem;transition:var(--transition);}
+  .func-card.open .func-chevron{transform:rotate(180deg);color:var(--accent-b);}
+  .func-body{display:none;padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);}
+  .func-card.open .func-body{display:block;}
+  .func-body ul{list-style:none;padding-top:.8rem;display:flex;flex-direction:column;gap:.4rem;}
+  .func-body li{font-size:.82rem;color:var(--text);display:flex;align-items:flex-start;gap:.5rem;}
+  .func-body li::before{content:'›';color:var(--accent-b);font-weight:700;flex-shrink:0;}
+  .func-example{margin-top:.8rem;background:rgba(0,212,170,.06);border-left:3px solid var(--accent-b);padding:.6rem .8rem;border-radius:0 8px 8px 0;font-size:.78rem;color:var(--muted);font-style:italic;}
+  .func-example strong{color:var(--accent-b);font-style:normal;}
+
+  .purposes-toggle{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .ptoggle-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;padding:.5rem 1.2rem;border-radius:50px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:var(--transition);}
+  .ptoggle-btn:hover{color:var(--text);}
+  .ptoggle-btn.active{background:var(--accent-c);border-color:var(--accent-c);color:#fff;}
+  .purposes-view{display:none;}
+  .purposes-view.active{display:block;animation:fadeUp .3s ease forwards;}
+  .purposes-cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+  @media(max-width:600px){.purposes-cols{grid-template-columns:1fr;}}
+  .purpose-col{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.4rem;}
+  .purpose-col-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+  .col-badge{font-size:.7rem;padding:.2rem .6rem;border-radius:20px;font-weight:600;}
+  .badge-ind{background:rgba(255,107,107,.15);color:var(--accent-c);}
+  .badge-org{background:rgba(124,108,252,.15);color:var(--accent-a);}
+  .purpose-item{display:flex;flex-direction:column;gap:.15rem;padding:.6rem 0;border-bottom:1px solid var(--border);}
+  .purpose-item:last-child{border-bottom:none;}
+  .purpose-item-title{font-size:.85rem;font-weight:600;color:var(--text);}
+  .purpose-item-desc{font-size:.78rem;color:var(--muted);}
+  .impl-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:.7rem;overflow:hidden;cursor:pointer;transition:var(--transition);}
+  .impl-card:hover{border-color:rgba(255,107,107,.4);}
+  .impl-card.open{border-color:rgba(255,107,107,.5);}
+  .impl-header{padding:1rem 1.2rem;display:flex;align-items:center;gap:.8rem;}
+  .impl-icon{font-size:1.2rem;}
+  .impl-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;}
+  .impl-type-badge{font-size:.65rem;padding:.15rem .5rem;border-radius:20px;font-weight:600;margin-left:.4rem;}
+  .badge-legal{background:rgba(255,107,107,.15);color:var(--accent-c);}
+  .badge-ethical{background:rgba(124,108,252,.15);color:var(--accent-a);}
+  .badge-professional{background:rgba(255,200,107,.15);color:var(--accent-d);}
+  .impl-chevron{margin-left:auto;color:var(--muted);transition:var(--transition);}
+  .impl-card.open .impl-chevron{transform:rotate(180deg);color:var(--accent-c);}
+  .impl-body{display:none;padding:0 1.2rem 1.2rem;border-top:1px solid var(--border);}
+  .impl-card.open .impl-body{display:block;}
+  .impl-desc{font-size:.82rem;color:var(--muted);padding-top:.8rem;margin-bottom:.7rem;}
+  .impl-example{background:rgba(255,107,107,.06);border-left:3px solid var(--accent-c);padding:.6rem .8rem;border-radius:0 8px 8px 0;font-size:.78rem;color:var(--muted);font-style:italic;}
+  .impl-example strong{color:var(--accent-c);font-style:normal;}
+
+  .impacts-controls{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .impact-toggle-wrap{display:flex;align-items:center;gap:.7rem;font-size:.85rem;font-weight:600;}
+  .toggle-switch{position:relative;width:52px;height:28px;cursor:pointer;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-track{position:absolute;inset:0;background:rgba(0,212,170,.2);border:1.5px solid var(--accent-b);border-radius:50px;transition:var(--transition);}
+  .toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:var(--accent-b);border-radius:50%;transition:var(--transition);}
+  .toggle-switch input:checked~.toggle-track{background:rgba(255,107,107,.2);border-color:var(--accent-c);}
+  .toggle-switch input:checked~.toggle-thumb{transform:translateX(24px);background:var(--accent-c);}
+  .toggle-label-pos{color:var(--accent-b);}
+  .toggle-label-neg{color:var(--accent-c);}
+  .audience-filter{display:flex;gap:.4rem;}
+  .aud-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;padding:.4rem 1rem;border-radius:50px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:var(--transition);}
+  .aud-btn:hover{color:var(--text);}
+  .aud-btn.active{background:var(--surface2);border-color:rgba(255,255,255,.25);color:var(--text);}
+  .impacts-list{display:flex;flex-direction:column;gap:.7rem;}
+  .impact-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;display:flex;align-items:flex-start;gap:.9rem;transition:var(--transition);animation:fadeUp .3s ease forwards;}
+  .impact-item.hidden{display:none;}
+  .impact-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:.35rem;}
+  .impact-dot.positive{background:var(--positive);box-shadow:0 0 8px rgba(0,212,170,.5);}
+  .impact-dot.negative{background:var(--negative);box-shadow:0 0 8px rgba(255,107,107,.5);}
+  .impact-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.2rem;}
+  .impact-desc{font-size:.82rem;color:var(--muted);}
+  .audience-tag{font-size:.65rem;padding:.15rem .55rem;border-radius:20px;font-weight:700;margin-left:auto;flex-shrink:0;align-self:flex-start;}
+  .tag-ind{background:rgba(255,107,107,.15);color:var(--accent-c);}
+  .tag-org{background:rgba(124,108,252,.15);color:var(--accent-a);}
+  .impact-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+  .stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;}
+  .stat-label{font-size:.75rem;color:var(--muted);margin-bottom:.4rem;}
+  .stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1;}
+  .stat-num.pos{color:var(--accent-b);}
+  .stat-num.neg{color:var(--accent-c);}
+
+  /* ── EXAM TIP ── */
+  .exam-tip{background:rgba(255,200,107,.06);border:1.5px solid rgba(255,200,107,.25);border-radius:var(--radius);padding:1.2rem;margin-top:1.5rem;}
+  .exam-tip-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-d);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem;}
+  .exam-tip p{font-size:.82rem;color:var(--muted);font-style:italic;}
+
+  /* ══════════════════════════════════════
+     TASK STYLES
+  ══════════════════════════════════════ */
+  .task-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;}
+  .task-icon{font-size:2rem;}
+  .task-header-text h3{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;margin-bottom:.2rem;}
+  .task-header-text p{font-size:.82rem;color:var(--muted);}
+  .task-score-badge{margin-left:auto;font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem;background:var(--surface2);border:1.5px solid var(--border);border-radius:50px;padding:.4rem 1rem;color:var(--text);white-space:nowrap;}
+
+  /* Quiz question */
+  .quiz-question{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1rem;transition:var(--transition);}
+  .quiz-question.answered{border-color:rgba(255,255,255,.15);}
+  .q-number{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
+  .q-text{font-size:.95rem;font-weight:500;color:var(--text);margin-bottom:1rem;line-height:1.5;}
+  .q-scenario{font-size:.85rem;color:var(--muted);font-style:italic;background:var(--surface2);border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;border-left:3px solid var(--border);}
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+  @media(max-width:500px){.options-grid{grid-template-columns:1fr;}}
+  .opt-btn{font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;padding:.75rem 1rem;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;transition:var(--transition);text-align:left;line-height:1.3;}
+  .opt-btn:hover:not(:disabled){border-color:rgba(255,255,255,.3);background:#22223a;}
+  .opt-btn:disabled{cursor:default;}
+  .opt-btn.correct{background:rgba(0,212,170,.15);border-color:var(--accent-b);color:#fff;}
+  .opt-btn.wrong{background:rgba(255,107,107,.12);border-color:var(--accent-c);color:var(--muted);}
+  .opt-btn.reveal-correct{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.4);color:var(--accent-b);}
+
+  .q-feedback{margin-top:.9rem;padding:.7rem .9rem;border-radius:8px;font-size:.82rem;display:none;}
+  .q-feedback.correct-fb{background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--accent-b);display:flex;gap:.5rem;align-items:flex-start;}
+  .q-feedback.wrong-fb{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--accent-c);display:flex;gap:.5rem;align-items:flex-start;}
+
+  /* Task results banner */
+  .task-result{display:none;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.6rem;text-align:center;margin-top:1.2rem;}
+  .task-result.show{display:block;animation:fadeUp .4s ease forwards;}
+  .result-score{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;line-height:1;margin-bottom:.4rem;}
+  .result-msg{font-size:.95rem;color:var(--muted);margin-bottom:1.2rem;}
+  .result-bar-wrap{background:var(--surface2);border-radius:50px;height:10px;margin-bottom:1.2rem;overflow:hidden;}
+  .result-bar{height:100%;border-radius:50px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+  .retry-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;padding:.6rem 1.6rem;border-radius:50px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;transition:var(--transition);}
+  .retry-btn:hover{border-color:rgba(255,255,255,.3);}
+
+  /* ── DRAG & DROP TASK (Section A) ── */
+  .sorter-instructions{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;}
+  .sorter-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+  @media(max-width:600px){.sorter-wrap{grid-template-columns:1fr;}}
+  .platforms-pool{background:var(--surface);border:1.5px dashed var(--border);border-radius:var(--radius);padding:1rem;min-height:160px;}
+  .pool-title{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;}
+  .platform-chips{display:flex;flex-wrap:wrap;gap:.5rem;}
+  .platform-chip{font-size:.8rem;font-weight:600;padding:.35rem .85rem;border-radius:50px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);cursor:pointer;transition:var(--transition);user-select:none;}
+  .platform-chip:hover{border-color:rgba(124,108,252,.6);transform:translateY(-1px);}
+  .platform-chip.selected{background:rgba(124,108,252,.2);border-color:var(--accent-a);color:#fff;}
+  .platform-chip.correct-chip{background:rgba(0,212,170,.15);border-color:var(--accent-b);color:var(--accent-b);cursor:default;}
+  .platform-chip.wrong-chip{background:rgba(255,107,107,.12);border-color:var(--accent-c);color:var(--accent-c);cursor:default;}
+
+  .drop-zones{display:flex;flex-direction:column;gap:.6rem;}
+  .drop-zone{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:.8rem 1rem;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;gap:.4rem;}
+  .drop-zone:hover{border-color:rgba(124,108,252,.5);}
+  .drop-zone.highlight{border-color:var(--accent-a);background:rgba(124,108,252,.05);}
+  .dz-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;display:flex;align-items:center;gap:.5rem;}
+  .dz-placed{display:flex;flex-wrap:wrap;gap:.4rem;min-height:20px;}
+  .dz-chip{font-size:.72rem;font-weight:600;padding:.2rem .6rem;border-radius:20px;background:rgba(124,108,252,.2);border:1px solid rgba(124,108,252,.4);color:var(--accent-a);}
+
+  .sorter-check-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;padding:.65rem 1.8rem;border-radius:50px;background:var(--accent-a);border:none;color:#fff;cursor:pointer;transition:var(--transition);margin-top:1rem;}
+  .sorter-check-btn:hover{opacity:.85;}
+  .sorter-check-btn:disabled{opacity:.4;cursor:default;}
+
+  /* ── SCENARIO MATCHER (Section B) ── */
+  .scenario-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1rem;}
+  .scenario-num{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
+  .scenario-text{font-size:.92rem;color:var(--text);margin-bottom:.4rem;font-style:italic;line-height:1.5;}
+  .scenario-prompt{font-size:.82rem;color:var(--muted);margin-bottom:.9rem;}
+  .function-pills{display:flex;flex-wrap:wrap;gap:.5rem;}
+  .func-pill{font-size:.8rem;font-weight:600;padding:.35rem .9rem;border-radius:50px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);cursor:pointer;transition:var(--transition);}
+  .func-pill:hover:not(:disabled){border-color:rgba(0,212,170,.5);}
+  .func-pill.correct{background:rgba(0,212,170,.15);border-color:var(--accent-b);color:var(--accent-b);}
+  .func-pill.wrong{background:rgba(255,107,107,.1);border-color:var(--accent-c);color:var(--accent-c);}
+  .func-pill:disabled{cursor:default;}
+
+  /* ── IMPACT CLASSIFIER (Section D) ── */
+  .classifier-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1rem;}
+  .clf-statement{font-size:.95rem;color:var(--text);margin-bottom:1rem;line-height:1.5;}
+  .clf-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;flex-wrap:wrap;}
+  .clf-label{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:80px;}
+  .clf-btns{display:flex;gap:.5rem;flex-wrap:wrap;}
+  .clf-btn{font-size:.8rem;font-weight:600;padding:.35rem 1rem;border-radius:50px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);cursor:pointer;transition:var(--transition);}
+  .clf-btn:hover:not(:disabled){border-color:rgba(255,255,255,.3);}
+  .clf-btn:disabled{cursor:default;}
+  .clf-btn.selected{background:var(--surface2);border-color:rgba(255,255,255,.3);}
+  .clf-btn.correct-sel{background:rgba(0,212,170,.15);border-color:var(--accent-b);color:var(--accent-b);}
+  .clf-btn.wrong-sel{background:rgba(255,107,107,.12);border-color:var(--accent-c);color:var(--accent-c);}
+  .clf-btn.reveal{background:rgba(0,212,170,.06);border-color:rgba(0,212,170,.3);color:var(--accent-b);}
+  .clf-check-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;padding:.5rem 1.2rem;border-radius:50px;background:var(--accent-d);border:none;color:#000;cursor:pointer;transition:var(--transition);margin-top:.6rem;}
+  .clf-check-btn:hover{opacity:.85;}
+  .clf-check-btn:disabled{opacity:.4;cursor:default;}
+  .clf-feedback{font-size:.8rem;padding:.5rem .8rem;border-radius:8px;margin-top:.7rem;display:none;}
+
+  /* scrollbar */
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px;}
+
+  .impl-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;color:var(--text);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Unit 2.1.5 — Digital Media</div>
+  <h1>Social Media<br>Interactive Guide</h1>
+  <p class="header-sub">Switch between <strong>Notes</strong> and <strong>Tasks</strong> in each section.</p>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="a"><span class="tab-dot"></span> A — Types</button>
+  <button class="tab-btn" data-tab="b"><span class="tab-dot"></span> B — Functions</button>
+  <button class="tab-btn" data-tab="c"><span class="tab-dot"></span> C — Purpose &amp; Uses</button>
+  <button class="tab-btn" data-tab="d"><span class="tab-dot"></span> D — Impacts</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════ SECTION A ═══════════════════════ -->
+<section id="panel-a" class="section-panel active">
+  <h2 class="section-heading" style="color:var(--accent-a)">Types of Social Media</h2>
+  <p class="section-desc">Ten distinct categories — from social networking to anonymous platforms.</p>
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchView('a','notes',this)">📖 Notes</button>
+    <button class="view-btn" onclick="switchView('a','tasks',this)">✏️ Tasks</button>
+  </div>
+
+  <!-- NOTES A -->
+  <div class="notes-view active" id="notes-a">
+    <div class="types-grid">
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">🤝</span><div><div class="type-title">Social Networking Sites</div><div class="type-examples">Facebook · LinkedIn · X</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Build personal and professional connections by creating profiles, sharing updates and messaging others.</p><ul class="feat-list"><li>Profile creation — personal or professional identity</li><li>Newsfeed — updates from friends, pages &amp; groups</li><li>Friend/follow system</li><li>Private messaging &amp; group chats</li><li>Groups/Communities and event management</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">📸</span><div><div class="type-title">Media Sharing Networks</div><div class="type-examples">Instagram · TikTok · YouTube</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Share photos, videos and other multimedia content with audiences.</p><ul class="feat-list"><li>Upload photos or videos</li><li>Stories/Reels/Shorts — short-form timed content</li><li>Filters and editing tools</li><li>Likes, comments, shares and live streaming</li><li>Hashtags and tags for discoverability</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">💬</span><div><div class="type-title">Discussion Networks</div><div class="type-examples">Reddit · Quora · Stack Overflow</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Ask questions, debate and share opinions in thread-based communities.</p><ul class="feat-list"><li>Q&amp;A format</li><li>Threaded discussions grouped by topic</li><li>Upvotes/downvotes — community moderation</li><li>Subreddits/spaces — specialised interest areas</li><li>Anonymous or pseudonymous accounts</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">📌</span><div><div class="type-title">Bookmarking &amp; Curation</div><div class="type-examples">Pinterest · Flipboard · Pocket</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Discover, save and organise links to content from across the web.</p><ul class="feat-list"><li>Save or "pin" content</li><li>Collections or boards to organise saves</li><li>Recommendation algorithms</li><li>Search and tagging by category</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">⭐</span><div><div class="type-title">Consumer Review Networks</div><div class="type-examples">TripAdvisor · Yelp · Trustpilot</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Post reviews and ratings for products, businesses and services.</p><ul class="feat-list"><li>Star ratings and written reviews</li><li>Photos and videos attached to reviews</li><li>Business response options</li><li>Search filters by rating/location</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">✍️</span><div><div class="type-title">Blogging Networks</div><div class="type-examples">WordPress · Medium · Tumblr</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Create and share longer-form written content with readers.</p><ul class="feat-list"><li>Text-heavy content — articles, blogs, journals</li><li>Customisable layouts and themes</li><li>Followers and comments</li><li>Tagging and categorising</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">🛍️</span><div><div class="type-title">Social Shopping Networks</div><div class="type-examples">Depop · Poshmark · Instagram Shop</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Shop socially by exploring recommendations and influencers' items.</p><ul class="feat-list"><li>In-app purchases</li><li>Product listings with prices and images</li><li>Reviews and ratings from buyers</li><li>Messaging between buyers and sellers</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">🎯</span><div><div class="type-title">Interest-Based Networks</div><div class="type-examples">Goodreads · Strava · Behance</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Connect with others who share specific hobbies or professions.</p><ul class="feat-list"><li>Niche communities focused on one interest</li><li>Activity tracking or sharing</li><li>Badges or rewards</li><li>Forums and discussions</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">🎭</span><div><div class="type-title">Anonymous Networks</div><div class="type-examples">Whisper · Yik Yak · 4chan</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Share content without revealing your real identity.</p><ul class="feat-list"><li>No user profiles — fully or semi-anonymous</li><li>Proximity-based posting</li><li>Short message posting</li><li>Moderation tools to prevent abuse</li></ul></div>
+      </div>
+      <div class="type-card" onclick="toggleCard(this)">
+        <div class="type-card-header"><span class="type-emoji">🎮</span><div><div class="type-title">Merged Gaming &amp; Social</div><div class="type-examples">Discord · Twitch · Roblox</div></div></div>
+        <div class="type-expand-btn">+</div>
+        <div class="type-body"><p class="type-purpose">Combine gaming features with social tools like chat and streaming.</p><ul class="feat-list"><li>Voice and video chat in real-time</li><li>Streaming — share gameplay or live events</li><li>Servers or communities</li><li>Emojis, bots and integrations</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASKS A -->
+  <div class="tasks-view" id="tasks-a">
+    <div class="task-header">
+      <span class="task-icon">🎯</span>
+      <div class="task-header-text">
+        <h3>Task 1 — Platform Sorter</h3>
+        <p>Click a platform chip, then click the correct category to place it. Sort all 10 platforms correctly!</p>
+      </div>
+      <div class="task-score-badge" id="sorter-score">0 / 10</div>
+    </div>
+
+    <p class="sorter-instructions">① Click a <strong>platform chip</strong> to select it &nbsp;→&nbsp; ② Click the correct <strong>category box</strong> to place it.</p>
+
+    <div class="sorter-wrap">
+      <div>
+        <div class="platforms-pool">
+          <div class="pool-title">Platforms to sort</div>
+          <div class="platform-chips" id="sorter-pool">
+            <span class="platform-chip" data-platform="Reddit" data-answer="Discussion Networks" onclick="selectChip(this)">Reddit</span>
+            <span class="platform-chip" data-platform="Pinterest" data-answer="Bookmarking &amp; Curation" onclick="selectChip(this)">Pinterest</span>
+            <span class="platform-chip" data-platform="Depop" data-answer="Social Shopping Networks" onclick="selectChip(this)">Depop</span>
+            <span class="platform-chip" data-platform="TikTok" data-answer="Media Sharing Networks" onclick="selectChip(this)">TikTok</span>
+            <span class="platform-chip" data-platform="LinkedIn" data-answer="Social Networking Sites" onclick="selectChip(this)">LinkedIn</span>
+            <span class="platform-chip" data-platform="Yik Yak" data-answer="Anonymous Networks" onclick="selectChip(this)">Yik Yak</span>
+            <span class="platform-chip" data-platform="TripAdvisor" data-answer="Consumer Review Networks" onclick="selectChip(this)">TripAdvisor</span>
+            <span class="platform-chip" data-platform="Discord" data-answer="Merged Gaming &amp; Social" onclick="selectChip(this)">Discord</span>
+            <span class="platform-chip" data-platform="Strava" data-answer="Interest-Based Networks" onclick="selectChip(this)">Strava</span>
+            <span class="platform-chip" data-platform="Medium" data-answer="Blogging Networks" onclick="selectChip(this)">Medium</span>
+          </div>
+        </div>
+        <button class="sorter-check-btn" id="sorter-reset-btn" style="display:none;background:var(--surface2);color:var(--text);margin-top:.8rem;" onclick="resetSorter()">↺ Reset</button>
+      </div>
+
+      <div class="drop-zones" id="drop-zones">
+        <div class="drop-zone" data-zone="Social Networking Sites" onclick="placeChip(this)">
+          <div class="dz-label">🤝 Social Networking Sites</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Media Sharing Networks" onclick="placeChip(this)">
+          <div class="dz-label">📸 Media Sharing Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Discussion Networks" onclick="placeChip(this)">
+          <div class="dz-label">💬 Discussion Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Bookmarking &amp; Curation" onclick="placeChip(this)">
+          <div class="dz-label">📌 Bookmarking &amp; Curation</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Consumer Review Networks" onclick="placeChip(this)">
+          <div class="dz-label">⭐ Consumer Review Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Blogging Networks" onclick="placeChip(this)">
+          <div class="dz-label">✍️ Blogging Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Social Shopping Networks" onclick="placeChip(this)">
+          <div class="dz-label">🛍️ Social Shopping Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Interest-Based Networks" onclick="placeChip(this)">
+          <div class="dz-label">🎯 Interest-Based Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Anonymous Networks" onclick="placeChip(this)">
+          <div class="dz-label">🎭 Anonymous Networks</div>
+          <div class="dz-placed"></div>
+        </div>
+        <div class="drop-zone" data-zone="Merged Gaming &amp; Social" onclick="placeChip(this)">
+          <div class="dz-label">🎮 Merged Gaming &amp; Social</div>
+          <div class="dz-placed"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-result" id="sorter-result">
+      <div class="result-score" id="sorter-result-score"></div>
+      <div class="result-msg" id="sorter-result-msg"></div>
+      <div class="result-bar-wrap"><div class="result-bar" id="sorter-bar"></div></div>
+      <button class="retry-btn" onclick="resetSorter()">↺ Try Again</button>
+    </div>
+
+    <!-- Quiz -->
+    <div style="margin-top:2rem;">
+      <div class="task-header">
+        <span class="task-icon">🧠</span>
+        <div class="task-header-text">
+          <h3>Task 2 — Types Quiz</h3>
+          <p>Five multiple-choice questions on the types of social media.</p>
+        </div>
+        <div class="task-score-badge" id="score-a">0 / 5</div>
+      </div>
+      <div id="quiz-a"></div>
+      <div class="task-result" id="result-a">
+        <div class="result-score" id="result-score-a"></div>
+        <div class="result-msg" id="result-msg-a"></div>
+        <div class="result-bar-wrap"><div class="result-bar" id="result-bar-a"></div></div>
+        <button class="retry-btn" onclick="resetQuiz('a')">↺ Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION B ═══════════════════════ -->
+<section id="panel-b" class="section-panel">
+  <h2 class="section-heading" style="color:var(--accent-b)">Functions of Social Media</h2>
+  <p class="section-desc">The key features found across social media platforms.</p>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchView('b','notes',this)">📖 Notes</button>
+    <button class="view-btn" onclick="switchView('b','tasks',this)">✏️ Tasks</button>
+  </div>
+
+  <!-- NOTES B -->
+  <div class="notes-view active" id="notes-b">
+    <div class="functions-grid">
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">👤</div><div><div class="func-name">Profile Setting</div><div class="func-tagline">Create a personal identity on the platform</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Username or handle</li><li>Profile picture and bio</li><li>Links to websites or other accounts</li><li>Customisable themes or interests</li></ul><div class="func-example"><strong>Example:</strong> LinkedIn uses detailed profiles with work history &amp; skills; Instagram uses bios, highlights and links.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">📢</div><div><div class="func-name">Status / Wall Posts</div><div class="func-tagline">Share updates and thoughts on your timeline</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Text-based updates</li><li>Tagging people and locations</li><li>Scheduled or instant posts</li></ul><div class="func-example"><strong>Example:</strong> Facebook allows life events posted to a wall; X (Twitter) supports short text-based tweets.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">📷</div><div><div class="func-name">Uploading Media</div><div class="func-tagline">Share visual and audio content</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Photos and videos</li><li>Voice notes and audio clips</li><li>Reels, stories and short-form content</li></ul><div class="func-example"><strong>Example:</strong> Instagram is image-focused; TikTok specialises in short-form video uploads.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">💬</div><div><div class="func-name">Messaging</div><div class="func-tagline">Private or group communication</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Direct messages (DMs)</li><li>Group chats</li><li>Voice/video calling</li></ul><div class="func-example"><strong>Example:</strong> Instagram and Facebook Messenger offer integrated messaging; Snapchat allows disappearing messages.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">🔔</div><div><div class="func-name">Notifications</div><div class="func-tagline">Alerts about activity relevant to you</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Triggered by likes, comments and shares</li><li>Alerts for new followers or mentions</li><li>Message notifications</li></ul><div class="func-example"><strong>Example:</strong> TikTok notifies users when a video goes viral or receives a new comment.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">📰</div><div><div class="func-name">Newsfeeds</div><div class="func-tagline">Stream of content from connections</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Algorithm-based or chronological order</li><li>Ads and sponsored posts included</li><li>Content from followed accounts and pages</li></ul><div class="func-example"><strong>Example:</strong> Facebook mixes friend updates with recommended content; X shows trending and "For You" posts.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">❤️</div><div><div class="func-name">Comments &amp; Reactions</div><div class="func-tagline">Engage with others' content</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Text comments</li><li>Emoji reactions and likes</li><li>Upvotes and shares</li></ul><div class="func-example"><strong>Example:</strong> YouTube uses thumbs up/down; Facebook offers like, love, laugh, sad, angry reactions.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">🔄</div><div><div class="func-name">Sharing</div><div class="func-tagline">Repost or forward content to followers</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Retweets and re-shares</li><li>Share to stories</li><li>Direct content sharing via messages</li></ul><div class="func-example"><strong>Example:</strong> Twitter allows retweets; Instagram lets users share posts to their story or in DMs.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">🔖</div><div><div class="func-name">Saving / Bookmarking</div><div class="func-tagline">Store content to view later</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Instagram — "Save to Collection"</li><li>X (Twitter) — Bookmarks feature</li><li>Facebook — "Save Post"</li></ul><div class="func-example"><strong>Example:</strong> Users save recipes or articles to return to without losing them in their feed.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">🔐</div><div><div class="func-name">Privacy &amp; Security Settings</div><div class="func-tagline">Control who sees your content</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Public/private account settings</li><li>Block and report tools</li><li>Two-factor authentication (2FA)</li><li>Location tagging controls</li></ul><div class="func-example"><strong>Example:</strong> Snapchat lets users control who sees stories; TikTok allows private accounts and comment filtering.</div></div>
+      </div>
+      <div class="func-card" onclick="toggleCard(this)">
+        <div class="func-header"><div class="func-icon-wrap">🔗</div><div><div class="func-name">Platform Integration</div><div class="func-tagline">Connect platforms for easier sharing</div></div><span class="func-chevron">▾</span></div>
+        <div class="func-body"><ul><li>Post Instagram stories to Facebook automatically</li><li>Use Google/Apple to sign into LinkedIn</li><li>Share YouTube videos directly to X or WhatsApp</li></ul><div class="func-example"><strong>Example:</strong> Cross-platform login (SSO) and automatic cross-posting reduce friction for users.</div></div>
+      </div>
+    </div>
+    <div class="exam-tip"><div class="exam-tip-label">✏️ Exam Tip</div><p>You may be asked to compare features across platforms. Most support profiles, posting and media sharing — but messaging, privacy controls and integration vary by platform purpose.</p></div>
+  </div>
+
+  <!-- TASKS B -->
+  <div class="tasks-view" id="tasks-b">
+    <div class="task-header">
+      <span class="task-icon">🔍</span>
+      <div class="task-header-text">
+        <h3>Task 3 — Scenario Matcher</h3>
+        <p>Read the scenario, then click the function it best describes.</p>
+      </div>
+      <div class="task-score-badge" id="score-scenario">0 / 5</div>
+    </div>
+    <div id="scenario-list"></div>
+    <div class="task-result" id="result-scenario">
+      <div class="result-score" id="result-score-scenario"></div>
+      <div class="result-msg" id="result-msg-scenario"></div>
+      <div class="result-bar-wrap"><div class="result-bar" id="result-bar-scenario"></div></div>
+      <button class="retry-btn" onclick="resetScenarios()">↺ Try Again</button>
+    </div>
+
+    <div style="margin-top:2rem;">
+      <div class="task-header">
+        <span class="task-icon">🧠</span>
+        <div class="task-header-text">
+          <h3>Task 4 — Functions Quiz</h3>
+          <p>Five questions to test your knowledge of social media functions.</p>
+        </div>
+        <div class="task-score-badge" id="score-b">0 / 5</div>
+      </div>
+      <div id="quiz-b"></div>
+      <div class="task-result" id="result-b">
+        <div class="result-score" id="result-score-b"></div>
+        <div class="result-msg" id="result-msg-b"></div>
+        <div class="result-bar-wrap"><div class="result-bar" id="result-bar-b"></div></div>
+        <button class="retry-btn" onclick="resetQuiz('b')">↺ Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION C ═══════════════════════ -->
+<section id="panel-c" class="section-panel">
+  <h2 class="section-heading" style="color:var(--accent-c)">Purpose &amp; Uses</h2>
+  <p class="section-desc">How individuals and organisations use social media, and the legal, ethical and professional implications.</p>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchView('c','notes',this)">📖 Notes</button>
+    <button class="view-btn" onclick="switchView('c','tasks',this)">✏️ Tasks</button>
+  </div>
+
+  <!-- NOTES C -->
+  <div class="notes-view active" id="notes-c">
+    <div class="purposes-toggle">
+      <button class="ptoggle-btn active" onclick="setPurposeView('who',this)">👥 Who Uses It &amp; Why</button>
+      <button class="ptoggle-btn" onclick="setPurposeView('impl',this)">⚖️ Implications</button>
+    </div>
+    <div class="purposes-view active" id="pview-who">
+      <div class="purposes-cols">
+        <div class="purpose-col">
+          <div class="purpose-col-title">👤 Individuals <span class="col-badge badge-ind">Personal</span></div>
+          <div class="purpose-item"><div class="purpose-item-title">Self-Expression</div><div class="purpose-item-desc">Sharing opinions, hobbies, photos and life events</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Communication</div><div class="purpose-item-desc">Staying in touch via messages, comments or live streams</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Networking</div><div class="purpose-item-desc">Building social or professional connections</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Entertainment</div><div class="purpose-item-desc">Watching videos, memes and music</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Influence</div><div class="purpose-item-desc">Becoming an influencer through content creation</div></div>
+        </div>
+        <div class="purpose-col">
+          <div class="purpose-col-title">🏢 Organisations <span class="col-badge badge-org">Professional</span></div>
+          <div class="purpose-item"><div class="purpose-item-title">Marketing &amp; Promotion</div><div class="purpose-item-desc">Advertising products/services, building the brand</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Customer Service</div><div class="purpose-item-desc">Responding to queries or complaints in real-time</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Recruitment</div><div class="purpose-item-desc">Promoting vacancies, assessing applicants' online presence</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Communication</div><div class="purpose-item-desc">Connecting with stakeholders, delivering updates</div></div>
+          <div class="purpose-item"><div class="purpose-item-title">Monitoring Trends</div><div class="purpose-item-desc">Using analytics to understand consumer needs</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="purposes-view" id="pview-impl">
+      <div class="impl-title">Legal, Ethical &amp; Professional Implications</div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">🛡️</span><div><span class="impl-name">Data Protection</span><span class="impl-type-badge badge-legal">Legal</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">GDPR &amp; Data Protection Act 2018. Organisations must protect personal data. Consent required to store, use or share someone's data.</p><div class="impl-example"><strong>Example:</strong> A company using Facebook Ads must ensure data is lawfully processed under GDPR rules.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">📣</span><div><span class="impl-name">Libel</span><span class="impl-type-badge badge-legal">Legal</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Publishing a false statement that damages someone's reputation. Applies even if you share or retweet a libellous post.</p><div class="impl-example"><strong>Example:</strong> Retweeting a post falsely accusing someone of fraud can be grounds for a libel lawsuit.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">👿</span><div><span class="impl-name">Trolling &amp; Harassment</span><span class="impl-type-badge badge-legal">Legal</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Provoking or harassing individuals or companies online. May breach UK laws on harassment, malicious communications or hate speech.</p><div class="impl-example"><strong>Example:</strong> Businesses can face fake complaints on review sites; individuals may suffer mental health effects.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">🗳️</span><div><span class="impl-name">Disinformation</span><span class="impl-type-badge badge-ethical">Ethical</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Spreading false or misleading information to gain an advantage. Raises serious ethical concerns about manipulation and trust.</p><div class="impl-example"><strong>Example:</strong> Fake news campaigns or bot accounts promoting false election narratives.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">🚷</span><div><span class="impl-name">Social Isolation &amp; Cyberbullying</span><span class="impl-type-badge badge-ethical">Ethical</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Constant use can lead to withdrawal from real-world interactions. Cyberbullying has serious emotional and psychological impacts, especially on young people.</p><div class="impl-example"><strong>Example:</strong> A teen being excluded from group chats or targeted on TikTok.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">🔍</span><div><span class="impl-name">Vetting Job Applicants</span><span class="impl-type-badge badge-professional">Professional</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Employers may research candidates using social media. Raises ethical questions about privacy and may introduce bias.</p><div class="impl-example"><strong>Example:</strong> An inappropriate photo on Instagram may cost someone a job, even if unrelated to the role.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">💸</span><div><span class="impl-name">Paid Promotion &amp; Sponsored Content</span><span class="impl-type-badge badge-professional">Professional</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Must clearly mark posts as "ad" or "sponsored". Unethical when promotions are hidden or promote harmful products.</p><div class="impl-example"><strong>Example:</strong> A beauty influencer promoting skincare without disclosing they were paid.</div></div></div>
+      <div class="impl-card" onclick="toggleCard(this)"><div class="impl-header"><span class="impl-icon">🌍</span><div><span class="impl-name">Power of Large Followings</span><span class="impl-type-badge badge-ethical">Ethical</span></div><span class="impl-chevron">▾</span></div><div class="impl-body"><p class="impl-desc">Influencers with millions of followers can bypass traditional media. Can be positive (advocacy) or harmful (harassment, misinformation). Responsibility increases with audience size.</p><div class="impl-example"><strong>Example:</strong> Beyoncé (340M+ followers) can promote work directly to fans without media.</div></div></div>
+    </div>
+    <div class="exam-tip"><div class="exam-tip-label">✏️ Exam Tip</div><p>"While social media enables outreach and influence, it also carries serious legal, ethical and professional risks such as data misuse, libel, or reputational damage from public backlash."</p></div>
+  </div>
+
+  <!-- TASKS C -->
+  <div class="tasks-view" id="tasks-c">
+    <div class="task-header">
+      <span class="task-icon">⚖️</span>
+      <div class="task-header-text">
+        <h3>Task 5 — Implication Identifier</h3>
+        <p>Read the scenario. Identify which implication is at play and its type.</p>
+      </div>
+      <div class="task-score-badge" id="score-c">0 / 5</div>
+    </div>
+    <div id="quiz-c"></div>
+    <div class="task-result" id="result-c">
+      <div class="result-score" id="result-score-c"></div>
+      <div class="result-msg" id="result-msg-c"></div>
+      <div class="result-bar-wrap"><div class="result-bar" id="result-bar-c"></div></div>
+      <button class="retry-btn" onclick="resetQuiz('c')">↺ Try Again</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION D ═══════════════════════ -->
+<section id="panel-d" class="section-panel">
+  <h2 class="section-heading" style="color:var(--accent-d)">Impacts of Social Media</h2>
+  <p class="section-desc">Positive and negative impacts on individuals and organisations.</p>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchView('d','notes',this)">📖 Notes</button>
+    <button class="view-btn" onclick="switchView('d','tasks',this)">✏️ Tasks</button>
+  </div>
+
+  <!-- NOTES D -->
+  <div class="notes-view active" id="notes-d">
+    <div class="impacts-controls">
+      <div class="impact-toggle-wrap">
+        <span class="toggle-label-pos">✅ Positive</span>
+        <label class="toggle-switch"><input type="checkbox" id="impactToggle" onchange="updateImpacts()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        <span class="toggle-label-neg">❌ Negative</span>
+      </div>
+      <div class="audience-filter">
+        <button class="aud-btn active" data-aud="all" onclick="setAudience('all',this)">All</button>
+        <button class="aud-btn" data-aud="ind" onclick="setAudience('ind',this)">👤 Individuals</button>
+        <button class="aud-btn" data-aud="org" onclick="setAudience('org',this)">🏢 Organisations</button>
+      </div>
+    </div>
+    <div class="impact-stats">
+      <div class="stat-card"><div class="stat-label" id="stat-label-text">Positive impacts shown</div><div class="stat-num pos" id="posCount">6</div></div>
+      <div class="stat-card"><div class="stat-label">Currently filtering</div><div class="stat-num" style="font-size:1.2rem;padding-top:.4rem;color:var(--text)" id="filterLabel">All audiences</div></div>
+    </div>
+    <div class="impacts-list" id="impactsList">
+      <div class="impact-item" data-polarity="positive" data-audience="ind"><div class="impact-dot positive"></div><div class="impact-content"><div class="impact-title">Improved Communication</div><div class="impact-desc">Helps people stay connected with friends and family, and meet new people with shared interests.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item" data-polarity="positive" data-audience="ind"><div class="impact-dot positive"></div><div class="impact-content"><div class="impact-title">Creative Expression</div><div class="impact-desc">Platforms allow blogging, image/video sharing and storytelling, fostering self-expression and identity.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item" data-polarity="positive" data-audience="ind"><div class="impact-dot positive"></div><div class="impact-content"><div class="impact-title">Educational Use</div><div class="impact-desc">Used in schools to enhance learning, encourage discussion and promote digital literacy.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item" data-polarity="positive" data-audience="ind"><div class="impact-dot positive"></div><div class="impact-content"><div class="impact-title">Cultural Exchange</div><div class="impact-desc">Connects users across the world, enabling learning about different cultures and viewpoints.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item" data-polarity="positive" data-audience="org"><div class="impact-dot positive"></div><div class="impact-content"><div class="impact-title">Low-Cost Advertising</div><div class="impact-desc">Businesses can create profiles and reach global audiences at minimal cost.</div></div><span class="audience-tag tag-org">Organisation</span></div>
+      <div class="impact-item" data-polarity="positive" data-audience="org"><div class="impact-dot positive"></div><div class="impact-content"><div class="impact-title">Customer Engagement</div><div class="impact-desc">Businesses can respond to queries, share updates and build relationships in real time.</div></div><span class="audience-tag tag-org">Organisation</span></div>
+      <div class="impact-item hidden" data-polarity="negative" data-audience="ind"><div class="impact-dot negative"></div><div class="impact-content"><div class="impact-title">Cyberbullying</div><div class="impact-desc">Public harassment and online abuse can lead to severe mental health issues, including depression.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item hidden" data-polarity="negative" data-audience="ind"><div class="impact-dot negative"></div><div class="impact-content"><div class="impact-title">Identity Theft</div><div class="impact-desc">Criminals gather personal info from posts (birthdays, locations, family names) to steal identities.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item hidden" data-polarity="negative" data-audience="ind"><div class="impact-dot negative"></div><div class="impact-content"><div class="impact-title">Oversharing Risks</div><div class="impact-desc">Personal content may harm future job or education prospects. Deleted content may still exist (screenshots, caches).</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item hidden" data-polarity="negative" data-audience="ind"><div class="impact-dot negative"></div><div class="impact-content"><div class="impact-title">Social Isolation</div><div class="impact-desc">Excessive use can lead to weak or superficial relationships and withdrawal from real-world interactions.</div></div><span class="audience-tag tag-ind">Individual</span></div>
+      <div class="impact-item hidden" data-polarity="negative" data-audience="org"><div class="impact-dot negative"></div><div class="impact-content"><div class="impact-title">Reputation Damage</div><div class="impact-desc">Negative reviews, trolling or misinformation can quickly spread and damage a brand's image.</div></div><span class="audience-tag tag-org">Organisation</span></div>
+      <div class="impact-item hidden" data-polarity="negative" data-audience="org"><div class="impact-dot negative"></div><div class="impact-content"><div class="impact-title">Legal Risks</div><div class="impact-desc">Mishandling user data or posting controversial content can lead to GDPR breaches or libel claims.</div></div><span class="audience-tag tag-org">Organisation</span></div>
+    </div>
+    <div class="exam-tip"><div class="exam-tip-label">✏️ Exam Tip</div><p>"Social media enhances communication, creativity and brand visibility but also poses serious risks such as cyberbullying, privacy breaches and reputational harm."</p></div>
+  </div>
+
+  <!-- TASKS D -->
+  <div class="tasks-view" id="tasks-d">
+    <div class="task-header">
+      <span class="task-icon">🗂️</span>
+      <div class="task-header-text">
+        <h3>Task 6 — Impact Classifier</h3>
+        <p>For each statement, choose: Positive or Negative, then Individual or Organisation. Click Check when ready.</p>
+      </div>
+      <div class="task-score-badge" id="score-clf">0 / 6</div>
+    </div>
+    <div id="classifier-list"></div>
+    <div class="task-result" id="result-clf">
+      <div class="result-score" id="result-score-clf"></div>
+      <div class="result-msg" id="result-msg-clf"></div>
+      <div class="result-bar-wrap"><div class="result-bar" id="result-bar-clf"></div></div>
+      <button class="retry-btn" onclick="resetClassifier()">↺ Try Again</button>
+    </div>
+
+    <div style="margin-top:2rem;">
+      <div class="task-header">
+        <span class="task-icon">🧠</span>
+        <div class="task-header-text">
+          <h3>Task 7 — Impacts Quiz</h3>
+          <p>Five questions on the impacts of social media use.</p>
+        </div>
+        <div class="task-score-badge" id="score-d">0 / 5</div>
+      </div>
+      <div id="quiz-d"></div>
+      <div class="task-result" id="result-d">
+        <div class="result-score" id="result-score-d"></div>
+        <div class="result-msg" id="result-msg-d"></div>
+        <div class="result-bar-wrap"><div class="result-bar" id="result-bar-d"></div></div>
+        <button class="retry-btn" onclick="resetQuiz('d')">↺ Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+
+const quizData = {
+  a: [
+    { q: "Which type of social media allows users to post without revealing their real identity?", opts: ["Interest-Based Networks","Media Sharing Networks","Anonymous Networks","Merged Gaming & Social"], answer: 2, explain: "Anonymous Networks like Whisper and Yik Yak let users post without a real identity." },
+    { q: "Reddit, Quora and Stack Overflow are all examples of which type?", opts: ["Social Networking Sites","Discussion Networks","Blogging Networks","Consumer Review Networks"], answer: 1, explain: "Discussion Networks centre on thread-based Q&A and community debate." },
+    { q: "Which type combines shopping with social browsing and influencer recommendations?", opts: ["Bookmarking & Curation","Consumer Review Networks","Social Shopping Networks","Interest-Based Networks"], answer: 2, explain: "Social Shopping Networks like Depop and Instagram Shop blend e-commerce with social browsing." },
+    { q: "Pinterest and Flipboard are examples of which type of social media?", opts: ["Discussion Networks","Blogging Networks","Media Sharing Networks","Bookmarking & Content Curation"], answer: 3, explain: "Bookmarking & Curation platforms help users discover, save and organise content." },
+    { q: "Discord and Twitch are best described as which type of social media?", opts: ["Anonymous Networks","Consumer Review Networks","Interest-Based Networks","Merged Gaming & Social Media"], answer: 3, explain: "Merged Gaming & Social platforms combine streaming, chat and community features with gaming." }
+  ],
+  b: [
+    { q: "Mia enables two-factor authentication and switches her account to private. Which function is she using?", opts: ["Newsfeeds","Saving / Bookmarking","Privacy & Security Settings","Platform Integration"], answer: 2, explain: "Privacy & Security Settings let users control who sees their content and protect their account." },
+    { q: "Tom opens the app and sees a scrollable stream of posts from people he follows. This describes which function?", opts: ["Notifications","Newsfeeds","Comments & Reactions","Status / Wall Posts"], answer: 1, explain: "The Newsfeed presents a constantly updated stream of content from connections or followed pages." },
+    { q: "Leila automatically shares her Instagram stories to her Facebook page. Which function is this?", opts: ["Uploading Media","Sharing","Platform Integration","Profile Setting"], answer: 2, explain: "Platform Integration connects platforms together so content or logins can be shared across them." },
+    { q: "After posting a video, Jess receives an alert that someone has liked and commented on it. This is an example of...", opts: ["Messaging","Newsfeeds","Notifications","Comments & Reactions"], answer: 2, explain: "Notifications alert users to activity relevant to them — likes, comments, new followers, etc." },
+    { q: "Marcus saves an article he finds interesting to read later without it disappearing from his feed. Which function is this?", opts: ["Sharing","Status / Wall Posts","Uploading Media","Saving / Bookmarking"], answer: 3, explain: "Saving / Bookmarking lets users store content for later viewing — e.g. Instagram's 'Save to Collection'." }
+  ],
+  c: [
+    { q: "A company collects users' email addresses through a Facebook competition without asking permission. What issue does this raise?", opts: ["Libel","Trolling & Harassment","Data Protection (GDPR)","Paid Promotion"], answer: 2, explain: "GDPR requires organisations to have consent to collect and store personal data such as email addresses." },
+    { q: "An influencer promotes a weight-loss product without disclosing they were paid. What is this an example of?", opts: ["Libel","Data Protection","Social Isolation","Undisclosed Paid Promotion"], answer: 3, explain: "Advertising regulations require sponsored content to be clearly marked as 'ad' or 'sponsored'." },
+    { q: "A recruiter finds a candidate's old party photos on Facebook and decides not to interview them. What concern does this raise?", opts: ["Libel","Disinformation","Data Protection","Using Social Media to Vet Applicants"], answer: 3, explain: "Using personal social media content in hiring decisions raises ethical concerns about privacy and bias." },
+    { q: "Someone retweets a false claim that a local restaurant committed food fraud. They could be held responsible for...", opts: ["Trolling","Data Protection","Libel","Disinformation"], answer: 2, explain: "Libel is publishing a false statement that damages someone's reputation. Retweeting counts as publishing." },
+    { q: "A group of students repeatedly send threatening messages to a classmate online, excluding them from group chats. This is...", opts: ["Libel","Disinformation","Data Protection Breach","Cyberbullying / Trolling"], answer: 3, explain: "Cyberbullying includes online harassment, threatening messages and deliberate exclusion from online groups." }
+  ],
+  d: [
+    { q: "A small business reaches 50,000 new customers through a viral social media post at zero cost. This is a...", opts: ["Negative impact on individuals","Positive impact on organisations","Negative impact on organisations","Positive impact on individuals"], answer: 1, explain: "Low-cost advertising is a key positive impact of social media on organisations." },
+    { q: "A teenager becomes anxious and withdraws from friends after being repeatedly targeted with unkind comments on TikTok. This is a...", opts: ["Positive impact on individuals","Negative impact on organisations","Positive impact on organisations","Negative impact on individuals"], answer: 3, explain: "Cyberbullying is a major negative impact on individuals, with serious mental health consequences." },
+    { q: "A company's profile is hacked and false posts damage customer trust. This is a...", opts: ["Positive impact on organisations","Negative impact on individuals","Negative impact on organisations","Positive impact on individuals"], answer: 2, explain: "Security risks and reputation damage are key negative impacts of social media on organisations." },
+    { q: "A student uses YouTube tutorials to help understand difficult topics at home. This is a...", opts: ["Negative impact on individuals","Positive impact on organisations","Negative impact on organisations","Positive impact on individuals"], answer: 3, explain: "Educational use is a positive impact on individuals — social media supports learning and digital literacy." },
+    { q: "A user overshares personal information and later finds it used to open a bank account in their name. This relates to which negative impact on individuals?", opts: ["Brand Awareness","Reputation Damage","Identity Theft","Cultural Exchange"], answer: 2, explain: "Identity theft is a serious negative impact — criminals can gather data from posts to impersonate users." }
+  ]
+};
+
+const scenarioData = [
+  { num:1, text:'"Every time Tom opens Instagram he sees a stream of photos and videos from accounts he follows, mixed in with adverts."', prompt:"Which social media function does this describe?", answer:"Newsfeeds", options:["Profile Setting","Newsfeeds","Notifications","Sharing"], explain:"The Newsfeed continuously presents content from connections, mixed with sponsored posts, in either algorithmic or chronological order." },
+  { num:2, text:'"Priya sets her account to private, blocks a user who left unkind comments, and turns on two-step verification."', prompt:"Which function is Priya using?", answer:"Privacy & Security Settings", options:["Saving / Bookmarking","Uploading Media","Privacy & Security Settings","Platform Integration"], explain:"Privacy & Security Settings allow users to control visibility, block others and secure their accounts." },
+  { num:3, text:'"After uploading a new video, Keanu gets a pop-up telling him someone has left a comment and another user has started following him."', prompt:"Which function triggered these pop-ups?", answer:"Notifications", options:["Messaging","Comments & Reactions","Notifications","Newsfeeds"], explain:"Notifications alert users to activity relevant to them — likes, new followers, comments and mentions." },
+  { num:4, text:'"Fatima bookmarks a recipe she found on Facebook so she can easily find it again later without losing it in her feed."', prompt:"Which function is Fatima using?", answer:"Saving / Bookmarking", options:["Sharing","Status / Wall Posts","Comments & Reactions","Saving / Bookmarking"], explain:"Saving / Bookmarking lets users store content to view later — available on most major platforms." },
+  { num:5, text:'"Rafi shares a YouTube video directly to his WhatsApp and also posts it to his X (Twitter) profile using a single button."', prompt:"Which function makes this possible?", answer:"Platform Integration", options:["Uploading Media","Sharing","Platform Integration","Messaging"], explain:"Platform Integration connects platforms together — allowing cross-posting, single-sign-on and content sharing between apps." }
+];
+
+const classifierData = [
+  { statement:"A small business gains 10,000 new followers through a viral post, boosting its sales at no extra cost.", polarity:"Positive", audience:"Organisation", polarityExplain:"Low-cost advertising is a positive outcome.", audienceExplain:"This benefits the organisation, not an individual." },
+  { statement:"A teenager becomes depressed after being repeatedly excluded from group chats and mocked in public posts.", polarity:"Negative", audience:"Individual", polarityExplain:"Cyberbullying is a serious negative impact.", audienceExplain:"This directly affects an individual." },
+  { statement:"A company's social media account is impersonated by hackers, leading to customers being scammed.", polarity:"Negative", audience:"Organisation", polarityExplain:"Security risks are a negative impact.", audienceExplain:"The organisation suffers reputational and financial damage." },
+  { statement:"A student watches YouTube tutorials to better understand a topic they struggled with in class.", polarity:"Positive", audience:"Individual", polarityExplain:"Educational use is a positive impact on learning.", audienceExplain:"This benefit applies to an individual learner." },
+  { statement:"A business posts a controversial comment that goes viral, resulting in a boycott and lost revenue.", polarity:"Negative", audience:"Organisation", polarityExplain:"Reputation damage is a negative impact on organisations.", audienceExplain:"The harm is primarily felt by the organisation." },
+  { statement:"A user connects with people from around the world, learning about different cultures and traditions.", polarity:"Positive", audience:"Individual", polarityExplain:"Cultural exchange is a positive impact on individuals.", audienceExplain:"This benefit is personal to the individual user." }
+];
+
+// ═══════════════════════════════════
+// TABS & VIEW SWITCH
+// ═══════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function switchView(section, view, btn) {
+  const panel = document.getElementById('panel-' + section);
+  panel.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  panel.querySelectorAll('.notes-view, .tasks-view').forEach(v => v.classList.remove('active'));
+  document.getElementById(view + '-' + section).classList.add('active');
+}
+
+function toggleCard(card) { card.classList.toggle('open'); }
+
+function setPurposeView(viewId, btn) {
+  document.querySelectorAll('.ptoggle-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.purposes-view').forEach(v => v.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pview-' + viewId).classList.add('active');
+}
+
+// ═══════════════════════════════════
+// IMPACTS NOTES FILTER
+// ═══════════════════════════════════
+let currentPolarity = 'positive', currentAudience = 'all';
+function updateImpacts() {
+  currentPolarity = document.getElementById('impactToggle').checked ? 'negative' : 'positive';
+  renderImpacts();
+}
+function setAudience(aud, btn) {
+  document.querySelectorAll('.aud-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentAudience = aud;
+  renderImpacts();
+}
+function renderImpacts() {
+  let count = 0;
+  document.querySelectorAll('.impact-item').forEach(item => {
+    const ok = item.dataset.polarity === currentPolarity && (currentAudience === 'all' || item.dataset.audience === currentAudience);
+    item.classList.toggle('hidden', !ok);
+    if (ok) count++;
+  });
+  const countEl = document.getElementById('posCount');
+  countEl.textContent = count;
+  countEl.className = 'stat-num ' + (currentPolarity === 'positive' ? 'pos' : 'neg');
+  document.getElementById('stat-label-text').textContent = (currentPolarity === 'positive' ? 'Positive' : 'Negative') + ' impacts shown';
+  document.getElementById('filterLabel').textContent = { all:'All audiences', ind:'Individuals only', org:'Organisations only' }[currentAudience];
+}
+
+// ═══════════════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════════════
+const quizState = { a:{scores:[]}, b:{scores:[]}, c:{scores:[]}, d:{scores:[]} };
+
+function buildQuiz(section) {
+  const container = document.getElementById('quiz-' + section);
+  container.innerHTML = '';
+  quizState[section].scores = [];
+  quizData[section].forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-question';
+    div.id = 'qq-' + section + '-' + qi;
+    div.innerHTML = `
+      <div class="q-number">Question ${qi+1} of ${quizData[section].length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options-grid">
+        ${q.opts.map((o,oi) => `<button class="opt-btn" onclick="answerQ('${section}',${qi},${oi},this)">${o}</button>`).join('')}
+      </div>
+      <div class="q-feedback" id="qfb-${section}-${qi}"></div>`;
+    container.appendChild(div);
+  });
+  document.getElementById('result-' + section).classList.remove('show');
+  updateQuizScore(section);
+}
+
+function answerQ(section, qi, chosen, btn) {
+  const q = quizData[section][qi];
+  const container = document.getElementById('qq-' + section + '-' + qi);
+  const btns = container.querySelectorAll('.opt-btn');
+  const fb = document.getElementById('qfb-' + section + '-' + qi);
+  if (container.classList.contains('answered')) return;
+  container.classList.add('answered');
+  btns.forEach(b => b.disabled = true);
+  const correct = chosen === q.answer;
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) btns[q.answer].classList.add('reveal-correct');
+  fb.className = 'q-feedback ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + q.explain;
+  fb.style.display = 'flex';
+  quizState[section].scores[qi] = correct ? 1 : 0;
+  updateQuizScore(section);
+  const allAnswered = quizData[section].every((_, i) => quizState[section].scores[i] !== undefined);
+  if (allAnswered) showQuizResult(section);
+}
+
+function updateQuizScore(section) {
+  const total = quizState[section].scores.reduce((a,b) => a + (b||0), 0);
+  document.getElementById('score-' + section).textContent = `${total} / ${quizData[section].length}`;
+}
+
+function showQuizResult(section) {
+  const total = quizState[section].scores.reduce((a,b) => a+b, 0);
+  const max = quizData[section].length;
+  const pct = Math.round((total/max)*100);
+  const el = document.getElementById('result-' + section);
+  document.getElementById('result-score-' + section).textContent = `${total} / ${max}`;
+  document.getElementById('result-score-' + section).style.color = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+  document.getElementById('result-msg-' + section).textContent = pct === 100 ? '🎉 Perfect score! Excellent work.' : pct >= 80 ? '👏 Great effort — review any you missed.' : pct >= 60 ? '📖 Good attempt — revisit the notes and try again.' : '💡 Keep studying — check the Notes tab and retry.';
+  const bar = document.getElementById('result-bar-' + section);
+  bar.style.background = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+  bar.style.width = '0%';
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+  el.classList.add('show');
+}
+
+function resetQuiz(section) {
+  buildQuiz(section);
+  document.getElementById('result-' + section).classList.remove('show');
+}
+
+// ═══════════════════════════════════
+// SORTER (Section A Task 1)
+// ═══════════════════════════════════
+let selectedChip = null;
+let sorterCorrect = 0;
+
+function selectChip(chip) {
+  if (chip.classList.contains('correct-chip') || chip.classList.contains('wrong-chip')) return;
+  document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('selected'));
+  selectedChip = chip;
+  chip.classList.add('selected');
+}
+
+function placeChip(zone) {
+  if (!selectedChip) return;
+  const zoneName = zone.dataset.zone;
+  const chipAnswer = selectedChip.dataset.answer;
+  const correct = chipAnswer === zoneName;
+  const placed = zone.querySelector('.dz-placed');
+  const chip = document.createElement('span');
+  chip.className = 'dz-chip';
+  chip.textContent = selectedChip.dataset.platform;
+  placed.appendChild(chip);
+  selectedChip.classList.remove('selected');
+  selectedChip.classList.add(correct ? 'correct-chip' : 'wrong-chip');
+  selectedChip.onclick = null;
+  if (correct) {
+    chip.style.background = 'rgba(0,212,170,.2)';
+    chip.style.borderColor = 'rgba(0,212,170,.5)';
+    chip.style.color = 'var(--accent-b)';
+    sorterCorrect++;
+  } else {
+    chip.style.background = 'rgba(255,107,107,.15)';
+    chip.style.borderColor = 'rgba(255,107,107,.4)';
+    chip.style.color = 'var(--accent-c)';
+  }
+  selectedChip = null;
+  document.getElementById('sorter-score').textContent = sorterCorrect + ' / 10';
+  document.getElementById('sorter-reset-btn').style.display = 'inline-block';
+  const remaining = document.querySelectorAll('.platform-chip:not(.correct-chip):not(.wrong-chip)').length;
+  if (remaining === 0) showSorterResult();
+}
+
+function showSorterResult() {
+  const pct = Math.round((sorterCorrect / 10) * 100);
+  const el = document.getElementById('sorter-result');
+  document.getElementById('sorter-result-score').textContent = sorterCorrect + ' / 10';
+  document.getElementById('sorter-result-score').style.color = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+  document.getElementById('sorter-result-msg').textContent = pct === 100 ? '🎉 Perfect — you know every platform type!' : pct >= 80 ? '👏 Great job! A couple to double-check.' : '📖 Good try — review the Notes and retry.';
+  const bar = document.getElementById('sorter-bar');
+  bar.style.background = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+  bar.style.width = '0%';
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+  el.classList.add('show');
+}
+
+function resetSorter() {
+  sorterCorrect = 0;
+  selectedChip = null;
+  document.getElementById('sorter-score').textContent = '0 / 10';
+  document.getElementById('sorter-result').classList.remove('show');
+  document.getElementById('sorter-reset-btn').style.display = 'none';
+  document.querySelectorAll('.platform-chip').forEach(chip => {
+    chip.className = 'platform-chip';
+    chip.onclick = function(){ selectChip(this); };
+  });
+  document.querySelectorAll('.dz-placed').forEach(dz => dz.innerHTML = '');
+}
+
+// ═══════════════════════════════════
+// SCENARIO MATCHER (Section B)
+// ═══════════════════════════════════
+let scenarioScores = [];
+
+function buildScenarios() {
+  const container = document.getElementById('scenario-list');
+  container.innerHTML = '';
+  scenarioScores = [];
+  scenarioData.forEach((s, si) => {
+    const div = document.createElement('div');
+    div.className = 'scenario-card';
+    div.id = 'sc-' + si;
+    div.innerHTML = `
+      <div class="scenario-num">Scenario ${s.num} of ${scenarioData.length}</div>
+      <div class="scenario-text">${s.text}</div>
+      <div class="scenario-prompt">${s.prompt}</div>
+      <div class="function-pills">
+        ${s.options.map(o => `<button class="func-pill" onclick="answerScenario(${si},'${o.replace(/'/g,"\\'")}',this)">${o}</button>`).join('')}
+      </div>
+      <div class="q-feedback" id="sfb-${si}"></div>`;
+    container.appendChild(div);
+  });
+  document.getElementById('result-scenario').classList.remove('show');
+  document.getElementById('score-scenario').textContent = '0 / ' + scenarioData.length;
+}
+
+function answerScenario(si, chosen, btn) {
+  const s = scenarioData[si];
+  const card = document.getElementById('sc-' + si);
+  if (card.querySelector('.func-pill.correct') || card.querySelector('.func-pill.wrong')) return;
+  const pills = card.querySelectorAll('.func-pill');
+  pills.forEach(p => p.disabled = true);
+  const correct = chosen === s.answer;
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) pills.forEach(p => { if (p.textContent === s.answer) p.classList.add('correct'); });
+  const fb = document.getElementById('sfb-' + si);
+  fb.className = 'q-feedback ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + s.explain;
+  fb.style.display = 'flex';
+  scenarioScores[si] = correct ? 1 : 0;
+  const total = scenarioScores.reduce((a,b) => a+(b||0), 0);
+  document.getElementById('score-scenario').textContent = total + ' / ' + scenarioData.length;
+  if (scenarioData.every((_, i) => scenarioScores[i] !== undefined)) {
+    const pct = Math.round((total/scenarioData.length)*100);
+    const el = document.getElementById('result-scenario');
+    document.getElementById('result-score-scenario').textContent = total + ' / ' + scenarioData.length;
+    document.getElementById('result-score-scenario').style.color = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+    document.getElementById('result-msg-scenario').textContent = pct === 100 ? '🎉 Flawless! You matched every scenario.' : pct >= 80 ? '👏 Strong work — check any you missed.' : '📖 Good try — review the Notes and retry.';
+    const bar = document.getElementById('result-bar-scenario');
+    bar.style.background = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+    bar.style.width = '0%';
+    setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+    el.classList.add('show');
+  }
+}
+
+function resetScenarios() { buildScenarios(); }
+
+// ═══════════════════════════════════
+// CLASSIFIER (Section D)
+// ═══════════════════════════════════
+let classifierState = [];
+
+function buildClassifier() {
+  const container = document.getElementById('classifier-list');
+  container.innerHTML = '';
+  classifierState = classifierData.map(() => ({ polarity: null, audience: null, checked: false }));
+  document.getElementById('result-clf').classList.remove('show');
+  document.getElementById('score-clf').textContent = '0 / ' + classifierData.length;
+
+  classifierData.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'classifier-card';
+    div.id = 'clf-' + idx;
+    div.innerHTML = `
+      <div class="clf-statement">${idx+1}. ${item.statement}</div>
+      <div class="clf-row">
+        <span class="clf-label">Impact:</span>
+        <div class="clf-btns">
+          <button class="clf-btn" id="clf-pos-${idx}" onclick="setClfPolarity(${idx},'Positive',this)">✅ Positive</button>
+          <button class="clf-btn" id="clf-neg-${idx}" onclick="setClfPolarity(${idx},'Negative',this)">❌ Negative</button>
+        </div>
+      </div>
+      <div class="clf-row">
+        <span class="clf-label">Affects:</span>
+        <div class="clf-btns">
+          <button class="clf-btn" id="clf-ind-${idx}" onclick="setClfAudience(${idx},'Individual',this)">👤 Individual</button>
+          <button class="clf-btn" id="clf-org-${idx}" onclick="setClfAudience(${idx},'Organisation',this)">🏢 Organisation</button>
+        </div>
+      </div>
+      <button class="clf-check-btn" id="clf-check-${idx}" onclick="checkClassifier(${idx})" disabled>Check ✓</button>
+      <div class="clf-feedback" id="clf-fb-${idx}"></div>`;
+    container.appendChild(div);
+  });
+}
+
+function setClfPolarity(idx, val, btn) {
+  if (classifierState[idx].checked) return;
+  classifierState[idx].polarity = val;
+  document.getElementById('clf-pos-' + idx).classList.toggle('selected', val === 'Positive');
+  document.getElementById('clf-neg-' + idx).classList.toggle('selected', val === 'Negative');
+  toggleClfCheck(idx);
+}
+
+function setClfAudience(idx, val, btn) {
+  if (classifierState[idx].checked) return;
+  classifierState[idx].audience = val;
+  document.getElementById('clf-ind-' + idx).classList.toggle('selected', val === 'Individual');
+  document.getElementById('clf-org-' + idx).classList.toggle('selected', val === 'Organisation');
+  toggleClfCheck(idx);
+}
+
+function toggleClfCheck(idx) {
+  const s = classifierState[idx];
+  document.getElementById('clf-check-' + idx).disabled = !(s.polarity && s.audience);
+}
+
+function checkClassifier(idx) {
+  const s = classifierState[idx];
+  const item = classifierData[idx];
+  if (s.checked) return;
+  s.checked = true;
+  const polOk = s.polarity === item.polarity;
+  const audOk = s.audience === item.audience;
+  ['pos','neg'].forEach(k => {
+    const btn = document.getElementById('clf-' + k + '-' + idx);
+    btn.disabled = true;
+    const val = k === 'pos' ? 'Positive' : 'Negative';
+    if (val === s.polarity) btn.classList.add(polOk ? 'correct-sel' : 'wrong-sel');
+    if (val === item.polarity && !polOk) btn.classList.add('reveal');
+  });
+  ['ind','org'].forEach(k => {
+    const btn = document.getElementById('clf-' + k + '-' + idx);
+    btn.disabled = true;
+    const val = k === 'ind' ? 'Individual' : 'Organisation';
+    if (val === s.audience) btn.classList.add(audOk ? 'correct-sel' : 'wrong-sel');
+    if (val === item.audience && !audOk) btn.classList.add('reveal');
+  });
+  document.getElementById('clf-check-' + idx).disabled = true;
+  const bothCorrect = polOk && audOk;
+  const fb = document.getElementById('clf-fb-' + idx);
+  fb.style.display = 'block';
+  if (bothCorrect) {
+    fb.style.background = 'rgba(0,212,170,.1)';
+    fb.style.border = '1px solid rgba(0,212,170,.3)';
+    fb.style.color = 'var(--accent-b)';
+    fb.textContent = '✅ Correct! ' + item.polarityExplain + ' ' + item.audienceExplain;
+  } else {
+    fb.style.background = 'rgba(255,107,107,.1)';
+    fb.style.border = '1px solid rgba(255,107,107,.3)';
+    fb.style.color = 'var(--accent-c)';
+    fb.textContent = '❌ Not quite. This is a ' + item.polarity + ' impact on ' + item.audience + 's. ' + item.polarityExplain + ' ' + item.audienceExplain;
+  }
+  s.score = bothCorrect ? 1 : 0;
+  const done = classifierState.filter(x => x.checked).length;
+  const total = classifierState.reduce((a,x) => a + (x.score||0), 0);
+  document.getElementById('score-clf').textContent = total + ' / ' + classifierData.length;
+  if (done === classifierData.length) {
+    const pct = Math.round((total / classifierData.length) * 100);
+    const el = document.getElementById('result-clf');
+    document.getElementById('result-score-clf').textContent = total + ' / ' + classifierData.length;
+    document.getElementById('result-score-clf').style.color = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+    document.getElementById('result-msg-clf').textContent = pct === 100 ? '🎉 Perfect classifier! You nailed every one.' : pct >= 80 ? '👏 Excellent — check any you missed.' : '📖 Good try — review the Notes tab and retry.';
+    const bar = document.getElementById('result-bar-clf');
+    bar.style.background = pct >= 80 ? 'var(--accent-b)' : pct >= 60 ? 'var(--accent-d)' : 'var(--accent-c)';
+    bar.style.width = '0%';
+    setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+    el.classList.add('show');
+  }
+}
+
+function resetClassifier() { buildClassifier(); }
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+buildQuiz('a');
+buildQuiz('b');
+buildQuiz('c');
+buildQuiz('d');
+buildScenarios();
+buildClassifier();
+</script>
+</body>
+</html>

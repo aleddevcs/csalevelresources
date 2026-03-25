@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big Data and Distributed Systems Interactive Resource</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --card: #ffffff;
+      --text: #e5e7eb;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 12px 30px rgba(0,0,0,0.18);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #0f172a, #111827 40%, #0b1220 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      width: min(1200px, 92%);
+      margin: 0 auto;
+      padding: 24px 0 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(34,197,94,0.12));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 900px;
+      font-size: 1.05rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .panel {
+      background: rgba(17,24,39,0.9);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .panel h2 {
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+
+    .panel p, .panel li {
+      color: var(--muted);
+    }
+
+    .objective-list, .takeaway-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .card h3 {
+      font-size: 1.12rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .example {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(56,189,248,0.12);
+      color: #dbeafe;
+      font-size: 0.95rem;
+    }
+
+    .v-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .badge {
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.25);
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #dcfce7;
+      font-weight: bold;
+    }
+
+    .activity-wrap {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 920px) {
+      .activity-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scenario-box {
+      min-height: 180px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 16px;
+    }
+
+    .scenario-label {
+      display: inline-block;
+      background: rgba(245,158,11,0.15);
+      color: #fde68a;
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: none;
+      border-radius: 14px;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.72;
+      cursor: not-allowed;
+    }
+
+    .answer-btn, .primary-btn, .secondary-btn, .toggle-btn, .node-btn {
+      padding: 14px 14px;
+      color: white;
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .answer-btn.selected { outline: 2px solid rgba(56,189,248,0.8); }
+    .answer-btn.correct { background: rgba(34,197,94,0.28); border-color: rgba(34,197,94,0.5); }
+    .answer-btn.incorrect { background: rgba(239,68,68,0.25); border-color: rgba(239,68,68,0.45); }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+    }
+
+    .secondary-btn {
+      background: linear-gradient(135deg, #374151, #1f2937);
+    }
+
+    .feedback {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border-left: 5px solid var(--accent);
+      display: none;
+    }
+
+    .feedback.correct {
+      border-left-color: var(--accent-2);
+    }
+
+    .feedback.incorrect {
+      border-left-color: var(--danger);
+    }
+
+    .score-box {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .metric-card strong {
+      display: block;
+      font-size: 1.8rem;
+      color: white;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+    }
+
+    .control-group {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .toggle-row, .nodes-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .toggle-btn.active, .node-btn.active {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    }
+
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .sim-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .network {
+        min-height: auto;
+        padding: 16px;
+      }
+
+      .network-canvas {
+        min-height: auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .line {
+        display: none !important;
+      }
+
+      .node {
+        position: static;
+        width: 100% !important;
+        min-width: 0;
+        max-width: none;
+        padding: 10px;
+      }
+
+      .node h4 {
+        font-size: 0.92rem;
+      }
+
+      .node p {
+        font-size: 0.76rem;
+      }
+
+      .bar-row {
+        grid-template-columns: 95px 1fr 36px;
+      }
+    }
+
+    .network {
+      background: radial-gradient(circle at top, rgba(56,189,248,0.12), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 20px;
+      position: relative;
+      min-height: 430px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .network-title {
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .network-canvas {
+      position: relative;
+      min-height: 520px;
+      width: 100%;
+    }
+
+    .line {
+      position: absolute;
+      height: 4px;
+      background: rgba(56,189,248,0.5);
+      transform-origin: left center;
+      border-radius: 999px;
+    }
+
+    .node {
+      position: absolute;
+      width: clamp(110px, 16vw, 150px);
+      min-height: 72px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.95);
+      border: 2px solid rgba(255,255,255,0.08);
+      text-align: center;
+      box-shadow: var(--shadow);
+      overflow-wrap: break-word;
+    }
+
+    .node h4 {
+      margin: 0 0 6px;
+      font-size: 0.98rem;
+    }
+
+    .node p {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .node.active-data { border-color: rgba(34,197,94,0.9); }
+    .node.active-processing { box-shadow: 0 0 0 2px rgba(56,189,248,0.6), var(--shadow); }
+    .node.replicated { background: rgba(20,83,45,0.55); }
+    .node.authority { border-color: rgba(245,158,11,0.7); }
+
+    .bars {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 125px 1fr 44px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bar-track {
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      height: 14px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      transition: width 0.25s ease;
+    }
+
+    .explanation-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border-left: 5px solid var(--warn);
+    }
+
+    .summary-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .summary-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .small {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Big Data and Distributed Systems Interactive Resource</h1>
+      <p class="subtitle">
+        Explore the meaning of <strong>Big Data</strong>, <strong>data mining</strong>, <strong>predictive analytics</strong>, <strong>data warehousing</strong>, and how <strong>distribution</strong> can apply to both <strong>data</strong> and <strong>processing</strong>. Then test your knowledge through scenarios and a distributed system simulation.
+      </p>
+    </header>
+
+    <section class="panel">
+      <h2>Learning Objectives</h2>
+      <div class="grid grid-2">
+        <ul class="objective-list">
+          <li>Define Big Data and identify the three Vs: <strong>Volume</strong>, <strong>Velocity</strong>, and <strong>Variety</strong>.</li>
+          <li>Explain the meaning of <strong>data mining</strong>, <strong>predictive analytics</strong>, and <strong>data warehousing</strong>.</li>
+          <li>Distinguish between <strong>distributed data</strong> and <strong>distributed processing</strong>.</li>
+        </ul>
+        <ul class="objective-list">
+          <li>Describe what a <strong>distributed database</strong> is.</li>
+          <li>Explain the advantages of distributed databases.</li>
+          <li>Apply these ideas to realistic computing scenarios.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Quick Concept Recap</h2>
+      <div class="grid grid-3">
+        <div class="card">
+          <h3>Big Data</h3>
+          <p>Extremely large data sets that can be analysed to reveal patterns, trends, and associations, especially in human behaviour and interactions.</p>
+          <div class="v-badges">
+            <span class="badge">Volume</span>
+            <span class="badge">Velocity</span>
+            <span class="badge">Variety</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Data Mining</h3>
+          <p>The automated analysis of large amounts of data to identify patterns and turn raw data into useful information for decision making.</p>
+          <span class="example">Example: Police analysing crime patterns in a location.</span>
+        </div>
+        <div class="card">
+          <h3>Predictive Analytics</h3>
+          <p>The use of big data, statistics, and machine learning to predict future behaviour, trends, or likely outcomes.</p>
+          <span class="example">Example: “People who bought this also bought…”</span>
+        </div>
+        <div class="card">
+          <h3>Data Warehousing</h3>
+          <p>The electronic storage of very large amounts of business data so queries can be run on historical information gathered from commercial activities.</p>
+          <span class="example">Example: A supermarket storing years of sales records.</span>
+        </div>
+        <div class="card">
+          <h3>Distributed Data</h3>
+          <p>Data is stored across multiple physical locations, servers, or sites rather than being kept in one single central place.</p>
+          <span class="example">Example: Patient records held at GP surgeries and hospitals.</span>
+        </div>
+        <div class="card">
+          <h3>Distributed Processing</h3>
+          <p>Processing tasks are shared across multiple computers or processors so work can be completed more efficiently.</p>
+          <span class="example">Example: Different machines processing parts of the same task at the same time.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="scenarioSection">
+      <h2>Activity 1: Scenario Challenge</h2>
+      <p>Read each scenario and choose the concept that best matches it. You will receive instant feedback explaining <strong>why</strong> the answer is correct.</p>
+      <div class="activity-wrap">
+        <div>
+          <div class="scenario-box">
+            <span class="scenario-label" id="scenarioNumber">Scenario 1 of 8</span>
+            <h3 id="scenarioTitle">Loading scenario...</h3>
+            <p id="scenarioText"></p>
+            <div class="answer-grid" id="answerGrid"></div>
+            <div class="feedback" id="feedbackBox"></div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="secondary-btn" id="restartQuizBtn">Restart Quiz</button>
+            <button class="primary-btn" id="nextBtn" disabled>Next Scenario</button>
+          </div>
+        </div>
+        <div>
+          <div class="score-box">
+            <div class="metric-card">
+              <span class="small">Correct Answers</span>
+              <strong id="scoreValue">0</strong>
+            </div>
+            <div class="metric-card">
+              <span class="small">Progress</span>
+              <strong id="progressValue">1/8</strong>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:16px; margin-bottom:0;">
+            <h3>Concepts You May Need</h3>
+            <p class="small">Some scenarios focus on the meaning of a term, while others focus on recognising an example of distributed systems in action.</p>
+            <ul class="objective-list">
+              <li>Big Data</li>
+              <li>Data Mining</li>
+              <li>Predictive Analytics</li>
+              <li>Data Warehousing</li>
+              <li>Distributed Data</li>
+              <li>Distributed Processing</li>
+              <li>Distributed Database Advantage</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="simulationSection">
+      <h2>Activity 2: Distributed System Builder</h2>
+      <p>Use the controls to design a healthcare network. Decide how data and processing are organised, then observe how this changes the performance of the whole system.</p>
+
+      <div class="sim-layout">
+        <div class="network">
+          <h3 class="network-title">Healthcare Network</h3>
+          <div class="network-canvas" id="networkCanvas">
+            <div class="line" id="line1"></div>
+            <div class="line" id="line2"></div>
+            <div class="line" id="line3"></div>
+            <div class="line" id="line4"></div>
+
+            <div class="node" id="gp1" style="left: 2%; top: 18%;">
+              <h4>GP Surgery A</h4>
+              <p></p>
+            </div>
+            <div class="node" id="gp2" style="left: 2%; top: 70%;">
+              <h4>GP Surgery B</h4>
+              <p></p>
+            </div>
+            <div class="node" id="hospital" style="left: 36%; top: 44%; width: clamp(120px, 17vw, 155px);">
+              <h4>Hospital</h4>
+              <p></p>
+            </div>
+            <div class="node authority" id="authority" style="right: 2%; top: 44%; width: clamp(125px, 18vw, 160px);">
+              <h4>Health Authority</h4>
+              <p></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-group">
+            <h3>1. Data Storage</h3>
+            <p class="small">Choose how patient data is stored across the network.</p>
+            <div class="toggle-row">
+              <button class="toggle-btn active" data-group="data" data-value="centralised">Centralised Data</button>
+              <button class="toggle-btn" data-group="data" data-value="distributed">Distributed Data</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>2. Processing</h3>
+            <p class="small">Choose whether processing happens in one place or across several systems.</p>
+            <div class="toggle-row">
+              <button class="toggle-btn active" data-group="processing" data-value="centralised">Centralised Processing</button>
+              <button class="toggle-btn" data-group="processing" data-value="distributed">Distributed Processing</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>3. Replication</h3>
+            <p class="small">Replication means copies of important data are stored in more than one place.</p>
+            <div class="toggle-row">
+              <button class="toggle-btn active" data-group="replication" data-value="off">Replication Off</button>
+              <button class="toggle-btn" data-group="replication" data-value="on">Replication On</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>4. Extra Nodes</h3>
+            <p class="small">Adding more nodes can improve access and scalability, but may also increase management complexity and cost.</p>
+            <div class="nodes-row">
+              <button class="node-btn active" data-nodes="0">0 Extra Nodes</button>
+              <button class="node-btn" data-nodes="1">1 Extra Node</button>
+              <button class="node-btn" data-nodes="2">2 Extra Nodes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:18px; margin-bottom:0;">
+        <h3>System Effects</h3>
+        <div class="bars">
+          <div class="bar-row">
+            <span>Reliability</span>
+            <div class="bar-track"><div class="bar-fill" id="barReliability"></div></div>
+            <strong id="labelReliability">0</strong>
+          </div>
+          <div class="bar-row">
+            <span>Speed</span>
+            <div class="bar-track"><div class="bar-fill" id="barSpeed"></div></div>
+            <strong id="labelSpeed">0</strong>
+          </div>
+          <div class="bar-row">
+            <span>Availability</span>
+            <div class="bar-track"><div class="bar-fill" id="barAvailability"></div></div>
+            <strong id="labelAvailability">0</strong>
+          </div>
+          <div class="bar-row">
+            <span>Scalability</span>
+            <div class="bar-track"><div class="bar-fill" id="barScalability"></div></div>
+            <strong id="labelScalability">0</strong>
+          </div>
+          <div class="bar-row">
+            <span>Access</span>
+            <div class="bar-track"><div class="bar-fill" id="barAccess"></div></div>
+            <strong id="labelAccess">0</strong>
+          </div>
+          <div class="bar-row">
+            <span>Cost Efficiency</span>
+            <div class="bar-track"><div class="bar-fill" id="barCost"></div></div>
+            <strong id="labelCost">0</strong>
+          </div>
+        </div>
+
+        <div class="explanation-box" id="simulationExplanation">
+          Your current design uses <strong>centralised data</strong> and <strong>centralised processing</strong>, so control is simple, but the system depends heavily on a small number of locations.
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Final Summary and Knowledge Check</h2>
+      <div class="summary-box">
+        <div class="summary-card">
+          <h3>Remember This</h3>
+          <ul class="takeaway-list">
+            <li><strong>Big Data</strong> is often described using the three Vs: Volume, Velocity, and Variety.</li>
+            <li><strong>Data mining</strong> finds useful patterns in large data sets.</li>
+            <li><strong>Predictive analytics</strong> uses data to forecast likely future outcomes.</li>
+            <li><strong>Data warehousing</strong> stores large amounts of historical business data for analysis.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h3>Key Distributed Systems Ideas</h3>
+          <ul class="takeaway-list">
+            <li><strong>Distributed data</strong> means the data is stored in more than one location.</li>
+            <li><strong>Distributed processing</strong> means the workload is shared across more than one computer.</li>
+            <li><strong>Distributed databases</strong> can improve reliability, speed, scalability, and access.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h3>Exam-Style Prompts</h3>
+          <p><strong>1.</strong> Explain the difference between distributed data and distributed processing.</p>
+          <p><strong>2.</strong> State two advantages of distributed databases.</p>
+          <p><strong>3.</strong> Give one example of predictive analytics and explain why it fits that term.</p>
+          <button class="primary-btn" id="revealAnswersBtn" style="margin-top:8px;">Reveal Model Answers</button>
+          <div id="modelAnswers" class="hidden" style="margin-top:12px;">
+            <p><strong>1.</strong> Distributed data means the storage of data is spread across multiple locations, while distributed processing means computational tasks are shared between multiple computers or processors.</p>
+            <p><strong>2.</strong> Two advantages are improved reliability and faster processing. Other valid answers include better availability, scalability, improved access, and reduced unnecessary data transfer.</p>
+            <p><strong>3.</strong> An online shop recommending “People who bought this also bought…” is predictive analytics because past customer behaviour is being used to predict future purchases.</p>
+          </div>
+        </div>
+      </div>
+      <p class="footer-note">This resource is designed for A-Level Computer Science revision, classroom discussion, and independent study.</p>
+    </section>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        title: "Online shop recommendations",
+        text: "An online shop analyses previous customer purchases and then shows a message such as ‘People who bought this also bought...’ when a customer views a product.",
+        options: ["Big Data", "Data Mining", "Predictive Analytics", "Data Warehousing"],
+        answer: "Predictive Analytics",
+        explanation: "This is predictive analytics because the system is using existing data and statistical patterns to predict what the customer may be likely to buy next."
+      },
+      {
+        title: "Years of business history",
+        text: "A supermarket stores many years of sales transactions so managers can run queries on historical trends, compare seasonal sales, and make business decisions.",
+        options: ["Data Warehousing", "Distributed Data", "Data Mining", "Big Data"],
+        answer: "Data Warehousing",
+        explanation: "This is data warehousing because very large quantities of historical commercial data are being electronically stored so they can be queried and analysed later."
+      },
+      {
+        title: "Crime pattern analysis",
+        text: "A police force analyses large amounts of crime data from different areas to identify patterns in location, time, and offence type.",
+        options: ["Predictive Analytics", "Data Mining", "Distributed Processing", "Distributed Database Advantage"],
+        answer: "Data Mining",
+        explanation: "This is data mining because the system is automatically analysing a large volume of data to identify useful patterns for decision making."
+      },
+      {
+        title: "The three Vs",
+        text: "A company collects text, images, video, and sensor data in huge quantities and must process it quickly to gain useful insight. The data has high volume, variety, and velocity.",
+        options: ["Distributed Data", "Big Data", "Data Warehousing", "Distributed Processing"],
+        answer: "Big Data",
+        explanation: "This describes Big Data because it explicitly involves the three Vs: Volume, Velocity, and Variety."
+      },
+      {
+        title: "Patient records in more than one place",
+        text: "Patient records are stored locally at GP surgeries, but hospitals also keep the relevant records of treatments they provide. Staff can access data across the network.",
+        options: ["Distributed Data", "Distributed Processing", "Data Warehousing", "Predictive Analytics"],
+        answer: "Distributed Data",
+        explanation: "This is distributed data because the storage of records is spread across multiple physical locations rather than kept in only one place."
+      },
+      {
+        title: "A large task split up",
+        text: "A complex computing job is divided into smaller subtasks which are then processed by several computers at the same time to improve response time.",
+        options: ["Distributed Processing", "Distributed Data", "Big Data", "Data Mining"],
+        answer: "Distributed Processing",
+        explanation: "This is distributed processing because the computational work is being shared across multiple computers so the task can be completed faster."
+      },
+      {
+        title: "No single point of failure",
+        text: "A company stores copies of important data on several nodes, so if one location goes offline the rest of the system can continue to operate.",
+        options: ["Big Data", "Distributed Database Advantage", "Data Warehousing", "Predictive Analytics"],
+        answer: "Distributed Database Advantage",
+        explanation: "This describes an advantage of distributed databases: improved reliability and availability, because there is no single point of failure."
+      },
+      {
+        title: "National company access",
+        text: "A national business allows branches in different regions to access data relevant to their own operations while still giving head office a complete view of overall activity.",
+        options: ["Distributed Database Advantage", "Data Mining", "Big Data", "Distributed Processing"],
+        answer: "Distributed Database Advantage",
+        explanation: "This highlights a key distributed database advantage: better access across multiple locations while still maintaining a broader organisational view of the data."
+      }
+    ];
+
+    let currentScenario = 0;
+    let score = 0;
+    let answered = false;
+
+    const scenarioNumber = document.getElementById('scenarioNumber');
+    const scenarioTitle = document.getElementById('scenarioTitle');
+    const scenarioText = document.getElementById('scenarioText');
+    const answerGrid = document.getElementById('answerGrid');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const scoreValue = document.getElementById('scoreValue');
+    const progressValue = document.getElementById('progressValue');
+    const nextBtn = document.getElementById('nextBtn');
+    const restartQuizBtn = document.getElementById('restartQuizBtn');
+
+    function renderScenario() {
+      const scenario = scenarios[currentScenario];
+      answered = false;
+      scenarioNumber.textContent = `Scenario ${currentScenario + 1} of ${scenarios.length}`;
+      scenarioTitle.textContent = scenario.title;
+      scenarioText.textContent = scenario.text;
+      progressValue.textContent = `${currentScenario + 1}/${scenarios.length}`;
+      answerGrid.innerHTML = '';
+      feedbackBox.style.display = 'none';
+      feedbackBox.className = 'feedback';
+      nextBtn.disabled = true;
+
+      scenario.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = option;
+        btn.addEventListener('click', () => handleAnswer(btn, option));
+        answerGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(button, selected) {
+      if (answered) return;
+      answered = true;
+      const scenario = scenarios[currentScenario];
+      const buttons = [...document.querySelectorAll('.answer-btn')];
+
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === scenario.answer) {
+          btn.classList.add('correct');
+        }
+      });
+
+      if (selected === scenario.answer) {
+        button.classList.add('correct');
+        score++;
+        scoreValue.textContent = score;
+        feedbackBox.classList.add('correct');
+        feedbackBox.innerHTML = `<strong>Correct.</strong> ${scenario.explanation}`;
+      } else {
+        button.classList.add('incorrect');
+        feedbackBox.classList.add('incorrect');
+        feedbackBox.innerHTML = `<strong>Not quite.</strong> The correct answer is <strong>${scenario.answer}</strong>. ${scenario.explanation}`;
+      }
+
+      feedbackBox.style.display = 'block';
+      nextBtn.disabled = false;
+      if (currentScenario === scenarios.length - 1) {
+        nextBtn.textContent = 'Finish Quiz';
+      } else {
+        nextBtn.textContent = 'Next Scenario';
+      }
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (currentScenario < scenarios.length - 1) {
+        currentScenario++;
+        renderScenario();
+      } else {
+        scenarioTitle.textContent = 'Scenario Challenge Complete';
+        scenarioText.textContent = `You scored ${score} out of ${scenarios.length}. Review the feedback, then move on to the distributed system builder below.`;
+        scenarioNumber.textContent = 'Completed';
+        answerGrid.innerHTML = '';
+        feedbackBox.style.display = 'block';
+        feedbackBox.className = 'feedback correct';
+        const percentage = Math.round((score / scenarios.length) * 100);
+        let message = 'Well done.';
+        if (percentage < 50) message = 'A good start.';
+        else if (percentage < 75) message = 'A solid understanding.';
+        else message = 'Excellent understanding.';
+        feedbackBox.innerHTML = `<strong>${message}</strong> Your score was ${score}/${scenarios.length} (${percentage}%). Try again if you want to improve your result.`;
+        nextBtn.disabled = true;
+      }
+    });
+
+    restartQuizBtn.addEventListener('click', () => {
+      currentScenario = 0;
+      score = 0;
+      scoreValue.textContent = '0';
+      renderScenario();
+    });
+
+    renderScenario();
+
+    const simState = {
+      data: 'centralised',
+      processing: 'centralised',
+      replication: 'off',
+      extraNodes: 0
+    };
+
+    const lineIds = ['line1', 'line2', 'line3', 'line4'];
+    const baseNodes = {
+      gp1: document.getElementById('gp1'),
+      gp2: document.getElementById('gp2'),
+      hospital: document.getElementById('hospital'),
+      authority: document.getElementById('authority')
+    };
+
+    const toggleButtons = [...document.querySelectorAll('.toggle-btn')];
+    const nodeButtons = [...document.querySelectorAll('.node-btn')];
+    const networkCanvas = document.getElementById('networkCanvas');
+    const simulationExplanation = document.getElementById('simulationExplanation');
+
+    function setGroupButton(group, value) {
+      toggleButtons.forEach(btn => {
+        if (btn.dataset.group === group) {
+          btn.classList.toggle('active', btn.dataset.value === value);
+        }
+      });
+    }
+
+    toggleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        simState[btn.dataset.group] = btn.dataset.value;
+        setGroupButton(btn.dataset.group, btn.dataset.value);
+        updateSimulation();
+      });
+    });
+
+    nodeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        simState.extraNodes = Number(btn.dataset.nodes);
+        nodeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateSimulation();
+      });
+    });
+
+    function createOrRemoveExtraNodes(count) {
+      [...document.querySelectorAll('.extra-node')].forEach(node => node.remove());
+      const isMobile = window.innerWidth <= 700;
+
+      if (count >= 1) {
+        const lab = document.createElement('div');
+        lab.className = 'node extra-node';
+        lab.id = 'labNode';
+        if (!isMobile) {
+          lab.style.left = '36%';
+          lab.style.top = '4%';
+          lab.style.width = '150px';
+        }
+        lab.innerHTML = '<h4>Clinic Node</h4><p></p>';
+        networkCanvas.appendChild(lab);
+      }
+
+      if (count >= 2) {
+        const archive = document.createElement('div');
+        archive.className = 'node extra-node';
+        archive.id = 'archiveNode';
+        if (!isMobile) {
+          archive.style.left = '68%';
+          archive.style.top = '78%';
+          archive.style.width = '150px';
+        }
+        archive.innerHTML = '<h4>Archive Node</h4><p></p>';
+        networkCanvas.appendChild(archive);
+      }
+
+      const gp1 = document.getElementById('gp1');
+      const gp2 = document.getElementById('gp2');
+      const hospital = document.getElementById('hospital');
+      const authority = document.getElementById('authority');
+
+      if (isMobile) {
+        [gp1, gp2, hospital, authority].forEach(node => {
+          if (!node) return;
+          node.style.left = 'auto';
+          node.style.right = 'auto';
+          node.style.top = 'auto';
+          node.style.bottom = 'auto';
+          node.style.width = '100%';
+        });
+      } else {
+        if (gp1) {
+          gp1.style.left = '2%';
+          gp1.style.top = '18%';
+          gp1.style.width = '150px';
+        }
+        if (gp2) {
+          gp2.style.left = '2%';
+          gp2.style.top = '70%';
+          gp2.style.width = '150px';
+        }
+        if (hospital) {
+          hospital.style.left = '36%';
+          hospital.style.top = '44%';
+          hospital.style.width = '155px';
+        }
+        if (authority) {
+          authority.style.left = 'auto';
+          authority.style.right = '2%';
+          authority.style.top = '44%';
+          authority.style.width = '160px';
+        }
+      }
+    }
+
+    function updateLines() {
+      if (window.innerWidth <= 700) {
+        [...document.querySelectorAll('.line')].forEach(line => {
+          line.style.display = 'none';
+        });
+        return;
+      }
+
+      lineIds.forEach(id => {
+        const line = document.getElementById(id);
+        if (line) line.style.display = 'none';
+      });
+
+      const pairs = [
+        ['gp1', 'hospital', 'line1'],
+        ['gp2', 'hospital', 'line2'],
+        ['hospital', 'authority', 'line3']
+      ];
+
+      if (document.getElementById('labNode')) pairs.push(['labNode', 'hospital', 'line4']);
+      if (document.getElementById('archiveNode')) {
+        let extraLine = document.getElementById('line5');
+        if (!extraLine) {
+          extraLine = document.createElement('div');
+          extraLine.className = 'line';
+          extraLine.id = 'line5';
+          networkCanvas.appendChild(extraLine);
+        }
+        pairs.push(['archiveNode', 'authority', 'line5']);
+      } else {
+        const l5 = document.getElementById('line5');
+        if (l5) l5.remove();
+      }
+
+      pairs.forEach(([startId, endId, lineId]) => {
+        const start = document.getElementById(startId);
+        const end = document.getElementById(endId);
+        const line = document.getElementById(lineId);
+        if (!start || !end || !line) return;
+
+        const sx = start.offsetLeft + start.offsetWidth / 2;
+        const sy = start.offsetTop + start.offsetHeight / 2;
+        const ex = end.offsetLeft + end.offsetWidth / 2;
+        const ey = end.offsetTop + end.offsetHeight / 2;
+        const dx = ex - sx;
+        const dy = ey - sy;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+        line.style.display = 'block';
+        line.style.width = `${length}px`;
+        line.style.left = `${sx}px`;
+        line.style.top = `${sy}px`;
+        line.style.transform = `rotate(${angle}deg)`;
+      });
+    }
+
+    function clamp(num) {
+      return Math.max(0, Math.min(100, num));
+    }
+
+    function setBar(id, value) {
+      document.getElementById(`bar${id}`).style.width = `${value}%`;
+      document.getElementById(`label${id}`).textContent = value;
+    }
+
+    function updateNodeLabels() {
+      const allNodes = [...document.querySelectorAll('.node')];
+      allNodes.forEach(node => {
+        node.classList.remove('active-data', 'active-processing', 'replicated');
+      });
+
+      const descriptions = {
+        centralisedData: 'Data mainly stored centrally.',
+        distributedData: 'Stores relevant local records.',
+        centralisedProcessing: 'Most processing happens elsewhere.',
+        distributedProcessing: 'Processes some tasks locally.',
+        replicated: 'Backup copies held here.'
+      };
+
+      const nodeList = [...document.querySelectorAll('.node')];
+      nodeList.forEach(node => {
+        const p = node.querySelector('p');
+        let lines = [];
+
+        if (simState.data === 'centralised') {
+          if (node.id === 'authority' || node.id === 'hospital') {
+            node.classList.add('active-data');
+            lines.push(descriptions.centralisedData);
+          } else {
+            lines.push('Retrieves records over the network.');
+          }
+        } else {
+          node.classList.add('active-data');
+          lines.push(descriptions.distributedData);
+        }
+
+        if (simState.processing === 'centralised') {
+          if (node.id === 'hospital') {
+            node.classList.add('active-processing');
+            lines.push('Main processing hub.');
+          }
+        } else {
+          node.classList.add('active-processing');
+          lines.push(descriptions.distributedProcessing);
+        }
+
+        if (simState.replication === 'on') {
+          if (node.id !== 'authority' || simState.data === 'distributed') {
+            node.classList.add('replicated');
+            lines.push(descriptions.replicated);
+          }
+        }
+
+        p.textContent = lines.join(' ');
+      });
+    }
+
+    function updateSimulation() {
+      createOrRemoveExtraNodes(simState.extraNodes);
+      updateLines();
+      updateNodeLabels();
+
+      let reliability = 35;
+      let speed = 35;
+      let availability = 40;
+      let scalability = 35;
+      let access = 35;
+      let cost = 70;
+
+      if (simState.data === 'distributed') {
+        reliability += 18;
+        speed += 15;
+        availability += 16;
+        scalability += 12;
+        access += 22;
+        cost -= 10;
+      } else {
+        cost += 6;
+      }
+
+      if (simState.processing === 'distributed') {
+        speed += 22;
+        scalability += 16;
+        availability += 8;
+        access += 6;
+        cost -= 8;
+      } else {
+        reliability -= 4;
+      }
+
+      if (simState.replication === 'on') {
+        reliability += 22;
+        availability += 20;
+        access += 5;
+        cost -= 14;
+      }
+
+      reliability += simState.extraNodes * 7;
+      speed += simState.extraNodes * 4;
+      availability += simState.extraNodes * 6;
+      scalability += simState.extraNodes * 12;
+      access += simState.extraNodes * 9;
+      cost -= simState.extraNodes * 10;
+
+      reliability = clamp(reliability);
+      speed = clamp(speed);
+      availability = clamp(availability);
+      scalability = clamp(scalability);
+      access = clamp(access);
+      cost = clamp(cost);
+
+      setBar('Reliability', reliability);
+      setBar('Speed', speed);
+      setBar('Availability', availability);
+      setBar('Scalability', scalability);
+      setBar('Access', access);
+      setBar('Cost', cost);
+
+      const parts = [];
+      parts.push(`Your system uses <strong>${simState.data}</strong> data and <strong>${simState.processing}</strong> processing.`);
+
+      if (simState.data === 'distributed') {
+        parts.push('Because data is stored closer to the point of use, access can be faster and local sites remain more useful if another location has a problem.');
+      } else {
+        parts.push('Because data is more centralised, management is simpler, but the system depends more heavily on key locations.');
+      }
+
+      if (simState.processing === 'distributed') {
+        parts.push('Distributed processing improves throughput because tasks can be shared between several machines.');
+      } else {
+        parts.push('Centralised processing means fewer machines handle the workload, which may limit performance when demand rises.');
+      }
+
+      if (simState.replication === 'on') {
+        parts.push('Replication improves reliability and availability because copies of data exist on multiple nodes.');
+      }
+
+      if (simState.extraNodes > 0) {
+        parts.push(`Adding ${simState.extraNodes} extra node${simState.extraNodes > 1 ? 's' : ''} improves scalability and access, but it also increases the size and complexity of the network.`);
+      }
+
+      simulationExplanation.innerHTML = parts.join(' ');
+    }
+
+    window.addEventListener('load', () => {
+      updateSimulation();
+      setTimeout(updateLines, 50);
+    });
+
+    window.addEventListener('resize', updateLines);
+
+    document.getElementById('revealAnswersBtn').addEventListener('click', () => {
+      document.getElementById('modelAnswers').classList.toggle('hidden');
+      const btn = document.getElementById('revealAnswersBtn');
+      btn.textContent = document.getElementById('modelAnswers').classList.contains('hidden')
+        ? 'Reveal Model Answers'
+        : 'Hide Model Answers';
+    });
+  </script>
+</body>
+</html>

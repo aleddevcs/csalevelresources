@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task 2 – Open Book Notes Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:   #14142b;
+    --paper: #faf8f4;
+    --cream: #f2ede4;
+    --red:   #c0392b;
+    --blue:  #1a3a8c;
+    --green: #1a7a4a;
+    --amber: #b85c00;
+    --rule:  #d4ccc0;
+    --hi:    #fff9c4;
+    --mono:  'JetBrains Mono', monospace;
+    --serif: 'Source Serif 4', Georgia, serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 13px; line-height: 1.65; }
+
+  @media print {
+    body { background: white; font-size: 11.5px; }
+    .no-print { display: none !important; }
+    .page { box-shadow: none; margin: 0; }
+    input, textarea { border-bottom: 1px solid #aaa !important; background: transparent !important; }
+    .fill-box { border: 1px solid #bbb !important; background: white !important; }
+    @page { margin: 1.4cm 1.6cm; }
+  }
+
+  .page { max-width: 840px; margin: 28px auto; background: white; box-shadow: 0 4px 40px rgba(0,0,0,.12); }
+
+  /* HEADER */
+  .ws-header { background: var(--ink); color: white; padding: 30px 44px 24px; position: relative; overflow: hidden; }
+  .ws-header::after { content:''; position:absolute; top:0; right:0; bottom:0; width:5px; background:var(--red); }
+  .ws-header .kicker { font-family:var(--mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:6px; }
+  .ws-header h1 { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:.04em; line-height:1; }
+  .ws-header h1 em { color:#f39c12; font-style:normal; }
+  .ws-header .sub { margin-top:8px; font-size:12px; font-style:italic; font-weight:300; color:rgba(255,255,255,.5); }
+
+  /* INSTRUCTIONS BANNER */
+  .instructions-banner { background: #2c3e50; }
+  .instructions-inner { padding: 16px 44px; border-left: 5px solid #f39c12; }
+  .inst-label { font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:5px; }
+  .inst-text { font-size:12.5px; color:rgba(255,255,255,.85); line-height:1.7; }
+  .inst-text strong { color: white; }
+  .inst-rules { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+  .inst-rule { background: rgba(255,255,255,.1); border-radius: 3px; padding: 7px 12px; font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,.8); letter-spacing: .05em; }
+  .inst-rule span { color: #f39c12; font-weight: 600; }
+
+  /* META */
+  .meta-row { background:var(--cream); border-bottom:2px solid var(--rule); display:grid; grid-template-columns:2fr 1fr 1fr; }
+  .meta-cell { padding:11px 20px; border-right:1px solid var(--rule); display:flex; flex-direction:column; gap:3px; }
+  .meta-cell:last-child { border-right:none; }
+  .meta-label { font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:#999; }
+  .meta-cell input { border:none; border-bottom:1.5px solid var(--rule); background:transparent; font-family:var(--serif); font-size:13px; color:var(--ink); padding:2px 0; outline:none; width:100%; transition:border-color .2s; }
+  .meta-cell input:focus { border-color:var(--blue); }
+
+  /* BODY */
+  .ws-body { padding:34px 44px; }
+
+  /* SECTION */
+  .section { margin-bottom:44px; }
+  .section-header { display:flex; align-items:stretch; border-bottom:2.5px solid var(--ink); margin-bottom:18px; }
+  .sec-num { font-family:'Bebas Neue',sans-serif; font-size:26px; color:white; background:var(--ink); padding:4px 13px 2px; line-height:1; display:flex; align-items:center; margin-right:13px; }
+  .sec-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:.04em; color:var(--ink); display:flex; align-items:center; flex:1; }
+  .sec-tag { font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:2px; display:flex; align-items:center; margin-left:auto; margin-bottom:4px; align-self:flex-end; color:white; }
+  .sec-tag.red   { background:var(--red); }
+  .sec-tag.blue  { background:var(--blue); }
+  .sec-tag.green { background:var(--green); }
+  .sec-tag.amber { background:var(--amber); }
+
+  /* TOPIC FOCUS BOX */
+  .focus-box { background:var(--cream); border-left:4px solid var(--rule); padding:10px 15px; margin-bottom:14px; border-radius:0 3px 3px 0; font-size:12px; color:#555; }
+  .focus-label { font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:#999; margin-bottom:4px; }
+
+  /* CHECKLIST */
+  .checklist { display:flex; flex-direction:column; gap:4px; margin-bottom:14px; }
+  .check-item { display:flex; align-items:flex-start; gap:9px; font-size:12.5px; padding:5px 0; border-bottom:1px dashed var(--rule); }
+  .check-item:last-child { border-bottom:none; }
+  .check-item input[type="checkbox"] { margin-top:2px; accent-color:var(--blue); width:14px; height:14px; flex-shrink:0; cursor:pointer; }
+  .check-item label { cursor:pointer; line-height:1.5; color:#333; }
+  .check-item label strong { color:var(--ink); }
+
+  /* SUB LABEL */
+  .sub-label { font-family:var(--mono); font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--blue); margin:14px 0 6px; }
+
+  /* INPUT WRAP */
+  .input-wrap { flex:1; display:flex; flex-direction:column; gap:1px; }
+  input.li { width:100%; border:none; border-bottom:1.5px solid var(--rule); background:transparent; font-family:var(--serif); font-size:13px; color:var(--ink); padding:3px 2px; outline:none; transition:border-color .2s, background .2s; }
+  input.li:focus { border-color:var(--blue); background:var(--hi); }
+  input.li::placeholder { color:#c0b8ae; font-style:italic; font-size:11.5px; }
+  .cnt { font-family:var(--mono); font-size:8.5px; color:#ccc; text-align:right; letter-spacing:.05em; transition:color .2s; line-height:1.2; }
+  .cnt.warn { color:#e67e22; }
+  .cnt.full { color:var(--red); font-weight:600; }
+
+  /* FIELD ROW */
+  .field-group { display:flex; flex-direction:column; gap:7px; margin-bottom:10px; }
+  .field-row { display:flex; align-items:flex-start; gap:10px; }
+  .bullet { color:var(--red); font-weight:700; min-width:12px; padding-top:4px; flex-shrink:0; }
+  .fl { min-width:110px; font-weight:600; font-size:12.5px; padding-top:4px; flex-shrink:0; }
+
+  /* FILL BOX */
+  .fill-box { width:100%; min-height:52px; border:1.5px solid var(--rule); border-radius:2px; background:var(--cream); font-family:var(--serif); font-size:13px; color:var(--ink); padding:9px 11px; resize:vertical; outline:none; line-height:1.7; transition:border-color .2s, background .2s; }
+  .fill-box:focus { border-color:var(--blue); background:var(--hi); }
+  .fill-box::placeholder { color:#c0b8ae; font-style:italic; font-size:11.5px; }
+
+  /* TABLE */
+  table { width:100%; border-collapse:collapse; font-size:12.5px; margin:8px 0; }
+  thead tr { background:var(--ink); color:white; }
+  thead th { padding:8px 11px; text-align:left; font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; }
+  tbody tr { border-bottom:1px solid var(--rule); }
+  tbody tr:nth-child(even) { background:var(--cream); }
+  td { padding:0; vertical-align:middle; }
+  td.rl { padding:7px 11px; font-weight:600; color:var(--blue); white-space:nowrap; font-size:12px; min-width:90px; }
+  td input.ti { width:100%; border:none; background:transparent; font-family:var(--serif); font-size:12.5px; color:var(--ink); padding:8px 11px; outline:none; transition:background .2s; }
+  td input.ti:focus { background:var(--hi); }
+  td input.ti::placeholder { color:#c0b8ae; font-style:italic; font-size:11px; }
+
+  /* STAGE FLOW */
+  .stage-flow { display:flex; flex-direction:column; align-items:flex-start; padding:16px 20px; background:#f6f3ed; border:1.5px solid var(--rule); border-radius:3px; margin:10px 0; }
+  .stage-item { display:flex; align-items:center; width:100%; }
+  .stage-arrow { width:26px; text-align:center; color:var(--red); font-size:15px; font-weight:700; flex-shrink:0; padding:3px 0; }
+  .stage-box { display:flex; align-items:stretch; flex:1; border:1.5px solid var(--rule); border-radius:3px; background:white; margin:3px 0; overflow:hidden; }
+  .stage-box.hl { border-color:var(--blue); }
+  .stage-box.done { border-color:#aaa; opacity:.6; }
+  .stage-name { background:var(--ink); color:white; font-family:var(--mono); font-size:10px; padding:8px 11px; min-width:148px; display:flex; align-items:center; }
+  .stage-box.hl .stage-name { background:var(--blue); }
+  .stage-box.done .stage-name { background:#777; }
+  .stage-fill { flex:1; padding:0 5px; }
+  .stage-fill input { width:100%; border:none; background:transparent; font-family:var(--serif); font-size:12.5px; color:var(--ink); padding:8px 4px; outline:none; transition:background .2s; }
+  .stage-fill input:focus { background:var(--hi); }
+  .stage-fill input::placeholder { color:#c0b8ae; font-style:italic; font-size:11px; }
+
+  /* TIP */
+  .tip { background:var(--cream); border-left:4px solid var(--amber); padding:10px 15px; margin:10px 0; border-radius:0 3px 3px 0; font-size:12px; color:#444; }
+  .tip .tip-label { font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+
+  /* FOOTER */
+  .ws-footer { background:var(--ink); color:rgba(255,255,255,.4); padding:13px 44px; display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; }
+  .ws-footer .score-box { border:1px solid rgba(255,255,255,.25); padding:4px 18px; color:white; }
+
+  /* PRINT BTN */
+  .no-print { text-align:center; padding:18px; background:var(--cream); border-top:1px solid var(--rule); display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .no-print button { background:var(--ink); color:white; border:none; padding:10px 24px; font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; cursor:pointer; border-radius:2px; transition:background .2s; }
+  .no-print button:hover { background:var(--blue); }
+  .no-print button.danger { background:var(--red); }
+  .no-print button.danger:hover { background:#a93226; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="ws-header">
+  <div class="kicker">Computer Science · Task 2 · Open Book Preparation</div>
+  <h1>Topic 2 — <em>Notes Sheet</em></h1>
+  <div class="sub">Complete this sheet before your assessment. You may bring a printed copy into the assessment with you.</div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="instructions-banner">
+  <div class="instructions-inner">
+    <div class="inst-label">📋 How this works</div>
+    <div class="inst-text">
+      Your upcoming assessment is <strong>open book</strong>. This is your one permitted reference sheet — fill it in now while you study, then bring the printed copy in. Good notes taken now will save you time under pressure. <strong>Keywords and short phrases only</strong> — the character limits are there to stop you copying text directly. If it doesn't fit, you haven't summarised it enough.
+    </div>
+    <div class="inst-rules">
+      <div class="inst-rule">📝 <span>This sheet only</span> — permitted in assessment</div>
+      <div class="inst-rule">✂ <span>Keywords only</span> — no full sentences</div>
+      <div class="inst-rule">🚫 <span>No copying</span> — summarise in your own words</div>
+      <div class="inst-rule">🖨 <span>Print before assessment</span> — no screens allowed</div>
+    </div>
+  </div>
+</div>
+
+<!-- META -->
+<div class="meta-row">
+  <div class="meta-cell"><div class="meta-label">Student Name</div><input type="text" placeholder="Your full name…"></div>
+  <div class="meta-cell"><div class="meta-label">Class / Group</div><input type="text" placeholder="e.g. 10C"></div>
+  <div class="meta-cell"><div class="meta-label">Date</div><input type="text" placeholder="dd / mm / yyyy"></div>
+</div>
+
+<div class="ws-body">
+
+  <!-- 2.1 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">2.1</div>
+      <div class="sec-title">High vs Low-Level Languages</div>
+      <div class="sec-tag red">Topic 1 of 4</div>
+    </div>
+
+    <div class="focus-box">
+      <div class="focus-label">📖 What you need to know</div>
+      What high-level and low-level languages are, how they differ, real examples of each, and the situations where each type would be used.
+    </div>
+
+    <div class="sub-label">✔ Knowledge checklist — tick each once you're confident</div>
+    <div class="checklist">
+      <div class="check-item"><input type="checkbox" id="c1a"><label for="c1a">I can define <strong>high-level language</strong> in my own words</label></div>
+      <div class="check-item"><input type="checkbox" id="c1b"><label for="c1b">I can define <strong>low-level language</strong> in my own words</label></div>
+      <div class="check-item"><input type="checkbox" id="c1c"><label for="c1c">I know at least <strong>3 differences</strong> between them</label></div>
+      <div class="check-item"><input type="checkbox" id="c1d"><label for="c1d">I can name a real <strong>high-level language example</strong> and explain where it's used</label></div>
+      <div class="check-item"><input type="checkbox" id="c1e"><label for="c1e">I can name a real <strong>low-level language example</strong> and explain where it's used</label></div>
+      <div class="check-item"><input type="checkbox" id="c1f"><label for="c1f">I can explain <strong>why</strong> a developer would choose one type over the other</label></div>
+    </div>
+
+    <div class="sub-label">Definitions — max 10 words each</div>
+    <div class="field-group">
+      <div class="field-row">
+        <span class="bullet">▸</span><span class="fl">High-level:</span>
+        <div class="input-wrap">
+          <input class="li" type="text" maxlength="70" placeholder="e.g. human-readable, abstracted from hardware…" oninput="cnt(this)">
+          <span class="cnt">0 / 70</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <span class="bullet">▸</span><span class="fl">Low-level:</span>
+        <div class="input-wrap">
+          <input class="li" type="text" maxlength="70" placeholder="e.g. close to machine code, hardware-specific…" oninput="cnt(this)">
+          <span class="cnt">0 / 70</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-label">Key differences — keywords only</div>
+    <table>
+      <thead><tr><th>Feature</th><th>High-Level</th><th>Low-Level</th></tr></thead>
+      <tbody>
+        <tr><td class="rl">Abstraction</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="high / human language…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="low / close to hardware…"></td></tr>
+        <tr><td class="rl">Portability</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="runs on many platforms…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="hardware-specific…"></td></tr>
+        <tr><td class="rl">Performance</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="overhead / slower…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="faster / direct access…"></td></tr>
+        <tr><td class="rl">Ease of use</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="easier to write/debug…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="complex / specialist…"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-label">Examples &amp; use cases — keywords only</div>
+    <div class="field-group">
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">High-level eg:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="45" placeholder="language + real use case…" oninput="cnt(this)"><span class="cnt">0 / 45</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Low-level eg:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="45" placeholder="language + real use case…" oninput="cnt(this)"><span class="cnt">0 / 45</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">When to use:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="70" placeholder="high-level when… / low-level when…" oninput="cnt(this)"><span class="cnt">0 / 70</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.2 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">2.2</div>
+      <div class="sec-title">Lexical, Syntactic &amp; Semantic Analysis</div>
+      <div class="sec-tag blue">Topic 2 of 4</div>
+    </div>
+
+    <div class="focus-box">
+      <div class="focus-label">📖 What you need to know</div>
+      What each of the three types of analysis means when translating high-level code, the order they happen in, and a code example that triggers an error at each stage.
+    </div>
+
+    <div class="sub-label">✔ Knowledge checklist</div>
+    <div class="checklist">
+      <div class="check-item"><input type="checkbox" id="c2a"><label for="c2a">I can define <strong>lexical analysis</strong> and give an example</label></div>
+      <div class="check-item"><input type="checkbox" id="c2b"><label for="c2b">I can define <strong>syntactic analysis</strong> and give an example</label></div>
+      <div class="check-item"><input type="checkbox" id="c2c"><label for="c2c">I can define <strong>semantic analysis</strong> and give an example</label></div>
+      <div class="check-item"><input type="checkbox" id="c2d"><label for="c2d">I know the <strong>correct order</strong> these stages happen</label></div>
+      <div class="check-item"><input type="checkbox" id="c2e"><label for="c2e">I can give a <strong>code error example</strong> for each stage</label></div>
+    </div>
+
+    <div class="sub-label">Definitions — max 5 words each</div>
+    <div class="field-group">
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Lexical:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="45" placeholder="breaks code into tokens…" oninput="cnt(this)"><span class="cnt">0 / 45</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Syntactic:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="45" placeholder="checks grammar / structure…" oninput="cnt(this)"><span class="cnt">0 / 45</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Semantic:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="45" placeholder="checks meaning / types…" oninput="cnt(this)"><span class="cnt">0 / 45</span></div>
+      </div>
+    </div>
+
+    <div class="sub-label">Error examples — one for each stage</div>
+    <table>
+      <thead><tr><th>Stage</th><th>Example error / what it catches</th><th>Why this stage catches it</th></tr></thead>
+      <tbody>
+        <tr><td class="rl">Lexical</td><td><input class="ti" maxlength="50" oninput="cnt(this)" placeholder="e.g. invalid symbol @£ in code…"></td><td><input class="ti" maxlength="50" oninput="cnt(this)" placeholder="not a recognised token…"></td></tr>
+        <tr><td class="rl">Syntactic</td><td><input class="ti" maxlength="50" oninput="cnt(this)" placeholder="e.g. missing bracket or semicolon…"></td><td><input class="ti" maxlength="50" oninput="cnt(this)" placeholder="breaks grammar rules…"></td></tr>
+        <tr><td class="rl">Semantic</td><td><input class="ti" maxlength="50" oninput="cnt(this)" placeholder="e.g. adding string + integer…"></td><td><input class="ti" maxlength="50" oninput="cnt(this)" placeholder="type mismatch / no logical meaning…"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-label">My own example to refer to (keywords / short phrase only)</div>
+    <textarea class="fill-box" maxlength="220" placeholder="e.g. 'total = x + 1' → lexical splits into tokens: total, =, x, +, 1. Syntax checks structure. Semantic checks types match. Max 220 chars." oninput="cnt(this)"></textarea>
+    <span class="cnt" style="display:block;text-align:right;margin-top:2px">0 / 220</span>
+  </div>
+
+  <!-- 2.3 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">2.3</div>
+      <div class="sec-title">Compiled vs Interpreted Languages</div>
+      <div class="sec-tag green">Topic 3 of 4</div>
+    </div>
+
+    <div class="focus-box">
+      <div class="focus-label">📖 What you need to know</div>
+      How compilers and interpreters work, their key differences, strengths and weaknesses of each, real-world language examples, and when you'd choose one over the other.
+    </div>
+
+    <div class="sub-label">✔ Knowledge checklist</div>
+    <div class="checklist">
+      <div class="check-item"><input type="checkbox" id="c3a"><label for="c3a">I can define what a <strong>compiler</strong> does</label></div>
+      <div class="check-item"><input type="checkbox" id="c3b"><label for="c3b">I can define what an <strong>interpreter</strong> does</label></div>
+      <div class="check-item"><input type="checkbox" id="c3c"><label for="c3c">I understand the <strong>speed difference</strong> at compile time vs runtime</label></div>
+      <div class="check-item"><input type="checkbox" id="c3d"><label for="c3d">I understand how <strong>error handling</strong> differs between the two</label></div>
+      <div class="check-item"><input type="checkbox" id="c3e"><label for="c3e">I can name a real <strong>compiled language</strong> and its use</label></div>
+      <div class="check-item"><input type="checkbox" id="c3f"><label for="c3f">I can name a real <strong>interpreted language</strong> and its use</label></div>
+      <div class="check-item"><input type="checkbox" id="c3g"><label for="c3g">I know at least one <strong>strength and weakness</strong> for each</label></div>
+      <div class="check-item"><input type="checkbox" id="c3h"><label for="c3h">I can explain <strong>when to choose each</strong> and why</label></div>
+    </div>
+
+    <div class="sub-label">Definitions — max 10 words each</div>
+    <div class="field-group">
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Compiler:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="70" placeholder="translates whole program before running…" oninput="cnt(this)"><span class="cnt">0 / 70</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Interpreter:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="70" placeholder="translates and runs one line at a time…" oninput="cnt(this)"><span class="cnt">0 / 70</span></div>
+      </div>
+    </div>
+
+    <div class="sub-label">Comparison — keywords only</div>
+    <table>
+      <thead><tr><th>Feature</th><th>Compiler</th><th>Interpreter</th></tr></thead>
+      <tbody>
+        <tr><td class="rl">Runtime speed</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="faster — already compiled…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="slower — translates each run…"></td></tr>
+        <tr><td class="rl">Error handling</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="all errors at once…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="stops at first error…"></td></tr>
+        <tr><td class="rl">Output</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="standalone executable file…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="no separate file produced…"></td></tr>
+        <tr><td class="rl">Portability</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="platform-specific binary…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="runs anywhere + interpreter…"></td></tr>
+        <tr><td class="rl">Debugging</td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="harder / batch errors…"></td><td><input class="ti" maxlength="40" oninput="cnt(this)" placeholder="easier / immediate feedback…"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-label">Real-world examples + strengths &amp; weaknesses</div>
+    <div class="field-group">
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Compiled eg:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="60" placeholder="language + industry use…" oninput="cnt(this)"><span class="cnt">0 / 60</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">Interpreted eg:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="60" placeholder="language + industry use…" oninput="cnt(this)"><span class="cnt">0 / 60</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">✔ Compiler:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="50" placeholder="strength keywords…" oninput="cnt(this)"><span class="cnt">0 / 50</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">✘ Compiler:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="50" placeholder="weakness keywords…" oninput="cnt(this)"><span class="cnt">0 / 50</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">✔ Interpreter:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="50" placeholder="strength keywords…" oninput="cnt(this)"><span class="cnt">0 / 50</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">✘ Interpreter:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="50" placeholder="weakness keywords…" oninput="cnt(this)"><span class="cnt">0 / 50</span></div>
+      </div>
+      <div class="field-row"><span class="bullet">▸</span><span class="fl">When to use:</span>
+        <div class="input-wrap"><input class="li" type="text" maxlength="70" placeholder="compiler for… / interpreter for…" oninput="cnt(this)"><span class="cnt">0 / 70</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.4 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">2.4</div>
+      <div class="sec-title">Stages of Compilation</div>
+      <div class="sec-tag amber">Topic 4 of 4</div>
+    </div>
+
+    <div class="focus-box">
+      <div class="focus-label">📖 What you need to know</div>
+      The four key stages of compilation in the correct order, what happens and what the output is at each stage, and a practical task example for each one.
+    </div>
+
+    <div class="sub-label">✔ Knowledge checklist</div>
+    <div class="checklist">
+      <div class="check-item"><input type="checkbox" id="c4a"><label for="c4a">I can name all <strong>4 stages in order</strong></label></div>
+      <div class="check-item"><input type="checkbox" id="c4b"><label for="c4b">I know what <strong>happens at each stage</strong></label></div>
+      <div class="check-item"><input type="checkbox" id="c4c"><label for="c4c">I can give a <strong>specific task example</strong> for each stage</label></div>
+      <div class="check-item"><input type="checkbox" id="c4d"><label for="c4d">I understand what the <strong>final executable</strong> is and how it runs</label></div>
+    </div>
+
+    <div class="sub-label">Stage notes — what happens at each stage (keywords only, max 50 chars)</div>
+    <div class="stage-flow">
+      <div class="stage-item">
+        <div class="stage-arrow" style="color:#aaa">●</div>
+        <div class="stage-box done">
+          <div class="stage-name">Source Code</div>
+          <div class="stage-fill"><input type="text" placeholder="Original program written by developer" disabled style="color:#999;font-style:italic"></div>
+        </div>
+      </div>
+      <div class="stage-item">
+        <div class="stage-arrow">↓</div>
+        <div class="stage-box hl">
+          <div class="stage-name">Lexical Analysis</div>
+          <div class="stage-fill"><input type="text" maxlength="50" placeholder="What happens? keywords…" oninput="cnt(this)"></div>
+        </div>
+      </div>
+      <div class="stage-item">
+        <div class="stage-arrow">↓</div>
+        <div class="stage-box hl">
+          <div class="stage-name">Syntax Analysis</div>
+          <div class="stage-fill"><input type="text" maxlength="50" placeholder="What happens? keywords…" oninput="cnt(this)"></div>
+        </div>
+      </div>
+      <div class="stage-item">
+        <div class="stage-arrow">↓</div>
+        <div class="stage-box hl">
+          <div class="stage-name">Semantic Analysis</div>
+          <div class="stage-fill"><input type="text" maxlength="50" placeholder="What happens? keywords…" oninput="cnt(this)"></div>
+        </div>
+      </div>
+      <div class="stage-item">
+        <div class="stage-arrow">↓</div>
+        <div class="stage-box hl">
+          <div class="stage-name">Code Generation</div>
+          <div class="stage-fill"><input type="text" maxlength="50" placeholder="What happens? keywords…" oninput="cnt(this)"></div>
+        </div>
+      </div>
+      <div class="stage-item">
+        <div class="stage-arrow" style="color:#aaa">●</div>
+        <div class="stage-box" style="border-color:var(--red)">
+          <div class="stage-name" style="background:var(--red)">Executable Output</div>
+          <div class="stage-fill"><input type="text" placeholder="Machine code ready to run on hardware" disabled style="color:#999;font-style:italic"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-label">Task example for each stage (one concrete example per row)</div>
+    <table>
+      <thead><tr><th>Stage</th><th>Specific example task (keywords)</th></tr></thead>
+      <tbody>
+        <tr><td class="rl">Lexical</td><td><input class="ti" maxlength="65" oninput="cnt(this)" placeholder="e.g. 'total = x + y' → tokens: total, =, x, +, y…"></td></tr>
+        <tr><td class="rl">Syntax</td><td><input class="ti" maxlength="65" oninput="cnt(this)" placeholder="e.g. checks '=' used correctly in assignment statement…"></td></tr>
+        <tr><td class="rl">Semantic</td><td><input class="ti" maxlength="65" oninput="cnt(this)" placeholder="e.g. checks x and y are compatible types before adding…"></td></tr>
+        <tr><td class="rl">Code gen</td><td><input class="ti" maxlength="65" oninput="cnt(this)" placeholder="e.g. outputs ADD register instruction in machine code…"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">📎</div>
+      <div class="sec-title">My Sources</div>
+      <div class="sec-tag blue">Reference List</div>
+    </div>
+    <div class="tip">
+      <div class="tip-label">⚠ Reminder</div>
+      Only sources listed here may be referenced during the assessment. Include enough detail to find each one quickly under time pressure.
+    </div>
+
+    <div class="sub-label" style="margin-top:16px">📋 Class Notes / Slides</div>
+    <table>
+      <thead><tr><th style="width:34px">#</th><th>Title / Description</th><th>Where to find it</th></tr></thead>
+      <tbody>
+        <tr><td class="rl" style="text-align:center;color:#bbb;min-width:34px">1</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="e.g. Topic 2 — Programming Languages slides…"></td><td><input class="ti" maxlength="80" oninput="cnt(this)" placeholder="e.g. Teams › Class Files › Topic 2…"></td></tr>
+        <tr><td class="rl" style="text-align:center;color:#bbb">2</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="…"></td><td><input class="ti" maxlength="80" oninput="cnt(this)" placeholder="…"></td></tr>
+        <tr><td class="rl" style="text-align:center;color:#bbb">3</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="…"></td><td><input class="ti" maxlength="80" oninput="cnt(this)" placeholder="…"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-label" style="margin-top:16px">🌐 Websites / Online Articles</div>
+    <table>
+      <thead><tr><th style="width:34px">#</th><th>Page Title</th><th>URL</th></tr></thead>
+      <tbody>
+        <tr><td class="rl" style="text-align:center;color:#bbb">1</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="e.g. BBC Bitesize — Translators…"></td><td><input class="ti" maxlength="100" oninput="cnt(this)" placeholder="e.g. bbc.co.uk/bitesize/…"></td></tr>
+        <tr><td class="rl" style="text-align:center;color:#bbb">2</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="…"></td><td><input class="ti" maxlength="100" oninput="cnt(this)" placeholder="…"></td></tr>
+        <tr><td class="rl" style="text-align:center;color:#bbb">3</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="…"></td><td><input class="ti" maxlength="100" oninput="cnt(this)" placeholder="…"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub-label" style="margin-top:16px">🎮 Interactive Resources</div>
+    <table>
+      <thead><tr><th style="width:34px">#</th><th>Resource Name</th><th>URL / Where to find it</th></tr></thead>
+      <tbody>
+        <tr><td class="rl" style="text-align:center;color:#bbb">1</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="e.g. Seneca Learning — Topic 2 Languages…"></td><td><input class="ti" maxlength="100" oninput="cnt(this)" placeholder="e.g. app.senecalearning.com/…"></td></tr>
+        <tr><td class="rl" style="text-align:center;color:#bbb">2</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="…"></td><td><input class="ti" maxlength="100" oninput="cnt(this)" placeholder="…"></td></tr>
+        <tr><td class="rl" style="text-align:center;color:#bbb">3</td><td><input class="ti" maxlength="60" oninput="cnt(this)" placeholder="…"></td><td><input class="ti" maxlength="100" oninput="cnt(this)" placeholder="…"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SELF CHECK -->
+  <div class="section" style="margin-bottom:0">
+    <div class="section-header">
+      <div class="sec-num">★</div>
+      <div class="sec-title">Before You Print — Final Confidence Check</div>
+    </div>
+    <div class="tip" style="margin-bottom:14px">
+      <div class="tip-label">💡 Be honest</div>
+      Any box you leave unticked is a gap in your knowledge. Go back and fill it before you print.
+    </div>
+    <div class="checklist">
+      <div class="check-item"><input type="checkbox" id="s1"><label for="s1">All four topics — <strong>2.1, 2.2, 2.3, 2.4</strong> — have notes filled in</label></div>
+      <div class="check-item"><input type="checkbox" id="s2"><label for="s2">Every knowledge checklist above has been ticked</label></div>
+      <div class="check-item"><input type="checkbox" id="s3"><label for="s3">I have a <strong>real-world example</strong> noted for each topic</label></div>
+      <div class="check-item"><input type="checkbox" id="s4"><label for="s4">My notes are <strong>keywords and phrases</strong> — not copied sentences</label></div>
+      <div class="check-item"><input type="checkbox" id="s5"><label for="s5">My sources are listed with enough detail to <strong>find them quickly</strong></label></div>
+      <div class="check-item"><input type="checkbox" id="s6"><label for="s6">I could explain each topic to someone else <strong>without looking at my notes</strong></label></div>
+    </div>
+  </div>
+
+</div><!-- /ws-body -->
+
+<div class="ws-footer">
+  <span>Computer Science · Task 2 · Open Book Notes Sheet</span>
+  <span class="score-box">Teacher use only</span>
+</div>
+
+<div class="no-print">
+  <button onclick="window.print()">🖨 Print My Notes Sheet</button>
+  <button class="danger" onclick="clearAll()">↺ Clear All</button>
+</div>
+
+</div>
+<script>
+  function cnt(el) {
+    const max = parseInt(el.getAttribute('maxlength'));
+    const len = el.value.length;
+    let c = el.parentElement.querySelector('.cnt');
+    if (!c) {
+      const sib = el.nextElementSibling;
+      if (sib && sib.classList.contains('cnt')) c = sib;
+    }
+    if (!c) return;
+    c.textContent = `${len} / ${max}`;
+    c.classList.remove('warn','full');
+    if (len >= max) c.classList.add('full');
+    else if (len >= max * 0.8) c.classList.add('warn');
+  }
+  function clearAll() {
+    if (!confirm('Clear all answers and uncheck all boxes? This cannot be undone.')) return;
+    document.querySelectorAll('input[type="text"]:not([disabled]), textarea').forEach(el => { el.value = ''; cnt(el); });
+    document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compression Lab: Become the Algorithm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
+        }
+
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .lab-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .step-highlight {
+            animation: pulse-blue 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+            0% { background-color: rgba(37, 99, 235, 0.1); }
+            50% { background-color: rgba(37, 99, 235, 0.3); }
+            100% { background-color: rgba(37, 99, 235, 0.1); }
+        }
+
+        .huffman-node {
+            border: 2px solid #2563eb;
+            background: white;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            position: relative;
+        }
+
+        .pixel-grid {
+            display: grid;
+            gap: 1px;
+            background: #cbd5e1;
+            border: 1px solid #94a3b8;
+        }
+
+        .pixel {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Tooltip style */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted #2563eb;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-6 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight">Compression Lab</h1>
+                <p class="text-blue-400 font-medium">Become the Algorithm</p>
+            </div>
+            <nav class="flex flex-wrap gap-2">
+                <button onclick="showSection('intro')" id="btn-intro" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 hover:bg-slate-700 transition active">Detective</button>
+                <button onclick="showSection('lossless')" id="btn-lossless" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 hover:bg-slate-700 transition">Lossless</button>
+                <button onclick="showSection('lossy')" id="btn-lossy" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 hover:bg-slate-700 transition">Lossy</button>
+                <button onclick="showSection('challenge')" id="btn-challenge" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 hover:bg-slate-700 transition">Challenge</button>
+                <button onclick="showSection('calculator')" id="btn-calculator" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 hover:bg-slate-700 transition">Calculator</button>
+                <button onclick="showSection('break')" id="btn-break" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 hover:bg-slate-700 transition text-red-400">Break It!</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+
+        <!-- 7.1 STARTER SECTION: DETECTIVE -->
+        <section id="section-intro" class="lab-section space-y-6">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-slate-800">Section 0: Compression Detective</h2>
+                <p class="text-slate-600 mt-2">Can you spot the difference? Test your intuition on lossy vs lossless.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Task 1 -->
+                <div class="lab-card p-6 border-t-4 border-blue-500">
+                    <h3 class="font-bold text-lg mb-4">Case #1: The Portrait</h3>
+                    <div class="flex gap-4 mb-4">
+                        <div class="flex-1 text-center">
+                            <div class="bg-blue-100 h-32 rounded flex items-center justify-center text-4xl">🖼️</div>
+                            <span class="text-xs text-slate-500">Image A (1.2MB)</span>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <div class="bg-blue-100 h-32 rounded flex items-center justify-center text-4xl opacity-70 grayscale">🖼️</div>
+                            <span class="text-xs text-slate-500">Image B (45KB)</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">Image B looks slightly "blocky" around the edges. Which method was used?</p>
+                    <div class="space-y-2">
+                        <button onclick="detectiveCheck('q1', 'lossy')" class="w-full text-left p-3 rounded border hover:bg-slate-50 transition">Lossy Compression</button>
+                        <button onclick="detectiveCheck('q1', 'lossless')" class="w-full text-left p-3 rounded border hover:bg-slate-50 transition">Lossless Compression</button>
+                    </div>
+                    <div id="q1-feedback" class="mt-4 hidden p-3 rounded text-sm"></div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="lab-card p-6 border-t-4 border-purple-500">
+                    <h3 class="font-bold text-lg mb-4">Case #2: The Source Code</h3>
+                    <div class="flex gap-4 mb-4">
+                        <div class="flex-1 text-center">
+                            <div class="bg-purple-100 h-32 rounded flex items-center justify-center p-2 text-[10px] overflow-hidden">
+                                <code>function main() {<br>console.log("Hello");<br>}</code>
+                            </div>
+                            <span class="text-xs text-slate-500">Original.js (5KB)</span>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <div class="bg-purple-100 h-32 rounded flex items-center justify-center p-2 text-[10px] overflow-hidden">
+                                <code>function main(){console.log("Hello")}</code>
+                            </div>
+                            <span class="text-xs text-slate-500">Minified.zip (2KB)</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">The code must remain functional after decompression. Which is required?</p>
+                    <div class="space-y-2">
+                        <button onclick="detectiveCheck('q2', 'lossless')" class="w-full text-left p-3 rounded border hover:bg-slate-50 transition">Lossless Compression</button>
+                        <button onclick="detectiveCheck('q2', 'lossy')" class="w-full text-left p-3 rounded border hover:bg-slate-50 transition">Lossy Compression</button>
+                    </div>
+                    <div id="q2-feedback" class="mt-4 hidden p-3 rounded text-sm"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7.2 SECTION A: LOSSLESS SIMULATOR -->
+        <section id="section-lossless" class="lab-section space-y-12 hidden">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-slate-800">Section A: Lossless Lab</h2>
+                <p class="text-slate-600 mt-2">Perfect reconstruction. No data left behind.</p>
+            </div>
+
+            <!-- 7.2.1 RLE -->
+            <div class="lab-card overflow-hidden">
+                <div class="bg-blue-600 text-white p-4">
+                    <h3 class="font-bold">1. Run-Length Encoding (RLE) Builder</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">Enter a string with repeated characters (e.g., AAABBBCCCC) to see RLE in action.</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="rle-input" maxlength="20" placeholder="AAABBBCCCC" class="flex-1 border p-2 rounded uppercase font-mono">
+                                <button onclick="runRLE()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Encode</button>
+                            </div>
+                            <button onclick="setRLEBad()" class="text-xs text-blue-600 underline">Try an "ineffective" example</button>
+                            
+                            <div class="p-4 bg-slate-50 rounded border text-sm space-y-2">
+                                <div class="flex justify-between"><span>Original Characters:</span> <span id="rle-orig-count" class="font-bold">-</span></div>
+                                <div class="flex justify-between"><span>Encoded Characters:</span> <span id="rle-comp-count" class="font-bold">-</span></div>
+                                <div class="flex justify-between border-t pt-2 mt-2"><span>Space Saved:</span> <span id="rle-saving" class="font-bold text-green-600">-</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 rounded p-6 text-white min-h-[150px] flex flex-col justify-center items-center">
+                            <div class="text-xs text-slate-400 mb-2">OUTPUT STREAM</div>
+                            <div id="rle-output" class="text-2xl font-mono tracking-widest break-all">...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7.2.2 Huffman -->
+            <div class="lab-card overflow-hidden">
+                <div class="bg-purple-600 text-white p-4">
+                    <h3 class="font-bold">2. Huffman Coding Visualizer</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">Enter text (e.g., BANANA) to generate a Huffman Tree.</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="huffman-input" maxlength="15" placeholder="BANANA" class="flex-1 border p-2 rounded uppercase font-mono">
+                                <button onclick="runHuffman()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition">Build Tree</button>
+                            </div>
+                            <div id="huffman-stats" class="hidden text-xs space-y-2 p-3 bg-purple-50 rounded border border-purple-100">
+                                <p><strong>Frequencies:</strong> <span id="huffman-freqs"></span></p>
+                                <p><strong>Result:</strong> <span id="huffman-result" class="font-mono text-xs"></span></p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded border border-slate-200 p-4 min-h-[300px] flex flex-col">
+                            <div class="text-xs text-slate-400 mb-2 text-center uppercase font-bold">Huffman Tree Structure</div>
+                            <div id="huffman-tree-canvas" class="flex-1 flex items-center justify-center overflow-auto relative p-4">
+                                <p class="text-slate-400 italic text-sm">Input text to generate tree...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7.2.3 LZW -->
+            <div class="lab-card overflow-hidden">
+                <div class="bg-emerald-600 text-white p-4">
+                    <h3 class="font-bold">3. LZW Dictionary Builder</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">Watch the dictionary grow as common patterns (like AB) are assigned unique codes.</p>
+                            <input type="text" id="lzw-input" maxlength="15" value="ABABABA" class="w-full border p-2 rounded uppercase font-mono">
+                            <div class="flex gap-2">
+                                <button onclick="initLZW()" class="flex-1 bg-slate-200 p-2 rounded text-sm font-bold">Reset</button>
+                                <button onclick="stepLZW()" class="flex-1 bg-emerald-600 text-white p-2 rounded text-sm font-bold hover:bg-emerald-700">Next Step</button>
+                            </div>
+                            <div id="lzw-explanation" class="text-xs p-3 bg-emerald-50 text-emerald-800 rounded border border-emerald-100 min-h-[60px]">
+                                Click "Next Step" to begin processing.
+                            </div>
+                        </div>
+                        <div class="col-span-2 space-y-4">
+                            <div class="bg-white border rounded h-64 overflow-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 sticky top-0">
+                                        <tr>
+                                            <th class="p-2 border-b">Index</th>
+                                            <th class="p-2 border-b">Pattern</th>
+                                            <th class="p-2 border-b">Assigned Code</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lzw-dict-body">
+                                        <!-- Rows injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="bg-slate-900 rounded p-3 text-white">
+                                <div class="text-[10px] text-slate-400 mb-1 uppercase">Output Stream</div>
+                                <div id="lzw-output" class="font-mono text-lg text-emerald-400">...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7.3 SECTION B: LOSSY SIMULATOR -->
+        <section id="section-lossy" class="lab-section space-y-12 hidden">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-slate-800">Section B: Lossy Lab</h2>
+                <p class="text-slate-600 mt-2">The art of discarding "unimportant" data.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Image Simulator -->
+                <div class="lab-card overflow-hidden">
+                    <div class="bg-orange-600 text-white p-4 flex justify-between">
+                        <h3 class="font-bold">Image Compression</h3>
+                        <span id="img-size" class="text-xs font-mono">1024 KB</span>
+                    </div>
+                    <div class="p-6 space-y-6 text-center">
+                        <div id="image-simulation-container" class="mx-auto flex justify-center p-4 bg-slate-100 rounded-lg">
+                            <!-- Visual simulation using CSS/JS pixelation -->
+                            <div id="pixel-canvas" class="pixel-grid" style="grid-template-columns: repeat(16, 1fr);"></div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold block">Quality Slider</label>
+                            <input type="range" id="quality-slider" min="1" max="100" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600" oninput="updateImageSimulation()">
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>High Compression (Low Quality)</span>
+                                <span>No Compression (Original)</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-left p-3 bg-orange-50 border border-orange-100 rounded text-orange-900">
+                            <strong>How it works:</strong> As quality drops, we group similar pixels together and discard fine details. This creates "artefacts" and blockiness but drastically reduces file size.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Simulator -->
+                <div class="lab-card overflow-hidden">
+                    <div class="bg-blue-500 text-white p-4">
+                        <h3 class="font-bold">Audio Compression</h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="bg-slate-900 h-32 rounded flex items-center justify-around overflow-hidden relative">
+                            <div id="waveform" class="flex items-center gap-1">
+                                <!-- Waveform bars -->
+                                <div class="bg-blue-400 w-2 h-12 rounded-full animate-pulse"></div>
+                                <div class="bg-blue-400 w-2 h-20 rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
+                                <div class="bg-blue-400 w-2 h-16 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                                <div class="bg-blue-400 w-2 h-24 rounded-full animate-pulse" style="animation-delay: 0.3s"></div>
+                                <div class="bg-blue-400 w-2 h-14 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="audio-filter" onchange="updateAudioSim()" class="w-5 h-5 accent-blue-600">
+                                <label for="audio-filter" class="text-sm font-bold">Remove inaudible frequencies</label>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="audio-bitrate" onchange="updateAudioSim()" class="w-5 h-5 accent-blue-600">
+                                <label for="audio-bitrate" class="text-sm font-bold">Reduce sample rate (Bitrate)</label>
+                            </div>
+                        </div>
+                        <div id="audio-stats" class="p-4 bg-slate-50 rounded border text-sm">
+                            <p>Estimated File Size: <span id="audio-size" class="font-bold">4.2 MB</span></p>
+                            <p class="text-[10px] text-slate-500 mt-1">Status: Original High-Fidelity Audio</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7.4 SECTION C: DECISION CHALLENGE -->
+        <section id="section-challenge" class="lab-section space-y-6 hidden">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">Section C: Decision Challenge</h2>
+                <p class="text-slate-600 mt-2">Apply your knowledge to real-world scenarios.</p>
+            </div>
+
+            <div id="scenario-container" class="max-w-2xl mx-auto space-y-6">
+                <!-- Questions generated by JS -->
+            </div>
+        </section>
+
+        <!-- 7.5 SECTION D: CALCULATOR -->
+        <section id="section-calculator" class="lab-section space-y-8 hidden">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-slate-800">Section D: Compression Calculator</h2>
+                <p class="text-slate-600 mt-2">Master the math required for the exam.</p>
+            </div>
+
+            <div class="max-w-md mx-auto lab-card p-8">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Original File Size (e.g. bits)</label>
+                        <input type="number" id="calc-orig" class="w-full border p-2 rounded" placeholder="1000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Compressed File Size (e.g. bits)</label>
+                        <input type="number" id="calc-comp" class="w-full border p-2 rounded" placeholder="250">
+                    </div>
+                    <button onclick="calculateCompression()" class="w-full bg-slate-900 text-white p-3 rounded font-bold hover:bg-slate-800 transition">Calculate</button>
+                    
+                    <div id="calc-results" class="hidden mt-6 space-y-4 pt-4 border-t">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-3 rounded text-center">
+                                <span class="block text-[10px] uppercase font-bold text-blue-600">Ratio</span>
+                                <span id="res-ratio" class="text-xl font-bold text-slate-800">-</span>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded text-center">
+                                <span class="block text-[10px] uppercase font-bold text-green-600">Reduction %</span>
+                                <span id="res-perc" class="text-xl font-bold text-slate-800">-</span>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-500 bg-slate-50 p-3 rounded italic">
+                            <strong>Formula used:</strong><br>
+                            Reduction = (Original - Compressed) / Original * 100<br>
+                            Ratio = Original / Compressed : 1
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7.6 SECTION E: BREAK THE ALGORITHM -->
+        <section id="section-break" class="lab-section space-y-8 hidden">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-red-600">Section E: Break the Algorithm</h2>
+                <p class="text-slate-600 mt-2">When does compression fail? Let's find out.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="lab-card p-6 border-l-4 border-red-500">
+                    <h3 class="font-bold mb-2">Entropy Overload</h3>
+                    <p class="text-xs text-slate-600 mb-4">Try RLE on truly random data. If every character is unique, we add a number prefix to every character!</p>
+                    <button onclick="breakRLE()" class="w-full bg-red-50 text-red-600 p-2 rounded text-xs font-bold border border-red-200">Test RLE Failure</button>
+                </div>
+                <div class="lab-card p-6 border-l-4 border-red-500">
+                    <h3 class="font-bold mb-2">Flat Huffman</h3>
+                    <p class="text-xs text-slate-600 mb-4">Huffman relies on frequency variance. What happens if every symbol appears exactly once?</p>
+                    <button onclick="breakHuffman()" class="w-full bg-red-50 text-red-600 p-2 rounded text-xs font-bold border border-red-200">Test Huffman Failure</button>
+                </div>
+                <div class="lab-card p-6 border-l-4 border-red-500">
+                    <h3 class="font-bold mb-2">Short LZW</h3>
+                    <p class="text-xs text-slate-600 mb-4">Dictionary algorithms have "overhead". Small files might get LARGER because the dictionary itself costs space.</p>
+                    <button onclick="breakLZW()" class="w-full bg-red-50 text-red-600 p-2 rounded text-xs font-bold border border-red-200">Test Dictionary Overhead</button>
+                </div>
+            </div>
+
+            <div id="break-result-box" class="hidden p-6 bg-slate-900 text-white rounded-lg text-center">
+                <p id="break-message" class="text-lg font-bold text-red-400"></p>
+                <p id="break-data" class="font-mono text-sm mt-2"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 bg-slate-100 p-8 text-center text-slate-500 text-sm border-t border-slate-200">
+        <p>&copy; 2025 Compression Lab: Become the Algorithm. Designed for Computer Science Learners.</p>
+    </footer>
+
+    <!-- Notification Message Box -->
+    <div id="message-box" class="fixed bottom-4 right-4 max-w-sm w-full bg-white border shadow-2xl rounded-xl p-4 transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="flex items-start gap-3">
+            <div id="msg-icon" class="text-2xl">💡</div>
+            <div>
+                <h4 id="msg-title" class="font-bold text-sm">Hint</h4>
+                <p id="msg-body" class="text-xs text-slate-600"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        function showSection(id) {
+            document.querySelectorAll('.lab-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + id).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + id).classList.add('active');
+
+            if (id === 'lossy') initImageSim();
+        }
+
+        // --- Messenger Logic ---
+        function notify(title, body, icon = '💡') {
+            const box = document.getElementById('message-box');
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = body;
+            document.getElementById('msg-icon').innerText = icon;
+            box.classList.remove('translate-y-32');
+            setTimeout(() => box.classList.add('translate-y-32'), 5000);
+        }
+
+        // --- 7.1 Detective Logic ---
+        function detectiveCheck(id, choice) {
+            const feedback = document.getElementById(id + '-feedback');
+            feedback.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-800', 'text-green-800');
+            
+            if (id === 'q1') {
+                if (choice === 'lossy') {
+                    feedback.innerHTML = "<strong>Correct!</strong> Image artefacts (blockiness) are a sign of Lossy compression (like JPEG). It sacrifices data for a massive file size reduction.";
+                    feedback.classList.add('bg-green-100', 'text-green-800');
+                } else {
+                    feedback.innerHTML = "<strong>Not quite.</strong> Lossless compression would keep the image pixel-perfect. Blockiness means data was discarded (Lossy).";
+                    feedback.classList.add('bg-red-100', 'text-red-800');
+                }
+            } else if (id === 'q2') {
+                if (choice === 'lossless') {
+                    feedback.innerHTML = "<strong>Correct!</strong> Text and executable files (like software) must be Lossless. If a single semicolon was 'discarded' by lossy compression, the whole program would break.";
+                    feedback.classList.add('bg-green-100', 'text-green-800');
+                } else {
+                    feedback.innerHTML = "<strong>Incorrect.</strong> Imagine a 'lossy' compressed contract where a zero was removed from a price! Text requires total accuracy (Lossless).";
+                    feedback.classList.add('bg-red-100', 'text-red-800');
+                }
+            }
+        }
+
+        // --- 7.2.1 RLE Logic ---
+        function runRLE() {
+            let input = document.getElementById('rle-input').value.toUpperCase().trim();
+            if (!input) input = "AAABBBCCCCDD";
+            
+            let encoded = "";
+            let count = 1;
+            for (let i = 0; i < input.length; i++) {
+                if (input[i] === input[i + 1]) {
+                    count++;
+                } else {
+                    encoded += count + input[i];
+                    count = 1;
+                }
+            }
+
+            const origLen = input.length;
+            const compLen = encoded.length;
+            const saving = ((origLen - compLen) / origLen * 100).toFixed(0);
+
+            document.getElementById('rle-output').innerText = encoded;
+            document.getElementById('rle-orig-count').innerText = origLen;
+            document.getElementById('rle-comp-count').innerText = compLen;
+            document.getElementById('rle-saving').innerText = (saving > 0 ? saving + "%" : "0% (No Gain)");
+            document.getElementById('rle-saving').className = (saving > 0 ? "font-bold text-green-600" : "font-bold text-red-600");
+        }
+
+        function setRLEBad() {
+            document.getElementById('rle-input').value = "ABCDEFG";
+            runRLE();
+            notify("RLE Failure", "Notice how ABCDEFG became 1A1B1C1D1E1F1G? The file size doubled! RLE is only efficient for long runs of data.");
+        }
+
+        // --- 7.2.2 Huffman Logic ---
+        function runHuffman() {
+            const input = document.getElementById('huffman-input').value.toUpperCase().trim() || "BANANA";
+            const freqs = {};
+            for (let char of input) freqs[char] = (freqs[char] || 0) + 1;
+            
+            // Build tree representation (Simplified)
+            let nodes = Object.entries(freqs).map(([char, count]) => ({ char, count, leaf: true }));
+            document.getElementById('huffman-freqs').innerText = JSON.stringify(freqs);
+            
+            const canvas = document.getElementById('huffman-tree-canvas');
+            canvas.innerHTML = "";
+            
+            // Visual builder (simplified: just showing frequency leaves for this version)
+            const list = document.createElement('div');
+            list.className = "flex gap-4 items-end justify-center h-full w-full";
+            
+            Object.entries(freqs).sort((a,b) => b[1]-a[1]).forEach(([char, count]) => {
+                const node = document.createElement('div');
+                node.className = "flex flex-col items-center gap-2";
+                const circle = document.createElement('div');
+                circle.className = "huffman-node shadow-lg";
+                circle.innerText = char;
+                const label = document.createElement('span');
+                label.className = "text-[10px] font-bold text-slate-500 uppercase";
+                label.innerText = `Freq: ${count}`;
+                
+                // Add fake path for visual flair
+                const path = document.createElement('div');
+                path.className = "w-[2px] bg-purple-200";
+                path.style.height = (count * 20) + "px";
+
+                node.appendChild(circle);
+                node.appendChild(path);
+                node.appendChild(label);
+                list.appendChild(node);
+            });
+            canvas.appendChild(list);
+
+            document.getElementById('huffman-stats').classList.remove('hidden');
+            document.getElementById('huffman-result').innerText = `Huffman uses variable bit lengths. '${input[0]}' might only take 1 bit!`;
+        }
+
+        // --- 7.2.3 LZW Logic ---
+        let lzwDict = {};
+        let lzwInput = "";
+        let lzwIndex = 0;
+        let lzwOutput = [];
+        let lzwCurrentPattern = "";
+
+        function initLZW() {
+            const input = document.getElementById('lzw-input').value.toUpperCase().trim() || "ABABABA";
+            lzwInput = input;
+            lzwDict = {};
+            const chars = [...new Set(input)];
+            chars.forEach((c, i) => lzwDict[c] = i + 1);
+            
+            lzwIndex = 0;
+            lzwOutput = [];
+            lzwCurrentPattern = input[0];
+            
+            renderLZW();
+            document.getElementById('lzw-explanation').innerText = "Dictionary initialized with basic characters.";
+        }
+
+        function stepLZW() {
+            if (lzwIndex >= lzwInput.length) {
+                notify("Done", "Processing complete. The repeated patterns were replaced by codes from the dictionary.");
+                return;
+            }
+
+            let nextChar = lzwInput[lzwIndex + 1] || "";
+            let combined = lzwCurrentPattern + nextChar;
+
+            if (nextChar && lzwDict[combined]) {
+                lzwCurrentPattern = combined;
+                document.getElementById('lzw-explanation').innerText = `Pattern '${combined}' already exists in dictionary. Continuing...`;
+            } else {
+                lzwOutput.push(lzwDict[lzwCurrentPattern]);
+                if (nextChar) {
+                    const newCode = Object.keys(lzwDict).length + 1;
+                    lzwDict[combined] = newCode;
+                    document.getElementById('lzw-explanation').innerText = `Outputting code for '${lzwCurrentPattern}'. Adding new pattern '${combined}' to dictionary as code ${newCode}.`;
+                }
+                lzwCurrentPattern = nextChar;
+            }
+
+            lzwIndex++;
+            renderLZW();
+        }
+
+        function renderLZW() {
+            const tbody = document.getElementById('lzw-dict-body');
+            tbody.innerHTML = "";
+            Object.entries(lzwDict).forEach(([key, val]) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-2 border-b">${val}</td><td class="p-2 border-b font-mono">${key}</td><td class="p-2 border-b">${val}</td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('lzw-output').innerText = lzwOutput.join(" ");
+        }
+
+        // --- 7.3 Lossy Simulators ---
+        function initImageSim() {
+            const grid = document.getElementById('pixel-canvas');
+            grid.innerHTML = "";
+            for (let i = 0; i < 256; i++) {
+                const p = document.createElement('div');
+                p.className = "pixel";
+                // Create a basic mosaic pattern
+                const r = Math.floor(Math.random() * 50) + 100;
+                const g = Math.floor(Math.random() * 50) + 150;
+                const b = Math.floor(Math.random() * 50) + 200;
+                p.style.backgroundColor = `rgb(${r},${g},${b})`;
+                grid.appendChild(p);
+            }
+            updateImageSimulation();
+        }
+
+        function updateImageSimulation() {
+            const quality = document.getElementById('quality-slider').value;
+            const pixels = document.querySelectorAll('.pixel');
+            const size = (quality * 10.24).toFixed(1);
+            document.getElementById('img-size').innerText = size + " KB";
+            
+            // Visual degradation simulation
+            const blurVal = (100 - quality) / 20;
+            const opacityVal = 0.5 + (quality / 200);
+            
+            pixels.forEach(p => {
+                p.style.filter = `blur(${blurVal}px)`;
+                p.style.opacity = opacityVal;
+                // Grouping effect for very low quality
+                if (quality < 30) {
+                    p.style.borderRadius = "0";
+                    p.style.transform = "scale(1.1)";
+                } else {
+                    p.style.borderRadius = "2px";
+                    p.style.transform = "scale(1)";
+                }
+            });
+        }
+
+        function updateAudioSim() {
+            const filtered = document.getElementById('audio-filter').checked;
+            const lowRate = document.getElementById('audio-bitrate').checked;
+            let size = 4.2;
+            let status = "Original High-Fidelity Audio";
+
+            if (filtered) {
+                size -= 1.2;
+                status = "Frequencies outside human hearing range removed.";
+            }
+            if (lowRate) {
+                size -= 2.5;
+                status = "Bitrate reduced. Sound may be 'muffled' or lose crispness.";
+            }
+
+            document.getElementById('audio-size').innerText = size.toFixed(1) + " MB";
+            document.querySelector('#audio-stats p:last-child').innerText = "Status: " + status;
+            
+            const wave = document.getElementById('waveform');
+            wave.style.opacity = filtered || lowRate ? "0.6" : "1";
+            wave.style.filter = lowRate ? "blur(1px) grayscale(0.5)" : "none";
+        }
+
+        // --- 7.4 Decision Challenge Logic ---
+        const scenarios = [
+            {
+                title: "Legal Document Archiving",
+                text: "A law firm needs to digitize and store thousands of historical contracts. The text must remain 100% accurate for court use.",
+                options: ["Lossless", "Lossy"],
+                correct: 0,
+                feedback: "Lossless is essential here. Any data loss could change the meaning of a contract, rendering it useless for legal purposes."
+            },
+            {
+                title: "Streaming a Live Sports Event",
+                text: "A broadcaster is streaming a 4K football match to millions of mobile devices with limited bandwidth.",
+                options: ["Lossless", "Lossy"],
+                correct: 1,
+                feedback: "Lossy is required for video streaming. Lossless 4K video is too massive to stream over the internet. Minor loss of visual detail is an acceptable trade-off for smooth playback."
+            },
+            {
+                title: "Medical X-Ray Imaging",
+                text: "A radiologist needs to zoom in on a scan to detect a tiny fracture.",
+                options: ["Lossless", "Lossy"],
+                correct: 0,
+                feedback: "Lossless. In medical imaging, 'artefacts' from lossy compression could be mistaken for symptoms or hide actual injuries."
+            }
+        ];
+
+        function loadScenarios() {
+            const container = document.getElementById('scenario-container');
+            container.innerHTML = "";
+            scenarios.forEach((s, i) => {
+                const card = document.createElement('div');
+                card.className = "lab-card p-6 border-l-4 border-slate-300";
+                card.innerHTML = `
+                    <h4 class="font-bold mb-2">${i+1}. ${s.title}</h4>
+                    <p class="text-sm text-slate-600 mb-4">${s.text}</p>
+                    <div class="flex gap-2">
+                        ${s.options.map((opt, idx) => `
+                            <button onclick="checkScenario(${i}, ${idx}, this)" class="px-4 py-2 border rounded text-sm hover:bg-slate-50 transition">${opt}</button>
+                        `).join('')}
+                    </div>
+                    <div id="scen-fb-${i}" class="hidden mt-4 p-3 rounded text-xs bg-blue-50 text-blue-900"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkScenario(sIdx, oIdx, btn) {
+            const scenario = scenarios[sIdx];
+            const feedback = document.getElementById(`scen-fb-${sIdx}`);
+            feedback.innerHTML = `<strong>${oIdx === scenario.correct ? 'Correct' : 'Incorrect'}:</strong> ${scenario.feedback}`;
+            feedback.classList.remove('hidden');
+            
+            // Mark button
+            const parent = btn.parentElement;
+            Array.from(parent.children).forEach(b => b.className = "px-4 py-2 border rounded text-sm bg-slate-100 text-slate-400 cursor-not-allowed");
+            btn.className = oIdx === scenario.correct ? "px-4 py-2 bg-green-600 text-white rounded text-sm font-bold" : "px-4 py-2 bg-red-600 text-white rounded text-sm font-bold";
+        }
+
+        // --- 7.5 Calculator Logic ---
+        function calculateCompression() {
+            const orig = parseFloat(document.getElementById('calc-orig').value);
+            const comp = parseFloat(document.getElementById('calc-comp').value);
+
+            if (!orig || !comp) {
+                notify("Missing Data", "Please enter both original and compressed sizes.", "❌");
+                return;
+            }
+
+            const ratio = (orig / comp).toFixed(2);
+            const perc = (((orig - comp) / orig) * 100).toFixed(1);
+
+            document.getElementById('res-ratio').innerText = `${ratio}:1`;
+            document.getElementById('res-perc').innerText = `${perc}%`;
+            document.getElementById('calc-results').classList.remove('hidden');
+        }
+
+        // --- 7.6 Break Logic ---
+        function showBreak(title, data, message) {
+            const box = document.getElementById('break-result-box');
+            document.getElementById('break-message').innerText = message;
+            document.getElementById('break-data').innerText = data;
+            box.classList.remove('hidden');
+            notify(title, "Compression was ineffective!", "🚨");
+        }
+
+        function breakRLE() {
+            const input = "ABCDEFGHIJ";
+            const encoded = "1A1B1C1D1E1F1G1H1I1J";
+            showBreak("RLE Failure", `${input} ➔ ${encoded}`, "The file size doubled because there were no repeated runs!");
+        }
+
+        function breakHuffman() {
+            showBreak("Huffman Limitation", "AAAAABBBBBCCCCC", "When frequencies are identical, every character gets a code of equal length. No bits are saved compared to standard fixed-length encoding.");
+        }
+
+        function breakLZW() {
+            showBreak("Dictionary Bloat", "A", "For tiny files, storing the 'dictionary' (which tells the system what the codes mean) actually takes up more space than the original character itself.");
+        }
+
+        // Initialize first section
+        window.onload = () => {
+            initLZW();
+            loadScenarios();
+        };
+    </script>
+</body>
+</html>

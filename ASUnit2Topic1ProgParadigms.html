@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Code Decoder — A-Level Computer Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --navy:      #0d1b2a;
+    --navy-mid:  #1a2e45;
+    --navy-soft: #253d56;
+    --teal:      #00c9a7;
+    --teal-dim:  #009e84;
+    --amber:     #f5a623;
+    --amber-dim: #c4841c;
+    --red:       #ff4d6d;
+    --green:     #2dce89;
+    --white:     #f0f4f8;
+    --grey-1:    #cdd8e3;
+    --grey-2:    #8fa3b8;
+    --grey-3:    #4a6278;
+    --card-bg:   #13243a;
+    --card-border: #1e3a55;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --serif: 'DM Serif Display', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,201,167,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 90% 80%, rgba(245,166,35,0.06) 0%, transparent 50%);
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,27,42,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 clamp(1rem,4vw,2.5rem);
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+
+  .header-brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .logo-chip {
+    background: var(--teal);
+    color: var(--navy);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .header-title {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--grey-1);
+    letter-spacing: 0.02em;
+  }
+
+  .header-title span { color: var(--teal); }
+
+  .ref-toggle {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    color: var(--grey-1);
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ref-toggle:hover { border-color: var(--teal); color: var(--teal); }
+  .ref-toggle .icon { font-size: 1rem; transition: transform 0.3s; }
+  .ref-toggle.open .icon { transform: rotate(45deg); }
+
+  /* ── REFERENCE PANEL ────────────────────────────────────── */
+  .ref-panel {
+    background: var(--navy-mid);
+    border-bottom: 1px solid var(--card-border);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .ref-panel.open { max-height: 360px; }
+  .ref-panel-inner {
+    padding: 1.25rem clamp(1rem,4vw,2.5rem);
+  }
+  .ref-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--teal);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .ref-table {
+    width: 100%; border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .ref-table th {
+    text-align: left;
+    padding: 6px 12px;
+    background: rgba(0,201,167,0.1);
+    color: var(--teal);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .ref-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--grey-1);
+  }
+  .ref-table tr:hover td { background: rgba(0,201,167,0.05); }
+  .ref-table .opcode-cell { color: var(--amber); }
+  .ref-table .name-cell { color: var(--white); font-weight: 600; }
+
+  /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: clamp(1.5rem,4vw,3rem) clamp(1rem,4vw,2rem);
+  }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero { text-align: center; margin-bottom: 3rem; }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--teal);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--teal);
+  }
+
+  .hero-sub {
+    color: var(--grey-2);
+    font-size: 0.95rem;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── INSTRUCTION DISPLAY ─────────────────────────────────── */
+  .instr-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .instr-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--amber));
+  }
+
+  .instr-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--grey-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .instr-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--card-border);
+  }
+
+  .binary-display {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .bit-group {
+    display: flex; gap: 3px;
+    padding: 0 10px;
+    border-right: 1px solid var(--card-border);
+  }
+  .bit-group:last-child { border-right: none; }
+
+  .bit {
+    font-family: var(--mono);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    width: clamp(28px, 5vw, 44px);
+    height: clamp(42px, 7vw, 64px);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    color: var(--grey-1);
+    transition: all 0.3s;
+    cursor: default;
+    user-select: none;
+    position: relative;
+  }
+
+  .bit.opcode-highlight {
+    background: rgba(0,201,167,0.15);
+    border-color: var(--teal);
+    color: var(--teal);
+    box-shadow: 0 0 12px rgba(0,201,167,0.2);
+  }
+
+  .bit.operand-highlight {
+    background: rgba(245,166,35,0.12);
+    border-color: var(--amber);
+    color: var(--amber);
+    box-shadow: 0 0 12px rgba(245,166,35,0.15);
+  }
+
+  .field-labels {
+    display: flex; justify-content: space-around;
+    margin-top: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--grey-3);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .field-labels.visible { opacity: 1; }
+  .field-labels .opcode-lbl { color: var(--teal); }
+  .field-labels .operand-lbl { color: var(--amber); }
+
+  .instr-note {
+    text-align: center;
+    color: var(--grey-2);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  /* ── STEP CARDS ──────────────────────────────────────────── */
+  .steps { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .step-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: opacity 0.3s, filter 0.3s;
+  }
+
+  .step-card.locked {
+    opacity: 0.45;
+    filter: grayscale(0.4);
+    pointer-events: none;
+  }
+
+  .step-card.completed .step-header { border-bottom: none; }
+
+  .step-header {
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--card-border);
+    cursor: default;
+  }
+
+  .step-badge {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 2px solid var(--card-border);
+    color: var(--grey-2);
+    background: var(--navy-mid);
+    transition: all 0.3s;
+  }
+
+  .step-card.active .step-badge {
+    border-color: var(--teal);
+    color: var(--teal);
+    background: rgba(0,201,167,0.1);
+    box-shadow: 0 0 0 3px rgba(0,201,167,0.15);
+  }
+
+  .step-card.completed .step-badge {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--navy);
+  }
+
+  .step-header-text h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .step-header-text p {
+    font-size: 0.78rem;
+    color: var(--grey-2);
+    margin-top: 2px;
+  }
+
+  .step-done-summary {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--green);
+    background: rgba(45,206,137,0.1);
+    border: 1px solid rgba(45,206,137,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  .step-body {
+    padding: 1.5rem;
+  }
+
+  /* ── STEP 1: BIT SPLITTER ────────────────────────────────── */
+  .splitter-instruction {
+    font-size: 0.87rem;
+    color: var(--grey-1);
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+  }
+
+  .splitter-instruction strong { color: var(--white); }
+
+  .split-options {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .split-btn {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: var(--navy-mid);
+    color: var(--grey-1);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .split-btn:hover { border-color: var(--teal); color: var(--teal); background: rgba(0,201,167,0.06); }
+  .split-btn.selected { border-color: var(--teal); color: var(--teal); background: rgba(0,201,167,0.12); }
+  .split-btn.wrong { border-color: var(--red); color: var(--red); background: rgba(255,77,109,0.08); animation: shake 0.3s; }
+
+  .submit-btn {
+    padding: 10px 24px;
+    background: var(--teal);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .submit-btn:hover { background: var(--teal-dim); transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── STEP 2: OPCODE MATCH ─────────────────────────────────── */
+  .opcode-display {
+    display: inline-flex; gap: 4px;
+    margin-bottom: 1.25rem;
+  }
+
+  .opcode-bit {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    width: 38px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    background: rgba(0,201,167,0.12);
+    border: 1px solid var(--teal);
+    color: var(--teal);
+  }
+
+  .mcq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .mcq-option {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--navy-mid);
+    color: var(--grey-1);
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+  .mcq-option:hover { border-color: var(--teal); color: var(--white); background: rgba(0,201,167,0.08); }
+  .mcq-option.selected { border-color: var(--teal); color: var(--teal); background: rgba(0,201,167,0.12); }
+  .mcq-option.correct { border-color: var(--green); color: var(--green); background: rgba(45,206,137,0.1); }
+  .mcq-option.wrong { border-color: var(--red); color: var(--red); background: rgba(255,77,109,0.08); animation: shake 0.3s; }
+
+  /* ── STEP 3: OPERAND CONVERTER ───────────────────────────── */
+  .operand-display {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    color: var(--amber);
+    background: rgba(245,166,35,0.1);
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .converter-hint {
+    font-size: 0.8rem;
+    color: var(--grey-2);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .converter-hint code {
+    font-family: var(--mono);
+    color: var(--amber);
+    background: rgba(245,166,35,0.1);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .show-working-btn {
+    background: none;
+    border: 1px dashed var(--grey-3);
+    color: var(--grey-2);
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .show-working-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  .working-out {
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--grey-2);
+    display: none;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .working-out.visible { display: block; }
+  .working-out .row { display: flex; gap: 8px; align-items: baseline; }
+  .working-out .pos { color: var(--grey-3); font-size: 0.65rem; }
+  .working-out .val { color: var(--amber); }
+  .working-out .prod { color: var(--white); }
+  .working-out .total { color: var(--teal); font-size: 0.9rem; border-top: 1px solid var(--card-border); margin-top: 8px; padding-top: 8px; }
+
+  .number-input-wrap {
+    display: flex; gap: 10px; align-items: center;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .dec-input {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    width: 140px;
+    padding: 10px 14px;
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .dec-input:focus { border-color: var(--amber); }
+  .dec-input.correct-val { border-color: var(--green); }
+  .dec-input.wrong-val { border-color: var(--red); animation: shake 0.3s; }
+
+  .input-hint { font-size: 0.78rem; color: var(--grey-3); }
+
+  /* ── STEP 4: EXECUTE ─────────────────────────────────────── */
+  .cpu-diagram {
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+  }
+
+  .cpu-diagram-title {
+    font-size: 0.65rem;
+    color: var(--grey-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .cpu-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .cpu-box {
+    background: var(--navy);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .cpu-box-title {
+    font-size: 0.6rem;
+    color: var(--grey-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .cpu-reg {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 4px;
+  }
+
+  .cpu-reg-name { color: var(--grey-2); font-size: 0.7rem; }
+  .cpu-reg-val {
+    color: var(--grey-1);
+    font-size: 0.7rem;
+    transition: color 0.4s, background 0.4s;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .cpu-reg-val.flash {
+    color: var(--teal);
+    background: rgba(0,201,167,0.15);
+  }
+
+  .cpu-arrow {
+    text-align: center;
+    color: var(--grey-3);
+    font-size: 1.4rem;
+    position: relative;
+  }
+
+  .cpu-arrow .signal {
+    display: block;
+    width: 8px; height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0);
+    transition: transform 0.3s;
+    box-shadow: 0 0 8px var(--teal);
+  }
+  .cpu-arrow .signal.active { transform: translate(-50%,-50%) scale(1); }
+
+  .execute-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--amber), var(--amber-dim));
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .execute-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245,166,35,0.3); }
+  .execute-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ── FEEDBACK PANEL ──────────────────────────────────────── */
+  .feedback {
+    display: none;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 1rem;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    animation: fadeInUp 0.3s ease;
+  }
+  .feedback.visible { display: flex; gap: 12px; align-items: flex-start; }
+  .feedback.success {
+    background: rgba(45,206,137,0.1);
+    border: 1px solid rgba(45,206,137,0.3);
+    color: var(--grey-1);
+  }
+  .feedback.error {
+    background: rgba(255,77,109,0.08);
+    border: 1px solid rgba(255,77,109,0.25);
+    color: var(--grey-1);
+  }
+  .feedback-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .feedback strong { color: var(--white); display: block; margin-bottom: 3px; }
+
+  /* ── COMPLETION PANEL ────────────────────────────────────── */
+  .completion {
+    display: none;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 2rem;
+    animation: fadeInUp 0.5s ease;
+  }
+  .completion.visible { display: block; }
+
+  .completion-header {
+    background: linear-gradient(135deg, #0d2e1f, #0d1b2a);
+    border-bottom: 1px solid rgba(45,206,137,0.2);
+    padding: 1.5rem 2rem;
+    display: flex; align-items: center; gap: 16px;
+  }
+
+  .completion-tick {
+    width: 48px; height: 48px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 24px rgba(45,206,137,0.4);
+  }
+
+  .completion-header h2 {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--white);
+  }
+  .completion-header p { font-size: 0.82rem; color: var(--grey-2); margin-top: 3px; }
+
+  .completion-body { padding: 1.75rem 2rem; }
+
+  .decode-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    margin-bottom: 1.5rem;
+  }
+  .decode-table th {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.04);
+    color: var(--grey-2);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .decode-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--grey-1);
+    vertical-align: middle;
+  }
+  .decode-table .field-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .badge-opcode { background: rgba(0,201,167,0.15); color: var(--teal); }
+  .badge-operand { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .badge-full { background: rgba(255,255,255,0.06); color: var(--grey-1); }
+
+  .highlight-box {
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .highlight-box-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--grey-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .pseudocode {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .ps-keyword { color: #c678dd; }
+  .ps-comment { color: var(--grey-3); font-style: italic; }
+  .ps-number  { color: var(--amber); }
+  .ps-string  { color: var(--green); }
+  .ps-var     { color: #61afef; }
+  .ps-op      { color: var(--grey-1); }
+
+  .takeaway {
+    background: rgba(0,201,167,0.07);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.87rem;
+    color: var(--grey-1);
+    line-height: 1.65;
+  }
+
+  .takeaway strong { color: var(--teal); }
+
+  .new-instr-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 28px;
+    background: transparent;
+    border: 2px solid var(--teal);
+    color: var(--teal);
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+  }
+  .new-instr-btn:hover {
+    background: var(--teal);
+    color: var(--navy);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,201,167,0.3);
+  }
+
+  /* ── TOOLTIPS ─────────────────────────────────────────────── */
+  .tip {
+    border-bottom: 1px dashed var(--grey-3);
+    cursor: help;
+    position: relative;
+    color: var(--white);
+  }
+
+  .tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%; transform: translateX(-50%);
+    background: var(--navy-mid);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.75rem;
+    color: var(--grey-1);
+    line-height: 1.5;
+    white-space: pre-line;
+    width: 240px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 200;
+    font-family: var(--sans);
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .tip:hover::after { opacity: 1; }
+
+  /* ── ANIMATIONS ──────────────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    60%      { transform: translateX(6px); }
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,201,167,0.4); }
+    50%      { box-shadow: 0 0 0 8px rgba(0,201,167,0); }
+  }
+
+  .pulse { animation: pulse 1.5s infinite; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .cpu-layout { grid-template-columns: 1fr; }
+    .cpu-arrow { transform: rotate(90deg); }
+    .binary-display { gap: 0; }
+    .bit-group { padding: 0 5px; }
+    .bit { font-size: 1.4rem; width: 28px; height: 42px; }
+    .completion-body { padding: 1.25rem; }
+    .header-title { display: none; }
+  }
+
+  /* ── SCROLLBAR ───────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--navy-soft); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <span class="logo-chip">CS A-LVL</span>
+    <span class="header-title">LO2 · AC2.1 · <span>Machine Code Decoder</span></span>
+  </div>
+  <button class="ref-toggle" id="refToggle" onclick="toggleRef()">
+    <span class="icon">+</span> Instruction Set Reference
+  </button>
+</header>
+
+<!-- REFERENCE PANEL -->
+<div class="ref-panel" id="refPanel">
+  <div class="ref-panel-inner">
+    <div class="ref-title">// Instruction Set — 4 Operations</div>
+    <table class="ref-table">
+      <thead>
+        <tr><th>Binary Opcode</th><th>Operation</th><th>Description</th></tr>
+      </thead>
+      <tbody id="refTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="hero">
+    <div class="hero-eyebrow">// Interactive Activity</div>
+    <h1>Decode a <em>Machine</em><br>Code Instruction</h1>
+    <p class="hero-sub">
+      A CPU only understands binary. Work through the steps below to decode a real
+      <span class="tip" data-tip="Machine code is binary instructions that a CPU can directly execute. It is the lowest form of programming language.">machine code instruction</span>
+      — one bit at a time.
+    </p>
+  </div>
+
+  <!-- INSTRUCTION DISPLAY -->
+  <div class="instr-card" id="instrCard">
+    <div class="instr-label">// 16-bit instruction</div>
+    <div class="binary-display" id="binaryDisplay"></div>
+    <div class="field-labels" id="fieldLabels">
+      <span class="opcode-lbl">◀ OPCODE (4 bits) ▶</span>
+      <span class="operand-lbl">◀ OPERAND (12 bits) ▶</span>
+    </div>
+    <p class="instr-note" style="margin-top:1rem;">
+      This is a <strong>16-bit</strong>
+      <span class="tip" data-tip="A machine instruction encodes an operation for the CPU. It contains an opcode (what to do) and an operand (what to do it with).">machine code instruction</span>.
+      Complete the steps below to decode it.
+    </p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps" id="stepsContainer">
+
+    <!-- STEP 1 -->
+    <div class="step-card active" id="step1Card">
+      <div class="step-header">
+        <div class="step-badge" id="step1Badge">01</div>
+        <div class="step-header-text">
+          <h3>Identify the Boundary</h3>
+          <p>Split the instruction into its two fields</p>
+        </div>
+      </div>
+      <div class="step-body" id="step1Body">
+        <p class="splitter-instruction">
+          In this instruction set, the first <strong>4 bits</strong> form the
+          <span class="tip" data-tip="The opcode (operation code) tells the CPU which operation to perform, e.g. LOAD, ADD, STORE.">opcode</span>
+          and the remaining <strong>12 bits</strong> form the
+          <span class="tip" data-tip="The operand specifies the data or memory address the instruction acts on.">operand</span>.
+          How many bits are in the <strong>opcode</strong> field?
+        </p>
+        <div class="split-options" id="splitOptions">
+          <button class="split-btn" onclick="selectSplit(this, 2)">2 bits</button>
+          <button class="split-btn" onclick="selectSplit(this, 4)">4 bits</button>
+          <button class="split-btn" onclick="selectSplit(this, 6)">6 bits</button>
+          <button class="split-btn" onclick="selectSplit(this, 8)">8 bits</button>
+        </div>
+        <button class="submit-btn" id="step1Btn" onclick="submitStep1()" disabled>Check Answer</button>
+        <div class="feedback" id="step1Feedback"></div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card locked" id="step2Card">
+      <div class="step-header">
+        <div class="step-badge" id="step2Badge">02</div>
+        <div class="step-header-text">
+          <h3>Name the Opcode</h3>
+          <p>Match the binary opcode to its operation</p>
+        </div>
+      </div>
+      <div class="step-body" id="step2Body">
+        <p class="splitter-instruction" style="margin-bottom:1rem;">
+          The opcode field is highlighted in
+          <span style="color:var(--teal)">teal</span> above.
+          Using the
+          <span class="tip" data-tip="An instruction set is the complete set of binary commands a CPU can understand and execute. Each CPU architecture has its own instruction set.">instruction set</span>
+          reference, which operation does this opcode represent?
+        </p>
+        <div class="opcode-display" id="opcodeDisplay"></div>
+        <div class="mcq-grid" id="mcqGrid"></div>
+        <button class="submit-btn" id="step2Btn" onclick="submitStep2()" disabled>Check Answer</button>
+        <div class="feedback" id="step2Feedback"></div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card locked" id="step3Card">
+      <div class="step-header">
+        <div class="step-badge" id="step3Badge">03</div>
+        <div class="step-header-text">
+          <h3>Interpret the Operand</h3>
+          <p>Convert the 12-bit operand to decimal</p>
+        </div>
+      </div>
+      <div class="step-body" id="step3Body">
+        <p class="splitter-instruction" style="margin-bottom:1rem;">
+          The operand field (highlighted in
+          <span style="color:var(--amber)">amber</span>) encodes a
+          <span class="tip" data-tip="A memory address identifies a specific location in RAM. The CPU uses it to read from or write to that location.">memory address</span>
+          in binary. Convert it to decimal.
+        </p>
+        <div class="operand-display" id="operandDisplay"></div>
+        <button class="show-working-btn" onclick="toggleWorking()">▸ Show positional notation working</button>
+        <div class="working-out" id="workingOut"></div>
+        <div class="number-input-wrap">
+          <input type="number" class="dec-input" id="decInput" placeholder="0" min="0" max="4095"
+                 oninput="onDecInput()" onkeydown="if(event.key==='Enter')submitStep3()">
+          <span class="input-hint">Enter decimal value</span>
+        </div>
+        <button class="submit-btn" id="step3Btn" onclick="submitStep3()" disabled>Check Answer</button>
+        <div class="feedback" id="step3Feedback"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-card locked" id="step4Card">
+      <div class="step-header">
+        <div class="step-badge" id="step4Badge">04</div>
+        <div class="step-header-text">
+          <h3>Execute</h3>
+          <p>Watch the instruction run inside the CPU</p>
+        </div>
+      </div>
+      <div class="step-body" id="step4Body">
+        <p class="splitter-instruction" style="margin-bottom:1rem;">
+          Hit <strong>Execute</strong> to see how this instruction would be processed
+          inside a simplified CPU. Watch the
+          <span class="tip" data-tip="Registers are tiny, ultra-fast storage locations inside the CPU. Common ones include the Accumulator (stores calculation results) and the Program Counter (tracks next instruction).">registers</span>
+          update.
+        </p>
+        <div class="cpu-diagram">
+          <div class="cpu-diagram-title">// Simplified CPU Diagram</div>
+          <div class="cpu-layout">
+            <div class="cpu-box" id="memBox">
+              <div class="cpu-box-title">Memory (RAM)</div>
+              <div class="cpu-reg"><span class="cpu-reg-name" id="memAddrLabel">addr:</span><span class="cpu-reg-val" id="memAddrVal">—</span></div>
+              <div class="cpu-reg"><span class="cpu-reg-name">data:</span><span class="cpu-reg-val" id="memDataVal">—</span></div>
+            </div>
+            <div class="cpu-arrow">
+              ⟶
+              <span class="signal" id="cpuSignal"></span>
+            </div>
+            <div class="cpu-box" id="cpuBox">
+              <div class="cpu-box-title">CPU</div>
+              <div class="cpu-reg"><span class="cpu-reg-name">PC:</span><span class="cpu-reg-val" id="regPC">0x00</span></div>
+              <div class="cpu-reg"><span class="cpu-reg-name">IR:</span><span class="cpu-reg-val" id="regIR">—</span></div>
+              <div class="cpu-reg"><span class="cpu-reg-name">ACC:</span><span class="cpu-reg-val" id="regACC">—</span></div>
+              <div class="cpu-reg"><span class="cpu-reg-name">MAR:</span><span class="cpu-reg-val" id="regMAR">—</span></div>
+              <div class="cpu-reg"><span class="cpu-reg-name">MDR:</span><span class="cpu-reg-val" id="regMDR">—</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="execute-btn pulse" id="executeBtn" onclick="executeInstruction()">▶ Execute Instruction</button>
+        <div class="feedback" id="step4Feedback"></div>
+      </div>
+    </div>
+
+  </div><!-- /steps -->
+
+  <!-- COMPLETION -->
+  <div class="completion" id="completionPanel">
+    <div class="completion-header">
+      <div class="completion-tick">✓</div>
+      <div>
+        <h2>Instruction Decoded!</h2>
+        <p>All four steps completed successfully</p>
+      </div>
+    </div>
+    <div class="completion-body">
+
+      <div class="highlight-box">
+        <div class="highlight-box-title">// Full Decode Summary</div>
+        <table class="decode-table" id="decodeSummaryTable">
+          <thead>
+            <tr><th>Field</th><th>Binary</th><th>Meaning</th><th>Decimal</th></tr>
+          </thead>
+          <tbody id="decodeSummaryBody"></tbody>
+        </table>
+      </div>
+
+      <div class="highlight-box">
+        <div class="highlight-box-title">// High-Level Equivalent</div>
+        <div class="pseudocode" id="pseudocodeBlock"></div>
+      </div>
+
+      <div class="takeaway" id="takeawayBlock"></div>
+
+      <button class="new-instr-btn" onclick="newInstruction()">
+        ↺ &nbsp;Try a New Instruction
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── INSTRUCTION SET ──────────────────────────────────────────────────────────
+const INSTRUCTION_SET = [
+  { opcode: '0000', name: 'LOAD',   desc: 'Load value from memory address into Accumulator',   pseudocode: (op) => `ACC = memory[${op}]`,                     takeaway: 'LOAD copies a value from RAM into the CPU\'s Accumulator register. In Python, this is like writing <code>acc = memory[addr]</code> — one line of source code, but at hardware level it is an entire binary instruction.' },
+  { opcode: '0001', name: 'STORE',  desc: 'Store Accumulator value into memory address',        pseudocode: (op) => `memory[${op}] = ACC`,                     takeaway: 'STORE writes the Accumulator\'s value back to RAM. Every time a high-level program assigns a variable, the compiler may generate several STORE instructions like this one.' },
+  { opcode: '0010', name: 'ADD',    desc: 'Add value at memory address to Accumulator',         pseudocode: (op) => `ACC = ACC + memory[${op}]`,               takeaway: 'Even simple addition requires explicit machine instructions. A single <code>x = x + y</code> in Python compiles into multiple low-level steps: LOAD, ADD, then STORE.' },
+  { opcode: '0011', name: 'SUB',    desc: 'Subtract value at memory address from Accumulator',  pseudocode: (op) => `ACC = ACC - memory[${op}]`,               takeaway: 'Subtraction is not directly built into all CPUs — some implement it as ADD with a negated operand. This shows how high-level operators like <code>-</code> hide considerable hardware complexity.' },
+];
+
+// Build reference table
+const refBody = document.getElementById('refTableBody');
+INSTRUCTION_SET.forEach(instr => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="opcode-cell">${instr.opcode}</td><td class="name-cell">${instr.name}</td><td>${instr.desc}</td>`;
+  refBody.appendChild(tr);
+});
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {
+  instruction: '',     // full 16-bit string
+  opcodeBits: '',
+  operandBits: '',
+  opcodeIndex: 0,
+  operandDecimal: 0,
+  step1Selection: null,
+  step2Selection: null,
+  step2Attempts: 0,
+  step3Attempts: 0,
+  currentStep: 1,
+};
+
+// ── GENERATE INSTRUCTION ──────────────────────────────────────────────────────
+function generateInstruction() {
+  const idx = Math.floor(Math.random() * INSTRUCTION_SET.length);
+  // random 12-bit operand
+  const operandVal = Math.floor(Math.random() * 4096);
+  const operandBits = operandVal.toString(2).padStart(12, '0');
+  state.instruction = INSTRUCTION_SET[idx].opcode + operandBits;
+  state.opcodeBits = INSTRUCTION_SET[idx].opcode;
+  state.operandBits = operandBits;
+  state.opcodeIndex = idx;
+  state.operandDecimal = operandVal;
+  state.step1Selection = null;
+  state.step2Selection = null;
+  state.step2Attempts = 0;
+  state.step3Attempts = 0;
+  state.currentStep = 1;
+}
+
+// ── RENDER BINARY DISPLAY ─────────────────────────────────────────────────────
+function renderBinary(highlightOpcode = false, highlightOperand = false) {
+  const container = document.getElementById('binaryDisplay');
+  container.innerHTML = '';
+  // split into 4 groups of 4
+  for (let g = 0; g < 4; g++) {
+    const group = document.createElement('div');
+    group.className = 'bit-group';
+    for (let b = 0; b < 4; b++) {
+      const bitIndex = g * 4 + b;
+      const bitEl = document.createElement('div');
+      bitEl.className = 'bit';
+      bitEl.textContent = state.instruction[bitIndex];
+      if (highlightOpcode && bitIndex < 4)  bitEl.classList.add('opcode-highlight');
+      if (highlightOperand && bitIndex >= 4) bitEl.classList.add('operand-highlight');
+      group.appendChild(bitEl);
+    }
+    container.appendChild(group);
+  }
+}
+
+// ── REFERENCE PANEL ───────────────────────────────────────────────────────────
+function toggleRef() {
+  const panel = document.getElementById('refPanel');
+  const btn   = document.getElementById('refToggle');
+  panel.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+// ── STEP 1 ────────────────────────────────────────────────────────────────────
+let step1Selected = null;
+
+function selectSplit(btn, val) {
+  step1Selected = val;
+  document.querySelectorAll('.split-btn').forEach(b => b.classList.remove('selected', 'wrong'));
+  btn.classList.add('selected');
+  document.getElementById('step1Btn').disabled = false;
+}
+
+function submitStep1() {
+  if (step1Selected === 4) {
+    // correct
+    showFeedback('step1Feedback', true,
+      '✓ Correct!',
+      'In this instruction set, the first <strong>4 bits</strong> are the opcode. With 4 bits you can represent 16 different operations (2⁴ = 16). The remaining <strong>12 bits</strong> form the operand — enough to address up to 4096 memory locations.');
+    completeStep(1);
+    renderBinary(true, true);
+    document.getElementById('fieldLabels').classList.add('visible');
+    unlockStep(2);
+    buildStep2();
+  } else {
+    document.querySelectorAll('.split-btn').forEach(b => { if (b.classList.contains('selected')) b.classList.add('wrong'); });
+    showFeedback('step1Feedback', false,
+      '✗ Not quite.',
+      'Think about how many different operations you would want to encode. 4 bits gives 2⁴ = 16 possible opcodes — enough for a basic instruction set. The answer is <strong>4 bits</strong>.');
+  }
+}
+
+// ── STEP 2 ────────────────────────────────────────────────────────────────────
+function buildStep2() {
+  // render opcode bits
+  const opcodeDisplay = document.getElementById('opcodeDisplay');
+  opcodeDisplay.innerHTML = '';
+  for (const bit of state.opcodeBits) {
+    const el = document.createElement('div');
+    el.className = 'opcode-bit';
+    el.textContent = bit;
+    opcodeDisplay.appendChild(el);
+  }
+
+  // build 4 MCQ options: correct + 3 random distractors
+  const correct = INSTRUCTION_SET[state.opcodeIndex];
+  const distractors = INSTRUCTION_SET.filter((_,i) => i !== state.opcodeIndex);
+  const shuffled = distractors.sort(() => Math.random()-0.5).slice(0,3);
+  const options = [...shuffled, correct].sort(() => Math.random()-0.5);
+
+  const grid = document.getElementById('mcqGrid');
+  grid.innerHTML = '';
+  options.forEach(op => {
+    const btn = document.createElement('button');
+    btn.className = 'mcq-option';
+    btn.textContent = op.name;
+    btn.onclick = () => selectMCQ(btn, op.name);
+    grid.appendChild(btn);
+  });
+}
+
+let step2Selected = null;
+
+function selectMCQ(btn, name) {
+  step2Selected = name;
+  document.querySelectorAll('.mcq-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('step2Btn').disabled = false;
+}
+
+function submitStep2() {
+  const correct = INSTRUCTION_SET[state.opcodeIndex].name;
+  state.step2Attempts++;
+  if (step2Selected === correct) {
+    showFeedback('step2Feedback', true,
+      `✓ Correct! The opcode ${state.opcodeBits} = ${correct}`,
+      `${INSTRUCTION_SET[state.opcodeIndex].desc}. The CPU looks this binary pattern up in its internal circuit logic and activates the corresponding operation pathway.`);
+    document.querySelectorAll('.mcq-option').forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+      else b.classList.remove('selected');
+    });
+    completeStep(2);
+    unlockStep(3);
+    buildStep3();
+  } else {
+    document.querySelectorAll('.mcq-option').forEach(b => { if (b.classList.contains('selected')) b.classList.add('wrong'); });
+    showFeedback('step2Feedback', false,
+      '✗ That\'s not right.',
+      `Check the instruction set reference panel (top right). Look up the binary opcode <strong>${state.opcodeBits}</strong> and find its matching operation name.`);
+    step2Selected = null;
+    setTimeout(() => {
+      document.querySelectorAll('.mcq-option').forEach(b => b.classList.remove('selected','wrong'));
+      document.getElementById('step2Btn').disabled = true;
+    }, 1200);
+  }
+}
+
+// ── STEP 3 ────────────────────────────────────────────────────────────────────
+function buildStep3() {
+  document.getElementById('operandDisplay').textContent = state.operandBits;
+  buildWorkingOut();
+}
+
+function buildWorkingOut() {
+  const bits = state.operandBits;
+  const n = bits.length;
+  let html = '';
+  let rows = [];
+  for (let i = 0; i < n; i++) {
+    if (bits[i] === '1') {
+      const power = n - 1 - i;
+      const val = Math.pow(2, power);
+      rows.push(`<div class="row"><span class="pos">bit ${i+1} (2<sup>${power}</sup>)</span>&nbsp;=&nbsp;<span class="val">${val}</span></div>`);
+    }
+  }
+  if (rows.length === 0) {
+    html = '<div class="row"><span class="val">All bits are 0 — value = 0</span></div>';
+  } else {
+    html = rows.join('') + `<div class="total">Total = <strong>${state.operandDecimal}</strong></div>`;
+  }
+  document.getElementById('workingOut').innerHTML = html;
+}
+
+function toggleWorking() {
+  const w = document.getElementById('workingOut');
+  w.classList.toggle('visible');
+}
+
+function onDecInput() {
+  const val = document.getElementById('decInput').value.trim();
+  document.getElementById('step3Btn').disabled = val === '';
+}
+
+function submitStep3() {
+  const inputVal = parseInt(document.getElementById('decInput').value, 10);
+  const input = document.getElementById('decInput');
+  if (inputVal === state.operandDecimal) {
+    input.classList.add('correct-val');
+    showFeedback('step3Feedback', true,
+      `✓ Correct! ${state.operandBits}₂ = ${state.operandDecimal}₁₀`,
+      `The 12-bit operand ${state.operandBits} has a decimal value of <strong>${state.operandDecimal}</strong>. This is the memory address the CPU will use when executing the ${INSTRUCTION_SET[state.opcodeIndex].name} operation.`);
+    completeStep(3);
+    unlockStep(4);
+    buildStep4();
+  } else {
+    input.classList.add('wrong-val');
+    state.step3Attempts++;
+    let hint = 'Work through each bit using positional notation (click "Show working" above).';
+    if (state.step3Attempts >= 2) hint = `The correct decimal value is <strong>${state.operandDecimal}</strong>. Use the working-out helper above to see how each bit contributes.`;
+    showFeedback('step3Feedback', false, '✗ Not quite — check your calculation.', hint);
+    setTimeout(() => {
+      input.classList.remove('wrong-val');
+    }, 800);
+  }
+}
+
+// ── STEP 4 ────────────────────────────────────────────────────────────────────
+function buildStep4() {
+  const instr = INSTRUCTION_SET[state.opcodeIndex];
+  document.getElementById('regIR').textContent = '...';
+  document.getElementById('regMAR').textContent = '...';
+  document.getElementById('regMDR').textContent = '...';
+  document.getElementById('regACC').textContent = '...';
+  document.getElementById('memAddrLabel').textContent = 'addr:';
+  document.getElementById('memAddrVal').textContent = '—';
+  document.getElementById('memDataVal').textContent = '—';
+}
+
+async function executeInstruction() {
+  const btn = document.getElementById('executeBtn');
+  btn.disabled = true;
+  btn.classList.remove('pulse');
+
+  const instr = INSTRUCTION_SET[state.opcodeIndex];
+  const addr = state.operandDecimal;
+  const mockData = Math.floor(Math.random() * 200) + 1;
+
+  const flashReg = async (id, val, delay = 300) => {
+    await sleep(delay);
+    const el = document.getElementById(id);
+    el.textContent = val;
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 900);
+  };
+
+  const signal = document.getElementById('cpuSignal');
+  const signalFlash = async () => {
+    signal.classList.add('active');
+    await sleep(400);
+    signal.classList.remove('active');
+  };
+
+  // Fetch cycle
+  await flashReg('regPC', '0x' + addr.toString(16).padStart(2,'0').toUpperCase(), 0);
+  await flashReg('regIR', state.instruction, 300);
+  await sleep(300);
+
+  // Memory interaction
+  document.getElementById('memAddrVal').textContent = addr;
+  document.getElementById('memDataVal').textContent = mockData;
+  await signalFlash();
+  await flashReg('regMAR', addr, 100);
+  await flashReg('regMDR', mockData, 400);
+  await sleep(200);
+
+  // Execute depending on operation
+  if (instr.name === 'LOAD')  await flashReg('regACC', mockData, 200);
+  if (instr.name === 'ADD')   await flashReg('regACC', `ACC + ${mockData}`, 200);
+  if (instr.name === 'SUB')   await flashReg('regACC', `ACC - ${mockData}`, 200);
+  if (instr.name === 'STORE') {
+    document.getElementById('memAddrVal').textContent = addr;
+    document.getElementById('memDataVal').textContent = '← ACC';
+  }
+
+  showFeedback('step4Feedback', true,
+    `✓ ${instr.name} executed at address ${addr}`,
+    `The CPU fetched the instruction into the <strong>Instruction Register (IR)</strong>, set the <strong>Memory Address Register (MAR)</strong> to ${addr}, and completed the ${instr.name} operation. Notice how many individual register updates a single instruction requires.`);
+
+  completeStep(4);
+  showCompletion();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function showFeedback(id, success, title, body) {
+  const el = document.getElementById(id);
+  el.className = `feedback visible ${success ? 'success' : 'error'}`;
+  el.innerHTML = `<span class="feedback-icon">${success ? '✓' : '✗'}</span><div><strong>${title}</strong>${body}</div>`;
+}
+
+function completeStep(n) {
+  const card = document.getElementById(`step${n}Card`);
+  const badge = document.getElementById(`step${n}Badge`);
+  card.classList.remove('active');
+  card.classList.add('completed');
+  badge.textContent = '✓';
+}
+
+function unlockStep(n) {
+  const card = document.getElementById(`step${n}Card`);
+  card.classList.remove('locked');
+  card.classList.add('active');
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
+}
+
+function showCompletion() {
+  const instr = INSTRUCTION_SET[state.opcodeIndex];
+  // summary table
+  const tbody = document.getElementById('decodeSummaryBody');
+  tbody.innerHTML = `
+    <tr>
+      <td><span class="field-badge badge-full">FULL</span></td>
+      <td>${state.instruction}</td>
+      <td>Complete 16-bit instruction</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><span class="field-badge badge-opcode">OPCODE</span></td>
+      <td style="color:var(--teal)">${state.opcodeBits}</td>
+      <td>${instr.name} — ${instr.desc}</td>
+      <td>${parseInt(state.opcodeBits,2)}</td>
+    </tr>
+    <tr>
+      <td><span class="field-badge badge-operand">OPERAND</span></td>
+      <td style="color:var(--amber)">${state.operandBits}</td>
+      <td>Memory address</td>
+      <td>${state.operandDecimal}</td>
+    </tr>
+  `;
+
+  // pseudocode
+  const ps = instr.pseudocode(state.operandDecimal);
+  document.getElementById('pseudocodeBlock').innerHTML =
+    `<span class="ps-comment"># Python equivalent of: ${state.instruction}</span><br>` +
+    `<span class="ps-comment"># ${instr.name} &nbsp;[opcode=${state.opcodeBits}] &nbsp;addr=${state.operandDecimal}</span><br><br>` +
+    formatPseudo(ps);
+
+  // takeaway
+  document.getElementById('takeawayBlock').innerHTML =
+    `<strong>Key Takeaway:</strong> ${instr.takeaway}`;
+
+  const panel = document.getElementById('completionPanel');
+  panel.classList.add('visible');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
+}
+
+function formatPseudo(code) {
+  const parts = code.split(/(\bmemory\b|\b(?:if|goto)\b|#.*$|\d+|[+\-=<>\[\]])/m);
+  return parts.map(p => {
+    if (!p) return '';
+    if (/^\d+$/.test(p))           return '<span class="ps-number">' + p + '</span>';
+    if (p === 'memory')              return '<span class="ps-var">' + p + '</span>';
+    if (/^(if|goto)$/.test(p))      return '<span class="ps-keyword">' + p + '</span>';
+    if (p.startsWith('#'))           return '<span class="ps-comment">' + p + '</span>';
+    if (/^[+\-=<>\[\]]$/.test(p)) return '<span class="ps-op">' + p + '</span>';
+    return p;
+  }).join('');
+}
+
+// ── NEW INSTRUCTION ───────────────────────────────────────────────────────────
+function newInstruction() {
+  // reset UI
+  document.getElementById('completionPanel').classList.remove('visible');
+  document.getElementById('fieldLabels').classList.remove('visible');
+
+  // reset steps
+  for (let n = 1; n <= 4; n++) {
+    const card = document.getElementById(`step${n}Card`);
+    const badge = document.getElementById(`step${n}Badge`);
+    card.classList.remove('completed', 'active', 'locked');
+    badge.textContent = `0${n}`;
+    document.getElementById(`step${n}Feedback`).className = 'feedback';
+    document.getElementById(`step${n}Feedback`).innerHTML = '';
+  }
+
+  document.getElementById('step1Card').classList.add('active');
+  for (let n = 2; n <= 4; n++) {
+    document.getElementById(`step${n}Card`).classList.add('locked');
+  }
+
+  // reset step 1
+  step1Selected = null;
+  document.querySelectorAll('.split-btn').forEach(b => b.classList.remove('selected','wrong'));
+  document.getElementById('step1Btn').disabled = true;
+
+  // reset step 2
+  step2Selected = null;
+  document.getElementById('mcqGrid').innerHTML = '';
+  document.getElementById('opcodeDisplay').innerHTML = '';
+  document.getElementById('step2Btn').disabled = true;
+
+  // reset step 3
+  document.getElementById('decInput').value = '';
+  document.getElementById('decInput').classList.remove('correct-val','wrong-val');
+  document.getElementById('step3Btn').disabled = true;
+  document.getElementById('workingOut').classList.remove('visible');
+
+  // reset step 4
+  document.getElementById('executeBtn').disabled = false;
+  document.getElementById('executeBtn').classList.add('pulse');
+
+  generateInstruction();
+  renderBinary(false, false);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+generateInstruction();
+renderBinary(false, false);
+</script>
+</body>
+</html>

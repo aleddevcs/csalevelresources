@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Clinic — Compilation Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #111827;
+    --panel2: #1a2235;
+    --border: #1e2d45;
+    --green: #00ff9d;
+    --green-dim: #00cc7a;
+    --blue: #38bdf8;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --purple: #c084fc;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,157,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,157,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--muted); font-size: 0.8rem; font-family: var(--font-mono); display: block; margin-top: 2px; }
+
+  .score-board {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .score-item {
+    text-align: center;
+  }
+  .score-item .val {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--green);
+    line-height: 1;
+  }
+  .score-item .lbl {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── STAGE PIPELINE ── */
+  .pipeline {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .pipe-stage {
+    flex: 1;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .pipe-stage:last-child { border-right: none; }
+  .pipe-stage .stage-num {
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .pipe-stage .stage-name {
+    font-weight: 600;
+    font-size: 0.78rem;
+  }
+  .pipe-stage.active {
+    background: var(--panel2);
+    color: var(--green);
+    box-shadow: inset 0 -2px 0 var(--green);
+  }
+  .pipe-stage.done {
+    color: var(--green-dim);
+  }
+  .pipe-stage.done::after {
+    content: ' ✓';
+    font-size: 0.7rem;
+  }
+
+  /* ── MAIN CARD ── */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    padding: 14px 20px;
+    background: var(--panel2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-header .dots span {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .card-header .title {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .card-header .badge {
+    margin-left: auto;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .badge-lex  { background: rgba(0,255,157,0.12); color: var(--green); border: 1px solid rgba(0,255,157,0.3); }
+  .badge-syn  { background: rgba(56,189,248,0.12); color: var(--blue); border: 1px solid rgba(56,189,248,0.3); }
+  .badge-sem  { background: rgba(192,132,252,0.12); color: var(--purple); border: 1px solid rgba(192,132,252,0.3); }
+
+  .card-body { padding: 20px; }
+
+  /* ── INSTRUCTION BOX ── */
+  .instruction {
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: rgba(0,255,157,0.05);
+    border-left: 3px solid var(--green);
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* ── CODE DISPLAY ── */
+  .code-block {
+    background: #070b14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .code-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 0;
+    border-radius: 4px;
+    cursor: default;
+    transition: background 0.2s;
+  }
+
+  .line-num {
+    color: var(--muted);
+    font-size: 0.7rem;
+    min-width: 22px;
+    text-align: right;
+    user-select: none;
+  }
+
+  .line-content { flex: 1; }
+
+  /* Clickable lines in lexical stage */
+  .code-line.clickable {
+    cursor: pointer;
+  }
+  .code-line.clickable:hover {
+    background: rgba(248,113,113,0.08);
+  }
+  .code-line.marked-remove {
+    background: rgba(248,113,113,0.15);
+    text-decoration: line-through;
+    color: var(--red);
+    opacity: 0.6;
+  }
+  .code-line.kept {
+    background: rgba(0,255,157,0.05);
+  }
+
+  .comment { color: #4a5568; font-style: italic; }
+  .keyword { color: var(--blue); }
+  .identifier { color: var(--text); }
+  .operator { color: var(--yellow); }
+  .literal { color: #f97316; }
+  .string { color: #f97316; }
+
+  /* ── TOKEN TABLE ── */
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    margin-top: 10px;
+  }
+  .token-table th {
+    background: var(--panel2);
+    color: var(--muted);
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .token-table td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+  .token-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .token-row { animation: rowIn 0.3s ease forwards; opacity: 0; }
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .tok-keyword   { color: var(--blue); }
+  .tok-identifier{ color: var(--text); }
+  .tok-operator  { color: var(--yellow); }
+  .tok-literal   { color: #f97316; }
+  .tok-string    { color: #f97316; }
+  .tok-symbol    { color: var(--purple); }
+
+  /* ── ERROR DETECTION ── */
+  .error-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .err-btn {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    line-height: 1.5;
+  }
+  .err-btn:hover { border-color: var(--green); color: var(--green); background: rgba(0,255,157,0.05); }
+  .err-btn.correct { border-color: var(--green); background: rgba(0,255,157,0.1); color: var(--green); pointer-events: none; }
+  .err-btn.wrong   { border-color: var(--red); background: rgba(248,113,113,0.1); color: var(--red); pointer-events: none; }
+  .err-btn.reveal  { border-color: var(--green); background: rgba(0,255,157,0.05); color: var(--green-dim); pointer-events: none; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    margin-top: 14px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+  .feedback.correct { background: rgba(0,255,157,0.08); border: 1px solid rgba(0,255,157,0.25); color: var(--green); }
+  .feedback.wrong   { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--red); }
+  .feedback.info    { background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); color: var(--blue); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    background: var(--green);
+    color: #000;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--green-dim); transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.4; pointer-events: none; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); background: transparent; transform: none; }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    align-items: center;
+  }
+
+  /* ── POINTS POPUP ── */
+  .pts-popup {
+    position: fixed;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--green);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 999;
+    text-shadow: 0 0 20px var(--green);
+  }
+
+  /* ── RESULTS SCREEN ── */
+  .results-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .results-screen.show { display: block; }
+  .results-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .results-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 32px; }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .res-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 14px;
+  }
+  .res-card .big { font-family: var(--font-display); font-size: 2rem; margin-bottom: 4px; }
+  .res-card .sm  { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .res-card.lex .big { color: var(--green); }
+  .res-card.syn .big { color: var(--blue); }
+  .res-card.sem .big { color: var(--purple); }
+
+  .summary-list {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: left;
+    margin-bottom: 24px;
+    font-size: 0.8rem;
+    line-height: 2;
+  }
+  .summary-list .row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 6px 0; }
+  .summary-list .row:last-child { border-bottom: none; }
+  .summary-list .correct-tag { color: var(--green); }
+  .summary-list .wrong-tag   { color: var(--red); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── REMOVE HINT ── */
+  .remove-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .remove-hint strong { color: var(--red); }
+
+  /* ── COUNTER ── */
+  .remove-counter {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .remove-counter span { color: var(--yellow); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .error-options { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipe-stage { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      CODE CLINIC
+      <span>A-Level CS · Compilation Analysis</span>
+    </div>
+    <div class="score-board">
+      <div class="score-item">
+        <div class="val" id="scoreDisplay">0</div>
+        <div class="lbl">Score</div>
+      </div>
+      <div class="score-item">
+        <div class="val" id="streakDisplay">0</div>
+        <div class="lbl">Streak 🔥</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PIPELINE INDICATOR -->
+  <div class="pipeline">
+    <div class="pipe-stage active" id="pipe0">
+      <div class="stage-num">Stage 1</div>
+      <div class="stage-name">Lexical</div>
+    </div>
+    <div class="pipe-stage" id="pipe1">
+      <div class="stage-num">Stage 2</div>
+      <div class="stage-name">Syntax</div>
+    </div>
+    <div class="pipe-stage" id="pipe2">
+      <div class="stage-num">Stage 3</div>
+      <div class="stage-name">Semantic</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar" style="width:0%"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent"></div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-title" id="resultsTitleText">Analysis Complete</div>
+    <div class="results-sub">Here's how your code survived the compiler pipeline</div>
+    <div class="results-grid">
+      <div class="res-card lex"><div class="big" id="rLex">–</div><div class="sm">Lexical</div></div>
+      <div class="res-card syn"><div class="big" id="rSyn">–</div><div class="sm">Syntax</div></div>
+      <div class="res-card sem"><div class="big" id="rSem">–</div><div class="sm">Semantic</div></div>
+    </div>
+    <div class="summary-list" id="summaryList"></div>
+    <button class="btn" onclick="restartGame()">↺ Play Again</button>
+  </div>
+
+</div>
+
+<div class="pts-popup" id="ptsPopup"></div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────
+
+const rounds = [
+  {
+    title: "Round 1",
+    rawCode: [
+      { id:0, text:"# Calculate total price including tax", type:"comment" },
+      { id:1, text:"", type:"blank" },
+      { id:2, text:"price = 49.99", type:"code" },
+      { id:3, text:"tax_rate = 0.2", type:"code" },
+      { id:4, text:"", type:"blank" },
+      { id:5, text:"# Multiply price by tax rate", type:"comment" },
+      { id:6, text:"total = price + price * tax_rate", type:"code" },
+      { id:7, text:"print(total)", type:"code" },
+    ],
+    removeTargets: [0,1,4,5], // lines to remove in lexical
+    tokens: [
+      { token:"price",     type:"identifier",  cls:"tok-identifier" },
+      { token:"=",         type:"operator",    cls:"tok-operator" },
+      { token:"49.99",     type:"literal",     cls:"tok-literal" },
+      { token:"tax_rate",  type:"identifier",  cls:"tok-identifier" },
+      { token:"=",         type:"operator",    cls:"tok-operator" },
+      { token:"0.2",       type:"literal",     cls:"tok-literal" },
+      { token:"total",     type:"identifier",  cls:"tok-identifier" },
+      { token:"=",         type:"operator",    cls:"tok-operator" },
+      { token:"price",     type:"identifier",  cls:"tok-identifier" },
+      { token:"+",         type:"operator",    cls:"tok-operator" },
+      { token:"price",     type:"identifier",  cls:"tok-identifier" },
+      { token:"*",         type:"operator",    cls:"tok-operator" },
+      { token:"tax_rate",  type:"identifier",  cls:"tok-identifier" },
+      { token:"print",     type:"keyword",     cls:"tok-keyword" },
+      { token:"(",         type:"symbol",      cls:"tok-symbol" },
+      { token:"total",     type:"identifier",  cls:"tok-identifier" },
+      { token:")",         type:"symbol",      cls:"tok-symbol" },
+    ],
+    syntaxQuestion: {
+      code: "total = price + price * tax_rate\nprint(total)",
+      question: "Does this code pass syntax analysis?",
+      options: [
+        { text:"✓ Yes — structure and grammar are correct", correct:true },
+        { text:"✗ No — missing colon after print statement", correct:false },
+        { text:"✗ No — operators cannot appear twice in one line", correct:false },
+        { text:"✗ No — brackets are mismatched", correct:false },
+      ],
+      explanation: "✓ Correct! The structure is valid. Assignments follow the correct format, and print() has matching brackets. Syntax analysis passes this code.",
+    },
+    semanticQuestion: {
+      errorType: "Type Mismatch",
+      code: [
+        { text:'price = "forty-nine"', error: true,  note:"⚠ string, not a number" },
+        { text:'tax_rate = 0.2',       error: false },
+        { text:'total = price + price * tax_rate', error: true, note:"⚠ cannot multiply string by float" },
+        { text:'print(total)',          error: false },
+      ],
+      question: "This code passes lexical and syntax analysis. Why does semantic analysis reject it?",
+      options: [
+        { text:'price is a string — you cannot multiply "forty-nine" by a number', correct:true },
+        { text:'tax_rate has not been declared before use', correct:false },
+        { text:'print() is not a valid function name', correct:false },
+        { text:'The * operator is not allowed in assignments', correct:false },
+      ],
+      explanation: '✓ Correct! price = "forty-nine" stores a string. When the compiler reaches total = price + price * tax_rate, it detects a type mismatch — you cannot perform arithmetic on a string. Lexical and syntax analysis both passed because the structure was valid.',
+    },
+  },
+
+  {
+    title: "Round 2",
+    rawCode: [
+      { id:0, text:"# Check if a student passed", type:"comment" },
+      { id:1, text:"score = 72", type:"code" },
+      { id:2, text:"pass_mark = 50", type:"code" },
+      { id:3, text:"", type:"blank" },
+      { id:4, text:"# Compare scores", type:"comment" },
+      { id:5, text:"if score > pass_mark:", type:"code" },
+      { id:6, text:'    print("Pass")', type:"code" },
+      { id:7, text:"else:", type:"code" },
+      { id:8, text:'    print("Fail")', type:"code" },
+    ],
+    removeTargets: [0,3,4],
+    tokens: [
+      { token:"score",     type:"identifier", cls:"tok-identifier" },
+      { token:"=",         type:"operator",   cls:"tok-operator" },
+      { token:"72",        type:"literal",    cls:"tok-literal" },
+      { token:"pass_mark", type:"identifier", cls:"tok-identifier" },
+      { token:"=",         type:"operator",   cls:"tok-operator" },
+      { token:"50",        type:"literal",    cls:"tok-literal" },
+      { token:"if",        type:"keyword",    cls:"tok-keyword" },
+      { token:"score",     type:"identifier", cls:"tok-identifier" },
+      { token:">",         type:"operator",   cls:"tok-operator" },
+      { token:"pass_mark", type:"identifier", cls:"tok-identifier" },
+      { token:":",         type:"symbol",     cls:"tok-symbol" },
+      { token:"print",     type:"keyword",    cls:"tok-keyword" },
+      { token:"(",         type:"symbol",     cls:"tok-symbol" },
+      { token:'"Pass"',    type:"string",     cls:"tok-string" },
+      { token:")",         type:"symbol",     cls:"tok-symbol" },
+      { token:"else",      type:"keyword",    cls:"tok-keyword" },
+      { token:":",         type:"symbol",     cls:"tok-symbol" },
+      { token:"print",     type:"keyword",    cls:"tok-keyword" },
+      { token:"(",         type:"symbol",     cls:"tok-symbol" },
+      { token:'"Fail"',    type:"string",     cls:"tok-string" },
+      { token:")",         type:"symbol",     cls:"tok-symbol" },
+    ],
+    syntaxQuestion: {
+      code: 'score = 72\npass_mark = 50\nif score > pass_mark\n    print("Pass")\nelse:\n    print("Fail")',
+      question: "A colon has been removed from the if statement. Which analysis stage catches this?",
+      options: [
+        { text:"Lexical analysis — the colon is an invalid token", correct:false },
+        { text:"Syntax analysis — the colon is required by grammar rules", correct:true },
+        { text:"Semantic analysis — the if condition is meaningless without it", correct:false },
+        { text:"No error — the colon is optional in Python", correct:false },
+      ],
+      explanation: "✓ Correct! The colon is a required part of Python's if statement grammar. Its absence breaks the structural rules of the language, which is caught by syntax (parsing) analysis.",
+    },
+    semanticQuestion: {
+      errorType: "Undeclared Variable",
+      code: [
+        { text:'score = 72',                    error: false },
+        { text:'if score > pass_mark:',          error: true,  note:"⚠ pass_mark has never been declared" },
+        { text:'    print("Pass")',              error: false },
+        { text:'else:',                          error: false },
+        { text:'    print("Fail")',              error: false },
+      ],
+      question: "This code passes lexical and syntax analysis. Why does semantic analysis reject it?",
+      options: [
+        { text:'pass_mark is used on line 2 but was never declared or assigned a value', correct:true },
+        { text:'score cannot be compared using the > operator', correct:false },
+        { text:'The else block is not allowed without an elif first', correct:false },
+        { text:'print() cannot be indented inside an if block', correct:false },
+      ],
+      explanation: '✓ Correct! pass_mark is used in the condition on line 2, but it was never declared. Semantic analysis checks that every variable has been defined before it is used. The code is structurally fine — the error is one of meaning, not grammar.',
+    },
+  },
+
+  {
+    title: "Round 3",
+    rawCode: [
+      { id:0, text:"# Function to calculate area of a rectangle", type:"comment" },
+      { id:1, text:"def calculate_area(width, height):", type:"code" },
+      { id:2, text:"", type:"blank" },
+      { id:3, text:"    # Multiply width and height", type:"comment" },
+      { id:4, text:"    area = width * height", type:"code" },
+      { id:5, text:"    return area", type:"code" },
+      { id:6, text:"", type:"blank" },
+      { id:7, text:"result = calculate_area(5, 10)", type:"code" },
+      { id:8, text:"print(result)", type:"code" },
+    ],
+    removeTargets: [0,2,3,6],
+    tokens: [
+      { token:"def",            type:"keyword",    cls:"tok-keyword" },
+      { token:"calculate_area", type:"identifier", cls:"tok-identifier" },
+      { token:"(",              type:"symbol",     cls:"tok-symbol" },
+      { token:"width",          type:"identifier", cls:"tok-identifier" },
+      { token:",",              type:"symbol",     cls:"tok-symbol" },
+      { token:"height",         type:"identifier", cls:"tok-identifier" },
+      { token:")",              type:"symbol",     cls:"tok-symbol" },
+      { token:":",              type:"symbol",     cls:"tok-symbol" },
+      { token:"area",           type:"identifier", cls:"tok-identifier" },
+      { token:"=",              type:"operator",   cls:"tok-operator" },
+      { token:"width",          type:"identifier", cls:"tok-identifier" },
+      { token:"*",              type:"operator",   cls:"tok-operator" },
+      { token:"height",         type:"identifier", cls:"tok-identifier" },
+      { token:"return",         type:"keyword",    cls:"tok-keyword" },
+      { token:"area",           type:"identifier", cls:"tok-identifier" },
+      { token:"result",         type:"identifier", cls:"tok-identifier" },
+      { token:"=",              type:"operator",   cls:"tok-operator" },
+      { token:"calculate_area", type:"identifier", cls:"tok-identifier" },
+      { token:"(",              type:"symbol",     cls:"tok-symbol" },
+      { token:"5",              type:"literal",    cls:"tok-literal" },
+      { token:",",              type:"symbol",     cls:"tok-symbol" },
+      { token:"10",             type:"literal",    cls:"tok-literal" },
+      { token:")",              type:"symbol",     cls:"tok-symbol" },
+      { token:"print",          type:"keyword",    cls:"tok-keyword" },
+      { token:"(",              type:"symbol",     cls:"tok-symbol" },
+      { token:"result",         type:"identifier", cls:"tok-identifier" },
+      { token:")",              type:"symbol",     cls:"tok-symbol" },
+    ],
+    syntaxQuestion: {
+      code: 'def calculate_area(width, height\n    area = width * height\n    return area\nresult = calculate_area(5, 10)\nprint(result)',
+      question: "The closing bracket ) is missing from the function definition. Which stage catches this?",
+      options: [
+        { text:"Lexical analysis — brackets are invalid tokens", correct:false },
+        { text:"Semantic analysis — the function cannot be called without it", correct:false },
+        { text:"Syntax analysis — brackets must be matched in grammar rules", correct:true },
+        { text:"No error — the bracket is optional here", correct:false },
+      ],
+      explanation: "✓ Correct! Missing or unmatched brackets break the grammar rules of the language. Syntax analysis checks that brackets are properly paired and placed correctly.",
+    },
+    semanticQuestion: {
+      errorType: "Variable Used Before Assignment",
+      code: [
+        { text:'def calculate_area(width, height):',  error: false },
+        { text:'    area = width * height',            error: false },
+        { text:'    return area',                      error: false },
+        { text:'result = calculate_area(length, 10)', error: true,  note:"⚠ length has never been assigned" },
+        { text:'print(result)',                        error: false },
+      ],
+      question: "This code passes lexical and syntax analysis. Why does semantic analysis reject it?",
+      options: [
+        { text:'length is passed as an argument but has never been declared or assigned', correct:true },
+        { text:'calculate_area returns a value, so it cannot be assigned to result', correct:false },
+        { text:'width and height are not valid parameter names', correct:false },
+        { text:'print() cannot display the result of a function call', correct:false },
+      ],
+      explanation: '✓ Correct! length is used as an argument on line 4, but it was never declared or assigned anywhere in the program. Semantic analysis detects this as a use of an undefined variable. The code looks structurally correct — the error only becomes visible when checking meaning.',
+    },
+  },
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let score = 0, streak = 0;
+let currentRound = 0;
+let currentStage = 0; // 0=lex, 1=syn, 2=sem
+let removedLines = new Set();
+let roundResults = [];
+let stageResults = { lex:[], syn:[], sem:[] };
+const TOTAL_QUESTIONS = rounds.length * 2; // syntax + semantic per round
+let questionsAnswered = 0;
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  updatePipeline();
+  updateProgress();
+
+  const round = rounds[currentRound];
+  if (currentStage === 0) renderLexical(round);
+  else if (currentStage === 1) renderSyntax(round);
+  else renderSemantic(round);
+}
+
+function updatePipeline() {
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById('pipe'+i);
+    el.className = 'pipe-stage';
+    if (i < currentStage) el.classList.add('done');
+    else if (i === currentStage) el.classList.add('active');
+  }
+}
+
+function updateProgress() {
+  const pct = (questionsAnswered / (TOTAL_QUESTIONS)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ─── LEXICAL STAGE ─────────────────────────────────────────────────────────
+function renderLexical(round) {
+  removedLines = new Set();
+  const html = `
+    <div class="card">
+      <div class="card-header">
+        <div class="dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="title">${round.title} — source.py</span>
+        <span class="badge badge-lex">STAGE 1 · LEXICAL</span>
+      </div>
+      <div class="card-body">
+        <div class="instruction">
+          <strong>Lexical Analysis — Clean & Tokenise</strong><br>
+          Before analysis begins, the lexer strips all comments and blank lines — they have no meaning in the language.
+          <br><br>Click on each <strong style="color:var(--red)">comment or blank line</strong> to remove it.
+          When done, click <em>Tokenise →</em> to see the token table.
+        </div>
+        <div class="remove-hint">Click lines to mark for removal: <strong>comments (#...) and blank lines</strong></div>
+        <div class="code-block" id="codeBlock">
+          ${round.rawCode.map(line => {
+            const isRemovable = line.type === 'comment' || line.type === 'blank';
+            const display = line.type === 'blank' ? '<span style="color:#222">↵ blank line</span>' :
+                            line.type === 'comment' ? `<span class="comment">${line.text}</span>` :
+                            highlightCode(line.text);
+            return `<div class="code-line ${isRemovable ? 'clickable' : 'kept'}" 
+                        id="line_${line.id}" 
+                        data-id="${line.id}"
+                        data-removable="${isRemovable}"
+                        onclick="toggleLine(${line.id}, ${isRemovable})">
+                      <span class="line-num">${line.id+1}</span>
+                      <span class="line-content">${display}</span>
+                    </div>`;
+          }).join('')}
+        </div>
+        <div class="remove-counter">Lines marked for removal: <span id="removeCount">0</span> / ${round.removeTargets.length}</div>
+        <div id="lexFeedback" class="feedback"></div>
+        <div class="btn-row">
+          <button class="btn" id="tokeniseBtn" onclick="tokenise()">Tokenise →</button>
+        </div>
+        <div id="tokenSection" style="display:none; margin-top:20px;">
+          <div style="font-size:0.75rem; color:var(--muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Token Stream</div>
+          <table class="token-table">
+            <thead><tr><th>#</th><th>Token</th><th>Type</th></tr></thead>
+            <tbody id="tokenBody"></tbody>
+          </table>
+          <div class="btn-row" style="margin-top:16px;">
+            <button class="btn" onclick="advanceStage()">Syntax Analysis →</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function toggleLine(id, isRemovable) {
+  if (!isRemovable) return;
+  const el = document.getElementById('line_'+id);
+  if (removedLines.has(id)) {
+    removedLines.delete(id);
+    el.classList.remove('marked-remove');
+  } else {
+    removedLines.add(id);
+    el.classList.add('marked-remove');
+  }
+  document.getElementById('removeCount').textContent = removedLines.size;
+}
+
+function tokenise() {
+  const round = rounds[currentRound];
+  const correct = round.removeTargets;
+  const removed = [...removedLines];
+
+  const missed = correct.filter(id => !removedLines.has(id));
+  const extra  = removed.filter(id => !correct.includes(id));
+
+  const fb = document.getElementById('lexFeedback');
+
+  if (missed.length === 0 && extra.length === 0) {
+    fb.className = 'feedback correct';
+    fb.style.display = 'block';
+    fb.innerHTML = '✓ Correct! All comments and blank lines removed. The lexer now processes only meaningful code. Token table generated below.';
+    awardPoints(10, true);
+  } else {
+    fb.className = 'feedback info';
+    fb.style.display = 'block';
+    let msg = '';
+    if (missed.length) msg += `Lines ${missed.map(i=>i+1).join(', ')} should have been removed. `;
+    if (extra.length) msg += `Lines ${extra.map(i=>i+1).join(', ')} should be kept — they are valid code. `;
+    fb.innerHTML = '→ ' + msg + 'Showing token table for the correct result.';
+    // Mark missed
+    missed.forEach(id => {
+      const el = document.getElementById('line_'+id);
+      if (el) el.classList.add('marked-remove');
+    });
+    // Unmark extras
+    extra.forEach(id => {
+      const el = document.getElementById('line_'+id);
+      if (el) el.classList.remove('marked-remove');
+    });
+  }
+
+  // Show token table with animation
+  document.getElementById('tokenSection').style.display = 'block';
+  document.getElementById('tokeniseBtn').disabled = true;
+  const tbody = document.getElementById('tokenBody');
+  tbody.innerHTML = '';
+  round.tokens.forEach((tok, i) => {
+    setTimeout(() => {
+      const tr = document.createElement('tr');
+      tr.className = 'token-row';
+      tr.style.animationDelay = '0ms';
+      tr.innerHTML = `<td style="color:var(--muted)">${i+1}</td><td class="${tok.cls}">${tok.token}</td><td style="color:var(--muted);font-size:0.72rem">${tok.type}</td>`;
+      tbody.appendChild(tr);
+    }, i * 35);
+  });
+}
+
+// ─── SYNTAX STAGE ──────────────────────────────────────────────────────────
+function renderSyntax(round) {
+  const q = round.syntaxQuestion;
+  const codeLines = q.code.split('\n');
+  const html = `
+    <div class="card">
+      <div class="card-header">
+        <div class="dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="title">${round.title} — syntax_check.py</span>
+        <span class="badge badge-syn">STAGE 2 · SYNTAX</span>
+      </div>
+      <div class="card-body">
+        <div class="instruction">
+          <strong>Syntax Analysis — Grammar Check</strong><br>
+          The token stream is now checked against the grammar rules of the language. Read the code below and answer the question.
+        </div>
+        <div class="code-block">
+          ${codeLines.map((l,i) => `
+            <div class="code-line">
+              <span class="line-num">${i+1}</span>
+              <span class="line-content">${highlightCode(l)}</span>
+            </div>`).join('')}
+        </div>
+        <div style="font-size:0.82rem; font-weight:600; color:var(--text); margin: 16px 0 10px;">${q.question}</div>
+        <div class="error-options">
+          ${q.options.map((opt,i) => `
+            <button class="err-btn" onclick="answerQuestion(this, ${opt.correct}, 'syn')">${opt.text}</button>
+          `).join('')}
+        </div>
+        <div id="synFeedback" class="feedback"></div>
+        <div class="btn-row" id="synNext" style="display:none">
+          <button class="btn" onclick="advanceStage()">Semantic Analysis →</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+// ─── SEMANTIC STAGE ─────────────────────────────────────────────────────────
+function renderSemantic(round) {
+  const q = round.semanticQuestion;
+  const isLast = currentRound === rounds.length - 1;
+  const html = `
+    <div class="card">
+      <div class="card-header">
+        <div class="dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="title">${round.title} — semantic_check.py</span>
+        <span class="badge badge-sem">STAGE 3 · SEMANTIC</span>
+      </div>
+      <div class="card-body">
+        <div class="instruction">
+          <strong>Semantic Analysis — Logic Check</strong><br>
+          Syntax passed! Now the compiler checks that operations are logically meaningful. Look carefully at the code below — the error type is: <strong style="color:var(--red)">${q.errorType}</strong>
+        </div>
+        <div class="code-block">
+          ${q.code.map((line, i) => {
+            const noteHtml = line.note
+              ? `<span style="margin-left:16px; font-size:0.7rem; color:var(--red); font-style:italic">${line.note}</span>`
+              : '';
+            const lineStyle = line.error
+              ? 'background:rgba(248,113,113,0.12); border-left: 3px solid var(--red); padding-left: 8px; border-radius:0 4px 4px 0;'
+              : '';
+            return `<div class="code-line" style="${lineStyle}">
+              <span class="line-num">${i+1}</span>
+              <span class="line-content">${highlightCode(line.text)}${noteHtml}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:0.82rem; font-weight:600; color:var(--text); margin: 16px 0 10px;">${q.question}</div>
+        <div class="error-options">
+          ${q.options.map((opt,i) => `
+            <button class="err-btn" onclick="answerQuestion(this, ${opt.correct}, 'sem')">${opt.text}</button>
+          `).join('')}
+        </div>
+        <div id="semFeedback" class="feedback"></div>
+        <div class="btn-row" id="semNext" style="display:none">
+          <button class="btn" onclick="${isLast ? 'showResults()' : 'nextRound()'}">${isLast ? 'See Results →' : 'Next Round →'}</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+// ─── ANSWER HANDLER ─────────────────────────────────────────────────────────
+function answerQuestion(btn, isCorrect, stage) {
+  const allBtns = btn.parentElement.querySelectorAll('.err-btn');
+  const fbId = stage + 'Feedback';
+  const nextId = stage + 'Next';
+  const round = rounds[currentRound];
+  const q = stage === 'syn' ? round.syntaxQuestion : round.semanticQuestion;
+
+  allBtns.forEach(b => {
+    b.disabled = true;
+    const correct = b.onclick.toString().includes('true');
+  });
+
+  // Mark all buttons
+  allBtns.forEach(b => {
+    const bCorrect = b.getAttribute('onclick').includes('true');
+    if (bCorrect) b.classList.add('reveal');
+  });
+
+  const fb = document.getElementById(fbId);
+  fb.style.display = 'block';
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    fb.className = 'feedback correct';
+    fb.innerHTML = q.explanation;
+    awardPoints(20, true);
+    stageResults[stage].push(true);
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback wrong';
+    fb.innerHTML = '✗ Not quite. ' + q.explanation;
+    streak = 0;
+    updateScoreDisplay();
+    stageResults[stage].push(false);
+  }
+
+  questionsAnswered++;
+  updateProgress();
+  document.getElementById(nextId).style.display = 'flex';
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function advanceStage() {
+  currentStage++;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextRound() {
+  currentRound++;
+  currentStage = 0;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── SCORING ─────────────────────────────────────────────────────────────────
+function awardPoints(pts, addStreak) {
+  if (addStreak) {
+    streak++;
+    if (streak > 1) pts += (streak - 1) * 5; // streak bonus
+  }
+  score += pts;
+  updateScoreDisplay();
+  showPointsPopup('+' + pts);
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+}
+
+function showPointsPopup(text) {
+  const el = document.getElementById('ptsPopup');
+  el.textContent = text;
+  el.style.left = (window.innerWidth/2 - 30) + 'px';
+  el.style.top = '80px';
+  el.style.opacity = '1';
+  el.style.transform = 'translateY(0)';
+  el.style.transition = 'none';
+  setTimeout(() => {
+    el.style.transition = 'all 0.8s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(-40px)';
+  }, 50);
+}
+
+// ─── RESULTS ─────────────────────────────────────────────────────────────────
+function showResults() {
+  document.getElementById('mainContent').style.display = 'none';
+
+  const lexCorrect = stageResults.syn.filter(Boolean).length + stageResults.sem.filter(Boolean).length;
+
+  const synPct = Math.round((stageResults.syn.filter(Boolean).length / stageResults.syn.length) * 100) || 0;
+  const semPct = Math.round((stageResults.sem.filter(Boolean).length / stageResults.sem.length) * 100) || 0;
+
+  document.getElementById('rLex').textContent = '✓';
+  document.getElementById('rSyn').textContent = synPct + '%';
+  document.getElementById('rSem').textContent = semPct + '%';
+
+  const total = stageResults.syn.length + stageResults.sem.length;
+  const correct = stageResults.syn.filter(Boolean).length + stageResults.sem.filter(Boolean).length;
+  const title = correct === total ? '🎉 Perfect Run!' : correct >= total * 0.7 ? '✓ Well Done!' : 'Keep Practising!';
+  document.getElementById('resultsTitleText').textContent = title;
+
+  // Summary
+  const summaryHTML = rounds.map((r, i) => {
+    const synOk = stageResults.syn[i];
+    const semOk = stageResults.sem[i];
+    return `
+      <div class="row"><span>${r.title} · Syntax</span><span class="${synOk?'correct-tag':'wrong-tag'}">${synOk?'✓ Correct':'✗ Incorrect'}</span></div>
+      <div class="row"><span>${r.title} · Semantic</span><span class="${semOk?'correct-tag':'wrong-tag'}">${semOk?'✓ Correct':'✗ Incorrect'}</span></div>
+    `;
+  }).join('');
+  document.getElementById('summaryList').innerHTML =
+    `<div class="row"><span>Final Score</span><span style="color:var(--green);font-weight:700">${score} pts</span></div>` +
+    `<div class="row"><span>Best Streak</span><span style="color:var(--yellow)">${streak} 🔥</span></div>` + summaryHTML;
+
+  const rs = document.getElementById('resultsScreen');
+  rs.style.display = 'block';
+  rs.classList.add('show');
+}
+
+function restartGame() {
+  score = 0; streak = 0; currentRound = 0; currentStage = 0;
+  questionsAnswered = 0;
+  stageResults = { lex:[], syn:[], sem:[] };
+  roundResults = [];
+  updateScoreDisplay();
+  document.getElementById('resultsScreen').style.display = 'none';
+  document.getElementById('resultsScreen').classList.remove('show');
+  document.getElementById('mainContent').style.display = 'block';
+  render();
+}
+
+// ─── SYNTAX HIGHLIGHTER ──────────────────────────────────────────────────────
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function highlightCode(line) {
+  if (!line.trim()) return '';
+  const keywords = new Set(['if','else','elif','while','for','def','return','print','import','in','not','and','or','True','False','None','class']);
+  // Tokenise with a single regex pass — order matters: strings first, then numbers, words, operators, symbols
+  const tokenRe = /(#[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)|([+\-*\/=!<>]+)|([\(\)\[\]{},:.;])|(\s+)|(.)/g;
+  let result = '';
+  let m;
+  while ((m = tokenRe.exec(line)) !== null) {
+    const [, comment, str, num, word, op, sym, ws, other] = m;
+    if (comment)     { result += `<span class="comment">${esc(comment)}</span>`; }
+    else if (str)    { result += `<span class="string">${esc(str)}</span>`; }
+    else if (num)    { result += `<span class="literal">${esc(num)}</span>`; }
+    else if (word)   { result += keywords.has(word) ? `<span class="keyword">${esc(word)}</span>` : esc(word); }
+    else if (op)     { result += `<span class="operator">${esc(op)}</span>`; }
+    else if (sym)    { result += `<span style="color:var(--purple)">${esc(sym)}</span>`; }
+    else if (ws)     { result += ws; }
+    else if (other)  { result += esc(other); }
+  }
+  return result;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

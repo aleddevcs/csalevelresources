@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compiler vs Interpreter — A-Level Computer Science</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --compiler: #00d4aa;
+    --compiler-dim: #00d4aa22;
+    --interp: #ff6b6b;
+    --interp-dim: #ff6b6b22;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --code-bg: #0d0d16;
+    --highlight: #ffd700;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--compiler), var(--interp));
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  h1 span.c { color: var(--compiler); }
+  h1 span.i { color: var(--interp); }
+
+  .subtitle {
+    color: var(--muted);
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  /* Progress bar */
+  .progress-bar-outer {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    margin-top: 1.5rem;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--compiler), var(--interp));
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* Step counter */
+  .step-counter {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Code block (shared) */
+  .code-container {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: #0f0f18;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-left: 0.5rem;
+  }
+
+  .code-body {
+    padding: 1.2rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 2;
+  }
+
+  .code-line {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: background 0.3s, transform 0.3s;
+    position: relative;
+  }
+
+  .line-num {
+    color: var(--muted);
+    min-width: 1.5rem;
+    text-align: right;
+    user-select: none;
+    font-size: 0.75rem;
+  }
+
+  .code-line.active-compiler {
+    background: var(--compiler-dim);
+    border-left: 2px solid var(--compiler);
+  }
+
+  .code-line.active-interp {
+    background: var(--interp-dim);
+    border-left: 2px solid var(--interp);
+  }
+
+  .code-line.done-compiler { opacity: 0.45; }
+  .code-line.done-interp { opacity: 0.45; }
+
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .op { color: #89ddff; }
+  .cm { color: #546e7a; font-style: italic; }
+  .var { color: var(--text); }
+
+  /* Side-by-side panels */
+  .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 780px) {
+    .panels { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel.compiler .panel-header { border-top: 3px solid var(--compiler); }
+  .panel.interp .panel-header { border-top: 3px solid var(--interp); }
+
+  .panel-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .panel.compiler .panel-icon { background: var(--compiler-dim); }
+  .panel.interp .panel-icon { background: var(--interp-dim); }
+
+  .panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .panel.compiler .panel-title { color: var(--compiler); }
+  .panel.interp .panel-title { color: var(--interp); }
+
+  .panel-body {
+    padding: 1.25rem;
+    flex: 1;
+    min-height: 220px;
+    position: relative;
+  }
+
+  /* Stage pipeline */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .stage-pill {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all 0.4s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stage-pill.active-compiler {
+    border-color: var(--compiler);
+    color: var(--compiler);
+    background: var(--compiler-dim);
+    box-shadow: 0 0 10px var(--compiler-dim);
+  }
+
+  .stage-pill.active-interp {
+    border-color: var(--interp);
+    color: var(--interp);
+    background: var(--interp-dim);
+    box-shadow: 0 0 10px var(--interp-dim);
+  }
+
+  .stage-pill.done {
+    opacity: 0.4;
+  }
+
+  .arrow { color: var(--muted); font-size: 0.7rem; }
+
+  /* Description box */
+  .desc-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text);
+    min-height: 80px;
+    transition: opacity 0.3s;
+  }
+
+  .desc-box .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+  }
+
+  .panel.compiler .desc-box .label { color: var(--compiler); }
+  .panel.interp .desc-box .label { color: var(--interp); }
+
+  /* Output box */
+  .output-box {
+    margin-top: 0.75rem;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-height: 48px;
+    transition: all 0.4s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .output-box.has-output-c {
+    border-color: var(--compiler);
+    color: var(--compiler);
+  }
+
+  .output-box.has-output-i {
+    border-color: var(--interp);
+    color: var(--interp);
+  }
+
+  .output-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+
+  /* Question section */
+  .question-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-section::before {
+    content: '?';
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--border);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .q-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--highlight);
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+  }
+
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    max-width: 85%;
+    line-height: 1.4;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .option-btn {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--muted);
+    background: #15151f;
+    transform: translateX(3px);
+  }
+
+  .option-btn .opt-letter {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .option-btn.correct {
+    border-color: var(--compiler);
+    background: var(--compiler-dim);
+  }
+  .option-btn.correct .opt-letter {
+    background: var(--compiler);
+    color: var(--bg);
+  }
+
+  .option-btn.wrong {
+    border-color: var(--interp);
+    background: var(--interp-dim);
+  }
+  .option-btn.wrong .opt-letter {
+    background: var(--interp);
+    color: var(--bg);
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .feedback.correct-fb {
+    background: var(--compiler-dim);
+    border: 1px solid var(--compiler);
+    color: var(--compiler);
+    display: block;
+  }
+
+  .feedback.wrong-fb {
+    background: var(--interp-dim);
+    border: 1px solid var(--interp);
+    color: var(--interp);
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--compiler), #00a87a);
+    color: var(--bg);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--compiler-dim);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--muted);
+    color: var(--text);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* Score */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .score-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.9rem;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .score-pill span { color: var(--highlight); }
+
+  /* End screen */
+  #end-screen {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .end-score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--compiler);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    background: var(--compiler-dim);
+  }
+
+  .end-score-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--compiler);
+    line-height: 1;
+  }
+
+  .end-score-denom {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .end-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  .end-msg {
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+
+  /* Summary table */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+
+  .summary-table th {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+  }
+
+  .summary-table td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .summary-table tr:last-child td { border-bottom: none; }
+
+  .tick { color: var(--compiler); }
+  .cross { color: var(--interp); }
+
+  /* Blinking cursor */
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--compiler);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .processing-anim {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .processing-anim span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: bounce 0.8s infinite;
+  }
+
+  .processing-anim span:nth-child(2) { animation-delay: 0.15s; }
+  .processing-anim span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  .panel.compiler .processing-anim span { background: var(--compiler); }
+  .panel.interp .processing-anim span { background: var(--interp); }
+
+  /* Intro overlay */
+  #intro {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .intro-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+    text-align: left;
+  }
+
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .intro-card.c-card { border-top: 3px solid var(--compiler); }
+  .intro-card.i-card { border-top: 3px solid var(--interp); }
+
+  .intro-card h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .intro-card.c-card h3 { color: var(--compiler); }
+  .intro-card.i-card h3 { color: var(--interp); }
+
+  .intro-card p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .intro-desc {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">A-Level Computer Science</div>
+  <h1><span class="c">Compiler</span> vs <span class="i">Interpreter</span></h1>
+  <p class="subtitle">Follow the same code through both translation processes — step by step.</p>
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progress-bar"></div>
+  </div>
+  <div class="step-counter" id="step-counter">Step 0 of 5</div>
+</header>
+
+<div class="main">
+
+  <!-- INTRO -->
+  <div id="intro">
+    <p class="intro-desc">
+      You're about to follow a short Python-style program through two different translation processes. Watch how a <strong style="color:var(--compiler)">compiler</strong> and an <strong style="color:var(--interp)">interpreter</strong> handle the exact same code — and answer checkpoint questions along the way.
+    </p>
+    <div class="intro-cards">
+      <div class="intro-card c-card">
+        <h3>⚙️ Compiler</h3>
+        <p>Translates the <em>entire</em> source code into machine code before execution. Produces an executable file.</p>
+      </div>
+      <div class="intro-card i-card">
+        <h3>▶️ Interpreter</h3>
+        <p>Reads and executes code <em>line-by-line</em> at runtime. No separate executable is created.</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startVisualiser()">Start the Visualiser →</button>
+  </div>
+
+  <!-- MAIN VISUALISER -->
+  <div id="visualiser" style="display:none;">
+
+    <div class="score-bar">
+      <div class="score-pill">Score: <span id="score-display">0</span> / <span id="total-q-display">5</span></div>
+    </div>
+
+    <!-- Shared code block -->
+    <div class="code-container">
+      <div class="code-header">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="code-filename">program.py</span>
+      </div>
+      <div class="code-body" id="code-display"></div>
+    </div>
+
+    <!-- Side by side panels -->
+    <div class="panels">
+      <div class="panel compiler">
+        <div class="panel-header">
+          <div class="panel-icon">⚙️</div>
+          <div>
+            <div class="panel-title">Compiler</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="pipeline" id="compiler-pipeline"></div>
+          <div class="desc-box" id="compiler-desc">
+            <div class="label">What the compiler is doing</div>
+            <div id="compiler-desc-text">Waiting to begin…</div>
+          </div>
+          <div class="output-label" style="margin-top:0.75rem">Output</div>
+          <div class="output-box" id="compiler-output">—</div>
+        </div>
+      </div>
+
+      <div class="panel interp">
+        <div class="panel-header">
+          <div class="panel-icon">▶️</div>
+          <div>
+            <div class="panel-title">Interpreter</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="pipeline" id="interp-pipeline"></div>
+          <div class="desc-box" id="interp-desc">
+            <div class="label">What the interpreter is doing</div>
+            <div id="interp-desc-text">Waiting to begin…</div>
+          </div>
+          <div class="output-label" style="margin-top:0.75rem">Output</div>
+          <div class="output-box" id="interp-output">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkpoint question -->
+    <div class="question-section" id="question-section" style="display:none;">
+      <div class="q-label">⚡ Checkpoint Question</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="q-options"></div>
+      <div class="feedback" id="q-feedback"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="resetAll()">↩ Restart</button>
+      <button class="btn btn-primary" id="next-btn" onclick="nextStep()">Begin →</button>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen">
+    <div class="end-score-circle">
+      <div class="end-score-num" id="final-score">0</div>
+      <div class="end-score-denom" id="final-denom">/ 5</div>
+    </div>
+    <div class="end-title" id="end-title">Well done!</div>
+    <div class="end-msg" id="end-msg">Here's a summary of your answers.</div>
+    <table class="summary-table" id="summary-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>Your Answer</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+    <button class="btn btn-primary" onclick="resetAll()">↩ Try Again</button>
+  </div>
+
+</div>
+
+<script>
+const code = [
+  { html: '<span class="cm"># Calculate total price with tax</span>', raw: '# Calculate total price with tax' },
+  { html: '<span class="kw">price</span> <span class="op">=</span> <span class="num">49.99</span>', raw: 'price = 49.99' },
+  { html: '<span class="kw">tax_rate</span> <span class="op">=</span> <span class="num">0.2</span>', raw: 'tax_rate = 0.2' },
+  { html: '<span class="kw">total</span> <span class="op">=</span> <span class="kw">price</span> <span class="op">*</span> <span class="op">(</span><span class="num">1</span> <span class="op">+</span> <span class="kw">tax_rate</span><span class="op">)</span>', raw: 'total = price * (1 + tax_rate)' },
+  { html: '<span class="fn">print</span><span class="op">(</span><span class="str">"Total: £"</span> <span class="op">+</span> <span class="fn">str</span><span class="op">(</span><span class="kw">total</span><span class="op">))</span>', raw: 'print("Total: £" + str(total))' },
+];
+
+const compilerStages = ['Lexical Analysis', 'Syntax Analysis', 'Semantic Analysis', 'Code Generation', 'Executable'];
+const interpStages = ['Read Line', 'Translate', 'Execute', 'Next Line'];
+
+const steps = [
+  {
+    title: 'Step 1: Reading the source code',
+    compilerLine: -1,
+    interpLine: 0,
+    compilerStage: -1,
+    interpStage: 0,
+    compilerDesc: 'The compiler reads the <strong>entire source file</strong> from top to bottom before doing anything. All 5 lines are loaded into memory at once.',
+    interpDesc: 'The interpreter reads <strong>only the first line</strong> — the comment. It identifies this as non-executable and moves on.',
+    compilerOutput: { text: 'Reading entire program…', has: false },
+    interpOutput: { text: '// Comment — skipped', has: true, type: 'i' },
+    question: {
+      text: 'At this point, the compiler has read all 5 lines but hasn\'t executed anything. The interpreter has only read line 1. What does this tell us about how they process code?',
+      options: [
+        { letter: 'A', text: 'Compilers are faster because they read more at once', correct: false, feedback: 'Not quite. Reading more at once doesn\'t mean faster execution at this stage — it means the compiler needs the whole program before it can begin translation.' },
+        { letter: 'B', text: 'The compiler translates the entire program at once; the interpreter processes line-by-line', correct: true, feedback: '✓ Correct! This is the fundamental difference. The compiler must see the whole program before starting. The interpreter processes one instruction at a time, beginning execution immediately.' },
+        { letter: 'C', text: 'Both approaches produce the same executable file', correct: false, feedback: 'Incorrect. Only compilers produce an executable file. Interpreters execute directly from source code.' },
+        { letter: 'D', text: 'The interpreter is less efficient because it reads slowly', correct: false, feedback: 'Incorrect. Reading line-by-line isn\'t about speed at this stage — it\'s about the fundamental approach to translation.' },
+      ]
+    }
+  },
+  {
+    title: 'Step 2: Lexical Analysis (Tokenisation)',
+    compilerLine: 1,
+    interpLine: 1,
+    compilerStage: 0,
+    interpStage: 0,
+    compilerDesc: '<strong>Lexical analysis</strong> — the compiler scans all source code and breaks it into <em>tokens</em>: keywords, identifiers, operators, and literals. E.g. <code style="color:var(--compiler);font-family:JetBrains Mono,monospace">price</code> → IDENTIFIER, <code style="color:var(--compiler);font-family:JetBrains Mono,monospace">=</code> → ASSIGN_OP, <code style="color:var(--compiler);font-family:JetBrains Mono,monospace">49.99</code> → NUMBER.',
+    interpDesc: 'The interpreter reads line 2 (<code style="color:var(--interp);font-family:JetBrains Mono,monospace">price = 49.99</code>). It tokenises this single line and <strong>immediately</strong> assigns the value 49.99 to the variable <code style="color:var(--interp);font-family:JetBrains Mono,monospace">price</code> in memory.',
+    compilerOutput: { text: 'Tokens: [IDENTIFIER: price] [ASSIGN] [FLOAT: 49.99] …', has: false },
+    interpOutput: { text: '→ price = 49.99 stored in memory', has: true, type: 'i' },
+    question: {
+      text: 'The interpreter has already stored price = 49.99 in memory. The compiler has only produced tokens — no values stored yet. What is an advantage of the interpreter\'s approach here?',
+      options: [
+        { letter: 'A', text: 'The interpreter can run the program before it\'s finished loading', correct: false, feedback: 'Partially right idea, but the better answer relates to development and debugging.' },
+        { letter: 'B', text: 'The interpreter immediately executes each line, making testing and debugging faster during development', correct: true, feedback: '✓ Correct! Because the interpreter executes immediately, developers can test small pieces of code right away — no waiting for a full compilation step. This makes development and prototyping much faster.' },
+        { letter: 'C', text: 'The interpreter produces a more optimised program', correct: false, feedback: 'Incorrect. Compiled programs are generally more optimised because the compiler can analyse the whole program and apply global optimisations.' },
+        { letter: 'D', text: 'The interpreter never makes syntax errors', correct: false, feedback: 'Incorrect. Interpreters do detect syntax errors — but only when they reach the problematic line during execution.' },
+      ]
+    }
+  },
+  {
+    title: 'Step 3: Syntax & Semantic Analysis',
+    compilerLine: 3,
+    interpLine: 3,
+    compilerStage: 2,
+    interpStage: 1,
+    compilerDesc: '<strong>Syntax analysis</strong> checks grammar rules (e.g. correct use of operators and parentheses). <strong>Semantic analysis</strong> checks meaning — e.g. are the types compatible? Can <code style="color:var(--compiler);font-family:JetBrains Mono,monospace">price * (1 + tax_rate)</code> be evaluated? All errors are collected before execution.',
+    interpDesc: 'The interpreter reaches <code style="color:var(--interp);font-family:JetBrains Mono,monospace">total = price * (1 + tax_rate)</code>. It translates and executes this line immediately, calculating the result. If there were an error here, execution would <strong>stop at this line</strong>.',
+    compilerOutput: { text: 'Syntax ✓ | Types compatible ✓ | No semantic errors detected', has: false },
+    interpOutput: { text: '→ total = 49.99 * 1.2 = 59.988 stored', has: true, type: 'i' },
+    question: {
+      text: 'A programmer accidentally writes total = price * (1 + tax_rate on line 4 — missing the closing bracket. How would each tool respond?',
+      options: [
+        { letter: 'A', text: 'Both would catch the error before any code runs', correct: false, feedback: 'Incorrect. The compiler would catch it before execution, but the interpreter only reaches line 4 after executing lines 1–3.' },
+        { letter: 'B', text: 'The compiler would catch it during compilation; the interpreter would only find it when it reaches line 4', correct: true, feedback: '✓ Correct! This is a key difference. The compiler performs syntax checking on the whole program before execution. The interpreter discovers the error only when it executes that specific line. Lines before it will have already run.' },
+        { letter: 'C', text: 'The interpreter catches all errors first because it runs the code immediately', correct: false, feedback: 'Incorrect. The interpreter running immediately doesn\'t mean it catches all errors first — it only finds errors when it reaches the problematic line.' },
+        { letter: 'D', text: 'Neither would detect a missing bracket', correct: false, feedback: 'Incorrect. Both tools perform syntax checking and would detect a missing bracket — but at different points in the process.' },
+      ]
+    }
+  },
+  {
+    title: 'Step 4: Execution',
+    compilerLine: 4,
+    interpLine: 4,
+    compilerStage: 3,
+    interpStage: 2,
+    compilerDesc: 'The compiler has finished all analysis. It now performs <strong>code generation</strong> — converting the optimised intermediate code into machine code specific to the <strong>target CPU and OS</strong>. An <code style="color:var(--compiler);font-family:JetBrains Mono,monospace">.exe</code> file (Windows) or binary (Linux/macOS) is produced.',
+    interpDesc: 'The interpreter reaches the final line: <code style="color:var(--interp);font-family:JetBrains Mono,monospace">print("Total: £" + str(total))</code>. It translates and immediately outputs the result. No file is saved — the interpreter must be present every time the program runs.',
+    compilerOutput: { text: '→ program.exe created (2.1KB) — ready to distribute', has: true, type: 'c' },
+    interpOutput: { text: 'Total: £59.988', has: true, type: 'i' },
+    question: {
+      text: 'The compiled program produces program.exe. The interpreter outputs the result directly. Which of the following is a disadvantage of the compiled program?',
+      options: [
+        { letter: 'A', text: 'The compiled program runs slower than the interpreted one', correct: false, feedback: 'Incorrect. The opposite is true — compiled programs generally run faster because code has already been translated into machine code.' },
+        { letter: 'B', text: 'The compiled program must be recompiled for each different platform (e.g. Windows vs Linux)', correct: true, feedback: '✓ Correct! Because the compiler generates machine code for a specific CPU architecture and operating system, the .exe won\'t run on Linux. The source code must be recompiled for each target platform.' },
+        { letter: 'C', text: 'The compiled program cannot run without the compiler', correct: false, feedback: 'Incorrect. This is actually an advantage of compiled programs — once compiled, the .exe runs independently without the compiler being installed.' },
+        { letter: 'D', text: 'The compiled program cannot detect type errors', correct: false, feedback: 'Incorrect. Semantic analysis during compilation checks for type errors, often catching more issues than an interpreter would before execution.' },
+      ]
+    }
+  },
+  {
+    title: 'Step 5: Final Comparison',
+    compilerLine: -2,
+    interpLine: -2,
+    compilerStage: 4,
+    interpStage: 3,
+    compilerDesc: '✅ <strong>Compilation complete.</strong> The .exe runs directly on compatible systems — fast, optimised, standalone. No compiler needed at runtime. Suitable for: operating systems, game engines, embedded systems.',
+    interpDesc: '✅ <strong>Execution complete.</strong> The output was produced line-by-line. The interpreter must remain installed for every run. Suitable for: web scripting, data analysis, rapid prototyping.',
+    compilerOutput: { text: '✓ Executable distributed — runs on Windows x64 without compiler', has: true, type: 'c' },
+    interpOutput: { text: '✓ Program complete — interpreter required to run again', has: true, type: 'i' },
+    question: {
+      text: 'A developer is building firmware for a medical device that must run with maximum performance and minimal resources. Which approach is more suitable, and why?',
+      options: [
+        { letter: 'A', text: 'Interpreter — because it\'s easier to debug on the device', correct: false, feedback: 'Incorrect. Whilst interpreters are easier to debug during development, they are not suitable for high-performance embedded systems — they\'re slower and require the interpreter runtime to be installed.' },
+        { letter: 'B', text: 'Compiler — because it produces fast, standalone machine code optimised for the target hardware', correct: true, feedback: '✓ Correct! Compiled languages like C or Rust are standard for embedded and safety-critical systems. The compiled binary is fast, resource-efficient, and runs without any additional runtime environment — essential for medical firmware.' },
+        { letter: 'C', text: 'Interpreter — because Python is the most widely used language', correct: false, feedback: 'Incorrect. Popularity doesn\'t determine suitability. Python\'s interpreter overhead and runtime requirements make it unsuitable for resource-constrained embedded systems.' },
+        { letter: 'D', text: 'Both approaches produce identical performance on embedded hardware', correct: false, feedback: 'Incorrect. Compiled code executes significantly faster as it\'s already machine code. Interpreted code must be translated at runtime, adding overhead that is unacceptable in performance-critical applications.' },
+      ]
+    }
+  }
+];
+
+let currentStep = -1;
+let score = 0;
+let questionAnswered = false;
+let userAnswers = [];
+
+function startVisualiser() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('visualiser').style.display = 'block';
+  buildCodeDisplay();
+  buildPipelines();
+  updateProgress();
+}
+
+function buildCodeDisplay() {
+  const el = document.getElementById('code-display');
+  el.innerHTML = code.map((line, i) =>
+    `<div class="code-line" id="codeline-${i}">
+      <span class="line-num">${i+1}</span>
+      <span>${line.html}</span>
+    </div>`
+  ).join('');
+}
+
+function buildPipelines() {
+  ['compiler-pipeline', 'interp-pipeline'].forEach((id, isInterp) => {
+    const stages = isInterp ? interpStages : compilerStages;
+    const el = document.getElementById(id);
+    el.innerHTML = stages.map((s, i) =>
+      `<span class="stage-pill" id="${isInterp ? 'i' : 'c'}-stage-${i}">${s}</span>
+      ${i < stages.length - 1 ? '<span class="arrow">›</span>' : ''}`
+    ).join('');
+  });
+}
+
+function clearLineHighlights() {
+  document.querySelectorAll('.code-line').forEach(el => {
+    el.classList.remove('active-compiler', 'active-interp', 'done-compiler', 'done-interp');
+  });
+}
+
+function updateProgress() {
+  const total = steps.length;
+  const pct = currentStep < 0 ? 0 : ((currentStep + 1) / total) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('step-counter').textContent =
+    currentStep < 0 ? 'Step 0 of ' + total :
+    'Step ' + (currentStep + 1) + ' of ' + total;
+}
+
+function updatePipeline(stageIdx, type) {
+  const stages = type === 'c' ? compilerStages : interpStages;
+  const prefix = type;
+  stages.forEach((_, i) => {
+    const el = document.getElementById(`${prefix}-stage-${i}`);
+    if (!el) return;
+    el.classList.remove('active-compiler', 'active-interp', 'done');
+    if (i < stageIdx) el.classList.add('done');
+    else if (i === stageIdx) el.classList.add(type === 'c' ? 'active-compiler' : 'active-interp');
+  });
+}
+
+function setOutput(type, text, has) {
+  const el = document.getElementById(type === 'c' ? 'compiler-output' : 'interp-output');
+  el.textContent = text;
+  el.classList.remove('has-output-c', 'has-output-i');
+  if (has) el.classList.add(type === 'c' ? 'has-output-c' : 'has-output-i');
+}
+
+function setDesc(type, html) {
+  document.getElementById(type === 'c' ? 'compiler-desc-text' : 'interp-desc-text').innerHTML = html;
+}
+
+function nextStep() {
+  if (currentStep >= 0 && !questionAnswered) return;
+
+  currentStep++;
+  if (currentStep >= steps.length) {
+    showEndScreen();
+    return;
+  }
+
+  questionAnswered = false;
+  const step = steps[currentStep];
+
+  // Update next button
+  const btn = document.getElementById('next-btn');
+  btn.disabled = true;
+  btn.textContent = 'Answer the question to continue →';
+
+  // Highlight code lines
+  clearLineHighlights();
+  if (step.compilerLine >= 0) {
+    for (let i = 0; i < step.compilerLine; i++)
+      document.getElementById('codeline-' + i)?.classList.add('done-compiler');
+    document.getElementById('codeline-' + step.compilerLine)?.classList.add('active-compiler');
+  } else if (step.compilerLine === -2) {
+    for (let i = 0; i < code.length; i++)
+      document.getElementById('codeline-' + i)?.classList.add('done-compiler');
+  }
+
+  if (step.interpLine >= 0) {
+    for (let i = 0; i < step.interpLine; i++)
+      document.getElementById('codeline-' + i)?.classList.add('done-interp');
+    document.getElementById('codeline-' + step.interpLine)?.classList.add('active-interp');
+  } else if (step.interpLine === -2) {
+    for (let i = 0; i < code.length; i++)
+      document.getElementById('codeline-' + i)?.classList.add('done-interp');
+  }
+
+  // Update pipelines
+  if (step.compilerStage >= 0) updatePipeline(step.compilerStage, 'c');
+  if (step.interpStage >= 0) updatePipeline(step.interpStage, 'i');
+
+  // Update descriptions
+  setDesc('c', step.compilerDesc);
+  setDesc('i', step.interpDesc);
+
+  // Update outputs
+  setOutput('c', step.compilerOutput.text, step.compilerOutput.has);
+  setOutput('i', step.interpOutput.text, step.interpOutput.has);
+  if (step.compilerOutput.type) document.getElementById('compiler-output').classList.add('has-output-' + step.compilerOutput.type);
+  if (step.interpOutput.type) document.getElementById('interp-output').classList.add('has-output-' + step.interpOutput.type);
+
+  // Show question
+  showQuestion(step.question);
+  updateProgress();
+}
+
+function showQuestion(q) {
+  const section = document.getElementById('question-section');
+  section.style.display = 'block';
+  document.getElementById('q-text').textContent = q.text;
+  const optEl = document.getElementById('q-options');
+  optEl.innerHTML = q.options.map((o, i) =>
+    `<button class="option-btn" onclick="answerQ(${i})" id="opt-${i}">
+      <span class="opt-letter">${o.letter}</span>
+      <span>${o.text}</span>
+    </button>`
+  ).join('');
+  document.getElementById('q-feedback').className = 'feedback';
+  document.getElementById('q-feedback').textContent = '';
+}
+
+function answerQ(idx) {
+  if (questionAnswered) return;
+  questionAnswered = true;
+
+  const step = steps[currentStep];
+  const q = step.question;
+  const chosen = q.options[idx];
+  const fb = document.getElementById('q-feedback');
+
+  userAnswers.push({
+    qText: q.text,
+    chosen: chosen.text,
+    correct: chosen.correct
+  });
+
+  // Style buttons
+  q.options.forEach((o, i) => {
+    const btn = document.getElementById('opt-' + i);
+    btn.disabled = true;
+    if (o.correct) btn.classList.add('correct');
+    else if (i === idx && !o.correct) btn.classList.add('wrong');
+  });
+
+  fb.textContent = chosen.feedback;
+  fb.className = 'feedback ' + (chosen.correct ? 'correct-fb' : 'wrong-fb');
+
+  if (chosen.correct) score++;
+  document.getElementById('score-display').textContent = score;
+
+  const btn = document.getElementById('next-btn');
+  btn.disabled = false;
+  btn.textContent = currentStep < steps.length - 1 ? 'Next Step →' : 'See Results →';
+}
+
+function showEndScreen() {
+  document.getElementById('visualiser').style.display = 'none';
+  const end = document.getElementById('end-screen');
+  end.style.display = 'block';
+
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-denom').textContent = '/ ' + steps.length;
+
+  const pct = (score / steps.length) * 100;
+  document.getElementById('end-title').textContent =
+    pct === 100 ? '🎉 Perfect Score!' :
+    pct >= 60 ? '✅ Great Work!' : '📚 Keep Revising';
+  document.getElementById('end-msg').textContent =
+    pct === 100 ? 'You answered every question correctly — excellent understanding of compiler and interpreter differences.' :
+    pct >= 60 ? 'You have a solid grasp of the concepts. Review the questions you missed.' :
+    'Review your notes on compilers and interpreters and try again.';
+
+  const tbody = document.getElementById('summary-body');
+  tbody.innerHTML = userAnswers.map((a, i) =>
+    `<tr>
+      <td>${i+1}</td>
+      <td>${a.qText.substring(0, 70)}…</td>
+      <td style="color:var(--muted);font-size:0.78rem">${a.chosen.substring(0, 60)}</td>
+      <td class="${a.correct ? 'tick' : 'cross'}">${a.correct ? '✓' : '✗'}</td>
+    </tr>`
+  ).join('');
+}
+
+function resetAll() {
+  currentStep = -1;
+  score = 0;
+  questionAnswered = false;
+  userAnswers = [];
+
+  document.getElementById('score-display').textContent = '0';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('visualiser').style.display = 'none';
+  document.getElementById('intro').style.display = 'block';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('step-counter').textContent = 'Step 0 of 5';
+  document.getElementById('next-btn').textContent = 'Begin →';
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('question-section').style.display = 'none';
+}
+</script>
+</body>
+</html>

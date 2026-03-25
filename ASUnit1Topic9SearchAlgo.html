@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Logic: Parson's Puzzle Edition</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles for the drag and drop interface */
+        .drag-block {
+            cursor: grab;
+            transition: transform 0.1s, box-shadow 0.2s, margin-left 0.2s;
+            user-select: none;
+            touch-action: none;
+            z-index: 20;
+        }
+        .drag-block:active {
+            cursor: grabbing;
+        }
+        .workspace-slot {
+            height: 52px;
+            border: 2px dashed #e2e8f0;
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .workspace-slot.hovered {
+            border-color: #6366f1;
+            background-color: #eef2ff;
+        }
+        .workspace-slot.filled {
+            border: none;
+            background-color: transparent;
+        }
+        .drop-zone {
+            min-height: 500px;
+            background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px);
+            background-size: 40px 100%;
+        }
+        .correct-block {
+            border: 2px solid #22c55e !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-block {
+            border: 2px solid #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        .distractor-block {
+            border-left: 4px solid #f97316;
+        }
+        .ghost {
+            opacity: 0.4;
+            background: #cbd5e1 !important;
+        }
+        /* Grid guide for indentation */
+        .indent-guide {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background-color: rgba(203, 213, 225, 0.4);
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 min-h-screen">
+
+    <header class="bg-indigo-700 text-white p-6 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold italic tracking-tight">Search Logic: Parson's Puzzle</h1>
+                <p class="text-indigo-100 text-sm">A-Level Computer Science Revision Tool</p>
+            </div>
+            <div class="flex bg-indigo-800 p-1 rounded-lg">
+                <button id="btn-linear" onclick="setMode('linear')" class="px-6 py-2 rounded-md font-medium transition active-tab bg-white text-indigo-700 shadow">Linear Search</button>
+                <button id="btn-binary" onclick="setMode('binary')" class="px-6 py-2 rounded-md font-medium transition text-indigo-100 hover:bg-indigo-600">Binary Search</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Toolbox Section -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                <h2 class="text-lg font-bold mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    Code Toolbox
+                </h2>
+                <p class="text-xs text-slate-500 mb-4 italic text-balance">Drag blocks into the grey workspace slots. Ensure variable declarations are at the start!</p>
+                <div id="toolbox" class="flex flex-col gap-2 min-h-[150px]">
+                    <!-- JS Injected Blocks -->
+                </div>
+            </div>
+
+            <div class="bg-slate-800 text-white rounded-xl p-6 shadow-md">
+                <h3 class="font-bold mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    How to Play
+                </h3>
+                <ul class="text-sm space-y-3 opacity-90">
+                    <li class="flex gap-2"><span>1.</span><span>Drag blocks from the toolbox into the <strong>grey slots</strong> in the workspace.</span></li>
+                    <li class="flex gap-2"><span>2.</span><span>Hover over a slot and move your mouse horizontally to set <strong>indentation</strong>.</span></li>
+                    <li class="flex gap-2"><span>3.</span><span>Discard blocks containing common logical errors.</span></li>
+                    <li class="flex gap-2"><span>4.</span><span>Click <strong>Check Logic</strong> to verify your pseudocode.</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Workspace Section -->
+        <section class="lg:col-span-8 flex flex-col gap-4">
+            <div class="bg-white rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden">
+                <div class="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="flex gap-1.5">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        </div>
+                        <span class="font-mono text-sm font-bold text-slate-600 ml-4" id="algorithm-title">linear_search.psc</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="resetPuzzle()" class="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">Reset</button>
+                        <button onclick="checkPuzzle()" class="px-5 py-1.5 text-xs font-bold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition shadow-sm">Check Logic</button>
+                    </div>
+                </div>
+                <div id="workspace" class="drop-zone p-6 relative flex flex-col">
+                    <!-- Indentation Guides and Slots will be here -->
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="feedback-panel" class="hidden rounded-xl p-6 border flex flex-col gap-2 transition-all duration-300">
+                <h3 id="feedback-title" class="font-bold text-lg"></h3>
+                <p id="feedback-text" class="text-sm"></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const puzzles = {
+            linear: {
+                title: "linear_search.psc",
+                blocks: [
+                    { id: 'l1', text: 'FUNCTION linear_search(items, search_item)', indent: 0 },
+                    { id: 'l_dec', text: '// Declare variables', indent: 1 },
+                    { id: 'l_v1', text: 'found_index is integer', indent: 1 },
+                    { id: 'l_v2', text: 'current is integer', indent: 1 },
+                    { id: 'l2', text: 'found_index = -1', indent: 1 },
+                    { id: 'l3', text: 'FOR current = 0 TO LEN(items) - 1', indent: 1 },
+                    { id: 'l4', text: 'IF items[current] == search_item THEN', indent: 2 },
+                    { id: 'l5', text: 'found_index = current', indent: 3 },
+                    { id: 'l6', text: 'ENDIF', indent: 2 },
+                    { id: 'l7', text: 'NEXT current', indent: 1 },
+                    { id: 'l8', text: 'IF found_index == -1 THEN', indent: 1 },
+                    { id: 'l9', text: 'OUTPUT "Item not found"', indent: 2 },
+                    { id: 'l_e', text: 'ELSE', indent: 1 },
+                    { id: 'l_f', text: 'OUTPUT "Item found at index", found_index', indent: 2 },
+                    { id: 'l10', text: 'ENDFUNCTION', indent: 0 }
+                ],
+                distractors: [
+                    { id: 'ld1', text: 'FOR current = 1 TO LEN(items)', type: 'distractor' },
+                    { id: 'ld2', text: 'IF items[search_item] == current THEN', type: 'distractor' },
+                    { id: 'ld3', text: 'current is string', type: 'distractor' }
+                ]
+            },
+            binary: {
+                title: "binary_search.psc",
+                blocks: [
+                    { id: 'b1', text: 'FUNCTION binary_search(items, target)', indent: 0 },
+                    { id: 'b_dec', text: '// Declare variables', indent: 1 },
+                    { id: 'b_v1', text: 'found_index, first, last, midpoint are integers', indent: 1 },
+                    { id: 'b_v2', text: 'found is boolean', indent: 1 },
+                    { id: 'b2', text: 'found = False', indent: 1 },
+                    { id: 'b_idx', text: 'found_index = -1', indent: 1 },
+                    { id: 'b3', text: 'first = 0', indent: 1 },
+                    { id: 'b4', text: 'last = LEN(items) - 1', indent: 1 },
+                    { id: 'b5', text: 'WHILE first <= last AND found == False', indent: 1 },
+                    { id: 'b6', text: 'midpoint = (first + last) DIV 2', indent: 2 },
+                    { id: 'b7', text: 'IF items[midpoint] == target THEN', indent: 2 },
+                    { id: 'b8', text: 'found = True', indent: 3 },
+                    { id: 'b9', text: 'found_index = midpoint', indent: 3 },
+                    { id: 'b10', text: 'ELSEIF items[midpoint] < target THEN', indent: 2 },
+                    { id: 'b11', text: 'first = midpoint + 1', indent: 3 },
+                    { id: 'b12', text: 'ELSE', indent: 2 },
+                    { id: 'b13', text: 'last = midpoint - 1', indent: 3 },
+                    { id: 'b14', text: 'ENDIF', indent: 2 },
+                    { id: 'b15', text: 'ENDWHILE', indent: 1 },
+                    { id: 'b_res', text: 'IF found == False THEN', indent: 1 },
+                    { id: 'b_not', text: 'OUTPUT "Item not found"', indent: 2 },
+                    { id: 'b_else', text: 'ELSE', indent: 1 },
+                    { id: 'b_found', text: 'OUTPUT "Item found at index", found_index', indent: 2 },
+                    { id: 'b16', text: 'ENDFUNCTION', indent: 0 }
+                ],
+                distractors: [
+                    { id: 'bd1', text: 'midpoint = (first + last) / 2', type: 'distractor' },
+                    { id: 'bd2', text: 'WHILE first < last', type: 'distractor' },
+                    { id: 'bd3', text: 'last = midpoint + 1', type: 'distractor' },
+                    { id: 'bd4', text: 'found is integer', type: 'distractor' }
+                ]
+            }
+        };
+
+        let currentMode = 'linear';
+        let draggedElement = null;
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-linear').className = mode === 'linear' 
+                ? 'px-6 py-2 rounded-md font-medium transition bg-white text-indigo-700 shadow' 
+                : 'px-6 py-2 rounded-md font-medium transition text-indigo-100 hover:bg-indigo-600';
+            
+            document.getElementById('btn-binary').className = mode === 'binary' 
+                ? 'px-6 py-2 rounded-md font-medium transition bg-white text-indigo-700 shadow' 
+                : 'px-6 py-2 rounded-md font-medium transition text-indigo-100 hover:bg-indigo-600';
+            
+            resetPuzzle();
+        }
+
+        function resetPuzzle() {
+            const toolbox = document.getElementById('toolbox');
+            const workspace = document.getElementById('workspace');
+            const feedback = document.getElementById('feedback-panel');
+            const title = document.getElementById('algorithm-title');
+            
+            workspace.innerHTML = '';
+            // Add Indentation Guides
+            for(let i=1; i<=5; i++) {
+                const guide = document.createElement('div');
+                guide.className = 'indent-guide';
+                guide.style.left = `${(i * 40) + 24}px`;
+                workspace.appendChild(guide);
+            }
+            
+            feedback.classList.add('hidden');
+            title.textContent = puzzles[currentMode].title;
+
+            const data = puzzles[currentMode];
+            
+            // Create empty slots in workspace
+            data.blocks.forEach((_, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'workspace-slot';
+                slot.dataset.index = index;
+                
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    slot.classList.add('hovered');
+                    
+                    // Logic for indentation preview while hovering
+                    if (draggedElement) {
+                        const rect = slot.getBoundingClientRect();
+                        const offsetX = e.clientX - rect.left - 20; 
+                        const indentLevel = Math.min(Math.floor(offsetX / 40), 5);
+                        const targetIndent = Math.max(0, indentLevel);
+                        
+                        // We can't actually move the element while dragging easily without complex logic,
+                        // but we can set the data-target-indent on the slot
+                        slot.dataset.targetIndent = targetIndent;
+                    }
+                });
+
+                slot.addEventListener('dragleave', () => {
+                    slot.classList.remove('hovered');
+                });
+
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    slot.classList.remove('hovered');
+                    if (!draggedElement) return;
+
+                    // If slot is already filled, move the existing block back to toolbox or swap?
+                    // For simplicity, we swap or move.
+                    const existingBlock = slot.querySelector('.drag-block');
+                    if (existingBlock) {
+                        toolbox.appendChild(existingBlock);
+                        existingBlock.style.marginLeft = '0px';
+                        existingBlock.dataset.indent = 0;
+                    }
+
+                    slot.appendChild(draggedElement);
+                    slot.classList.add('filled');
+                    
+                    const indent = parseInt(slot.dataset.targetIndent || 0);
+                    draggedElement.dataset.indent = indent;
+                    draggedElement.style.marginLeft = `${indent * 40}px`;
+                    draggedElement.classList.remove('ghost');
+                });
+
+                workspace.appendChild(slot);
+            });
+
+            // Populate Toolbox
+            let allBlocks = [...data.blocks.map(b => ({...b, type: 'correct'})), ...data.distractors];
+            allBlocks = allBlocks.sort(() => Math.random() - 0.5);
+
+            toolbox.innerHTML = '';
+            allBlocks.forEach(block => {
+                const el = createBlock(block);
+                toolbox.appendChild(el);
+            });
+        }
+
+        function createBlock(blockData) {
+            const div = document.createElement('div');
+            div.className = `drag-block p-3 rounded-md border shadow-sm text-sm font-mono bg-white flex items-center gap-3 group relative z-10 ${blockData.type === 'distractor' ? 'distractor-block border-slate-200' : 'border-slate-200'}`;
+            div.draggable = true;
+            div.dataset.id = blockData.id;
+            div.dataset.indent = 0;
+            
+            div.innerHTML = `
+                <div class="flex flex-col gap-0.5 opacity-30 group-hover:opacity-100 cursor-grab">
+                    <div class="w-1 h-1 bg-slate-400 rounded-full"></div>
+                    <div class="w-1 h-1 bg-slate-400 rounded-full"></div>
+                    <div class="w-1 h-1 bg-slate-400 rounded-full"></div>
+                </div>
+                <span class="block-text select-none">${blockData.text}</span>
+            `;
+
+            div.addEventListener('dragstart', (e) => {
+                draggedElement = div;
+                div.classList.add('ghost');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            div.addEventListener('dragend', () => {
+                div.classList.remove('ghost');
+                // Check if it's back in toolbox
+                if (div.parentElement === toolbox) {
+                    div.style.marginLeft = '0px';
+                    div.dataset.indent = 0;
+                }
+                draggedElement = null;
+                // Update slot visual states
+                document.querySelectorAll('.workspace-slot').forEach(s => {
+                    if (s.querySelector('.drag-block')) s.classList.add('filled');
+                    else s.classList.remove('filled');
+                });
+            });
+
+            return div;
+        }
+
+        // Allow dropping back to toolbox
+        document.getElementById('toolbox').addEventListener('dragover', (e) => e.preventDefault());
+        document.getElementById('toolbox').addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedElement) {
+                toolbox.appendChild(draggedElement);
+            }
+        });
+
+        function checkPuzzle() {
+            const slots = document.querySelectorAll('.workspace-slot');
+            const correctSequence = puzzles[currentMode].blocks;
+            const feedback = document.getElementById('feedback-panel');
+            const title = document.getElementById('feedback-title');
+            const text = document.getElementById('feedback-text');
+
+            feedback.classList.remove('hidden');
+            
+            let isCorrect = true;
+            let firstErrorMsg = "";
+            let filledCount = 0;
+
+            slots.forEach((slot, index) => {
+                const block = slot.querySelector('.drag-block');
+                const target = correctSequence[index];
+                
+                if (block) {
+                    filledCount++;
+                    const blockId = block.dataset.id;
+                    const blockIndent = parseInt(block.dataset.indent);
+                    
+                    block.classList.remove('correct-block', 'incorrect-block');
+
+                    if (target && blockId === target.id && blockIndent === target.indent) {
+                        block.classList.add('correct-block');
+                    } else {
+                        block.classList.add('incorrect-block');
+                        isCorrect = false;
+                        
+                        if (!firstErrorMsg) {
+                            if (target && blockId === target.id && blockIndent !== target.indent) {
+                                firstErrorMsg = `Indentation error on slot ${index + 1}. The logic is correct, but the block isn't nested right.`;
+                            } else if (blockId.includes('d')) {
+                                firstErrorMsg = `Slot ${index + 1} contains a distractor block with a logical error.`;
+                            } else {
+                                firstErrorMsg = `Logical error in slot ${index + 1}. Check the order of your pseudocode.`;
+                            }
+                        }
+                    }
+                } else {
+                    isCorrect = false;
+                    if (!firstErrorMsg) firstErrorMsg = `Slot ${index + 1} is empty. The algorithm is incomplete.`;
+                }
+            });
+
+            if (filledCount === correctSequence.length && isCorrect) {
+                feedback.className = "rounded-xl p-6 border bg-green-50 border-green-200 text-green-800 shadow-md";
+                title.textContent = "Success!";
+                text.textContent = `Excellent! You implemented the ${currentMode} search including the found/not-found logic. This complete structure is exactly what's required for A-Level exams.`;
+            } else {
+                feedback.className = "rounded-xl p-6 border bg-red-50 border-red-200 text-red-800 shadow-sm";
+                title.textContent = "Logic Check Failed";
+                text.textContent = firstErrorMsg || "The algorithm is incomplete or contains errors.";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => setMode('linear'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topic 6 – Operating Systems Interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e222d;
+    --border: #2a2f3e;
+    --accent1: #4fffb0;
+    --accent2: #ff6b6b;
+    --accent3: #ffd166;
+    --accent4: #74b9ff;
+    --accent5: #a29bfe;
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --radius: 12px;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  /* NAV */
+  .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 8px; overflow-x: auto; }
+  .nav-title { font-family: var(--mono); font-size: 12px; color: var(--accent1); white-space: nowrap; padding: 18px 16px 18px 0; border-right: 1px solid var(--border); margin-right: 8px; }
+  .tab-btn { background: none; border: none; color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 18px 16px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent1); border-bottom-color: var(--accent1); }
+  .tab-num { font-family: var(--mono); font-size: 10px; background: var(--surface2); padding: 2px 6px; border-radius: 4px; margin-right: 6px; }
+
+  /* PANELS */
+  .panel { display: none; padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-tag { font-family: var(--mono); font-size: 11px; color: var(--accent1); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .section-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; line-height: 1.2; }
+  .section-desc { color: var(--muted); font-size: 14px; margin-bottom: 32px; line-height: 1.6; }
+
+  /* SCORE BADGE */
+  .score-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-family: var(--mono); font-size: 12px; margin-bottom: 24px; }
+  .score-val { color: var(--accent1); font-size: 16px; font-weight: 700; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: var(--sans); font-size: 14px; font-weight: 600; transition: all 0.15s; }
+  .btn-primary { background: var(--accent1); color: #0d0f14; }
+  .btn-primary:hover { background: #3de89a; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+
+  /* ============================================================
+     ACTIVITY 1: SCENARIO IDENTIFIER
+  ============================================================ */
+  .scenario-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
+  .scenario-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .scenario-num { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .progress-dots { display: flex; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+  .dot.done { background: var(--accent1); }
+  .dot.current { background: var(--accent3); }
+  .scenario-text { font-size: 16px; font-weight: 500; line-height: 1.6; margin-bottom: 24px; color: var(--text); padding: 16px; background: var(--surface2); border-radius: 8px; border-left: 3px solid var(--accent4); }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .option-btn { background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; padding: 12px 16px; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text); text-align: left; transition: all 0.15s; }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent4); color: var(--accent4); }
+  .option-btn.correct { border-color: var(--accent1) !important; background: rgba(79,255,176,0.1) !important; color: var(--accent1) !important; }
+  .option-btn.wrong { border-color: var(--accent2) !important; background: rgba(255,107,107,0.1) !important; color: var(--accent2) !important; }
+  .option-btn.reveal { border-color: var(--accent1); background: rgba(79,255,176,0.05); color: var(--accent1); }
+  .feedback-box { border-radius: 8px; padding: 14px 16px; font-size: 13px; line-height: 1.6; margin-bottom: 16px; animation: fadeIn 0.3s ease; }
+  .feedback-box.correct { background: rgba(79,255,176,0.1); border: 1px solid rgba(79,255,176,0.3); }
+  .feedback-box.wrong { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); }
+  .feedback-icon { font-size: 16px; margin-right: 6px; }
+
+  /* ============================================================
+     ACTIVITY 2: DRAG & DROP SORTER
+  ============================================================ */
+  .sort-layout { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
+  .cards-pool { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .cards-pool h3 { font-size: 12px; font-family: var(--mono); color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .scenario-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.4; cursor: grab; margin-bottom: 8px; transition: all 0.2s; user-select: none; }
+  .scenario-chip:active { cursor: grabbing; }
+  .scenario-chip:hover { border-color: var(--accent4); }
+  .scenario-chip.dragging { opacity: 0.4; }
+  .scenario-chip.placed { display: none; }
+  .categories-col { display: flex; flex-direction: column; gap: 12px; }
+  .cat-zone { background: var(--surface); border: 2px dashed var(--border); border-radius: var(--radius); padding: 14px; min-height: 90px; transition: all 0.2s; }
+  .cat-zone.drag-over { border-color: var(--accent4); background: rgba(116,185,255,0.05); }
+  .cat-label { font-size: 11px; font-family: var(--mono); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .cat-zone .scenario-chip { margin-bottom: 6px; cursor: default; }
+  .cat-zone .scenario-chip:hover { border-color: var(--border); }
+  .cat-zone .scenario-chip.correct-placed { border-color: var(--accent1); background: rgba(79,255,176,0.08); color: var(--accent1); }
+  .cat-zone .scenario-chip.wrong-placed { border-color: var(--accent2); background: rgba(255,107,107,0.08); color: var(--accent2); }
+  .sort-controls { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .results-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 16px; display: none; align-items: center; gap: 16px; }
+  .results-bar.show { display: flex; }
+
+  /* ============================================================
+     ACTIVITY 3: INTERRUPT WALKTHROUGH
+  ============================================================ */
+  .walkthrough-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; }
+  .steps-sidebar { display: flex; flex-direction: column; gap: 2px; }
+  .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+  .step-item:hover { background: var(--surface2); }
+  .step-item.active { background: var(--surface2); border-color: var(--border); }
+  .step-circle { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; flex-shrink: 0; transition: all 0.3s; }
+  .step-item.active .step-circle { border-color: var(--accent1); color: var(--accent1); }
+  .step-item.completed .step-circle { background: var(--accent1); border-color: var(--accent1); color: #0d0f14; }
+  .step-text { font-size: 12px; font-weight: 500; color: var(--muted); padding-top: 5px; transition: all 0.2s; }
+  .step-item.active .step-text { color: var(--text); }
+  .step-item.completed .step-text { color: var(--accent1); }
+  .walkthrough-main { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+  .wt-step-num { font-family: var(--mono); font-size: 11px; color: var(--accent1); letter-spacing: 2px; margin-bottom: 8px; }
+  .wt-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+  .wt-body { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 24px; }
+  .wt-body strong { color: var(--text); }
+  .wt-visual { background: var(--surface2); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+  .cpu-state { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .register-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: var(--mono); font-size: 11px; }
+  .register-box .reg-label { color: var(--muted); font-size: 10px; margin-bottom: 2px; }
+  .register-box .reg-val { color: var(--accent3); font-size: 13px; }
+  .register-box.saved { border-color: var(--accent1); }
+  .register-box.saved .reg-val { color: var(--accent1); }
+  .arrow-flow { font-size: 20px; color: var(--muted); align-self: center; }
+  .isr-block { background: var(--bg); border: 2px solid var(--accent5); border-radius: 8px; padding: 14px 18px; font-family: var(--mono); font-size: 12px; }
+  .isr-block .isr-title { color: var(--accent5); font-size: 11px; margin-bottom: 6px; }
+  .isr-block .isr-lines { color: var(--text); line-height: 1.8; }
+  .wt-nav { display: flex; gap: 10px; align-items: center; }
+  .wt-progress { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .wt-progress-fill { height: 100%; background: var(--accent1); border-radius: 2px; transition: width 0.4s ease; }
+  .interrupt-animation { position: relative; height: 80px; display: flex; align-items: center; gap: 16px; }
+  .int-block { background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 10px 14px; font-family: var(--mono); font-size: 11px; text-align: center; min-width: 80px; }
+  .int-signal { color: var(--accent2); font-size: 18px; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .int-block.active { border-color: var(--accent3); color: var(--accent3); }
+  .signal-line { width: 40px; height: 2px; background: linear-gradient(to right, var(--accent2), var(--accent3)); border-radius: 1px; }
+
+  /* ============================================================
+     ACTIVITY 4: PRIORITY SORTER
+  ============================================================ */
+  .priority-layout { display: flex; flex-direction: column; gap: 20px; }
+  .interrupt-pool { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .interrupt-pool h3 { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .interrupts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .int-chip { background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 12px; cursor: grab; user-select: none; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+  .int-chip:active { cursor: grabbing; }
+  .int-chip:hover { border-color: var(--accent4); }
+  .int-chip.dragging { opacity: 0.4; }
+  .int-chip.placed { display: none; }
+  .int-icon { font-size: 16px; flex-shrink: 0; }
+  .priority-lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .priority-lane { border-radius: var(--radius); padding: 14px; min-height: 120px; border: 2px dashed; transition: all 0.2s; }
+  .priority-lane.drag-over { opacity: 0.8; }
+  .lane-high { border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.03); }
+  .lane-high.drag-over { background: rgba(255,107,107,0.1); }
+  .lane-med { border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.03); }
+  .lane-med.drag-over { background: rgba(255,209,102,0.1); }
+  .lane-low { border-color: rgba(116,185,255,0.4); background: rgba(116,185,255,0.03); }
+  .lane-low.drag-over { background: rgba(116,185,255,0.1); }
+  .lane-title { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .lane-high .lane-title { color: var(--accent2); }
+  .lane-med .lane-title { color: var(--accent3); }
+  .lane-low .lane-title { color: var(--accent4); }
+  .lane-high .int-chip.correct-placed { border-color: var(--accent1); background: rgba(79,255,176,0.08); }
+  .lane-high .int-chip.wrong-placed,
+  .lane-med .int-chip.wrong-placed,
+  .lane-low .int-chip.wrong-placed { border-color: var(--accent2); background: rgba(255,107,107,0.08); }
+  .lane-med .int-chip.correct-placed { border-color: var(--accent1); background: rgba(79,255,176,0.08); }
+  .lane-low .int-chip.correct-placed { border-color: var(--accent1); background: rgba(79,255,176,0.08); }
+  .priority-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .priority-tip { font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-top: 12px; line-height: 1.6; display: none; }
+  .priority-tip.show { display: block; }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn 0.3s ease forwards; }
+  @keyframes slideIn { from{transform:translateX(-10px);opacity:0} to{transform:translateX(0);opacity:1} }
+  .slide-in { animation: slideIn 0.3s ease forwards; }
+
+  /* RESULT SCREEN */
+  .result-screen { text-align: center; padding: 40px 20px; }
+  .result-emoji { font-size: 56px; margin-bottom: 16px; }
+  .result-score { font-family: var(--mono); font-size: 48px; font-weight: 700; color: var(--accent1); margin-bottom: 8px; }
+  .result-label { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .sort-layout { grid-template-columns: 1fr; }
+    .walkthrough-layout { grid-template-columns: 1fr; }
+    .priority-lanes { grid-template-columns: 1fr; }
+    .options-grid { grid-template-columns: 1fr; }
+    .steps-sidebar { flex-direction: row; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-title">// TOPIC 6 — OS</div>
+  <button class="tab-btn active" onclick="switchTab('scenario')"><span class="tab-num">6.1a</span>Scenario Identifier</button>
+  <button class="tab-btn" onclick="switchTab('sorter')"><span class="tab-num">6.1b</span>OS Type Sorter</button>
+  <button class="tab-btn" onclick="switchTab('walkthrough')"><span class="tab-num">6.2a</span>Interrupt Walkthrough</button>
+  <button class="tab-btn" onclick="switchTab('priority')"><span class="tab-num">6.2b</span>Priority Sorter</button>
+</div>
+
+<!-- ============================================================
+     PANEL 1: SCENARIO IDENTIFIER
+============================================================ -->
+<div class="panel active" id="panel-scenario">
+  <div class="section-tag">6.1 — Operating System Types</div>
+  <div class="section-title">Scenario Identifier</div>
+  <div class="section-desc">Read each real-world scenario and identify which type of operating system is being described. Choose wisely!</div>
+
+  <div id="scenario-quiz"></div>
+</div>
+
+<!-- ============================================================
+     PANEL 2: OS TYPE SORTER
+============================================================ -->
+<div class="panel" id="panel-sorter">
+  <div class="section-tag">6.1 — Operating System Types</div>
+  <div class="section-title">OS Type Sorting Activity</div>
+  <div class="section-desc">Drag each scenario card into the correct OS type category. Some categories may have more than one scenario.</div>
+
+  <div class="sort-layout">
+    <div>
+      <div class="cards-pool">
+        <h3>Scenarios</h3>
+        <div id="sort-pool"></div>
+      </div>
+    </div>
+    <div class="categories-col" id="sort-categories"></div>
+  </div>
+  <div class="sort-controls">
+    <button class="btn btn-primary" onclick="checkSorter()">✓ Check Answers</button>
+    <button class="btn btn-secondary" onclick="resetSorter()">↺ Reset</button>
+  </div>
+  <div class="results-bar" id="sort-results"></div>
+</div>
+
+<!-- ============================================================
+     PANEL 3: INTERRUPT WALKTHROUGH
+============================================================ -->
+<div class="panel" id="panel-walkthrough">
+  <div class="section-tag">6.2 — Interrupts</div>
+  <div class="section-title">Interrupt Handling Walkthrough</div>
+  <div class="section-desc">Step through what happens when the CPU receives an interrupt. Click each stage to explore the process.</div>
+
+  <div class="walkthrough-layout">
+    <div class="steps-sidebar" id="wt-sidebar"></div>
+    <div>
+      <div class="walkthrough-main" id="wt-main"></div>
+      <div style="margin-top:16px;">
+        <div class="wt-progress"><div class="wt-progress-fill" id="wt-prog"></div></div>
+      </div>
+      <div class="wt-nav" style="margin-top:12px;">
+        <button class="btn btn-secondary" onclick="wtPrev()">← Back</button>
+        <button class="btn btn-primary" onclick="wtNext()" id="wt-next-btn">Next Step →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PANEL 4: PRIORITY SORTER
+============================================================ -->
+<div class="panel" id="panel-priority">
+  <div class="section-tag">6.2 — Interrupts</div>
+  <div class="section-title">Interrupt Priority Sorter</div>
+  <div class="section-desc">Drag each interrupt event into the correct priority band. Think about urgency, system stability, and consequences.</div>
+
+  <div class="priority-layout">
+    <div class="interrupt-pool">
+      <h3>Interrupt Events — drag to a priority lane</h3>
+      <div class="interrupts-grid" id="int-pool"></div>
+    </div>
+    <div class="priority-lanes">
+      <div class="priority-lane lane-high" id="lane-high" ondragover="onDragOverLane(event,'high')" ondragleave="onDragLeaveLane(event,'high')" ondrop="onDropLane(event,'high')">
+        <div class="lane-title">🔴 High Priority</div>
+      </div>
+      <div class="priority-lane lane-med" id="lane-med" ondragover="onDragOverLane(event,'med')" ondragleave="onDragLeaveLane(event,'med')" ondrop="onDropLane(event,'med')">
+        <div class="lane-title">🟡 Medium Priority</div>
+      </div>
+      <div class="priority-lane lane-low" id="lane-low" ondragover="onDragOverLane(event,'low')" ondragleave="onDragLeaveLane(event,'low')" ondrop="onDropLane(event,'low')">
+        <div class="lane-title">🔵 Low Priority</div>
+      </div>
+    </div>
+    <div class="priority-controls">
+      <button class="btn btn-primary" onclick="checkPriority()">✓ Check Answers</button>
+      <button class="btn btn-secondary" onclick="resetPriority()">↺ Reset</button>
+    </div>
+    <div class="priority-tip" id="priority-results"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ============================================================
+// ACTIVITY 1: SCENARIO IDENTIFIER
+// ============================================================
+const scenarioData = [
+  {
+    text: "A supermarket chain runs its employee payroll every Friday night. All timesheets are gathered throughout the week, and the calculations are processed together overnight with no staff present.",
+    correct: "batch",
+    options: [
+      { label: "Batch", value: "batch" },
+      { label: "Single-User", value: "single-user" },
+      { label: "Multi-User", value: "multi-user" },
+      { label: "Multi-Tasking", value: "multi-tasking" }
+    ],
+    feedback: "This is a <strong>Batch System</strong>. Tasks (payroll calculations) are collected and processed all at once, without user interaction, during a quiet period."
+  },
+  {
+    text: "Ahmed is at home on his personal laptop writing an essay in Word, while also listening to Spotify and having a browser open. His laptop is not connected to any shared server.",
+    correct: "multi-tasking",
+    options: [
+      { label: "Batch", value: "batch" },
+      { label: "Single-User", value: "single-user" },
+      { label: "Multi-Tasking", value: "multi-tasking" },
+      { label: "Real-Time", value: "real-time" }
+    ],
+    feedback: "This is a <strong>Multi-Tasking System</strong>. Multiple applications (Word, Spotify, browser) are running concurrently on one device. It also has Single-User characteristics, but multi-tasking is the most specific answer here."
+  },
+  {
+    text: "Thirty students log into a university UNIX server simultaneously from separate terminals. Each student runs their own programs and stores files in their own space.",
+    correct: "multi-user",
+    options: [
+      { label: "Batch", value: "batch" },
+      { label: "Multi-User", value: "multi-user" },
+      { label: "Single-User", value: "single-user" },
+      { label: "Multi-Tasking", value: "multi-tasking" }
+    ],
+    feedback: "This is a <strong>Multi-User (Multi-Access) System</strong>. Multiple users access and share the same computer's resources simultaneously, each with their own process space."
+  },
+  {
+    text: "A customer visits a travel website and books the last available seat on a flight. The database is updated instantly so no one else can book the same seat.",
+    correct: "real-time",
+    options: [
+      { label: "Batch", value: "batch" },
+      { label: "Multi-User", value: "multi-user" },
+      { label: "Real-Time Transaction", value: "real-time" },
+      { label: "Multi-Programming", value: "multi-programming" }
+    ],
+    feedback: "This is a <strong>Real-Time Transaction Processing</strong> system. The booking must complete immediately to prevent double-booking. The record is locked during update to prevent corruption."
+  },
+  {
+    text: "A server at a bank has many programs loaded into memory simultaneously. When one program is waiting for data from disk, the CPU immediately switches to run another program to avoid sitting idle.",
+    correct: "multi-programming",
+    options: [
+      { label: "Multi-Tasking", value: "multi-tasking" },
+      { label: "Batch", value: "batch" },
+      { label: "Multi-Programming", value: "multi-programming" },
+      { label: "Single-User", value: "single-user" }
+    ],
+    feedback: "This is a <strong>Multi-Programming System</strong>. The goal is to maximise CPU usage by keeping multiple programs in memory and switching between them whenever the CPU would otherwise be idle."
+  },
+  {
+    text: "Sophie uses her personal desktop computer at home to edit photos. No one else uses the machine and it is not part of a network. All CPU and memory resources are available to her alone.",
+    correct: "single-user",
+    options: [
+      { label: "Single-User", value: "single-user" },
+      { label: "Multi-User", value: "multi-user" },
+      { label: "Batch", value: "batch" },
+      { label: "Real-Time", value: "real-time" }
+    ],
+    feedback: "This is a <strong>Single-User (Standalone) System</strong>. The system's resources are fully dedicated to one user with no sharing required."
+  }
+];
+
+let currentScenario = 0;
+let scenarioScore = 0;
+let answered = [];
+
+function initScenario() {
+  currentScenario = 0;
+  scenarioScore = 0;
+  answered = new Array(scenarioData.length).fill(null);
+  renderScenario();
+}
+
+function renderScenario() {
+  const quiz = document.getElementById('scenario-quiz');
+  if (currentScenario >= scenarioData.length) {
+    const pct = Math.round((scenarioScore / scenarioData.length) * 100);
+    const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
+    quiz.innerHTML = `<div class="scenario-card result-screen fade-in">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-score">${scenarioScore}/${scenarioData.length}</div>
+      <div class="result-label">You scored ${pct}% — ${pct >= 80 ? 'Excellent work!' : pct >= 50 ? 'Good effort, review the ones you missed.' : 'Keep practising — re-read section 6.1!'}</div>
+      <button class="btn btn-primary" onclick="initScenario()">↺ Try Again</button>
+    </div>`;
+    return;
+  }
+
+  const q = scenarioData[currentScenario];
+  const dots = scenarioData.map((_, i) => `<div class="dot ${i < currentScenario ? 'done' : i === currentScenario ? 'current' : ''}"></div>`).join('');
+
+  quiz.innerHTML = `<div class="scenario-card fade-in">
+    <div class="scenario-meta">
+      <span class="scenario-num">Question ${currentScenario + 1} of ${scenarioData.length}</span>
+      <div class="progress-dots">${dots}</div>
+    </div>
+    <div class="scenario-text">${q.text}</div>
+    <div class="options-grid" id="options-grid">
+      ${q.options.map(o => `<button class="option-btn" data-value="${o.value}" onclick="selectAnswer('${o.value}')">${o.label}</button>`).join('')}
+    </div>
+    <div id="feedback-area"></div>
+    <div id="next-area"></div>
+  </div>`;
+}
+
+function selectAnswer(chosen) {
+  const q = scenarioData[currentScenario];
+  const correct = q.correct;
+  const isCorrect = chosen === correct;
+  if (isCorrect) scenarioScore++;
+
+  const grid = document.getElementById('options-grid');
+  grid.querySelectorAll('.option-btn').forEach(btn => {
+    const val = btn.dataset.value;
+    btn.disabled = true;
+    if (val === correct) btn.classList.add('correct');
+    else if (val === chosen && !isCorrect) btn.classList.add('wrong');
+  });
+
+  document.getElementById('feedback-area').innerHTML = `<div class="feedback-box ${isCorrect ? 'correct' : 'wrong'} fade-in">
+    <span class="feedback-icon">${isCorrect ? '✅' : '❌'}</span>
+    ${isCorrect ? '<strong>Correct!</strong> ' : '<strong>Not quite.</strong> '} ${q.feedback}
+  </div>`;
+
+  document.getElementById('next-area').innerHTML = `<button class="btn btn-primary" onclick="nextScenario()">${currentScenario < scenarioData.length - 1 ? 'Next Question →' : 'See Results →'}</button>`;
+}
+
+function nextScenario() {
+  currentScenario++;
+  renderScenario();
+}
+
+// ============================================================
+// ACTIVITY 2: DRAG & DROP SORTER
+// ============================================================
+const sortScenarios = [
+  { id: 's1', text: 'Monthly bank statements printed overnight', correct: 'batch' },
+  { id: 's2', text: 'Student logs into school Linux server', correct: 'multi-user' },
+  { id: 's3', text: 'Playing a game on a home console', correct: 'single-user' },
+  { id: 's4', text: 'Booking a hotel room online in real time', correct: 'real-time' },
+  { id: 's5', text: 'CPU switches to idle program while another waits for disk', correct: 'multi-programming' },
+  { id: 's6', text: 'Running Word, email and music simultaneously', correct: 'multi-tasking' },
+  { id: 's7', text: 'Tax returns processed in bulk at end of year', correct: 'batch' },
+  { id: 's8', text: '30 nurses accessing patient records on one hospital server', correct: 'multi-user' },
+];
+
+const sortCategories = [
+  { id: 'batch', label: 'Batch', color: '#a29bfe' },
+  { id: 'single-user', label: 'Single-User', color: '#74b9ff' },
+  { id: 'multi-user', label: 'Multi-User', color: '#ffd166' },
+  { id: 'real-time', label: 'Real-Time', color: '#ff6b6b' },
+  { id: 'multi-tasking', label: 'Multi-Tasking', color: '#4fffb0' },
+  { id: 'multi-programming', label: 'Multi-Programming', color: '#fd79a8' },
+];
+
+let draggedId = null;
+let draggedFrom = null; // 'pool' or category id
+let sortPlacements = {}; // chipId -> categoryId
+
+function initSorter() {
+  sortPlacements = {};
+  renderSorter();
+}
+
+function renderSorter() {
+  const pool = document.getElementById('sort-pool');
+  pool.innerHTML = sortScenarios.map(s =>
+    `<div class="scenario-chip ${sortPlacements[s.id] ? 'placed' : ''}" 
+      id="chip-${s.id}" draggable="true"
+      ondragstart="onDragStart(event,'${s.id}','pool')"
+      ondragend="onDragEnd(event)">
+      ${s.text}
+    </div>`
+  ).join('');
+
+  const cats = document.getElementById('sort-categories');
+  cats.innerHTML = sortCategories.map(c =>
+    `<div class="cat-zone" id="zone-${c.id}"
+      ondragover="onDragOverZone(event,'${c.id}')"
+      ondragleave="onDragLeaveZone(event,'${c.id}')"
+      ondrop="onDropZone(event,'${c.id}')">
+      <div class="cat-label" style="color:${c.color}">${c.label}</div>
+      ${sortScenarios.filter(s => sortPlacements[s.id] === c.id).map(s =>
+        `<div class="scenario-chip" id="chip-placed-${s.id}" draggable="true"
+          ondragstart="onDragStart(event,'${s.id}','${c.id}')"
+          ondragend="onDragEnd(event)">${s.text}</div>`
+      ).join('')}
+    </div>`
+  ).join('');
+
+  document.getElementById('sort-results').classList.remove('show');
+}
+
+function onDragStart(e, id, from) {
+  draggedId = id;
+  draggedFrom = from;
+  setTimeout(() => {
+    const el = document.getElementById('chip-' + id) || document.getElementById('chip-placed-' + id);
+    if (el) el.classList.add('dragging');
+  }, 0);
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragEnd(e) {
+  document.querySelectorAll('.scenario-chip').forEach(c => c.classList.remove('dragging'));
+}
+
+function onDragOverZone(e, zoneId) {
+  e.preventDefault();
+  document.getElementById('zone-' + zoneId).classList.add('drag-over');
+}
+
+function onDragLeaveZone(e, zoneId) {
+  document.getElementById('zone-' + zoneId).classList.remove('drag-over');
+}
+
+function onDropZone(e, zoneId) {
+  e.preventDefault();
+  document.getElementById('zone-' + zoneId).classList.remove('drag-over');
+  if (draggedId) {
+    sortPlacements[draggedId] = zoneId;
+    renderSorter();
+  }
+}
+
+function checkSorter() {
+  let correct = 0;
+  sortScenarios.forEach(s => {
+    const placed = sortPlacements[s.id];
+    if (!placed) return;
+    const chips = document.querySelectorAll(`#zone-${placed} .scenario-chip`);
+    chips.forEach(chip => {
+      if (chip.textContent.trim() === s.text) {
+        chip.classList.remove('correct-placed', 'wrong-placed');
+        if (placed === s.correct) { chip.classList.add('correct-placed'); correct++; }
+        else chip.classList.add('wrong-placed');
+      }
+    });
+  });
+  const placed = Object.keys(sortPlacements).length;
+  const results = document.getElementById('sort-results');
+  results.classList.add('show');
+  const pct = Math.round((correct / sortScenarios.length) * 100);
+  results.innerHTML = `<span style="font-family:var(--mono);font-size:20px;color:var(--accent1)">${correct}/${sortScenarios.length}</span>
+    <span style="color:var(--muted);font-size:13px">${placed < sortScenarios.length ? `${sortScenarios.length - placed} card(s) not yet placed. ` : ''}${pct >= 80 ? '🏆 Great work!' : 'Green = correct, Red = wrong. Review and try again!'}</span>`;
+}
+
+function resetSorter() {
+  sortPlacements = {};
+  renderSorter();
+}
+
+// ============================================================
+// ACTIVITY 3: WALKTHROUGH
+// ============================================================
+const wtSteps = [
+  {
+    label: 'Interrupt Signal',
+    title: '1. Interrupt Signal Detected',
+    body: `A hardware device or software process sends an <strong>interrupt signal</strong> to the CPU. This could be a key press, a printer completing a job, a disk read finishing, or a power failure warning.\n\nThe CPU <strong>finishes executing its current instruction</strong> before responding — it never abandons an instruction mid-way.`,
+    visual: `<div class="interrupt-animation">
+      <div class="int-block">Device<br><span class="int-signal">⚡</span></div>
+      <div class="signal-line"></div>
+      <div class="int-block active">CPU<br>📥</div>
+      <div style="margin-left:16px;font-size:12px;color:var(--muted)">Signal received!<br>Finishing current instruction…</div>
+    </div>`
+  },
+  {
+    label: 'Save State',
+    title: '2. Current State is Saved',
+    body: `The CPU must <strong>save its current state</strong> to memory (the stack) so it can return to exactly where it left off. The saved state includes:\n\n• <strong>Program Counter (PC)</strong> — the address of the next instruction to execute\n• <strong>Registers</strong> — the values currently being used\n• <strong>Flags</strong> — status indicators (e.g. zero flag, carry flag)`,
+    visual: `<div class="wt-visual">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)">REGISTERS BEFORE → SAVED TO STACK</div>
+      <div class="cpu-state">
+        <div class="register-box"><div class="reg-label">PC</div><div class="reg-val">0x4A2F</div></div>
+        <div class="register-box"><div class="reg-label">ACC</div><div class="reg-val">00FF</div></div>
+        <div class="register-box"><div class="reg-label">FLAGS</div><div class="reg-val">0101</div></div>
+        <div class="arrow-flow">→</div>
+        <div class="register-box saved"><div class="reg-label">STACK (saved)</div><div class="reg-val">✓ PC, ACC, FLAGS</div></div>
+      </div>
+    </div>`
+  },
+  {
+    label: 'Check Priority',
+    title: '3. Priority is Checked',
+    body: `If multiple interrupts arrive at once, the OS uses an <strong>Interrupt Priority Register (IPR)</strong> to decide which to service first.\n\n<strong>Higher priority</strong> interrupts (like power failure or memory error) are handled before lower priority ones (like a keyboard press). Lower priority interrupts are <strong>masked</strong> (temporarily blocked) while a higher priority ISR runs.`,
+    visual: `<div class="wt-visual">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.4);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--mono)"><span style="color:var(--accent2)">PRIORITY 1</span><br>Power Failure</div>
+        <div style="background:rgba(255,209,102,0.15);border:1px solid rgba(255,209,102,0.4);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--mono)"><span style="color:var(--accent3)">PRIORITY 2</span><br>Disk Error</div>
+        <div style="background:rgba(116,185,255,0.15);border:1px solid rgba(116,185,255,0.4);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--mono)"><span style="color:var(--accent4)">PRIORITY 3</span><br>Printer Done</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--mono)"><span style="color:var(--muted)">PRIORITY 4</span><br>Key Press</div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted)">↑ Service order — highest priority first</div>
+    </div>`
+  },
+  {
+    label: 'Run ISR',
+    title: '4. Interrupt Service Routine (ISR) Executes',
+    body: `The CPU jumps to the <strong>Interrupt Service Routine (ISR)</strong> — a small, pre-written program that deals with the specific interrupt.\n\nFor example, if a keyboard key was pressed, the ISR reads the character from the keyboard buffer and passes it to the correct application. Once the ISR finishes, it sends a signal that the interrupt has been handled.`,
+    visual: `<div class="isr-block">
+      <div class="isr-title">// ISR — Keyboard Interrupt Handler</div>
+      <div class="isr-lines">
+        READ character from keyboard buffer<br>
+        STORE character in input register<br>
+        SIGNAL interrupt complete<br>
+        RETURN
+      </div>
+    </div>`
+  },
+  {
+    label: 'Restore & Resume',
+    title: '5. State Restored & Execution Resumes',
+    body: `After the ISR completes, the CPU <strong>restores the saved state</strong> from the stack — the Program Counter, registers, and flags are all put back exactly as they were.\n\nExecution then <strong>resumes from where it left off</strong>, as though the interrupt never happened. The interrupted program continues without any awareness of the interruption.`,
+    visual: `<div class="wt-visual">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)">STACK → RESTORED TO REGISTERS</div>
+      <div class="cpu-state">
+        <div class="register-box saved"><div class="reg-label">STACK</div><div class="reg-val">PC, ACC, FLAGS</div></div>
+        <div class="arrow-flow">→</div>
+        <div class="register-box"><div class="reg-label">PC</div><div class="reg-val">0x4A2F</div></div>
+        <div class="register-box"><div class="reg-label">ACC</div><div class="reg-val">00FF</div></div>
+        <div class="register-box"><div class="reg-label">FLAGS</div><div class="reg-val">0101</div></div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--accent1)">✓ Program resumes from exactly where it was interrupted</div>
+    </div>`
+  }
+];
+
+let wtCurrent = 0;
+
+function initWalkthrough() {
+  wtCurrent = 0;
+  renderWalkthrough();
+}
+
+function renderWalkthrough() {
+  const sidebar = document.getElementById('wt-sidebar');
+  sidebar.innerHTML = wtSteps.map((s, i) =>
+    `<div class="step-item ${i === wtCurrent ? 'active' : i < wtCurrent ? 'completed' : ''}" onclick="wtGoto(${i})">
+      <div class="step-circle">${i < wtCurrent ? '✓' : i + 1}</div>
+      <div class="step-text">${s.label}</div>
+    </div>`
+  ).join('');
+
+  const step = wtSteps[wtCurrent];
+  document.getElementById('wt-main').innerHTML = `
+    <div class="wt-step-num slide-in">STEP ${wtCurrent + 1} OF ${wtSteps.length}</div>
+    <div class="wt-title slide-in">${step.title}</div>
+    <div class="wt-body slide-in">${step.body.replace(/\n/g,'<br>')}</div>
+    ${step.visual || ''}
+  `;
+
+  document.getElementById('wt-prog').style.width = `${((wtCurrent + 1) / wtSteps.length) * 100}%`;
+
+  const nextBtn = document.getElementById('wt-next-btn');
+  nextBtn.textContent = wtCurrent === wtSteps.length - 1 ? '↺ Start Over' : 'Next Step →';
+}
+
+function wtNext() {
+  if (wtCurrent < wtSteps.length - 1) wtCurrent++;
+  else wtCurrent = 0;
+  renderWalkthrough();
+}
+
+function wtPrev() {
+  if (wtCurrent > 0) wtCurrent--;
+  renderWalkthrough();
+}
+
+function wtGoto(i) {
+  wtCurrent = i;
+  renderWalkthrough();
+}
+
+// ============================================================
+// ACTIVITY 4: PRIORITY SORTER
+// ============================================================
+const intChips = [
+  { id: 'i1', icon: '⚡', text: 'Power failure detected', correct: 'high' },
+  { id: 'i2', icon: '💾', text: 'Hard disk failure warning', correct: 'high' },
+  { id: 'i3', icon: '🧠', text: 'Out of memory — system crash risk', correct: 'high' },
+  { id: 'i4', icon: '🖨️', text: 'Printer has finished a job', correct: 'low' },
+  { id: 'i5', icon: '⌨️', text: 'User pressed a key', correct: 'low' },
+  { id: 'i6', icon: '🖱️', text: 'Mouse button clicked', correct: 'low' },
+  { id: 'i7', icon: '🔒', text: 'Unauthorised access attempt detected', correct: 'high' },
+  { id: 'i8', icon: '💿', text: 'Disk drive completed data transfer', correct: 'med' },
+  { id: 'i9', icon: '⏱️', text: 'A process has timed out', correct: 'med' },
+  { id: 'i10', icon: '✅', text: 'A running process has completed', correct: 'med' },
+];
+
+let intPlacements = {};
+let draggedIntId = null;
+let draggedIntFrom = null;
+
+function initPriority() {
+  intPlacements = {};
+  renderPriority();
+}
+
+function renderPriority() {
+  const pool = document.getElementById('int-pool');
+  pool.innerHTML = intChips.map(c =>
+    `<div class="int-chip ${intPlacements[c.id] ? 'placed' : ''}" id="intchip-${c.id}"
+      draggable="true"
+      ondragstart="onIntDragStart(event,'${c.id}','pool')"
+      ondragend="onIntDragEnd(event)">
+      <span class="int-icon">${c.icon}</span>${c.text}
+    </div>`
+  ).join('');
+
+  ['high','med','low'].forEach(lane => {
+    const zone = document.getElementById('lane-' + lane);
+    const label = zone.querySelector('.lane-title').outerHTML;
+    zone.innerHTML = label + intChips.filter(c => intPlacements[c.id] === lane).map(c =>
+      `<div class="int-chip" id="intchip-placed-${c.id}"
+        draggable="true"
+        ondragstart="onIntDragStart(event,'${c.id}','${lane}')"
+        ondragend="onIntDragEnd(event)">
+        <span class="int-icon">${c.icon}</span>${c.text}
+      </div>`
+    ).join('');
+  });
+
+  document.getElementById('priority-results').classList.remove('show');
+}
+
+function onIntDragStart(e, id, from) {
+  draggedIntId = id;
+  draggedIntFrom = from;
+  setTimeout(() => {
+    const el = document.getElementById('intchip-' + id) || document.getElementById('intchip-placed-' + id);
+    if (el) el.classList.add('dragging');
+  }, 0);
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onIntDragEnd(e) {
+  document.querySelectorAll('.int-chip').forEach(c => c.classList.remove('dragging'));
+}
+
+function onDragOverLane(e, lane) {
+  e.preventDefault();
+  document.getElementById('lane-' + lane).classList.add('drag-over');
+}
+
+function onDragLeaveLane(e, lane) {
+  document.getElementById('lane-' + lane).classList.remove('drag-over');
+}
+
+function onDropLane(e, lane) {
+  e.preventDefault();
+  document.getElementById('lane-' + lane).classList.remove('drag-over');
+  if (draggedIntId) {
+    intPlacements[draggedIntId] = lane;
+    renderPriority();
+  }
+}
+
+function checkPriority() {
+  let correct = 0;
+  intChips.forEach(c => {
+    const placed = intPlacements[c.id];
+    if (!placed) return;
+    const chip = document.getElementById('intchip-placed-' + c.id);
+    if (chip) {
+      chip.classList.remove('correct-placed','wrong-placed');
+      if (placed === c.correct) { chip.classList.add('correct-placed'); correct++; }
+      else chip.classList.add('wrong-placed');
+    }
+  });
+  const placed = Object.keys(intPlacements).length;
+  const results = document.getElementById('priority-results');
+  results.classList.add('show');
+  const pct = Math.round((correct / intChips.length) * 100);
+
+  const tips = {
+    high: "High: Power failure, disk failure, out of memory, and security breaches all threaten immediate data loss or system failure — they must be handled instantly.",
+    med: "Medium: Completed disk transfers and timed-out processes need prompt attention but don't risk immediate system failure.",
+    low: "Low: Key presses and mouse clicks can wait a few milliseconds — the user won't notice a tiny delay."
+  };
+
+  results.innerHTML = `<strong style="color:var(--accent1);font-family:var(--mono)">${correct}/${intChips.length} correct</strong><br><br>
+    ${placed < intChips.length ? `<span style="color:var(--accent3)">⚠ ${intChips.length - placed} interrupts not placed yet.</span><br><br>` : ''}
+    📌 ${tips.high}<br><br>📌 ${tips.med}<br><br>📌 ${tips.low}`;
+}
+
+function resetPriority() {
+  intPlacements = {};
+  renderPriority();
+}
+
+// ============================================================
+// INIT ALL
+// ============================================================
+initScenario();
+initSorter();
+initWalkthrough();
+initPriority();
+</script>
+</body>
+</html>
