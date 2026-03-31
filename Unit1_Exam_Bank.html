@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Technology Unit 1 – Question Bank</title>
+<style>
+  :root {
+    --blue: #1e3a5f;
+    --blue-mid: #2c5282;
+    --blue-light: #ebf4ff;
+    --blue-accent: #3182ce;
+    --teal: #2b6cb0;
+    --green: #276749;
+    --green-light: #f0fff4;
+    --green-border: #c6f6d5;
+    --amber: #7b341e;
+    --amber-light: #fffaf0;
+    --amber-border: #fbd38d;
+    --grey: #4a5568;
+    --grey-light: #f7fafc;
+    --border: #e2e8f0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    line-height: 1.65;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+    color: #fff;
+    padding: 32px 40px 28px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+  }
+  header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.3px; }
+  header p  { font-size: 0.95rem; opacity: 0.8; margin-top: 4px; }
+
+  /* ── Controls ── */
+  #controls {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 16px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  #controls label { font-size: 0.85rem; font-weight: 600; color: var(--grey); }
+  .filter-group { display: flex; align-items: center; gap: 8px; }
+  .filter-btn {
+    padding: 6px 14px;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--grey);
+    transition: all .18s;
+  }
+  .filter-btn:hover { border-color: var(--blue-accent); color: var(--blue-accent); }
+  .filter-btn.active { background: var(--blue-accent); border-color: var(--blue-accent); color: #fff; }
+
+  #search-box {
+    margin-left: auto;
+    padding: 7px 14px;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    width: 220px;
+    outline: none;
+    transition: border .18s;
+  }
+  #search-box:focus { border-color: var(--blue-accent); }
+
+  .btn-toggle-all {
+    padding: 6px 14px;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--grey);
+    transition: all .18s;
+  }
+  .btn-toggle-all:hover { border-color: var(--green); color: var(--green); }
+
+  .filter-select {
+    padding: 7px 12px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    font-size: 0.82rem;
+    color: var(--grey);
+    min-width: 190px;
+    outline: none;
+  }
+  .filter-select:focus { border-color: var(--blue-accent); }
+  .select-group { flex-wrap: nowrap; }
+
+  /* ── Main ── */
+  main { max-width: 960px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* ── Stats bar ── */
+  #stats { font-size: 0.83rem; color: var(--grey); margin-bottom: 20px; }
+
+  /* ── Question Card ── */
+  .question-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: box-shadow .2s;
+  }
+  .question-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.11); }
+
+  .card-header {
+    background: var(--blue);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .card-header:hover { background: var(--blue-mid); }
+  .q-number {
+    font-size: 1.05rem;
+    font-weight: 800;
+    white-space: nowrap;
+    background: rgba(255,255,255,0.15);
+    padding: 2px 10px;
+    border-radius: 12px;
+    min-width: 54px;
+    text-align: center;
+  }
+  .q-title { flex: 1; font-size: 0.97rem; font-weight: 600; padding-top: 2px; }
+  .q-meta { font-size: 0.78rem; opacity: 0.75; display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .q-meta span { background: rgba(255,255,255,0.12); padding: 1px 8px; border-radius: 10px; }
+  .chevron { font-size: 1rem; opacity: 0.7; transition: transform .25s; margin-left: 8px; flex-shrink: 0; padding-top: 2px; }
+  .card-header.open .chevron { transform: rotate(180deg); }
+
+  .card-body { display: none; }
+  .card-body.open { display: block; }
+
+  /* ── Sections inside card ── */
+  .section {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+  .section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--blue-accent);
+    margin-bottom: 8px;
+  }
+
+  /* Context */
+  .context-box {
+    background: var(--amber-light);
+    border-left: 4px solid #ed8936;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.92rem;
+    color: var(--amber);
+  }
+
+  /* Question */
+  .question-text { font-size: 0.97rem; color: #1a202c; }
+  .question-text p { margin-bottom: 8px; }
+  .parts { margin-top: 10px; }
+  .part { display: flex; gap: 10px; margin-bottom: 6px; }
+  .part-label { font-weight: 700; color: var(--blue-mid); min-width: 24px; }
+  .part-text { flex: 1; }
+
+  /* Mark scheme toggle */
+  .ms-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: var(--green-light);
+    border-bottom: 1px solid var(--green-border);
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--green);
+    user-select: none;
+    transition: background .15s;
+  }
+  .ms-toggle:hover { background: #dcffe8; }
+  .ms-chevron { font-size: 0.85rem; transition: transform .2s; }
+  .ms-toggle.open .ms-chevron { transform: rotate(180deg); }
+
+  .ms-body { display: none; padding: 18px 22px; background: #fafffe; }
+  .ms-body.open { display: block; }
+
+  /* Mark scheme content */
+  .ms-body h4 { font-size: 0.88rem; font-weight: 700; color: var(--green); margin: 12px 0 6px; }
+  .ms-body h4:first-child { margin-top: 0; }
+  .ms-body ul { padding-left: 20px; margin-bottom: 8px; }
+  .ms-body ul li { margin-bottom: 4px; font-size: 0.9rem; }
+  .ms-body p { font-size: 0.9rem; margin-bottom: 8px; }
+  .ms-body strong { color: #276749; }
+  .ms-body em { color: #553c9a; font-style: italic; }
+
+  /* Band table */
+  .band-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 6px;
+    font-size: 0.84rem;
+  }
+  .band-table th {
+    background: var(--green);
+    color: #fff;
+    padding: 7px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .band-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #c6f6d5;
+    vertical-align: top;
+  }
+  .band-table tr:nth-child(even) td { background: #f0fff4; }
+  .band-table tr:last-child td { border-bottom: none; }
+  .band-num { font-size: 1.1rem; font-weight: 800; color: var(--green); }
+  .marks-badge { font-weight: 700; white-space: nowrap; }
+
+  /* Total marks badge */
+  .marks-total {
+    display: inline-block;
+    background: var(--blue-light);
+    color: var(--blue-mid);
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 1px solid #bee3f8;
+  }
+
+  /* Metadata */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    font-size: 0.83rem;
+  }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-key { font-weight: 700; color: var(--grey); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta-val { color: #2d3748; }
+
+  /* Year badge colours */
+  .year-2023 .card-header { background: #2d3748; }
+  .year-2023 .card-header:hover { background: #4a5568; }
+  .year-2025 .card-header { background: #553c9a; }
+  .year-2025 .card-header:hover { background: #6b46c1; }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* No results */
+  #no-results { text-align: center; color: var(--grey); padding: 40px; font-size: 1rem; display: none; }
+
+  @media (max-width: 600px) {
+    header { padding: 20px; }
+    header h1 { font-size: 1.3rem; }
+    #controls { padding: 12px 16px; }
+    main { padding: 16px 12px 40px; }
+    #search-box { width: 100%; margin-left: 0; }
+  }
+
+  /* ── Revision checklist ── */
+  #checklist-panel {
+    max-width: 960px;
+    margin: 18px auto 0;
+    padding: 0 24px;
+  }
+  .checklist-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .checklist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .checklist-header h2 {
+    font-size: 1rem;
+    color: var(--blue);
+    margin: 0;
+  }
+  .checklist-summary {
+    font-size: 0.83rem;
+    color: var(--grey);
+  }
+  .checklist-header .chevron {
+    color: var(--grey);
+    margin-left: 0;
+  }
+  .checklist-body { display: none; padding: 16px 20px 20px; }
+  .checklist-body.open { display: block; }
+  .progress-wrap {
+    margin-bottom: 16px;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #edf2f7;
+    border: 1px solid var(--border);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--blue-accent), var(--green));
+    transition: width .2s ease;
+  }
+  .progress-meta {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--grey);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .checklist-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .checklist-btn {
+    padding: 6px 12px;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--grey);
+  }
+  .checklist-btn:hover { border-color: var(--blue-accent); color: var(--blue-accent); }
+  .topic-section {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .topic-section-header {
+    background: var(--blue-light);
+    padding: 12px 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .topic-section-header h3 {
+    font-size: 0.92rem;
+    color: var(--blue);
+    margin: 0;
+  }
+  .topic-section-body { display: none; padding: 12px 14px 14px; }
+  .topic-section-body.open { display: block; }
+  .subtopic-block { margin-bottom: 14px; }
+  .subtopic-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--grey);
+    margin-bottom: 8px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #edf2f7;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input { margin-top: 2px; }
+  .check-item label {
+    font-size: 0.9rem;
+    color: #2d3748;
+    cursor: pointer;
+    flex: 1;
+  }
+  .check-item.checked label {
+    text-decoration: line-through;
+    color: #718096;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Digital Technology – Unit 1 Question Bank</h1>
+  <p>Summer 2023 &bull; Summer 2024 &bull; Summer 2025 &nbsp;|&nbsp; All questions and mark schemes</p>
+</header>
+
+<div id="controls">
+  <div class="filter-group">
+    <label>Year:</label>
+    <button class="filter-btn active" data-year="all">All</button>
+    <button class="filter-btn" data-year="2023">2023</button>
+    <button class="filter-btn" data-year="2024">2024</button>
+    <button class="filter-btn" data-year="2025">2025</button>
+  </div>
+  <div class="filter-group select-group">
+    <label for="topic-filter">Topic:</label>
+    <select id="topic-filter" class="filter-select">
+      <option value="all">All topics</option>
+    </select>
+  </div>
+  <div class="filter-group select-group">
+    <label for="subtopic-filter">Sub-topic:</label>
+    <select id="subtopic-filter" class="filter-select">
+      <option value="all">All sub-topics</option>
+    </select>
+  </div>
+<button class="btn-toggle-all" id="expand-all">Expand All</button>
+  <button class="btn-toggle-all" id="collapse-all">Collapse All</button>
+  <input id="search-box" type="search" placeholder="🔍 Search questions, topics, context…">
+</div>
+
+
+<div id="checklist-panel">
+  <div class="checklist-card">
+    <div class="checklist-header" id="checklist-toggle">
+      <div>
+        <h2>Revision checklist</h2>
+        <div class="checklist-summary">Students can tick off specification areas they have revised. Progress is saved on this device.</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="checklist-body" id="checklist-body">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="checklist-progress-fill"></div></div>
+        <div class="progress-meta">
+          <span id="checklist-progress-text">0 of 0 completed</span>
+          <span id="checklist-progress-percent">0%</span>
+        </div>
+      </div>
+      <div class="checklist-actions">
+        <button class="checklist-btn" id="checklist-expand-all">Expand all topics</button>
+        <button class="checklist-btn" id="checklist-collapse-all">Collapse all topics</button>
+        <button class="checklist-btn" id="checklist-clear">Clear all ticks</button>
+      </div>
+      <div id="checklist-container"></div>
+    </div>
+  </div>
+</div>
+
+
+<main>
+  <div id="stats"></div>
+  <div id="questions-container"></div>
+  <div id="no-results">No questions match your search.</div>
+</main>
+
+<script>
+const questions = [
+
+/* ═══════════════════════ 2024 ═══════════════════════ */
+{
+  year: 2024, num: 1,
+  title: "Health risks of PC use & touch-sensitive interface evaluation",
+  marks: 12,
+  topic: "User-centred design, user experience and human-computer interaction",
+  subTopic: "Human-computer interaction",
+  spec: "2.1.4 (a)",
+  context: "Rob is starting a company and will need his employees to sit in front of a desktop PC for up to 7 hours a day.",
+  parts: [
+    { label: "a", text: "Advise Rob on what health risks can arise from sitting in front of a computer for long periods of time and how these issues can be mitigated." },
+    { label: "b", text: "Rob has been advised that a touch sensitive interface is the best option for visitors to use when signing in at reception. Evaluate this advice." }
+  ],
+  markscheme: `
+    <h4>(a) Indicative content:</h4>
+    <ul>
+      <li><strong>Risks:</strong> Eye strain: dry, irritated eyes, blurred vision, headaches. Neck and back pain: strain on neck, shoulders, and back. Carpal tunnel syndrome: pain, numbness, tingling in hand and fingers.</li>
+      <li><strong>To mitigate these risks:</strong> Take regular breaks to stretch and move around. Set up workstation ergonomically (e.g. position monitor at comfortable distance and height, use chair with good lumbar support, keep keyboard and mouse at level that allows wrists to remain straight). Adjust chair and desk to a comfortable position that promotes good posture.</li>
+      <li><em>Accept any other reasonable risk and mitigation.</em></li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good discussion, which shows: • thorough knowledge and understanding of the potential risks of using a PC • a confident grasp of how to mitigate the risks</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge and understanding of the potential risks of using a PC • a generally secure understanding of how to mitigate the risks</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge and understanding of the potential risks of using a PC • some grasp of how to mitigate the risks</td></tr>
+    </table>
+    <h4>(b) Indicative content:</h4>
+    <ul>
+      <li><strong>Advantages:</strong> User-friendly/Intuitive. No need for a keyboard or mouse. Convenient/Can be adjusted or rotated to suit user. Customisation – Fit a specific need – Designed with clear instructions and simple navigation.</li>
+      <li><strong>Disadvantages:</strong> Potential for germs to be transferred. Not all users may be familiar with or comfortable using touchscreens. Can be less accessible for individuals with certain disabilities.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good discussion, which shows: • thorough knowledge and understanding of the advantages and disadvantages of touch sensitive interfaces • a confident grasp of how these apply to company using a touch sensitive interface for guests in reception</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge and understanding of the advantages and disadvantages of touch sensitive interfaces • a generally secure understanding of how these apply to company using a touch sensitive interface for guests in reception</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge and understanding of the advantages and disadvantages of touch sensitive interfaces • some grasp of how these apply to company using a touch sensitive interface for guests in reception</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 12 Marks Total (6 for part a, 6 for part b).</p>
+  `
+},
+{
+  year: 2024, num: 2,
+  title: "Positive and negative impacts of the Internet of Things (IoT)",
+  marks: 6,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "Impacts of the IoT",
+  spec: "2.1.1 (d)",
+  context: null,
+  question: "Describe the potential positive and negative impacts of the Internet of Things (IoT) on individuals and society.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <p><strong>Internet of Things Positive Impacts:</strong> effective communication and Instant messaging services; increase business interactions, save vital time; less complicated banking, transactions, and shopping; access the latest news from anywhere in the world; run online courses on virtual assistants using the Internet; professionals have IoT devices in healthcare, eCommerce, and AI to help in doing jobs easily.</p>
+    <p><strong>Internet of Things Negative Impacts:</strong> easy availability of age unsuitable content materials and information; social networks disturb life personally and professionally; stealing data or hacking; using the Internet to spread bad scenarios via the IoT device is relatively easy; potential loss of privacy and security through the collection and sharing of personal data; increased dependence on technology and potential loss of personal skills and knowledge; the potential for job loss and economic disruption due to automation and other technological changes; the potential for overreliance on technology and the resulting impact on human relationships and social interaction.</p>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good description, which shows: • thorough knowledge and understanding of the potential positive and negative impacts of the Internet of Things (IoT) • a confident grasp of how these would impact individuals and society</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good description, which shows: • generally secure knowledge and understanding of the potential positive and negative impacts of the Internet of Things (IoT) • a generally secure understanding of how these would impact individuals and society</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge and understanding of the potential positive or negative impacts of the Internet of Things (IoT) • some grasp of how these would impact individuals or society</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 6 Marks Total.</p>
+  `
+},
+{
+  year: 2024, num: 3,
+  title: "Machine Learning vs traditional AI & types of ML learning",
+  marks: 9,
+  topic: "The development of Artificial Intelligence",
+  subTopic: "Machine Learning (ML)",
+  spec: "2.1.2 (b)",
+  context: "Machine Learning is a subset of Artificial Intelligence.",
+  parts: [
+    { label: "a", text: "Describe Machine Learning and how it differs from traditional algorithms used in Artificial Intelligence." },
+    { label: "b", text: "Describe supervised, semi-supervised, and unsupervised learning within the context of Machine Learning." }
+  ],
+  markscheme: `
+    <h4>(a) Machine Learning vs Traditional AI:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> Machine Learning (ML) is where the machine learns from experience.</li>
+      <li><strong>Award two marks for a basic response, for example:</strong> ML algorithms are able to learn from data and experience. In contrast, traditional algorithms used in AI are based on certainties and not probabilities.</li>
+      <li><strong>Award three marks for a more developed response, for example:</strong> Machine Learning (ML) algorithms can adapt without following explicit instructions. ML algorithms are able to learn from data and experience, allowing them to make predictions and decisions without being explicitly programmed to do so. In contrast, traditional algorithms used in AI are based on pre-set instructions that are not able to adapt or improve based on new data or experiences.</li>
+    </ul>
+    <h4>(b) Indicative content:</h4>
+    <ul>
+      <li><strong>Supervised learning:</strong> The training data is labelled with the correct output, and the algorithm learns to predict the correct output for new data based on the patterns it discovers in the training data.</li>
+      <li><strong>Semi-supervised learning:</strong> The training data is partially labelled, with some examples having the correct output and others not. The algorithm is still able to learn from this data, but it may not be able to perform as well as it would with fully labelled data. Feedback is an important component in semi-supervised learning.</li>
+      <li><strong>Unsupervised learning:</strong> The training data is not labelled at all, and the algorithm must discover the underlying patterns in the data on its own. This is often more challenging than supervised or semi-supervised learning, but it can be useful for finding hidden structures in the data.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good description, which shows: • thorough knowledge and understanding of supervised, semi-supervised, and unsupervised learning • a confident grasp of how the style of learning impacts the performance</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good description, which shows: • generally secure knowledge and understanding of supervised, and/or semi-supervised, and/or unsupervised learning • a generally secure understanding of how the style of learning impacts the performance</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge and understanding of supervised, and/or semi-supervised, and/or unsupervised learning • some grasp of how the style of learning impacts the performance</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 9 Marks Total (3 for part a, 6 for part b).</p>
+  `
+},
+{
+  year: 2024, num: 4,
+  title: "Importance of digital technology maintenance & types of software maintenance",
+  marks: 9,
+  topic: "Digital technology development life cycles",
+  subTopic: "Maintenance",
+  spec: "2.1.3 (e)",
+  context: "Frankie owns a company and has been told that maintenance of the digital systems is required.",
+  parts: [
+    { label: "a", text: "Discuss why it is important to maintain digital technologies after they have been released." },
+    { label: "b", text: "Explain the difference between different types of software maintenance." }
+  ],
+  markscheme: `
+    <h4>(a) Importance of Maintenance:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> Regular maintenance is necessary after the release of digital technologies because it helps to prevent problems and ensures that they continue to function properly.</li>
+      <li><strong>Award two marks for a basic response, for example:</strong> Regular maintenance is necessary after the release of digital technologies because it helps to prevent problems, boosts performance, and ensures that they continue to function properly.</li>
+      <li><strong>Award three marks for a more developed response, for example:</strong> Regular maintenance is necessary after the release of digital technologies because it helps to prevent problems, boosts performance, and ensures that they continue to function properly. This can aid in preventing costly repairs or replacements in the future and enhance the user experience.</li>
+    </ul>
+    <h4>(b) Indicative content:</h4>
+    <ul>
+      <li><strong>Corrective maintenance:</strong> This means fixing problems that have already happened, such as fixing bugs or figuring out why software isn't working correctly.</li>
+      <li><strong>Adaptive maintenance:</strong> involves making changes to the software to meet new requirements or user needs, like adding new features or functions.</li>
+      <li><strong>Perfective maintenance:</strong> This is when you make changes to the software to make it work better or make the user experience better. For example, you might optimise algorithms or redesign the user interface to do this.</li>
+      <li><strong>Preventative maintenance:</strong> This is applying fixes that prevent further issues from occurring e.g. closing security loopholes.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good explanation, which shows: • thorough knowledge and understanding of the different types of maintenance • a confident grasp of what would happen with the different types of maintenance</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good explanation, which shows: • generally secure knowledge and understanding of the different types of maintenance • a generally secure understanding of what would happen with the different types of maintenance</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic explanation, which shows: • some knowledge and understanding of the different types of maintenance • some grasp of what would happen with the different types of maintenance</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 9 Marks Total (3 for part a, 6 for part b).</p>
+  `
+},
+{
+  year: 2024, num: 5,
+  title: "Concerns caused by AI growth & ways to protect against unintended consequences",
+  marks: 8,
+  topic: "The development of Artificial Intelligence",
+  subTopic: "Impacts of AI",
+  spec: "2.1.2 (e)",
+  context: null,
+  question: "Describe the possible concerns caused by the growth of AI and outline ways, including regulation, to protect against unintended consequences.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <p><strong>Possible concerns:</strong></p>
+    <ul>
+      <li><strong>Displacement of jobs:</strong> As AI gets better, it may be able to do the work of humans in some industries, which raises concerns about job security and income stability.</li>
+      <li><strong>Privacy:</strong> AI systems often work by collecting and analysing data, which may make people worry about their privacy.</li>
+      <li><strong>Bias:</strong> AI systems can be biased if they are trained on biased data, which can lead to unfair treatment of some groups and discrimination.</li>
+      <li><strong>Autonomy:</strong> As AI systems become more independent, there may be concerns about their ability to make decisions on their own and the possible results of those decisions.</li>
+      <li><strong>Security:</strong> AI systems can be attacked by hackers, which could put national security and critical infrastructure at risk.</li>
+    </ul>
+    <p><strong>Protection:</strong></p>
+    <ul>
+      <li><strong>Regulation:</strong> Governments can make rules about how AI is made and used, such as setting ethical guidelines and standards for how data is collected and used.</li>
+      <li><strong>Transparency:</strong> AI systems should be clear about how they work, so that stakeholders can see how decisions are made and how data is used.</li>
+      <li><strong>Diversity and inclusion:</strong> AI systems should be built and trained by teams with a wide range of backgrounds to avoid bias and make sure they are representative of the people they serve.</li>
+      <li><strong>Education and awareness:</strong> It's important for people and organisations to learn about the possible effects and limits of AI, as well as the risks and benefits of using it.</li>
+      <li><strong>Accountability:</strong> The people who make and use AI should be held responsible for any bad things that happen because of it.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">7–8 marks</td><td>An excellent description which shows: • thorough knowledge of the possible concerns caused by AI • a confident description of the ways to protect against the unintended consequences of using AI</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good description, which shows: • thorough knowledge of the possible concerns caused by AI • a confident description of the ways to protect against the unintended consequences of using AI</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good description, which shows: • generally secure knowledge of the possible concerns caused by AI • a generally secure understanding of the ways to protect against the unintended consequences of using AI</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge of the possible concerns caused by AI • some grasp of the ways to protect against the unintended consequences of using AI</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 8 Marks Total.</p>
+  `
+},
+{
+  year: 2024, num: 6,
+  title: "Waterfall & Big Bang methodologies; Alpha & Beta testing",
+  marks: 11,
+  topic: "Digital technology development life cycles",
+  subTopic: "Relevant approaches and methodologies; How digital technologies are designed",
+  spec: "2.1.3 (b, c)",
+  context: "Cari's company is looking to update its booking system and is considering different development methodologies.",
+  parts: [
+    { label: "a", text: "Explain Waterfall and Big Bang methodologies, and how their advantages and disadvantages make them suitable for the company." },
+    { label: "b", text: "Explain Alpha and Beta testing." }
+  ],
+  markscheme: `
+    <h4>(a) Indicative content:</h4>
+    <ul>
+      <li><strong>Waterfall:</strong> This is a development method in which each step of a project is finished before moving on to the next one. <strong>Advantage:</strong> It is simple to understand and suitable for large projects where the requirements are easily understood. Clear documentation and a focus on careful planning. <strong>Disadvantage:</strong> It can be rigid and may not let changes be made after a certain phase has been finished / It is very bad at reacting to changing requirements and is not suitable for projects where the requirements may not be fully understood at the start.</li>
+      <li><strong>Big Bang:</strong> The Big Bang Model comprises focusing all the possible resources in software development and coding, with very little or no planning. <strong>Advantage:</strong> With this method, all the steps of a project are done at once. It works best for small projects with clear requirements / this model is ideal for repetitive or small projects with minimum risks. <strong>Disadvantage:</strong> It requires a lot of coordination and resource allocation, it might not work for bigger or more complicated projects. It is a very high-risk model and can turn out to be very expensive if requirements are misunderstood.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good explanation, which shows: • thorough knowledge and understanding of the Waterfall and Big Bang development methodologies • a confident grasp of the advantages and disadvantages for the company</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good explanation, which shows: • generally secure knowledge and understanding of the Waterfall and Big Bang development methodologies • a generally secure understanding of the advantages and disadvantages for the company</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic explanation, which shows: • some knowledge and understanding of the Waterfall and Big Bang development methodologies • some grasp of the advantages and disadvantages for the company</td></tr>
+    </table>
+    <h4>(b) Indicative content:</h4>
+    <p>Alpha testing and beta testing are two types of software testing that are usually done before a software application or product is released.</p>
+    <ul>
+      <li><strong>Alpha testing</strong> is usually the first step in the testing process. It is usually done by the development team, and its goal is to find any major problems or bugs that need to be fixed before the software is made available. Most of the time, alpha testing is done in a controlled environment with a small group of testers or just one person.</li>
+      <li><strong>Beta testing</strong> is the second step in the testing process. It is usually done by an outside group of testers who are like the people who will use the software. Beta testing is usually done in the real world and is meant to find problems or bugs that might not have been found in alpha testing. Most of the time, beta testing is the last step before a piece of software is made available to the client. Both alpha testing and beta testing are important parts of making software. They help make sure that the programme is as reliable and easy to use as possible before it is released.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5 marks</td><td>A very good explanation, which shows: • thorough knowledge and understanding of Alpha and Beta testing • a confident grasp of when Alpha and Beta testing will occur</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">2–4 marks</td><td>A good explanation, which shows: • generally secure knowledge and understanding of Alpha and/or Beta testing • a generally secure explanation of when Alpha and/or Beta testing will occur</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1 mark</td><td>A basic explanation, which shows: • some knowledge and understanding of Alpha and/or Beta testing • some grasp of when Alpha and/or Beta testing will occur</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 11 Marks Total (6 for part a, 5 for part b).</p>
+  `
+},
+{
+  year: 2024, num: 7,
+  title: "User-Centred Design (UCD) – visibility, accessibility, legibility, language",
+  marks: 8,
+  topic: "User-centred design, user experience and human-computer interaction",
+  subTopic: "User-Centred Design (UCD)",
+  spec: "2.1.4 (b)",
+  context: null,
+  question: "Describe User-Centred Design (UCD) in terms of the following: visibility, accessibility, legibility, language.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Visibility</strong> refers to how easy it is to see and find important information and features in a product, service, or experience. This means making sure that important information is not hidden or buried and that the product or service is easy to use and understand.</li>
+      <li><strong>Accessibility</strong> is the degree to which a product, service, or experience can be used by people with a wide range of abilities, including those with disabilities. This means making sure that products and services are easy for people with visual, auditory, motor, or cognitive disabilities to use and that they meet accessibility standards.</li>
+      <li><strong>Legibility</strong> means that the text and other information in the product, service, or experience are easy to read and understand. This means using clear, concise language, the right font sizes and styles, and a layout and design that makes the information easy to read and understand.</li>
+      <li><strong>Language:</strong> Short sentences are preferred here. The easier the phrase and the words, the better.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">7–8 marks</td><td>An excellent description which shows: • thorough knowledge of the main considerations of UCD • a confident grasp of what each of the considerations mean</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good description, which shows: • good knowledge of the main considerations of UCD • a confident grasp of what each of the considerations mean</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A basic description, which shows: • generally secure knowledge of the main considerations of UCD • a generally secure understanding of what each of the considerations mean</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A limited description, which shows: • some knowledge of the main considerations of UCD • some grasp of what each of the considerations mean</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 8 Marks Total.</p>
+  `
+},
+{
+  year: 2024, num: 8,
+  title: "Legal, ethical and professional implications of social media use",
+  marks: 7,
+  topic: "Functions, purposes and uses of social media",
+  subTopic: "Purpose and uses of social media",
+  spec: "2.1.5 (c)",
+  context: null,
+  question: "Describe the legal, ethical, and professional implications of the different uses of social media by individuals and organisations.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Legal implications:</strong> Online privacy, freedom of speech, defamation, data protection, copyright infringement, trademark issues, employment law/employee conduct.</li>
+      <li><strong>Ethical:</strong> Values, honesty, authenticity, misinformation, influences disclosing if they're being sponsored, cyberbullying, harassment, respecting others, and using personal information in the right way.</li>
+      <li><strong>Professional implications:</strong> Reputation, credibility, damage to an organisation's or a person's professional reputation, loss of job, as well as the possibility of good outcomes, like more visibility and the ability to build and keep professional relationships, networking and getting jobs.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–7 marks</td><td>A very good description, which shows: • thorough knowledge of the legal, ethical, and professional implications of using social media • a confident discussion of the above for different uses for individuals and organisations</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–5 marks</td><td>A good description, which shows: • generally secure knowledge of the legal, ethical, and professional implications of using social media • a generally secure understanding of the above for different uses for individuals and organisations</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge of the legal, ethical, and professional implications of using social media • some grasp of the above for different uses for individuals and organisations</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 7 Marks Total.</p>
+  `
+},
+{
+  year: 2024, num: 9,
+  title: "S-curve model stages, economic benefits & classification of users",
+  marks: 10,
+  topic: "Digital technology development life cycles",
+  subTopic: "The stages of the digital technology development life cycle",
+  spec: "2.1.3 (a)",
+  context: null,
+  question: "Name and describe the four stages within the S-curve model of the digital development life cycle. Describe the economic benefits and the classification of users that take up new technologies.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Research and Development (R&amp;D):</strong> <em>Description:</em> This initial stage focuses on creating and improving the technology. Efforts are directed towards research, experimentation, and development to solve existing problems and enhance functionality. <em>Economic Benefits:</em> At this stage, the economic benefits are minimal or negative since investments are high, and returns are not yet realised. <em>Classification of Users:</em> Innovators and early adopters are the primary users, eager to experiment with and provide feedback on the new technology.</li>
+      <li><strong>Ascent:</strong> <em>Description:</em> The technology begins to gain traction. Performance improvements become evident, and the technology starts to be adopted in various market segments. <em>Economic Benefits:</em> Economic returns start to increase significantly as the technology becomes more popular and sales grow. <em>Classification of Users:</em> Early adopters and early majority users dominate this stage, driving growth and providing further refinements through their feedback.</li>
+      <li><strong>Maturity:</strong> <em>Description:</em> The technology reaches its peak in terms of performance and market penetration. It is widely accepted and used, leading to steady, high returns. <em>Economic Benefits:</em> The economic benefits are at their maximum during this stage as the technology has been fully adopted by the majority of users. <em>Classification of Users:</em> The late majority begins to adopt the technology, contributing to its widespread usage.</li>
+      <li><strong>Decline:</strong> <em>Description:</em> The technology starts to lose its competitive edge due to the emergence of newer technologies. Sales and market interest begin to wane. <em>Economic Benefits:</em> Economic returns decline as the technology becomes outdated and is gradually replaced by newer innovations. <em>Classification of Users:</em> Laggards are the primary users in this stage, as they are resistant to change and continue using the technology until it becomes obsolete.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">9–10 marks</td><td>An excellent description which shows: • thorough knowledge of the four stages of the S-curve model • a confident description of each stage including the economic benefits and the users</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–8 marks</td><td>A very good discussion, which shows: • thorough knowledge of the stages of the S-curve model • a confident description of the stages including the economic benefits and the users</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–5 marks</td><td>A good description, which shows: • generally secure knowledge of the stages of the S-curve model • a general understanding of most stages including the economic benefits and the users</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge of some of the four stages of the S-curve model • some grasp of some of the stages including the economic benefits and the users</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 10 Marks Total.</p>
+  `
+},
+
+/* ═══════════════════════ 2023 ═══════════════════════ */
+{
+  year: 2023, num: 1,
+  title: "Purpose of router, switch, wireless access point & ethernet cable",
+  marks: 5,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "How digital systems connect",
+  spec: "2.1.1 (a)",
+  context: "Ffion has received a router for use in the home. The router is a hybrid of a router, switch and wireless access point.",
+  parts: [
+    { label: "a(i)", text: "State the purpose of a Router." },
+    { label: "a(ii)", text: "State the purpose of a Switch." },
+    { label: "a(iii)", text: "State the purpose of a Wireless Access Point." },
+    { label: "b", text: "Ffion believes there will be better performance if the PC is plugged directly into the router using an ethernet cable. Recommend, with a reason, a category of ethernet cable that could be used." }
+  ],
+  markscheme: `
+    <h4>(a)(i) Router:</h4>
+    <p>A router stores the addresses of computers on the network and transfers data between devices. (1 mark)</p>
+    <h4>(a)(ii) Switch:</h4>
+    <p>A switch analyses each packet of data and sends it to the computer it was intended for. (1 mark)</p>
+    <h4>(a)(iii) Wireless Access Point:</h4>
+    <p>A device that allows WiFi devices to connect to a network. (1 mark)</p>
+    <h4>(b) Ethernet Cable:</h4>
+    <ul>
+      <li>Award one mark for identifying a category of cable, for example: Cat5, Cat6.</li>
+      <li>Award two marks for identifying a category of cable and giving a valid reason, for example:
+        <ul>
+          <li>Cat5 is the cheapest to buy</li>
+          <li>Cat6a offers a larger bandwidth compared to Cat5 or Cat6</li>
+        </ul>
+      </li>
+      <li><em>Any other valid answer accepted.</em></li>
+    </ul>
+    <p><strong>Marks:</strong> 5 Marks Total (3 for part a, 2 for part b).</p>
+  `
+},
+{
+  year: 2023, num: 2,
+  title: "Phase 1 of the Internet evolution & IPv6 vs IPv4",
+  marks: 6,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "The Internet of Things (IoT)",
+  spec: "2.1.1 (b)",
+  context: "There are four phases in the evolution of the Internet.",
+  parts: [
+    { label: "a", text: "Describe what Phase 1 included, giving examples of the technology that was made available to the public." },
+    { label: "b", text: "Compare IPv6 to IPv4 explaining why IPv6 has become necessary." }
+  ],
+  markscheme: `
+    <h4>(a) Phase 1 Description:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> Phase 1 included digitising access to information.</li>
+      <li><strong>Award two marks for a basic response, for example:</strong> Phase 1 included digitising access to information, including email and web browsers.</li>
+      <li><strong>Award three marks for a more developed response, for example:</strong> Phase 1 included digitising access to information, including email, web browsers and the ability to search the internet.</li>
+      <li><strong>Award four marks for a fully developed response for example:</strong> The first phase started over 20 years ago and is referred to as 'connectivity'. This involved digitising access to information. Email, web browsing and searching for content was just beginning.</li>
+    </ul>
+    <h4>(b) IPv4 vs IPv6:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> We need to move to IPv6 because there aren't enough addresses available with IPv4.</li>
+      <li><strong>Award two marks for a more developed response, for example:</strong> Currently, the Internet makes use of IP version 4, IPv4, which is now reaching the limits of its capacity to address additional devices. IPv6 provides a vastly expanded address space. The IPv4 address space comprises 32 bits which allows for approximately 4 billion addresses. IPv6 has a significantly larger address space.</li>
+    </ul>
+    <p><strong>Marks:</strong> 6 Marks Total (4 for part a, 2 for part b).</p>
+  `
+},
+{
+  year: 2023, num: 3,
+  title: "Tests for Artificial General Intelligence – Turing test & Nilsson's Employment test",
+  marks: 6,
+  topic: "The development of Artificial Intelligence",
+  subTopic: "Artificial Intelligence (AI)",
+  spec: "2.1.2 (a)",
+  context: null,
+  question: "Describe the following tests used to confirm human-level Artificial General Intelligence (AGI): (a) The Turing test  (b) Nilsson's Employment test",
+  parts: [
+    { label: "a", text: "The Turing test" },
+    { label: "b", text: "Nilsson's Employment test" }
+  ],
+  markscheme: `
+    <h4>(a) The Turing test:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> The Turing test involves a remote human interrogator, within a fixed time frame, must distinguish between a computer and a human subject based on their replies to various questions posed by the interrogator.</li>
+      <li><strong>Award two marks for a basic response, for example:</strong> A test proposed by Alan Turing in 1950 to determine whether a computer can think, also known as the imitation game. A remote human interrogator, within a fixed time frame, must distinguish between a computer and a human subject based on their replies to various questions posed by the interrogator.</li>
+      <li><strong>Award three marks for a more developed response, for example:</strong> A test proposed by Alan Turing in 1950 to determine whether a computer can think, also known as the imitation game. A remote human interrogator, within a fixed time frame, must distinguish between a computer and a human subject based on their replies to various questions posed by the interrogator. By means of a series of such tests, a computer's success at "thinking" can be measured by its probability of being misidentified as the human subject.</li>
+    </ul>
+    <h4>(b) Nilsson's Employment test:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> The Nilsson test is where an AI program would attempt to complete part of a job.</li>
+      <li><strong>Award two marks for a basic response, for example:</strong> One of the most common human activities that we go through is doing 'jobs', at which we are employed. Nilsson proposed that the Turing test be replaced with an "employment test". To pass this test, the AI program should be able to perform jobs that are performed by humans.</li>
+      <li><strong>Award three marks for a more developed response, for example:</strong> One of the most common human activities that we go through is doing 'jobs', at which we are employed. AI researcher Nils J. Nilsson proposed that the Turing test be replaced with an "employment test". To pass this test, the AI program should be able to perform jobs that are performed by humans, and AGI can be evaluated on the basis of measuring the fraction of these economically important jobs that are acceptably performed by the AI.</li>
+    </ul>
+    <p><strong>Marks:</strong> 6 Marks Total (3 for part a, 3 for part b).</p>
+  `
+},
+{
+  year: 2023, num: 4,
+  title: "Definition of a robot & advantages/disadvantages of autonomous robots in manufacturing",
+  marks: 10,
+  topic: "The development of Artificial Intelligence",
+  subTopic: "Robotics",
+  spec: "2.1.2 (c)",
+  context: null,
+  parts: [
+    { label: "a", text: "Define the term robot." },
+    { label: "b", text: "Suggest advantages and disadvantages that may arise with the use of autonomous robots in manufacturing." }
+  ],
+  markscheme: `
+    <h4>(a) Define robot:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> A robot is a machine capable of carrying out a complex series of actions automatically.</li>
+      <li><strong>Award two marks for a more developed response, for example:</strong> A robot is a machine capable of carrying out a complex series of actions automatically. Most robots are task-performing machines, designed with an emphasis on completing repetitive tasks.</li>
+    </ul>
+    <h4>(b) Advantages and Disadvantages (Manufacturing):</h4>
+    <p><em>Credit any other valid response.</em></p>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">7–8 marks</td><td>An excellent discussion, which shows: • a thorough understanding of the advantages and disadvantages that may arise with the use of autonomous robots in manufacturing • a confident grasp of many different advantages and disadvantages</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good discussion, which shows: • a very good understanding of the advantages and disadvantages that may arise with the use of autonomous robots in manufacturing • a very good grasp of different advantages and disadvantages</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge and understanding of the advantages and disadvantages that may arise with the use of autonomous robots in manufacturing • a generally secure grasp of different advantages and disadvantages</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge and understanding of the advantages and disadvantages that may arise with the use of autonomous robots in manufacturing • some grasp of different advantages and disadvantages</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 10 Marks Total (2 for part a, 8 for part b).</p>
+  `
+},
+{
+  year: 2023, num: 5,
+  title: "Four main changeover methods for new digital technology systems",
+  marks: 10,
+  topic: "Digital technology development life cycles",
+  subTopic: "Changeover",
+  spec: "2.1.3 (d)",
+  context: "There are four main changeover methods used when introducing a new digital technology system.",
+  parts: [
+    { label: "a", text: "Name the four main methods." },
+    { label: "b", text: "Describe two of the methods, giving one advantage and one disadvantage for each." }
+  ],
+  markscheme: `
+    <h4>(a) Four methods:</h4>
+    <p>Parallel, Phased, Pilot, Direct (1 mark each).</p>
+    <h4>(b) Indicative content:</h4>
+    <ul>
+      <li><strong>Parallel:</strong> Old and new systems are run at the same time causing duplication of all tasks, while the new system is checked to ensure consistency. <strong>Advantage:</strong> If one fails there is a backup. The safest method of changeover. <strong>Disadvantage:</strong> Duplication of effort so not something you'd want to do for a long time. Additional cost of running multiple systems concurrently.</li>
+      <li><strong>Phased:</strong> Initially, only part of the new system is deployed with the rest still on the old system. As the new parts are accepted the old is phased out. <strong>Advantage:</strong> Works well with RAD (Rapid Application Deployment). <strong>Disadvantage:</strong> Requires the old system to work with the new system.</li>
+      <li><strong>Pilot:</strong> The new system is rolled out to a self-contained branch before being rolled out to the rest. <strong>Advantage:</strong> Only one branch is affected by any problems. <strong>Disadvantage:</strong> Only works if department/branches are almost identical e.g. supermarkets or bank branches. Doesn't work for companies with small numbers of branches/departments.</li>
+      <li><strong>Direct:</strong> Also known as the big bang changeover. Change to the new system immediately. <strong>Advantage:</strong> Best option if there's no previous system or the previous system has failed. Quickest changeover method. <strong>Disadvantage:</strong> High risk.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good discussion, which shows: • thorough knowledge and understanding of the advantages, disadvantages for two changeover methods • a confident grasp of a scenario where the methods could be used</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge and understanding of the advantages, disadvantages of changeover methods • a generally secure knowledge of a scenario where the methods could be used</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge and understanding of changeover methods • some grasp of a scenario where the method could be used</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 10 Marks Total (4 for part a, 6 for part b).</p>
+  `
+},
+{
+  year: 2023, num: 6,
+  title: "Health issues related to human-computer interaction – mobile and desktop devices",
+  marks: 6,
+  topic: "User-centred design, user experience and human-computer interaction",
+  subTopic: "Human-computer interaction",
+  spec: "2.1.4 (a)",
+  context: null,
+  question: "Describe the health issues related to human-computer interaction and their impact when using mobile and desktop devices.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Mobile devices:</strong> Research has shown that people who use smartphones in excess may experience personal, social and workplace problems. People who identify themselves as "addicts" exhibit signs that indicate depression, social isolation, social anxiety, shyness, impulsivity and low self-esteem. "Technology addiction" refers to addictive behaviour related to social media, excessive texting, information overload, online shopping, gambling, video gaming, online pornography and overall smartphone usage.</li>
+      <li><strong>Desktop and laptop devices:</strong> Working at a computer can cause back, neck and shoulder pains, headache, eyestrain and overuse injuries of the arms and hands. You can help avoid computer-related injuries with proper furniture, better posture and good working habits.</li>
+      <li><strong>Digital Eye Strain:</strong> You can use the 20-20-20 rule to ease eye strain. Contributing factors are screen glare, bad lighting and improper viewing distance. To follow this rule, try to take a 20-second break every 20 minutes to look at something that's 20 feet away.</li>
+      <li><strong>Musculoskeletal problems:</strong> A small 2017 study found a clear association between self-reported addiction to smartphone use and neck problems. Overuse of technology can also lead to repetitive strain injuries of the fingers, thumbs, and wrists. If you're feeling the pain of technology, you can reduce these issues by taking frequent breaks.</li>
+      <li><strong>Sleep:</strong> Having electronic devices in the bedroom places temptation at your fingertips, and it can make switching off more difficult. Exposure to blue light that devices emit can suppress melatonin and interrupt your circadian clock. These effects can make it harder to fall asleep and result in you being less alert in the morning.</li>
+      <li><strong>Emotional issues:</strong> Using social media can make you feel more connected to the world. But, comparing yourself to others can leave you feeling inadequate or left out. A recent study found that those with high social media use felt more socially isolated. The evidence suggests that social network use correlates with mental illness and wellbeing. If social media use makes you feel anxious or depressed, try cutting back to see if doing so makes a difference.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good discussion, which shows: • thorough knowledge and understanding of the health and social issues related to HCI • a confident grasp linking these issues to mobile and desktop devices</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge and understanding of the health and social issues related to HCI • a generally secure understanding linking these issues to mobile and desktop devices</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge and understanding of the health and social issues related to HCI • some grasp linking these to mobile and desktop devices</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 6 Marks Total.</p>
+  `
+},
+{
+  year: 2023, num: 7,
+  title: "Social media functions for business & legal/ethical problems",
+  marks: 10,
+  topic: "Functions, purposes and uses of social media",
+  subTopic: "Functions; Purpose and uses",
+  spec: "2.1.5 (b, c)",
+  context: "Gruff understands that the term social media refers to a computer-based technology that facilitates the sharing of ideas, thoughts, and information through virtual networks and communities.",
+  parts: [
+    { label: "a", text: "Gruff would like to begin to use social media sites for business. Compare two sites that Gruff could use, considering at least two different functions for each site." },
+    { label: "b(i)", text: "Explain one legal problem that Gruff's business could face using social media." },
+    { label: "b(ii)", text: "Explain one ethical problem that Gruff's business could face using a social media site." }
+  ],
+  markscheme: `
+    <h4>(a) Indicative content:</h4>
+    <ul>
+      <li><strong>Facebook:</strong> Posts / pages, Live streaming, Reaction to posts, Marketplace, Groups, Messaging, Reels, Photo upload/tagging, Adding friends.</li>
+      <li><strong>Twitter:</strong> Posts, Polls, Reaction to posts, Photo upload, Messaging, Adding followers and following people.</li>
+      <li><strong>Instagram:</strong> Photo upload, Reaction to photo, Messaging, Adding followers and following people.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good comparison, which shows: • thorough knowledge and understanding of the functions available from specific social media sites • a confident description of the functions</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good comparison, which shows: • generally secure knowledge of the functions available from specific social media sites • a generally secure understanding of the functions</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic comparison, which shows: • some knowledge and understanding of the functions available from specific social media sites • some grasp of the functions</td></tr>
+    </table>
+    <h4>(b)(i) Legal Problem:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> Gruff's business would need to ensure they do not say anything untrue about another business in an online post as this could result in legal action being taken against Gruff's business.</li>
+      <li><strong>Award two marks for a more developed response, for example:</strong> Gruff's business would need to be careful not to say anything untrue about another business in an online post. This would be defamation and this could result in legal action being taken against Gruff's business.</li>
+    </ul>
+    <h4>(b)(ii) Ethical Problem:</h4>
+    <ul>
+      <li><strong>Award one mark for a limited response, for example:</strong> Gruff's company would need to ensure that they do not advertise on any website that does not align with their own ethical beliefs.</li>
+      <li><strong>Award two marks for a more developed response, for example:</strong> Gruff's company would need to ensure that they do not advertise on any website that does not align with their own ethical beliefs. If they advertised on a podcast or website that had extreme views, this would then impact the company negatively.</li>
+    </ul>
+    <p><strong>Marks:</strong> 10 Marks Total (6 for part a, 4 for part b).</p>
+  `
+},
+{
+  year: 2023, num: 8,
+  title: "Advantages and disadvantages of linking smart devices to a smart speaker",
+  marks: 8,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "Use of smart devices",
+  spec: "2.1.1 (c)",
+  context: "Kacper has bought a smart speaker to complement the other smart devices already in the house.",
+  question: "Discuss the advantages and disadvantages linking all the smart devices to the smart speaker.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Advantages:</strong> Increased automation / Save time with automated tasks / Customisation. Help with productivity/efficiency / energy efficient if justified. Instant access / Access from elsewhere. Security if justified.</li>
+      <li><strong>Disadvantages:</strong> Privacy issues. Portability. Understanding dialect/accent. Cost. Technical security threats. Compatibility / Different protocols / Setup and configuration. Internet reliance.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">7–8 marks</td><td>An excellent description which shows: • thorough knowledge the advantages and disadvantages linking all the smart devices to the smart speaker • a confident discussion of the advantages and disadvantages</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good discussion, which shows: • a very good knowledge the advantages and disadvantages linking all the smart devices to the smart speaker • a confident discussion of the advantages and disadvantages</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge the advantages and disadvantages linking all the smart devices to the smart speaker • a generally secure understanding of the advantages and disadvantages</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge the advantages and disadvantages linking all the smart devices to the smart speaker • some grasp of the advantages or disadvantages</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 8 Marks Total.</p>
+  `
+},
+{
+  year: 2023, num: 9,
+  title: "Digital User Experience (DUX) – design, navigability, performance, efficiency, cross-platform compatibility",
+  marks: 9,
+  topic: "User-centred design, user experience and human-computer interaction",
+  subTopic: "Digital User Experience (DUX)",
+  spec: "2.1.4 (c)",
+  context: null,
+  question: "Describe Digital User Experience (DUX) in terms of: design, navigability, performance, efficiency, cross-platform compatibility.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Design:</strong> is about understanding the context of use, understanding what developers need to complete their tasks, underlying technology, and integration points, and focusing on how developers feel while using a product or service.</li>
+      <li><strong>Navigability:</strong> How systems are designed to be logical, sensible and clear.</li>
+      <li><strong>Performance:</strong> Understand how application performance impacts a business.</li>
+      <li><strong>Efficiency:</strong> Measures the speed and how quickly users can accomplish tasks once they are familiar with the design of an interface. Think of it as the number of keystrokes or clicks it takes a user to complete a task.</li>
+      <li><strong>Cross-platform compatibility:</strong> Ensuring each app runs, looks, and is performant across every available platform.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">8–9 marks</td><td>An excellent description which shows: • thorough knowledge of the stages of DUX • a confident discussion of the different stages of DUX</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–7 marks</td><td>A very good discussion, which shows: • thorough knowledge of the stages of DUX • a confident discussion of the different stages of DUX</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–5 marks</td><td>A good discussion, which shows: • generally secure knowledge of the stages of DUX • a generally secure understanding of the different stages of DUX</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge of the use of the stages of DUX • some grasp of the different stages of DUX</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 9 Marks Total.</p>
+  `
+},
+{
+  year: 2023, num: 10,
+  title: "How Artificial Intelligence can help doctors",
+  marks: 10,
+  topic: "The development of Artificial Intelligence",
+  subTopic: "Applications, functions and potential uses of AI",
+  spec: "2.1.2 (d)",
+  context: "Masmaat is a junior doctor working in the NHS.",
+  question: "Discuss how artificial intelligence (AI) can be used to help doctors such as Masmaat.",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <p>Treatment recommendations, Testing doctors, Doctors learning to interact with AI machines, Safety – AI ensuring treatment chosen fits with all data in patient's medical file, Adherence checking, Speech recognition for input, Automation tools.</p>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">9–10 marks</td><td>An excellent description which shows: • thorough knowledge of the use of AI to help doctors • a confident discussion of the use of AI elsewhere in healthcare</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–8 marks</td><td>A very good discussion, which shows: • thorough knowledge of the use of AI to help doctors • a confident discussion of the use of AI elsewhere in healthcare</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">4–5 marks</td><td>A good discussion, which shows: • generally secure knowledge of the use of AI to help doctors • a generally secure understanding of the use of AI elsewhere in healthcare</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–3 marks</td><td>A basic discussion, which shows: • some knowledge of the use of AI to help doctors • some grasp of the use of AI elsewhere in healthcare</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 10 Marks Total.</p>
+  `
+},
+
+/* ═══════════════════════ 2025 ═══════════════════════ */
+{
+  year: 2025, num: 1,
+  title: "Definition of protocol & TCP/IP protocol",
+  marks: 4,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "How digital systems connect",
+  spec: "2.1.1 (a)",
+  context: null,
+  parts: [
+    { label: "a", text: "Define the term protocol and give one reason why protocols are needed." },
+    { label: "b", text: "Describe the TCP/IP protocol." }
+  ],
+  markscheme: `
+    <h4>(a) Define Protocol:</h4>
+    <p>Protocol are set of rules. Protocols enable computers to communicate with one another. (2 marks)</p>
+    <h4>(b) TCP/IP Protocol:</h4>
+    <p><strong>TCP (Transmission Control Protocol):</strong></p>
+    <ul>
+      <li>A means of putting datagrams together.</li>
+      <li>Establishes a reliable connection using a three-way handshake.</li>
+      <li>Ensures data is delivered in order and without errors.</li>
+      <li>Retransmits lost packets and detects duplicates.</li>
+      <li>Controls flow to avoid overwhelming the receiver.</li>
+      <li>NOT establish a secure connection.</li>
+    </ul>
+    <p><strong>IP (Internet Protocol):</strong></p>
+    <ul>
+      <li>A means of addressing and routing data packets across a network.</li>
+    </ul>
+    <p><strong>Marks:</strong> 4 Marks Total (2 for part a, 2 for part b).</p>
+  `
+},
+{
+  year: 2025, num: 2,
+  title: "Positive/negative impacts of social media on individuals & organisations' use of social media",
+  marks: 12,
+  topic: "Functions, purposes and uses of social media",
+  subTopic: "Impacts of social media use; Purpose and uses",
+  spec: "2.1.5 (c, d)",
+  context: null,
+  parts: [
+    { label: "a", text: "Describe the positive and negative impacts of social media use by individuals." },
+    { label: "b", text: "Describe how organisations use social media platforms to interact with their customers." }
+  ],
+  markscheme: `
+    <h4>(a) Individual Impacts:</h4>
+    <p><strong>Positive impacts:</strong> Social networking sites allow people to communicate and remain in contact with friends as well as meet new people. Used to discuss educational topics. Allows individuals to find information from organisations. Is highly mobile and can be accessed through the use of various devices. Career networking. Access information. Community building. Awareness and advocacy. Entertainment and leisure. Mental health support. Cultural exchange. Economic opportunities.</p>
+    <p><strong>Negative impacts:</strong> Reduces the amount of face-to-face socialising and replaces it with online interaction which is believed to result in low quality relationships with other people. Cyberbullying can occur, which is where people are bullied online in a public way, the result of which has had serious consequences in the past including suicide and depression. Identity theft can also occur, which is when a cybercriminal uses the network to gather personal information posted about people. Oversharing information in the public domain can harm someone's future job prospects.</p>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good description, which shows: • thorough knowledge and understanding of the positive and negative impacts of social media use • a confident grasp of how these would impact individuals</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good description, which shows: • generally secure knowledge and understanding of the positive and/or negative impacts of social media use • a generally secure grasp of how these would impact individuals</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge and understanding of the positive or negative impacts of social media use • some grasp of how these would impact individuals</td></tr>
+    </table>
+    <h4>(b) Organisation Interaction:</h4>
+    <ul>
+      <li><strong>Marketing and Promotion:</strong> Product launching, Special offers, Content marketing.</li>
+      <li><strong>Customer Service:</strong> Real time support, FAQs and How-to-guides, Feedback, Updates and announcements, Apologies and remedies.</li>
+      <li><strong>Brand building:</strong> Community building, Transparency, Creating a "voice" for the brand – Ryanair for example.</li>
+      <li><strong>Collaboration and Partnerships:</strong> Influencers, Cross promotions.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good description, which shows: • thorough knowledge and understanding of the potential use of social media platforms by organisations • a confident grasp of the interaction with customers</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good description, which shows: • generally secure knowledge and understanding of the potential use of social media platforms by organisations • a generally secure grasp of the interaction with customers</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge and understanding of the potential use of social media platforms by organisations • some grasp of the interaction with customers</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 12 Marks Total (6 for part a, 6 for part b).</p>
+  `
+},
+{
+  year: 2025, num: 3,
+  title: "Development phases – feasibility study, requirements analysis, release",
+  marks: 9,
+  topic: "Digital technology development life cycles",
+  subTopic: "How digital technologies are designed",
+  spec: "2.1.3 (b)",
+  context: "Mair is the manager of a social media site and is looking at implementing a new digital system.",
+  question: "Discuss the purpose and activities involved in the following development phases for this new digital system: Feasibility study; Requirements analysis; Release.",
+  markscheme: `
+    <h4>Feasibility Study:</h4>
+    <p><strong>Purpose:</strong> The primary objective of the Feasibility Study phase is to evaluate the viability of a proposed project. It involves determining whether the project is technically feasible, economically viable, and beneficial to the stakeholders involved.</p>
+    <p><strong>Activities:</strong> Conducting market research to assess demand; Reviewing available technology to check if the project can be implemented; Cost-benefit analysis to understand economic feasibility; Political feasibility; Legal feasibility; Time assessment to gauge the project timeline.</p>
+    <h4>Requirements Analysis:</h4>
+    <p><strong>Purpose:</strong> The Requirements Analysis phase is where the project team works to define the exact specifications and requirements of the system or product to be developed.</p>
+    <p><strong>Activities:</strong> Gathering requirements through interviews, surveys, or focus groups; Documenting and categorising the requirements into functional and non-functional; Prioritising requirements based on business needs and stakeholder feedback; Creating initial design models.</p>
+    <h4>Release:</h4>
+    <p><strong>Purpose:</strong> The Release phase is the final step in the development process, where the developed software or system is made available to the end-users.</p>
+    <p><strong>Activities:</strong> Conducting final testing to ensure all requirements are met and there are no critical bugs; Preparing release notes and documentation; Packaging the software or deploying it to the live environment; Launching marketing or training initiatives to support the release.</p>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">8–9 marks</td><td>An excellent discussion, which shows: • thorough knowledge of the phases in the development of digital technologies • a confident discussion of the purpose and activities of the phases</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–7 marks</td><td>A very good discussion, which shows: • thorough knowledge of the phases in the development of digital technologies • a confident discussion of the purpose and activities of the phases</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–5 marks</td><td>A good discussion, which shows: • generally secure knowledge of the phases in the development of digital technologies • a generally secure discussion of the purpose and activities of the phases</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge of the phases in the development of digital technologies • some grasp of the purpose and activities of the phases</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 9 Marks Total.</p>
+  `
+},
+{
+  year: 2025, num: 4,
+  title: "Three main AI enablers & AI in cyber security",
+  marks: 12,
+  topic: "The development of Artificial Intelligence",
+  subTopic: "Artificial Intelligence (AI); Applications, functions and potential uses of AI",
+  spec: "2.1.2 (a, d)",
+  context: "Olivia understands that the proliferation of Artificial Intelligence (AI) in recent years has been significantly impacted by three main enablers.",
+  parts: [
+    { label: "a", text: "Identify the three main enablers and describe how each of these have contributed to the widespread adoption and capabilities of AI." },
+    { label: "b", text: "Olivia is a school's computer network manager. Explain how AI could be used to improve the cyber security of this network." }
+  ],
+  markscheme: `
+    <h4>(a) Three Main Enablers:</h4>
+    <ol>
+      <li><strong>Exponential Growth in the Speed of Computers:</strong> When Moore's Law was first proposed, it was thought that the number of transistors on a microchip would double roughly every two years, increasing computer capability. Computers have generally continued to develop faster and more powerful even as Moore's Law has begun to plateau. Real-time analytics and faster data processing are now possible due to faster computing speeds. This is crucial for AI operations like real-time decision-making, picture recognition, and natural language processing. Thanks to faster computers, deep learning methods, which demand a lot of computing power, are now more viable and effective. This has facilitated developments in fields like real-time language translation and autonomous cars.</li>
+      <li><strong>Huang's Law:</strong> According to Huang's Law, named after Jensen Huang, the performance of graphics processing units (GPUs) will double around every two years. The parallel processing activities necessary for machine learning and artificial intelligence are particularly well suited to GPUs. Better GPUs have greatly increased the capability of AI algorithms, particularly neural networks. Many of the advances in deep learning have been made possible by GPUs, which have also made it possible to build models that are more complicated and can perform advanced image and speech recognition.</li>
+      <li><strong>Cloud Computing:</strong> Cloud computing refers to the delivery of computing services, including storage, processing power, and applications, over the internet. Cloud platforms offer on-demand access to a vast array of resources and services that are crucial for AI development and deployment. They make it easier and more cost-effective to train, deploy, and scale AI models. Startups to large enterprises can now afford to train complex AI models using cloud resources. Services like AWS's SageMaker or Google Cloud AI provide pre-built environments for machine learning, making AI more accessible.</li>
+    </ol>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good identification, which includes: • thorough knowledge of all the three main enablers • a confident description of their contribution</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good identification, which includes: • generally secure knowledge of most of the three main enablers • a generally secure description of their contribution</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic identification, which includes: • some knowledge of the three main enablers • some grasp of their contribution</td></tr>
+    </table>
+    <h4>(b) AI in Cyber Security:</h4>
+    <ul>
+      <li><strong>Threat Detection:</strong> AI algorithms may be taught to spot patterns and irregularities in network data that might point to a security threat, such as a malware attack or unauthorised access. Olivia's network can identify threats much faster than conventional, rule-based systems by deploying AI-based threat detection software.</li>
+      <li><strong>Avoiding Phishing Attacks:</strong> Using information about the sender, the email's content, and any links or attachments contained, AI may examine incoming emails for indications of phishing schemes. By doing this, network users will be prevented from clicking on harmful links or disclosing private information.</li>
+      <li><strong>User Behaviour Analytics:</strong> AI can create a baseline of typical user behaviour on the network and notify managers of any out-of-the-ordinary activity, like an unexpected data download or access to private files. Olivia could respond right away if this was recognised as a sign of an inside threat or a hacked user account.</li>
+      <li><strong>Automated Response:</strong> When a threat is identified, AI algorithms can automatically carry out predetermined measures, such as isolating impacted devices from the network to stop malware from spreading. By reducing the time between danger detection and response, possible damage is minimised.</li>
+      <li><strong>Patch Management:</strong> AI can help with patch management by scanning the network for outdated security patches and updating programmes on its own. Maintaining current software will improve the security of Olivia's network by automating this process to make sure that no vulnerabilities are missed.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A very good explanation, which shows: • thorough knowledge of the main areas where AI could help in cyber security • a confident understanding of the impact on the network</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good explanation, which shows: • generally secure knowledge of the main areas where AI could help in cyber security • a generally secure understanding of the impact on the network</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic explanation, which shows: • some knowledge of the main areas where AI could help in cyber security • some understanding of the impact on the network</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 12 Marks Total (6 for part a, 6 for part b).</p>
+  `
+},
+{
+  year: 2025, num: 5,
+  title: "Designing an effective mobile app using the four phases of UCD",
+  marks: 12,
+  topic: "User-centred design, user experience and human-computer interaction",
+  subTopic: "User-Centred Design (UCD)",
+  spec: "2.1.4 (b)",
+  context: "Aisha is developing a mobile app that helps students keep track of their homework and exams. Aisha will employ a User-Centred Design (UCD) approach to ensure the app meets the user needs.",
+  question: "Advise Aisha how to design an effective mobile app using the four phases of UCD.",
+  markscheme: `
+    <h4>Indicative Content:</h4>
+    <ol>
+      <li><strong>Specifying the Context of Use:</strong> Aisha should start by identifying the app's primary user base. Since this is a school-based app, the users will mostly be students, but teachers and parents could be secondary users. Conditions of use: Will the app be used in a classroom setting, at home, or on the go? Knowing the context can help make design decisions. For example, if students are expected to use the app quickly between classes, the design should be simple and quick to navigate. User Interviews and Surveys: Conduct interviews or distribute surveys among potential users to understand their needs, technological proficiency, and the conditions under which they'll use the app.</li>
+      <li><strong>Specifying Requirements:</strong> Functional Requirements: The app must allow users to enter and manage homework tasks. The app must provide reminders for upcoming exams and due dates. It should have a calendar view for better visualisation of tasks. Non-functional Requirements: Fast load times for better user experience. Data privacy measures to protect student information. Constraints: Compatibility with multiple operating systems (iOS, Android). Budget and time limitations for development and testing.</li>
+      <li><strong>Creating Design Solutions:</strong> Wireframes and Mockups: Before diving into the actual development, Aisha should create wireframes and mockups of the app. This visualises how the app's interface will look and how users will interact with it. Tools like Adobe XD or Sketch could be used for this. User Flows: Map out the user journey for common tasks within the app. This will help in identifying any bottlenecks or confusing elements in the design. Prototyping: Create a clickable prototype to simulate the app's functionality. This helps in internal testing and allows Aisha to make quick design iterations based on feedback.</li>
+      <li><strong>Evaluating Designs:</strong> Usability Testing: Conduct usability tests with a small group of target users. Ask them to perform certain tasks on the prototype and observe where they encounter difficulties. Feedback Loops: After the usability tests, Aisha should gather all the feedback and make necessary adjustments to the design. Performance Metrics: Identify key performance indicators (KPIs) like user engagement, task success rate, and user retention to measure the app's effectiveness after launch. Iterate: The UCD process is iterative. Once the app is live, Aisha should continue to collect data and feedback for future updates and improvements.</li>
+    </ol>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">10–12 marks</td><td>Excellent advice which shows: • thorough knowledge of the four phases • a confident understanding of the content of the four phases</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">7–9 marks</td><td>Very good advice, which shows: • thorough knowledge of the majority of the phases • a confident understanding of the content of the majority of the phases</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">4–6 marks</td><td>Good advice, which shows: • generally secure knowledge of multiple phases • a generally secure understanding of the content of multiple phases</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–3 marks</td><td>Basic advice, which shows: • some knowledge of at least one phase • some grasp of the content of at least one phase</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 12 Marks Total.</p>
+  `
+},
+{
+  year: 2025, num: 6,
+  title: "Media Sharing Networks features and functionalities for a clothing business",
+  marks: 5,
+  topic: "Functions, purposes and uses of social media",
+  subTopic: "Types of social media",
+  spec: "2.1.5 (a)",
+  context: "Sam owns a small clothing business.",
+  question: "Discuss how the main features and functionalities of Media Sharing Networks could benefit Sam's business.",
+  markscheme: `
+    <h4>Media Sharing Networks:</h4>
+    <p>Media sharing networks are social media platforms where users can upload, share, and engage with various types of multimedia content, such as photos, videos, and audio clips. These platforms typically focus on visual content and aim to connect individuals through shared interests, creativity, and entertainment. Examples of media sharing networks include Instagram, Snapchat, and TikTok.</p>
+    <h4>Main Features and Functionalities:</h4>
+    <ul>
+      <li><strong>Photo and Video Sharing:</strong> Users can upload and share their own photos and videos, allowing them to showcase their products, services, and behind-the-scenes content.</li>
+      <li><strong>Filters and Editing Tools:</strong> Media sharing platforms often offer filters and editing tools to enhance the visual quality of the content before sharing.</li>
+      <li><strong>Stories and Short-form Videos:</strong> Many platforms have features like Stories or short-form videos, enabling businesses to create temporary and engaging content that disappears after a certain time.</li>
+      <li><strong>Engagement Features:</strong> Users can like, comment, share, and interact with content, fostering engagement and community building.</li>
+      <li><strong>Hashtags and Discoverability:</strong> Hashtags are used to categorise content and make it discoverable to a wider audience interested in similar topics.</li>
+    </ul>
+    <h4>How Sam's Business Could Make Best Use:</h4>
+    <ul>
+      <li>Sam's clothing business can utilise media sharing networks like Instagram and TikTok to showcase their clothing line through high-quality photos and creative short videos.</li>
+      <li>They can collaborate with influencers or brand ambassadors who have a strong following on these platforms to promote their products.</li>
+      <li>Utilising features like Instagram Stories, Sam can share limited-time promotions, sneak peeks of new collections, and engage the audience through polls and interactive elements.</li>
+      <li>Utilise relevant and trending hashtags to increase the discoverability of their content to a wider audience.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO2</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5 marks</td><td>A very good discussion, which shows: • thorough knowledge of media sharing network • a confident advisement of their features and functionalities</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A good discussion, which shows: • generally secure knowledge of media sharing network • a generally secure advisement of their features and functionalities</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic discussion, which shows: • some knowledge of media sharing • some grasp of their features and functionalities</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 5 Marks Total.</p>
+  `
+},
+{
+  year: 2025, num: 7,
+  title: "Four phases in the evolution of the Internet",
+  marks: 8,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "The Internet of Things (IoT)",
+  spec: "2.1.1 (b)",
+  context: null,
+  question: "Describe the four phases in the evolution of the Internet: connectivity, networked economy, collaborative experiences, Internet of Everything (IoE).",
+  markscheme: `
+    <h4>Indicative content:</h4>
+    <ul>
+      <li><strong>Connectivity:</strong> The first phase, often referred to as the "connectivity" phase, marked the initial development of the Internet as a means to connect computers and share information. This phase started over 20 years ago and involved the creation of the underlying infrastructure, including protocols like TCP/IP, which allowed computers to communicate with each other across networks. The focus was primarily on establishing reliable communication channels and enabling data exchange between research institutions, universities, and government agencies. This phase laid the foundation for the growth of the Internet as a global network.</li>
+      <li><strong>Networked Economy:</strong> The second phase, the "networked economy" phase, emerged in the late 1990s and extended into the early 2000s. This phase saw the commercialisation of the Internet and the rise of e-commerce, online businesses, and digital marketplaces. The development of user-friendly web interfaces, secure online payment systems, and search engines revolutionised the way people conducted business and accessed information. Companies adapted to the Internet's potential for global reach, creating new business models and strategies to leverage its capabilities.</li>
+      <li><strong>Collaborative Experiences:</strong> The third phase, often referred to as the "collaborative experiences" phase, emerged in the mid-2000s and continued into the 2010s. This phase was characterised by the rise of social media, user-generated content, and collaborative platforms. Websites and applications enabled users to share, create, and collaborate on content, fostering new forms of online interaction and community building. This phase emphasised the power of user-generated content and the democratisation of information.</li>
+      <li><strong>Internet of Everything (IoE):</strong> The fourth phase, the "Internet of Everything" (IoE) phase, represents the current and ongoing stage of Internet evolution. This phase involves the interconnection of not only computers and people but also everyday objects, devices, and systems. The IoE encompasses concepts like the "Internet of Things" (IoT), where various objects are embedded with sensors, software, and connectivity to collect and exchange data. The IoE goes beyond just connectivity and includes data analysis, automation, and intelligent decision-making based on the data collected.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">7–8 marks</td><td>An excellent description which shows: • thorough knowledge of all four phases • a confident grasp of the developments in each phase</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">5–6 marks</td><td>A good description, which shows: • good knowledge of at least three of the four phases • a good grasp of the developments in each phase</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–4 marks</td><td>A basic description, which shows: • generally secure knowledge of at least two of the four phases • a generally secure grasp of the developments in each phase</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A limited description, which shows: • some knowledge of at least one of the four phases • some grasp of the developments in each phase</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 8 Marks Total.</p>
+  `
+},
+{
+  year: 2025, num: 8,
+  title: "Maintenance tasks – data, software and hardware",
+  marks: 7,
+  topic: "Digital technology development life cycles",
+  subTopic: "Maintenance",
+  spec: "2.1.3 (e)",
+  context: null,
+  question: "Suggest a maintenance task for each of the following. For each task, outline why the maintenance is important for keeping the system running smoothly: (1) Data  (2) Software  (3) Hardware",
+  markscheme: `
+    <h4>Data Maintenance:</h4>
+    <ul>
+      <li><strong>Example:</strong> Regular Data Backup. Data is a crucial component of any computer system, and ensuring its safety is essential. Regularly backing up data involves creating copies of important files and storing them in a separate location. This task is important because it helps safeguard against data loss due to hardware failures, software glitches, or accidental deletions.</li>
+      <li><strong>Example:</strong> Ensuring data is correct and up to date. It is important to ensure data is correct and companies are legally required to do this.</li>
+    </ul>
+    <h4>Software Maintenance:</h4>
+    <ul>
+      <li><strong>Example:</strong> Software Updates. Software, including operating systems and applications, requires ongoing maintenance to stay secure and functional. Regularly updating software ensures that you have the latest bug fixes, performance enhancements, and security patches. Keeping your software up to date not only enhances performance but also helps protect your system from potential security threats.</li>
+    </ul>
+    <h4>Hardware Maintenance:</h4>
+    <ul>
+      <li><strong>Example:</strong> Dust and Debris Cleaning. Hardware components can accumulate dust and debris over time. Regularly cleaning the hardware helps prevent overheating and performance issues. Dust can block airflow and cause components to operate at higher temperatures, which can lead to reduced performance and even hardware damage. Cleaning the hardware can extend the lifespan of your computer and maintain optimal performance.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–7 marks</td><td>A very good description, which shows: • thorough knowledge of all the three maintenance tasks • a confident understanding of the importance of each task</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–5 marks</td><td>A good description, which shows: • generally secure knowledge of at least two of the three maintenance tasks • a generally secure understanding of the importance of each task</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A basic description, which shows: • some knowledge of at least one of the three maintenance tasks • some understanding of the importance of each task</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 7 Marks Total.</p>
+  `
+},
+{
+  year: 2025, num: 9,
+  title: "Environmental impact of the ongoing proliferation of devices",
+  marks: 11,
+  topic: "Connected digital systems and smart devices",
+  subTopic: "Use of smart devices in domestic settings, the built environment and manufacturing",
+  spec: "2.1.1 (c)",
+  context: null,
+  question: "Describe the environmental impact of the ongoing proliferation of devices.",
+  markscheme: `
+    <h4>Indicative Content:</h4>
+    <ul>
+      <li><strong>Manufacturing:</strong> The production of electronic devices involves mining, extraction, and processing of raw materials such as metals (e.g., gold, silver, copper), minerals, and rare-earth elements. These processes contribute to habitat destruction, soil and water pollution, and energy-intensive activities that emit greenhouse gases. The mining of minerals often results in habitat disruption and deforestation, affecting biodiversity and ecosystem health.</li>
+      <li><strong>Use:</strong> The operation of electronic devices requires energy, primarily sourced from fossil fuels in many regions. As more devices are used, energy consumption increases, contributing to carbon dioxide emissions and exacerbating climate change. Moreover, excessive use of devices can lead to overconsumption of electricity, leading to higher utility bills and a greater demand for power generation.</li>
+      <li><strong>Disposal:</strong> Obsolete and discarded devices contribute to the growing problem of electronic waste (e-waste). Improper disposal of e-waste, often containing hazardous materials like lead, mercury, and flame retardants, can lead to soil and water contamination. Burning e-waste for metal recovery releases toxic fumes and pollutants into the atmosphere.</li>
+      <li><strong>Consumption of Finite Resources:</strong> The production of devices relies on a range of finite resources, including rare-earth metals. The extraction of these resources can lead to environmental degradation and geopolitical tensions due to resource scarcity. As the demand for devices continues to grow, the pressure on these finite resources increases, risking resource depletion and further environmental harm.</li>
+    </ul>
+    <table class="band-table">
+      <tr><th>Band</th><th>AO1</th><th>Content Description</th></tr>
+      <tr><td class="band-num">4</td><td class="marks-badge">9–11 marks</td><td>An excellent description which shows: • thorough knowledge of the environmental impacts of the ongoing proliferation of devices • a confident description of the impacts in terms of manufacture, use and disposal</td></tr>
+      <tr><td class="band-num">3</td><td class="marks-badge">6–8 marks</td><td>A good discussion, which shows: • good knowledge of the environmental impacts of the ongoing proliferation of devices • a good description of the impacts in terms of manufacture, use and disposal</td></tr>
+      <tr><td class="band-num">2</td><td class="marks-badge">3–5 marks</td><td>A basic description, which shows: • generally secure knowledge of the environmental impacts of the ongoing proliferation of devices • a general understanding of the impacts in terms of manufacture, use and disposal</td></tr>
+      <tr><td class="band-num">1</td><td class="marks-badge">1–2 marks</td><td>A limited description, which shows: • some knowledge of the environmental impacts of the ongoing proliferation of devices • some understanding of some of the impacts in terms of manufacture, use and disposal</td></tr>
+    </table>
+    <p><strong>Marks:</strong> 11 Marks Total.</p>
+  `
+}
+
+]; // end questions array
+
+/* ── Data shaping: split multi-part questions into examinable entries ── */
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function parsePartMarks(marks, markscheme, label) {
+  const clean = label.toLowerCase().trim();
+  const msText = markscheme.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  const patterns = [
+    new RegExp(`(\\d+)\\s+for\\s+part\\s+${escapeRegex(clean)}`, 'i'),
+    new RegExp(`(\\d+)\\s+for\\s+${escapeRegex(clean)}`, 'i'),
+    new RegExp(`part\\s+${escapeRegex(clean)}\\s*[:\-]?\\s*(\\d+)`, 'i')
+  ];
+  for (const pattern of patterns) {
+    const match = msText.match(pattern);
+    if (match) return Number(match[1]);
+  }
+  if (!/[()]/.test(clean)) {
+    const compact = clean.replace(/\s+/g, '');
+    const loose = msText.match(new RegExp(`(\\d+)\\s+for\\s+part\\s+${escapeRegex(compact)}`, 'i'));
+    if (loose) return Number(loose[1]);
+  }
+  return null;
+}
+
+function extractMarkschemeForPart(markscheme, label) {
+  const lowerLabel = label.toLowerCase().trim();
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = markscheme;
+  const h4s = Array.from(wrapper.querySelectorAll('h4'));
+  if (!h4s.length) return markscheme;
+
+  const targetHeading = h4s.find(h => {
+    const text = h.textContent.toLowerCase().replace(/\s+/g, ' ').trim();
+    return text.includes(`(${lowerLabel})`) ||
+           text.startsWith(`${lowerLabel})`) ||
+           text.includes(`${lowerLabel}:`) ||
+           text.includes(lowerLabel + ' ');
+  });
+
+  if (!targetHeading) return markscheme;
+
+  let html = '';
+  let node = targetHeading;
+  while (node) {
+    if (node !== targetHeading && node.tagName === 'H4') break;
+    html += node.outerHTML || node.textContent || '';
+    node = node.nextElementSibling;
+  }
+  return html || markscheme;
+}
+
+const amplificationMap = {
+  "2024-1-a": "social and health issues related to human-computer interaction and methods of mitigating these issues",
+  "2024-1-b": "types and comparison of input method and user interface, and justification for their use in different circumstances",
+  "2024-2": "the positive and negative impacts of the IoT",
+  "2024-3-a": "the difference between traditional algorithms and ML algorithms used in AI",
+  "2024-3-b": "the difference between supervised, semi-supervised and unsupervised learning within ML",
+  "2024-4-a": "the need for maintenance of digital technologies following release",
+  "2024-4-b": "the types of maintenance that may be required, including: preventive, corrective, adaptive, perfective",
+  "2024-5": "the possible anxieties caused by the proliferation of AI; ways to protect against the unintended consequences of using AI, including regulation",
+  "2024-6-a": "types of development methodologies, including: Waterfall and Big Bang; the advantages and disadvantages of these methodologies and justification of their use in different scenarios",
+  "2024-6-b": "the phases within the development of digital technologies: testing",
+  "2024-7": "the main considerations of UCD: visibility, accessibility, legibility, language",
+  "2024-8": "the legal, ethical and professional implications for the use of social media by individuals and organisations",
+  "2024-9": "the four stages within the S-curve model; the S-curve model in terms of economic benefits; the classification of users that take up new technologies",
+
+  "2023-1-a(i)": "the main components of network communication hardware and be able to explain their role in the transmission of data",
+  "2023-1-a(ii)": "the main components of network communication hardware and be able to explain their role in the transmission of data",
+  "2023-1-a(iii)": "the main components of network communication hardware and be able to explain their role in the transmission of data",
+  "2023-1-b": "common types of transmission media: wired (CAT5, CAT6, CAT6a)",
+  "2023-2-a": "the four phases in the evolution of the Internet",
+  "2023-2-b": "the need for IPv6 (due to the limitations of IPv4) to implement the IoT",
+  "2023-3-a": "tests used to confirm human-level AGI and how they are applied: The Turing test",
+  "2023-3-b": "tests used to confirm human-level AGI and how they are applied: Nilsson’s Employment Test",
+  "2023-4-a": "the term robot",
+  "2023-4-b": "the relative advantages and disadvantages of using robots in a variety of scenarios",
+  "2023-5-a": "methods of changeover: parallel, phased, pilot, direct",
+  "2023-5-b": "the advantages and disadvantages of each method and justification of their use in different scenarios",
+  "2023-6": "social and health issues related to human-computer interaction and their impact when using mobile devices and desktop and laptop devices; methods of mitigating these issues",
+  "2023-7-a": "common features and functionalities of social media",
+  "2023-7-b(i)": "the legal implications for the use of social media by individuals and organisations",
+  "2023-7-b(ii)": "the ethical implications for the use of social media by individuals and organisations",
+  "2023-8": "the positive and negative impacts of the underlying technologies",
+  "2023-9": "Digital user experience (DUX): design, navigability, performance, efficiency, cross-platform compatibility",
+
+  "2025-1-a": "protocols and standards",
+  "2025-1-b": "protocols and platforms that are commonly used by digital systems: TCP/IP",
+  "2025-2-a": "the positive and negative impacts of social media use by individuals",
+  "2025-2-b": "how organisations use social media platforms to interact with their customers",
+  "2025-3": "the phases within the development of digital technologies: feasibility study, requirements analysis, release",
+  "2025-4-a": "the three enablers of AI and how these have impacted AI’s proliferation",
+  "2025-4-b": "common uses of AI, including cyber security",
+  "2025-5": "the four phases within the UCD process: specifying the context of use, specifying requirements, creating design solutions, evaluating designs",
+  "2025-6": "types of social media: Media Sharing Networks; common features and functionalities of social media",
+  "2025-7": "the four phases in the evolution of the Internet",
+  "2025-8": "examples of maintenance that can apply to data, software and hardware",
+  "2025-9": "the environmental impacts of the proliferation of devices in terms of their manufacture, use and disposal, as well as the consumption of finite resources such as electricity"
+};
+
+function deriveAmplificationPoint(entryId, q, part) {
+  return amplificationMap[entryId] || q.spec || '';
+}
+
+function flattenQuestions(sourceQuestions) {
+  const flat = [];
+  sourceQuestions.forEach(q => {
+    if (q.parts && q.parts.length) {
+      q.parts.forEach((part, idx) => {
+        const entryId = `${q.year}-${q.num}-${part.label}`;
+        const partMarks = parsePartMarks(q.marks, q.markscheme || '', part.label) ?? q.marks;
+        flat.push({
+          ...q,
+          entryId,
+          entryLabel: `Q${q.num} (${part.label})`,
+          parentTitle: q.title,
+          title: part.text,
+          question: part.text,
+          parts: null,
+          partLabel: part.label,
+          marks: partMarks,
+          markscheme: extractMarkschemeForPart(q.markscheme || '', part.label),
+          specPoint: deriveAmplificationPoint(entryId, q, part)
+        });
+      });
+    } else {
+      const entryId = `${q.year}-${q.num}`;
+      flat.push({
+        ...q,
+        entryId,
+        entryLabel: `Q${q.num}`,
+        partLabel: '',
+        specPoint: deriveAmplificationPoint(entryId, q, null)
+      });
+    }
+  });
+  return flat;
+}
+
+const questionEntries = flattenQuestions(questions);
+
+/* ── Render ── */
+function buildCard(q) {
+  const yearClass = `year-${q.year}`;
+  const card = document.createElement('div');
+  card.className = `question-card ${yearClass}`;
+  card.dataset.year = String(q.year);
+  card.dataset.topic = (q.topic || '').toLowerCase();
+  card.dataset.subtopic = (q.subTopic || '').toLowerCase();
+  card.dataset.specpoint = (q.specPoint || '').toLowerCase();
+  card.dataset.text = [
+    q.entryLabel,
+    q.parentTitle,
+    q.title,
+    q.topic,
+    q.subTopic,
+    q.specPoint,
+    q.context,
+    q.question,
+    q.partLabel
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  card.innerHTML = `
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="q-number">${q.entryLabel}</div>
+      </div>
+      <div style="flex:1">
+        <div class="q-title">${q.question || q.title}</div>
+        <div class="q-meta">
+          <span>📅 ${q.year}</span>
+          ${q.partLabel ? `<span>🧩 Part ${q.partLabel}</span>` : ''}
+          <span>🏷 ${q.marks} marks</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      ${q.context ? `
+      <div class="section">
+        <div class="section-title">📌 Context</div>
+        <div class="context-box">${q.context}</div>
+      </div>` : ''}
+      <div class="section">
+        <div class="section-title">❓ Question</div>
+        <div class="question-text">
+          <p>${q.question || ''}</p>
+        </div>
+      </div>
+      <div class="ms-toggle" onclick="toggleMS(this)">
+        <span>📝 Mark Scheme</span>
+        <span style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+          <span class="marks-total">${q.marks} marks</span>
+          <span class="ms-chevron">▼</span>
+        </span>
+      </div>
+      <div class="ms-body">
+        ${q.markscheme}
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function toggleCard(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+function toggleMS(toggle) {
+  toggle.classList.toggle('open');
+  toggle.nextElementSibling.classList.toggle('open');
+}
+
+const container = document.getElementById('questions-container');
+const cards = [];
+questionEntries.forEach(q => {
+  const card = buildCard(q);
+  container.appendChild(card);
+  cards.push(card);
+});
+
+/* ── Filter & Search ── */
+let activeYear = 'all';
+let activeTopic = 'all';
+let activeSubTopic = 'all';
+let searchTerm = '';
+
+const topicFilter = document.getElementById('topic-filter');
+const subtopicFilter = document.getElementById('subtopic-filter');
+
+function populateSelect(select, values, placeholder) {
+  const current = select.value || 'all';
+  select.innerHTML = `<option value="all">${placeholder}</option>` + values.map(v => `<option value="${v}">${v}</option>`).join('');
+  const valid = ['all', ...values];
+  select.value = valid.includes(current) ? current : 'all';
+}
+
+
+function updateFilterOptions() {
+  const yearScoped = questionEntries.filter(q => activeYear === 'all' || String(q.year) === activeYear);
+  const topics = [...new Set(yearScoped.map(q => q.topic).filter(Boolean))].sort();
+  populateSelect(topicFilter, topics, 'All topics');
+  if (activeTopic !== 'all' && !topics.includes(activeTopic)) activeTopic = 'all';
+  topicFilter.value = activeTopic;
+
+  const topicScoped = questionEntries.filter(q => (activeYear === 'all' || String(q.year) === activeYear) && (activeTopic === 'all' || q.topic === activeTopic));
+  const subtopics = [...new Set(topicScoped.map(q => q.subTopic).filter(Boolean))].sort();
+  populateSelect(subtopicFilter, subtopics, 'All sub-topics');
+  if (activeSubTopic !== 'all' && !subtopics.includes(activeSubTopic)) activeSubTopic = 'all';
+  subtopicFilter.value = activeSubTopic;
+}
+
+function updateStats() {
+  const visible = cards.filter(c => !c.classList.contains('hidden')).length;
+  document.getElementById('stats').textContent = `Showing ${visible} of ${cards.length} examinable entries`;
+  document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+}
+
+function applyFilters() {
+  updateFilterOptions();
+  cards.forEach(card => {
+    const yearMatch = activeYear === 'all' || card.dataset.year === activeYear;
+    const topicMatch = activeTopic === 'all' || card.dataset.topic === activeTopic.toLowerCase();
+    const subTopicMatch = activeSubTopic === 'all' || card.dataset.subtopic === activeSubTopic.toLowerCase();
+    const searchMatch = !searchTerm || card.dataset.text.includes(searchTerm);
+    card.classList.toggle('hidden', !(yearMatch && topicMatch && subTopicMatch && searchMatch));
+  });
+  updateStats();
+}
+
+/* ── Revision checklist data ── */
+const revisionChecklist = [
+  {
+    topic: "2.1.1 Connected digital systems and smart devices",
+    subtopics: [
+      {
+        title: "(a) How digital systems connect",
+        items: [
+          "the main components of network communication hardware and be able to explain their role in the transmission of data",
+          "protocols and standards",
+          "protocols and platforms that are commonly used by digital systems",
+          "how Ethernet functions",
+          "how Wi-Fi functions",
+          "how Bluetooth functions",
+          "how TCP/IP functions",
+          "how 2G (GSM) / 2.5G (GPRS) / 3G / 4G / 5G function",
+          "how wired transmission media function: CAT5, CAT6, CAT6a",
+          "how fibre transmission media function: FTTC and FTTP",
+          "how wireless transmission media function: radio, microwave, satellite, infrared",
+          "comparative capacity of wired, fibre and wireless media",
+          "that networks may be wired or wireless, LANs/WLANs or WANs",
+          "common uses of network types and differences in transmission speeds between LANs and WANs"
+        ]
+      },
+      {
+        title: "(b) The Internet of Things (IoT)",
+        items: [
+          "the four phases in the evolution of the Internet: connectivity, networked economy, collaborative experiences, Internet of Everything (IoE)",
+          "the Internet of Things (IoT) in terms of a network of physical objects, with a unique identifier, combined with an embedded system of sensors, software and communication technologies",
+          "the definition of ‘things’ in terms of physical objects, machines, interactive devices and assistive devices",
+          "the need for IPv6 (due to the limitations of IPv4) to implement the IoT",
+          "the four pillars of the IoE: people, process, data, things",
+          "the three main interactions within the IoE: People to People (P2P), Machine to People (M2P), Machine to Machine (M2M)"
+        ]
+      },
+      {
+        title: "(c) Use of smart devices in domestic settings, the built environment and manufacturing",
+        items: [
+          "the contexts smart devices are typically used within the home (e.g. smart speakers, TVs, fridges, watches)",
+          "the contexts smart devices are typically used within the built environment (e.g. heating, lighting, parking)",
+          "the contexts smart devices are typically used within manufacturing (e.g. Industry 4.0, scanners, smart glasses)",
+          "the underlying technologies, including sensors",
+          "the underlying technologies, including software and communication technologies",
+          "how the device(s) controls the required process(es)",
+          "the positive and negative impacts of the underlying technologies",
+          "the social, legal, ethical and professional impact of the use of smart devices in the home and workplace",
+          "the environmental impacts of the proliferation of devices in terms of their manufacture, use and disposal, as well as the consumption of finite resources such as electricity"
+        ]
+      },
+      {
+        title: "(d) Impacts of the IoT",
+        items: [
+          "the positive impacts of the IoT",
+          "the negative impacts of the IoT"
+        ]
+      }
+    ]
+  },
+  {
+    topic: "2.1.2 The development of Artificial Intelligence",
+    subtopics: [
+      {
+        title: "(a) Artificial Intelligence (AI)",
+        items: [
+          "the term Artificial Intelligence (AI) in terms of the simulation of intelligent behaviour by a computer which enables a machine to make decisions without human intervention",
+          "the theoretical concepts of Artificial General Intelligence (AGI), Artificial Narrow Intelligence (Specialist AI/ANI) and the differences between them",
+          "The Turing test and how it is applied",
+          "Wozniak/Goertzel’s Coffee Test and how it is applied",
+          "Nilsson’s Employment Test and how it is applied",
+          "Goertzel’s Robot College Student Test and how it is applied",
+          "the exponential growth in the speed of computers as an enabler of AI",
+          "Huang’s Law as an enabler of AI",
+          "cloud computing as an enabler of AI",
+          "the ethical constraints and social implications of AI"
+        ]
+      },
+      {
+        title: "(b) Machine Learning (ML)",
+        items: [
+          "Machine Learning (ML) is a subset of Artificial Intelligence (AI) in terms of algorithms that can adapt without following explicit instructions",
+          "the difference between traditional algorithms and ML algorithms used in AI in terms of the results of ML algorithms returning probabilities not certainties",
+          "the difference between traditional algorithms and ML algorithms used in AI in terms of the instructions not being pre-set in advance but learned from training data",
+          "the difference between supervised, semi-supervised and unsupervised learning within ML"
+        ]
+      },
+      {
+        title: "(c) Robotics",
+        items: [
+          "the term robot",
+          "the main components of a contemporary robotic system and the role of these components",
+          "Teach Pendant Programming (Drive Through)",
+          "Teach by Example (Lead Through)",
+          "Graphical-offline programming (simulation)",
+          "the uses of different types of robots in a variety of scenarios (e.g. the home, education, manufacturing)",
+          "the relative advantages and disadvantages of using robots in a variety of scenarios",
+          "the concerns that individuals may have with the development of autonomous robots",
+          "the potential unintended consequences of the development of autonomous robots",
+          "how developers can protect against unintended consequences (e.g. Asimov’s rules, conformance to a legal and ethical framework)",
+          "the social and ethical implications associated with the increased use of robotics"
+        ]
+      },
+      {
+        title: "(d) Applications, functions and potential uses of AI systems",
+        items: [
+          "conditional probability as an underpinning technology of AI",
+          "suggestion engines as an underpinning technology of AI",
+          "pattern recognition and prediction rules as underpinning technologies of AI",
+          "neural networks as equations using massive models, massive data, trial and error, and Deep Learning",
+          "Simultaneous Location and Mapping (SLAM) as a type of problem AI can solve",
+          "language recognition as a type of problem AI can solve",
+          "machine translation as a type of problem AI can solve",
+          "anomaly detection as a type of problem AI can solve",
+          "image recognition as a type of problem AI can solve",
+          "common uses of AI: translation engines, healthcare, cyber security, transport, entertainment, education, voice command, social networking, shopping, finance, communication"
+        ]
+      },
+      {
+        title: "(e) Impacts of AI",
+        items: [
+          "the possible anxieties caused by the proliferation of AI",
+          "ways to protect against the unintended consequences of using AI, including regulation"
+        ]
+      }
+    ]
+  },
+  {
+    topic: "2.1.3 Digital technology development life cycles",
+    subtopics: [
+      {
+        title: "(a) The stages of the digital technology development life cycle",
+        items: [
+          "the four stages within the S-curve model: research and development, ascent, maturity, decline",
+          "the S-curve model in terms of economic benefits",
+          "the classification of users that take up new technologies"
+        ]
+      },
+      {
+        title: "(b) How digital technologies are designed",
+        items: [
+          "the phases within the development of digital technologies: feasibility study, requirements analysis, design, software development, testing, release",
+          "the role(s) of individuals within a development team in each of these phases"
+        ]
+      },
+      {
+        title: "(c) Relevant approaches and methodologies",
+        items: [
+          "Waterfall methodology",
+          "Rapid Application Development (RAD) methodology",
+          "Agile methodology",
+          "Big Bang methodology",
+          "Spiral methodology",
+          "the advantages and disadvantages of development methodologies and justification of their use in different scenarios"
+        ]
+      },
+      {
+        title: "(d) Changeover",
+        items: [
+          "methods of changeover: parallel, phased, pilot, direct",
+          "the advantages and disadvantages of each changeover method and justification of their use in different scenarios"
+        ]
+      },
+      {
+        title: "(e) Maintenance",
+        items: [
+          "the need for maintenance of digital technologies following release",
+          "preventive maintenance",
+          "corrective maintenance",
+          "adaptive maintenance",
+          "perfective maintenance",
+          "examples of maintenance that can apply to data, software and hardware",
+          "the advantages and disadvantages of maintenance types and justification of their use in different contexts"
+        ]
+      }
+    ]
+  },
+  {
+    topic: "2.1.4 User-centred design, user experience and human-computer interaction in digital systems development",
+    subtopics: [
+      {
+        title: "(a) Human-computer interaction",
+        items: [
+          "human-computer interaction as a study of the User Interface (UI) between people and computers",
+          "interfaces and input methods",
+          "types and comparison of input method and user interface, and justification for their use in different circumstances",
+          "social and health issues related to human-computer interaction and their impact when using mobile devices",
+          "social and health issues related to human-computer interaction and their impact when using desktop and laptop devices",
+          "social and health issues related to human-computer interaction and their impact when using peripheral devices",
+          "social and health issues related to human-computer interaction and their impact when using augmented reality and virtual reality devices",
+          "social and health issues related to human-computer interaction and their impact when using software applications",
+          "methods of mitigating these issues"
+        ]
+      },
+      {
+        title: "(b) User-Centred Design (UCD)",
+        items: [
+          "user-centred design (UCD) in terms of an iterative process where designers focus on the users and their needs in each phase of the design process",
+          "the purpose of UCD in terms of the product being designed to the needs of the user rather than the user having to adapt to the product",
+          "a clear understanding of user and task requirements",
+          "incorporation of user feedback",
+          "active involvement of the user to evaluate the design of a product",
+          "integrating UCD with other development activities",
+          "an iterative design process",
+          "the four phases within the UCD process: specifying the context of use, specifying requirements, creating design solutions, evaluating designs",
+          "how requirements are noted and refined through ethnographic study",
+          "how requirements are noted and refined through continual feedback",
+          "how requirements are noted and refined through contextual enquiry",
+          "how requirements are noted and refined through prototype and usability testing",
+          "personas",
+          "scenarios",
+          "use cases",
+          "visibility as a main consideration of UCD",
+          "accessibility as a main consideration of UCD",
+          "legibility as a main consideration of UCD",
+          "language as a main consideration of UCD"
+        ]
+      },
+      {
+        title: "(c) Digital User Experience (DUX)",
+        items: [
+          "Digital User Experience (DUX) in terms of design",
+          "Digital User Experience (DUX) in terms of navigability",
+          "Digital User Experience (DUX) in terms of performance",
+          "Digital User Experience (DUX) in terms of efficiency",
+          "Digital User Experience (DUX) in terms of cross-platform compatibility",
+          "the scope of DUX in wearables",
+          "the scope of DUX in virtual or augmented reality",
+          "the aesthetics of design when considering and evaluating DUX",
+          "information architecture when considering and evaluating DUX",
+          "accessibility when considering and evaluating DUX",
+          "human computer interaction when considering and evaluating DUX",
+          "ergonomics when considering and evaluating DUX",
+          "utility when considering and evaluating DUX",
+          "performance when considering and evaluating DUX",
+          "task success rate as a metric used to test and evaluate DUX",
+          "task completion time as a metric used to test and evaluate DUX",
+          "retention rate as a metric used to test and evaluate DUX",
+          "conversion rate as a metric used to test and evaluate DUX",
+          "error rate as a metric used to test and evaluate DUX",
+          "satisfaction as a metric used to test and evaluate DUX",
+          "heuristic evaluation as a metric used to test and evaluate DUX"
+        ]
+      }
+    ]
+  },
+  {
+    topic: "2.1.5 Functions, purposes and uses of social media by individuals and organisations",
+    subtopics: [
+      {
+        title: "(a) Types of social media",
+        items: [
+          "social media in terms of digital platforms that permit the creation or sharing of information via virtual communities",
+          "social networking sites",
+          "media sharing networks",
+          "discussion networks",
+          "bookmarking and content curation",
+          "consumer review networks",
+          "blogging networks",
+          "social shopping networks",
+          "interest based social networks",
+          "anonymous social networks",
+          "merged social media and gaming",
+          "the main features and functionalities of different types of social media"
+        ]
+      },
+      {
+        title: "(b) Functions of social media",
+        items: [
+          "profile setting",
+          "status/wall posts",
+          "uploading media",
+          "messaging",
+          "notifications",
+          "newsfeeds",
+          "comments/reactions",
+          "sharing",
+          "saving/bookmarking",
+          "privacy and security settings",
+          "integration with other social media platforms"
+        ]
+      },
+      {
+        title: "(c) Purpose and uses of social media",
+        items: [
+          "the purpose of social media for individuals",
+          "the purpose of social media for organisations",
+          "the legal implications of different uses of social media",
+          "the ethical implications of different uses of social media",
+          "the professional implications of different uses of social media"
+        ]
+      },
+      {
+        title: "(d) Impacts of social media use",
+        items: [
+          "the positive impacts of the use of social media by individuals and organisations",
+          "the negative impacts of the use of social media by individuals and organisations"
+        ]
+      }
+    ]
+  }
+];
+
+const checklistStorageKey = 'unit1RevisionChecklistV1';
+
+function slugifyChecklist(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function getChecklistState() {
+  try { return JSON.parse(localStorage.getItem(checklistStorageKey) || '{}'); }
+  catch { return {}; }
+}
+
+function saveChecklistState(state) {
+  localStorage.setItem(checklistStorageKey, JSON.stringify(state));
+}
+
+function renderChecklist() {
+  const container = document.getElementById('checklist-container');
+  const state = getChecklistState();
+  container.innerHTML = revisionChecklist.map((topic, topicIndex) => `
+    <div class="topic-section">
+      <div class="topic-section-header" data-topic-index="${topicIndex}">
+        <h3>${topic.topic}</h3>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="topic-section-body ${topicIndex === 0 ? 'open' : ''}">
+        ${topic.subtopics.map((sub, subIndex) => `
+          <div class="subtopic-block">
+            <div class="subtopic-title">${sub.title}</div>
+            ${sub.items.map((item, itemIndex) => {
+              const id = `${topicIndex}-${subIndex}-${itemIndex}`;
+              const checked = !!state[id];
+              return `
+                <div class="check-item ${checked ? 'checked' : ''}">
+                  <input type="checkbox" id="check-${id}" data-check-id="${id}" ${checked ? 'checked' : ''}>
+                  <label for="check-${id}">${item}</label>
+</div>
+              `;
+            }).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('input[type="checkbox"]').forEach(box => {
+    box.addEventListener('change', e => {
+      const id = e.target.dataset.checkId;
+      const updated = getChecklistState();
+      updated[id] = e.target.checked;
+      saveChecklistState(updated);
+      e.target.closest('.check-item').classList.toggle('checked', e.target.checked);
+      updateChecklistProgress();
+    });
+  });
+
+  container.querySelectorAll('.topic-section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.classList.toggle('open');
+      header.nextElementSibling.classList.toggle('open');
+    });
+  });
+
+  updateChecklistProgress();
+}
+
+function updateChecklistProgress() {
+  const state = getChecklistState();
+  let total = 0;
+  let complete = 0;
+  revisionChecklist.forEach(topic => topic.subtopics.forEach(sub => sub.items.forEach((_, idx) => total++)));
+  Object.values(state).forEach(v => { if (v) complete++; });
+  const pct = total ? Math.round((complete / total) * 100) : 0;
+  document.getElementById('checklist-progress-fill').style.width = `${pct}%`;
+  document.getElementById('checklist-progress-text').textContent = `${complete} of ${total} completed`;
+  document.getElementById('checklist-progress-percent').textContent = `${pct}%`;
+}
+
+document.getElementById('checklist-toggle').addEventListener('click', () => {
+  document.getElementById('checklist-body').classList.toggle('open');
+  document.querySelector('#checklist-toggle .chevron').classList.toggle('open');
+});
+
+document.getElementById('checklist-expand-all').addEventListener('click', () => {
+  document.querySelectorAll('.topic-section-body').forEach(b => b.classList.add('open'));
+});
+document.getElementById('checklist-collapse-all').addEventListener('click', () => {
+  document.querySelectorAll('.topic-section-body').forEach(b => b.classList.remove('open'));
+});
+document.getElementById('checklist-clear').addEventListener('click', () => {
+  localStorage.removeItem(checklistStorageKey);
+  renderChecklist();
+});
+
+
+renderChecklist();
+applyFilters();
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeYear = btn.dataset.year;
+    applyFilters();
+  });
+});
+
+topicFilter.addEventListener('change', e => {
+  activeTopic = e.target.value;
+  activeSubTopic = 'all';
+  applyFilters();
+});
+
+subtopicFilter.addEventListener('change', e => {
+  activeSubTopic = e.target.value;
+  applyFilters();
+});
+
+
+document.getElementById('search-box').addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase();
+  applyFilters();
+});
+
+document.getElementById('expand-all').addEventListener('click', () => {
+  cards.filter(c => !c.classList.contains('hidden')).forEach(card => {
+    card.querySelector('.card-header').classList.add('open');
+    card.querySelector('.card-body').classList.add('open');
+  });
+});
+
+document.getElementById('collapse-all').addEventListener('click', () => {
+  cards.forEach(card => {
+    card.querySelector('.card-header').classList.remove('open');
+    card.querySelector('.card-body').classList.remove('open');
+    card.querySelectorAll('.ms-toggle').forEach(t => t.classList.remove('open'));
+    card.querySelectorAll('.ms-body').forEach(b => b.classList.remove('open'));
+  });
+});
+
+updateFilterOptions();
+updateStats();
+</script>
+</body>
+</html>
