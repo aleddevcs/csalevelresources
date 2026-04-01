@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptography Interactive Lab (8.2.3/4)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+        .bit-btn { transition: all 0.2s; user-select: none; }
+        .bit-btn.active { background-color: #2563eb; color: white; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4); }
+        .font-mono-custom { font-family: 'Fira Code', monospace; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 600; }
+        .logic-card { transition: transform 0.2s; }
+        .logic-card:hover { transform: scale(1.02); }
+        
+        /* Animation for the Key Exchange */
+        @keyframes slide {
+            0% { transform: translateX(0); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateX(250px); opacity: 0; }
+        }
+        .animate-transfer { animation: slide 2s linear forwards; }
+        .intercept-glow { animation: pulse-red 1s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-slate-900 p-6 text-white border-b border-slate-800">
+            <h1 class="text-3xl font-bold">Cryptography Interactive Lab</h1>
+            <p class="text-slate-400 mt-2">8.2.3 Algorithms & 8.2.4 Relative Strength</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-slate-200 bg-white sticky top-0 z-10">
+            <button onclick="switchTab('caesar')" id="tab-caesar" class="flex-1 py-4 text-center hover:bg-slate-50 transition-colors tab-active">Caesar Cipher</button>
+            <button onclick="switchTab('xor')" id="tab-xor" class="flex-1 py-4 text-center hover:bg-slate-50 transition-colors">XOR Logic</button>
+            <button onclick="switchTab('compare')" id="tab-compare" class="flex-1 py-4 text-center hover:bg-slate-50 transition-colors">Symmetric vs Asymmetric</button>
+        </div>
+
+        <div class="p-6">
+            
+            <!-- CAESAR CIPHER MODULE -->
+            <div id="module-caesar" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">Step 1</span>
+                            Modulo 26 Arithmetic
+                        </h2>
+                        <p class="text-slate-600 text-sm">Each letter is shifted by a key $k$. The formula is $C = (P + k) \mod 26$.</p>
+                        
+                        <div class="bg-slate-100 p-4 rounded-lg space-y-4 border border-slate-200">
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Plaintext Message</label>
+                                <input type="text" id="c-input" value="HELLO" maxlength="12" 
+                                    class="w-full p-2 border rounded font-mono-custom uppercase tracking-widest focus:ring-2 focus:ring-blue-500 outline-none"
+                                    oninput="processCaesar()">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-1">Shift Key ($k$): <span id="k-val" class="text-blue-600">3</span></label>
+                                <input type="range" id="c-key" min="0" max="25" value="3" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                                    oninput="document.getElementById('k-val').innerText = this.value; processCaesar();">
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                            <h3 class="text-red-700 font-bold text-sm uppercase">Weakness: Frequency Analysis</h3>
+                            <p class="text-xs text-red-600 mt-1">In English, 'E' is the most common letter. If a hacker sees one letter appearing frequently in your code, they can guess the shift in seconds!</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 rounded-xl p-6 text-blue-400 font-mono-custom text-sm overflow-y-auto max-h-[400px]">
+                        <h3 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Calculation Log</h3>
+                        <div id="c-log" class="space-y-2"></div>
+                        <div class="mt-6 pt-4 border-t border-slate-700 text-white">
+                            <span class="text-slate-500">FINAL CIPHERTEXT:</span>
+                            <div id="c-result" class="text-2xl font-bold tracking-widest text-emerald-400 mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XOR LOGIC MODULE -->
+            <div id="module-xor" class="hidden space-y-6">
+                <div class="bg-white p-4 border rounded-xl shadow-sm space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">XOR Binary Sandbox</h2>
+                        <div class="text-xs bg-slate-100 px-3 py-1 rounded">Rule: $1 \oplus 1 = 0 \mid 0 \oplus 0 = 0 \mid 1 \oplus 0 = 1$</div>
+                    </div>
+
+                    <!-- Plaintext Row -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-bold text-slate-500 uppercase tracking-tighter">Plaintext Binary (e.g. 'O')</span>
+                            <span id="p-dec" class="text-xs font-mono bg-slate-100 p-1 rounded">DEC: 79</span>
+                        </div>
+                        <div class="flex gap-2" id="p-bits"></div>
+                    </div>
+
+                    <!-- Key Row -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-bold text-blue-500 uppercase tracking-tighter">Secret Key (8-bit)</span>
+                            <span id="k-dec" class="text-xs font-mono bg-blue-50 p-1 rounded">DEC: 243</span>
+                        </div>
+                        <div class="flex gap-2" id="k-bits"></div>
+                    </div>
+
+                    <div class="h-px bg-slate-200 my-4"></div>
+
+                    <!-- Result Row -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-bold text-emerald-600 uppercase tracking-tighter">Resulting Ciphertext</span>
+                            <span id="c-dec" class="text-xs font-mono bg-emerald-50 p-1 rounded">DEC: 188</span>
+                        </div>
+                        <div class="flex gap-2" id="xor-result"></div>
+                    </div>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded text-sm italic">
+                        <strong>Try this:</strong> Use the same Key on the Ciphertext. You will get the Plaintext back! This is why XOR is common but <strong>must</strong> have a long, secret key.
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPARISON MODULE -->
+            <div id="module-compare" class="hidden space-y-6">
+                <div class="bg-white p-6 border rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-4">Transfer Simulator</h2>
+                    <p class="text-sm text-slate-600 mb-6">Learn why <strong>Asymmetric</strong> is essential for the Internet by trying to send a message to computer B.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Simulation Box -->
+                        <div class="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200 relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-12">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl mb-2">💻</div>
+                                    <span class="text-xs font-bold uppercase">Sender</span>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-2xl mb-2">🖥️</div>
+                                    <span class="text-xs font-bold uppercase">Receiver</span>
+                                </div>
+                            </div>
+
+                            <!-- Interceptor (Invisible by default) -->
+                            <div id="hacker" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-0 transition-opacity">
+                                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white text-xl mb-1 intercept-glow">🕵️</div>
+                                <span class="text-[10px] text-red-600 font-bold uppercase">Hacker Intercepted!</span>
+                            </div>
+
+                            <!-- Traveling Item -->
+                            <div id="traveler" class="absolute left-20 top-24 text-2xl hidden">🔑</div>
+
+                            <div class="flex flex-col gap-3 mt-8">
+                                <button onclick="simulateSymmetric()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-lg transition-colors font-semibold">
+                                    Try Symmetric Transfer
+                                </button>
+                                <button onclick="simulateAsymmetric()" class="bg-purple-600 hover:bg-purple-700 text-white text-sm py-2 px-4 rounded-lg transition-colors font-semibold">
+                                    Try Asymmetric Transfer
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Info/Results Box -->
+                        <div id="sim-info" class="bg-slate-900 text-white p-6 rounded-2xl min-h-[250px]">
+                            <h3 id="sim-title" class="text-emerald-400 font-bold text-lg mb-2">Ready to Start</h3>
+                            <p id="sim-desc" class="text-slate-400 text-sm leading-relaxed">
+                                Click a button to simulate how keys are shared between computers.
+                            </p>
+                            <div id="sim-steps" class="mt-4 space-y-2 text-xs"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Table -->
+                <div class="bg-slate-900 text-white p-6 rounded-xl">
+                    <h3 class="font-bold mb-4 flex items-center gap-2 text-emerald-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Exam Readiness Table
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs uppercase text-slate-400 border-b border-slate-800">
+                                <tr>
+                                    <th class="py-3 px-2">Method</th>
+                                    <th class="py-3 px-2">Key Count</th>
+                                    <th class="py-3 px-2">Best For</th>
+                                    <th class="py-3 px-2">Big Vulnerability</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800">
+                                <tr>
+                                    <td class="py-4 px-2 font-bold">Symmetric</td>
+                                    <td class="py-4 px-2">1 (Shared Secret)</td>
+                                    <td class="py-4 px-2 text-blue-400">Local Files / Hard Drives</td>
+                                    <td class="py-4 px-2 text-red-400 italic">Key must be shared (Intercept risk)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-2 font-bold">Asymmetric</td>
+                                    <td class="py-4 px-2">2 (Public & Private)</td>
+                                    <td class="py-4 px-2 text-emerald-400">Web Banking / SSH</td>
+                                    <td class="py-4 px-2 text-yellow-400 italic">Computational speed (Slow)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Tab Management ---
+        function switchTab(tabId) {
+            const modules = ['caesar', 'xor', 'compare'];
+            modules.forEach(id => {
+                document.getElementById(`module-${id}`).classList.add('hidden');
+                document.getElementById(`tab-${id}`).classList.remove('tab-active');
+            });
+            document.getElementById(`module-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('tab-active');
+        }
+
+        // --- Caesar Logic ---
+        function processCaesar() {
+            const input = document.getElementById('c-input').value.toUpperCase();
+            const key = parseInt(document.getElementById('c-key').value);
+            const log = document.getElementById('c-log');
+            const resultBox = document.getElementById('c-result');
+            
+            let resStr = "";
+            let logHtml = "";
+
+            for (let char of input) {
+                const code = char.charCodeAt(0);
+                if (code >= 65 && code <= 90) {
+                    const p = code - 65;
+                    const c = (p + key) % 26;
+                    const newChar = String.fromCharCode(c + 65);
+                    resStr += newChar;
+                    logHtml += `<div><span class="text-slate-500">${char}(${p})</span> + ${key} <span class="text-blue-500">mod 26</span> = <span class="text-emerald-400">${c}(${newChar})</span></div>`;
+                } else {
+                    resStr += char;
+                }
+            }
+            log.innerHTML = logHtml;
+            resultBox.innerText = resStr || "NO INPUT";
+        }
+
+        // --- XOR Logic ---
+        let stateP = [0,1,0,0,1,1,1,1]; 
+        let stateK = [1,1,1,1,0,0,1,1]; 
+
+        function renderBits(containerId, bits, isInteractive, callback) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            bits.forEach((b, i) => {
+                const btn = document.createElement('button');
+                btn.className = `bit-btn font-mono-custom w-8 md:w-10 h-10 border rounded flex items-center justify-center text-sm md:text-lg ${b ? 'active' : 'bg-slate-50 text-slate-400'}`;
+                btn.innerText = b;
+                if (isInteractive) {
+                    btn.onclick = () => {
+                        bits[i] = bits[i] ? 0 : 1;
+                        callback();
+                    };
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function calculateXOR() {
+            renderBits('p-bits', stateP, true, calculateXOR);
+            renderBits('k-bits', stateK, true, calculateXOR);
+            const result = stateP.map((b, i) => b ^ stateK[i]);
+            renderBits('xor-result', result, false);
+            document.getElementById('p-dec').innerText = `DEC: ${parseInt(stateP.join(''), 2)}`;
+            document.getElementById('k-dec').innerText = `DEC: ${parseInt(stateK.join(''), 2)}`;
+            document.getElementById('c-dec').innerText = `DEC: ${parseInt(result.join(''), 2)}`;
+        }
+
+        // --- Sim Logic ---
+        const traveler = document.getElementById('traveler');
+        const hacker = document.getElementById('hacker');
+        const simInfo = {
+            title: document.getElementById('sim-title'),
+            desc: document.getElementById('sim-desc'),
+            steps: document.getElementById('sim-steps')
+        };
+
+        function resetSim() {
+            traveler.classList.add('hidden');
+            traveler.classList.remove('animate-transfer');
+            hacker.classList.add('opacity-0');
+            simInfo.steps.innerHTML = "";
+        }
+
+        async function simulateSymmetric() {
+            resetSim();
+            simInfo.title.innerText = "Symmetric Simulation";
+            simInfo.title.className = "text-blue-400 font-bold text-lg mb-2";
+            simInfo.desc.innerText = "You have 1 Secret Key. You must share it with the Receiver to communicate.";
+            
+            // Phase 1: Sending the key
+            traveler.innerText = "🔑";
+            traveler.classList.remove('hidden');
+            traveler.classList.add('animate-transfer');
+            
+            await new Promise(r => setTimeout(r, 1000));
+            hacker.classList.remove('opacity-0');
+            simInfo.steps.innerHTML += `<div class="text-red-400">⚠️ SECURITY BREACH: Hacker intercepted the Shared Key!</div>`;
+            
+            await new Promise(r => setTimeout(r, 1000));
+            simInfo.steps.innerHTML += `<div class="text-slate-400">Outcome: All future messages can now be decrypted by the attacker.</div>`;
+        }
+
+        async function simulateAsymmetric() {
+            resetSim();
+            simInfo.title.innerText = "Asymmetric (Public Key) Simulation";
+            simInfo.title.className = "text-purple-400 font-bold text-lg mb-2";
+            simInfo.desc.innerText = "The Receiver generates a Public Key and a Private Key.";
+            
+            // Phase 1: Receiver sends Public Key
+            simInfo.steps.innerHTML += `<div>1. Receiver sends <strong>Public Key</strong> (🔓) to Sender.</div>`;
+            traveler.innerText = "🔓";
+            traveler.classList.remove('hidden');
+            traveler.classList.add('animate-transfer');
+            traveler.style.animationDirection = "reverse"; // Coming from receiver
+
+            await new Promise(r => setTimeout(r, 2000));
+            resetSim();
+            simInfo.steps.innerHTML += `<div>2. Hacker intercepts 🔓, but it doesn't matter! Public keys only lock data.</div>`;
+            
+            // Phase 2: Sender sends locked message
+            simInfo.steps.innerHTML += `<div>3. Sender locks message with 🔓 and sends it.</div>`;
+            traveler.innerText = "📦";
+            traveler.classList.remove('hidden');
+            traveler.classList.add('animate-transfer');
+            traveler.style.animationDirection = "normal";
+
+            await new Promise(r => setTimeout(r, 2000));
+            simInfo.steps.innerHTML += `<div class="text-emerald-400">4. SUCCESS: Only the Receiver's <strong>Private Key</strong> (🗝️) can open the box!</div>`;
+        }
+
+        // Init
+        window.onload = () => {
+            processCaesar();
+            calculateXOR();
+        };
+    </script>
+</body>
+</html>
