@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Flow: Expert System Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .active-node {
+            animation: pulse-glow 2s infinite;
+            border-color: #2563eb !important;
+            background-color: #eff6ff !important;
+        }
+        .matched-rule {
+            border-left: 4px solid #22c55e !important;
+            background-color: #f0fdf4 !important;
+        }
+        .line-connector {
+            width: 2px;
+            height: 40px;
+            background-color: #e2e8f0;
+            margin: 0 auto;
+            transition: background-color 0.5s;
+        }
+        .line-connector.active {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m16 6-4 4-4-4"/><path d="M12 18v4"/><path d="m8 20 4-4 4 4"/><path d="m18 12-4 4-4-4"/><path d="M12 10v4"/><circle cx="12" cy="12" r="10"/></svg>
+            <h1 class="text-xl font-bold tracking-tight">Expert System Simulator</h1>
+        </div>
+        <button onclick="resetSystem()" class="text-sm bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition-colors border border-blue-500">
+            Reset System
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden">
+        
+        <!-- Left: User Interface (UI) Component -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
+                <div class="bg-slate-100 px-4 py-2 border-bottom border-slate-200 rounded-t-xl text-xs font-bold uppercase text-slate-500 tracking-wider">
+                    Component 1: User Interface
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div id="ui-content" class="flex-grow">
+                        <!-- Mode Selection View -->
+                        <div id="setup-view">
+                            <h2 class="text-2xl font-semibold mb-2">Select Reasoning Mode</h2>
+                            <p class="text-slate-600 mb-6 text-sm">Choose how the Expert System should process information:</p>
+                            
+                            <div class="space-y-3">
+                                <button onclick="selectMode('forward')" class="w-full bg-white border-2 border-slate-200 p-4 rounded-xl text-left hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                                    <div class="font-bold text-blue-600">Forward Chaining (Data-Driven)</div>
+                                    <div class="text-xs text-slate-500 mt-1">Starts with symptoms and works forward to reach a conclusion. Best when you don't know the answer.</div>
+                                </button>
+                                
+                                <button onclick="selectMode('backward')" class="w-full bg-white border-2 border-slate-200 p-4 rounded-xl text-left hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                                    <div class="font-bold text-indigo-600">Backward Chaining (Goal-Driven)</div>
+                                    <div class="text-xs text-slate-500 mt-1">Starts with a hypothesis (e.g., "Flu") and works backward to find supporting data.</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Goal Selection (Only for Backward Chaining) -->
+                        <div id="goal-view" class="hidden">
+                            <h3 class="text-lg font-bold mb-4">Set a Hypothesis (Goal)</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                <button onclick="startBackward('Influenza (Flu)')" class="p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 text-left">
+                                    <div class="font-bold text-sm">Hypothesis: Influenza (Flu)</div>
+                                </button>
+                                <button onclick="startBackward('Common Cold')" class="p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 text-left">
+                                    <div class="font-bold text-sm">Hypothesis: Common Cold</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Question View -->
+                        <div id="question-view" class="hidden">
+                            <div class="mb-8">
+                                <span class="text-blue-600 font-bold text-xs uppercase tracking-widest" id="step-counter">Input Gathering</span>
+                                <h3 class="text-2xl font-bold mt-1" id="question-text">Question goes here?</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="handleResponse(true)" class="bg-white border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 py-4 rounded-xl font-bold text-lg transition-all">Yes</button>
+                                <button onclick="handleResponse(false)" class="bg-white border-2 border-slate-200 hover:border-red-500 hover:bg-red-50 py-4 rounded-xl font-bold text-lg transition-all">No</button>
+                            </div>
+                        </div>
+
+                        <!-- Result View -->
+                        <div id="result-view" class="hidden">
+                            <div id="result-container" class="border-2 p-6 rounded-2xl text-center mb-6">
+                                <span class="font-bold text-sm uppercase tracking-widest" id="result-label">Diagnosis Reached</span>
+                                <h3 class="text-3xl font-black mt-2" id="diagnosis-result">Result</h3>
+                            </div>
+                            <button onclick="toggleExplanation(true)" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                Why this conclusion?
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center: Inference Engine Component -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+                <div class="bg-slate-100 px-4 py-2 border-bottom border-slate-200 text-xs font-bold uppercase text-slate-500 tracking-wider">
+                    Component 2: Inference Engine
+                </div>
+                <div class="p-6 flex flex-col items-center justify-center flex-grow bg-slate-50/50">
+                    
+                    <div id="node-input" class="node w-full max-w-[240px] p-4 bg-white border-2 border-slate-200 rounded-xl text-center transition-all duration-500 relative">
+                        <div id="arrow-down-1" class="absolute -bottom-10 left-1/2 -translate-x-1/2 hidden">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3"><path d="m7 13 5 5 5-5M7 6l5 5 5-5"/></svg>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase mb-1">Input Layer</span>
+                        <span class="font-bold" id="label-input">Data Acquisition</span>
+                    </div>
+
+                    <div id="link-1" class="line-connector"></div>
+
+                    <div id="node-engine" class="node w-full max-w-[240px] p-4 bg-white border-2 border-slate-200 rounded-xl text-center transition-all duration-500">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase mb-1">Logic Layer</span>
+                        <span class="font-bold">Rule Application</span>
+                        <div id="chaining-mode-label" class="text-[10px] text-blue-600 font-bold mt-1 opacity-0">FORWARD CHAINING</div>
+                    </div>
+
+                    <div id="link-2" class="line-connector"></div>
+
+                    <div id="node-output" class="node w-full max-w-[240px] p-4 bg-white border-2 border-slate-200 rounded-xl text-center transition-all duration-500 relative">
+                        <div id="arrow-up-1" class="absolute -top-10 left-1/2 -translate-x-1/2 hidden">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="3"><path d="m17 11-5-5-5 5M17 18l-5-5-5 5"/></svg>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase mb-1">Goal Layer</span>
+                        <span class="font-bold" id="label-output">Final Conclusion</span>
+                    </div>
+
+                    <div class="mt-8 text-xs text-slate-400 text-center italic max-w-[200px]" id="engine-hint">
+                        Select a mode to see the Inference Engine in action.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right: Knowledge Base Component -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+                <div class="bg-slate-100 px-4 py-2 border-bottom border-slate-200 text-xs font-bold uppercase text-slate-500 tracking-wider">
+                    Component 3: Knowledge Base
+                </div>
+                <div class="p-4 flex-grow overflow-y-auto">
+                    <div class="space-y-4">
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="text-[10px] font-bold text-blue-500 uppercase">Factual Knowledge</span>
+                            <p class="text-sm">High Temp > 38°C indicates Fever.</p>
+                        </div>
+
+                        <div id="rule-01" class="p-3 bg-white rounded-lg border border-slate-200 transition-all duration-300">
+                            <span class="text-[10px] font-bold text-red-500 uppercase">Rule 01 (Logical)</span>
+                            <p class="text-sm font-mono mt-1">IF fever AND cough THEN respiratory_infection</p>
+                        </div>
+
+                        <div id="rule-02" class="p-3 bg-white rounded-lg border border-slate-200 transition-all duration-300">
+                            <span class="text-[10px] font-bold text-red-500 uppercase">Rule 02 (Logical)</span>
+                            <p class="text-sm font-mono mt-1">IF respiratory_infection AND body_aches THEN flu</p>
+                        </div>
+
+                        <div id="rule-03" class="p-3 bg-white rounded-lg border border-slate-200 transition-all duration-300">
+                            <span class="text-[10px] font-bold text-red-500 uppercase">Rule 03 (Logical)</span>
+                            <p class="text-sm font-mono mt-1">IF respiratory_infection AND NOT body_aches THEN common_cold</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 text-white p-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    Explanation Facility
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">Reasoning path overview.</p>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6" id="explanation-steps"></div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 text-right">
+                <button onclick="toggleExplanation(false)" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System State
+        let mode = null; // 'forward' or 'backward'
+        let hypothesis = null;
+        let currentStep = 0;
+        let reasoningLog = [];
+        
+        const questions = [
+            { id: 'fever', text: "Does the patient have a fever? (Temp > 38°C)", value: null },
+            { id: 'cough', text: "Does the patient have a persistent cough?", value: null },
+            { id: 'aches', text: "Does the patient have significant body aches?", value: null }
+        ];
+
+        function selectMode(m) {
+            mode = m;
+            document.getElementById('setup-view').classList.add('hidden');
+            
+            if (mode === 'forward') {
+                reasoningLog.push({ type: 'sys', msg: "Selected Mode: FORWARD CHAINING (Data-Driven)" });
+                startForward();
+            } else {
+                reasoningLog.push({ type: 'sys', msg: "Selected Mode: BACKWARD CHAINING (Goal-Driven)" });
+                document.getElementById('goal-view').classList.remove('hidden');
+            }
+        }
+
+        function startForward() {
+            document.getElementById('question-view').classList.remove('hidden');
+            updateInferenceEngine('input');
+            updateUI();
+        }
+
+        function startBackward(target) {
+            hypothesis = target;
+            document.getElementById('goal-view').classList.add('hidden');
+            document.getElementById('question-view').classList.remove('hidden');
+            
+            reasoningLog.push({ type: 'goal', msg: `Hypothesis set: ${hypothesis}. System is now seeking evidence.` });
+            
+            updateInferenceEngine('output');
+            updateUI();
+        }
+
+        function updateUI() {
+            if (currentStep < questions.length) {
+                document.getElementById('question-text').innerText = questions[currentStep].text;
+                document.getElementById('step-counter').innerText = (mode === 'forward') ? `Gathering Fact ${currentStep + 1}` : `Verifying Goal Condition ${currentStep + 1}`;
+            }
+        }
+
+        function handleResponse(val) {
+            const currentQ = questions[currentStep];
+            currentQ.value = val;
+            
+            reasoningLog.push({
+                type: 'input',
+                msg: `Fact established: ${currentQ.id.toUpperCase()} = ${val ? 'TRUE' : 'FALSE'}`
+            });
+
+            // Logical Inference visualization
+            if (mode === 'forward' && currentStep === 1) {
+                processRulesMidway();
+                updateInferenceEngine('logic');
+            } else if (mode === 'backward') {
+                updateInferenceEngine('logic');
+            }
+
+            currentStep++;
+            
+            if (currentStep < questions.length) {
+                updateUI();
+            } else {
+                processFinalConclusion();
+            }
+        }
+
+        function processRulesMidway() {
+            if (questions[0].value && questions[1].value) {
+                document.getElementById('rule-01').classList.add('matched-rule');
+                reasoningLog.push({ type: 'inference', msg: "Inference Engine: Rule 01 triggered. Derived fact: Respiratory Infection = TRUE." });
+            }
+        }
+
+        function processFinalConclusion() {
+            document.getElementById('question-view').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            
+            const hasInfection = questions[0].value && questions[1].value;
+            const hasAches = questions[2].value;
+            let result = "";
+            let success = false;
+
+            if (hasInfection) {
+                document.getElementById('rule-01').classList.add('matched-rule');
+                if (hasAches) {
+                    result = "Influenza (Flu)";
+                    document.getElementById('rule-02').classList.add('matched-rule');
+                } else {
+                    result = "Common Cold";
+                    document.getElementById('rule-03').classList.add('matched-rule');
+                }
+            } else {
+                result = "Insufficient Data";
+            }
+
+            // Determine if hypothesis was proven (Backward Chaining)
+            if (mode === 'backward') {
+                if (result === hypothesis) {
+                    success = true;
+                    reasoningLog.push({ type: 'goal', msg: `Hypothesis PROVEN: Facts support ${hypothesis}.` });
+                    document.getElementById('result-label').innerText = "Hypothesis Proven";
+                    document.getElementById('result-container').className = "border-2 border-green-200 bg-green-50 p-6 rounded-2xl text-center mb-6 text-green-800";
+                } else {
+                    reasoningLog.push({ type: 'goal', msg: `Hypothesis DISPROVEN: Facts do not support ${hypothesis}. Found ${result} instead.` });
+                    document.getElementById('result-label').innerText = "Hypothesis Disproven";
+                    document.getElementById('result-container').className = "border-2 border-red-200 bg-red-50 p-6 rounded-2xl text-center mb-6 text-red-800";
+                }
+            } else {
+                document.getElementById('result-label').innerText = "Diagnosis Reached";
+                document.getElementById('result-container').className = "border-2 border-blue-200 bg-blue-50 p-6 rounded-2xl text-center mb-6 text-blue-800";
+            }
+
+            document.getElementById('diagnosis-result').innerText = result;
+            updateInferenceEngine(mode === 'forward' ? 'output' : 'input'); // Reverse end point glow for logic
+        }
+
+        function updateInferenceEngine(stage) {
+            document.querySelectorAll('.node').forEach(n => n.classList.remove('active-node', 'bg-blue-50', 'bg-indigo-50'));
+            document.querySelectorAll('.line-connector').forEach(l => l.classList.remove('active'));
+            document.getElementById('arrow-down-1').classList.add('hidden');
+            document.getElementById('arrow-up-1').classList.add('hidden');
+            
+            const label = document.getElementById('chaining-mode-label');
+            label.style.opacity = '1';
+            label.innerText = mode.toUpperCase() + " CHAINING";
+            label.className = `text-[10px] font-bold mt-1 ${mode === 'forward' ? 'text-blue-600' : 'text-indigo-600'}`;
+
+            if (mode === 'forward') {
+                document.getElementById('engine-hint').innerText = "Reasoning from Data (Bottom) to Conclusion (Top).";
+                if (stage === 'input') {
+                    document.getElementById('node-input').classList.add('active-node');
+                    document.getElementById('arrow-down-1').classList.remove('hidden');
+                } else if (stage === 'logic') {
+                    document.getElementById('node-input').classList.add('bg-blue-50');
+                    document.getElementById('link-1').classList.add('active');
+                    document.getElementById('node-engine').classList.add('active-node');
+                } else if (stage === 'output') {
+                    document.getElementById('node-input').classList.add('bg-blue-50');
+                    document.getElementById('node-engine').classList.add('bg-blue-50');
+                    document.getElementById('link-1').classList.add('active');
+                    document.getElementById('link-2').classList.add('active');
+                    document.getElementById('node-output').classList.add('active-node');
+                }
+            } else {
+                document.getElementById('engine-hint').innerText = "Reasoning from Goal (Top) to Data (Bottom).";
+                if (stage === 'output') {
+                    document.getElementById('node-output').classList.add('active-node');
+                    document.getElementById('arrow-up-1').classList.remove('hidden');
+                } else if (stage === 'logic') {
+                    document.getElementById('node-output').classList.add('bg-indigo-50');
+                    document.getElementById('link-2').classList.add('active');
+                    document.getElementById('node-engine').classList.add('active-node');
+                } else if (stage === 'input') {
+                    document.getElementById('node-output').classList.add('bg-indigo-50');
+                    document.getElementById('node-engine').classList.add('bg-indigo-50');
+                    document.getElementById('link-2').classList.add('active');
+                    document.getElementById('link-1').classList.add('active');
+                    document.getElementById('node-input').classList.add('active-node');
+                }
+            }
+        }
+
+        function toggleExplanation(show) {
+            const modal = document.getElementById('explanation-modal');
+            const container = document.getElementById('explanation-steps');
+            if (show) {
+                container.innerHTML = '';
+                reasoningLog.forEach((log, i) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'flex gap-4';
+                    let colorClass = log.type === 'input' ? 'text-blue-500' : log.type === 'goal' ? 'text-indigo-500' : 'text-slate-500';
+                    stepDiv.innerHTML = `
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs ${colorClass}">${i+1}</div>
+                        <div class="flex-grow pt-1">
+                            <span class="text-[10px] font-bold uppercase text-slate-400">${log.type}</span>
+                            <p class="text-sm text-slate-700 font-medium">${log.msg}</p>
+                        </div>
+                    `;
+                    container.appendChild(stepDiv);
+                });
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function resetSystem() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
