@@ -1,0 +1,657 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Database, 
+  Cpu, 
+  Printer, 
+  Layers, 
+  Clock, 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Trash2, 
+  AlertTriangle,
+  Info,
+  Zap,
+  ListOrdered
+} from 'lucide-react';
+
+// --- Constants ---
+const TOTAL_RAM = 1024; // MB
+const FIXED_SLOT_SIZE = 128; // MB
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState('memory');
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 md:p-8">
+      <header className="max-w-6xl mx-auto mb-8 text-center">
+        <h1 className="text-3xl font-bold text-indigo-700 mb-2">A-Level OS Concepts Lab</h1>
+        <p className="text-slate-600">Interactive Visualizations for Section 6.3 & 6.4</p>
+        
+        <nav className="flex justify-center gap-2 mt-6">
+          <TabButton 
+            active={activeTab === 'memory'} 
+            onClick={() => setActiveTab('memory')}
+            icon={<Database size={18} />}
+            label="Memory Management"
+          />
+          <TabButton 
+            active={activeTab === 'buffering'} 
+            onClick={() => setActiveTab('buffering')}
+            icon={<Layers size={18} />}
+            label="Buffering"
+          />
+          <TabButton 
+            active={activeTab === 'scheduling'} 
+            onClick={() => setActiveTab('scheduling')}
+            icon={<Clock size={18} />}
+            label="Scheduling"
+          />
+        </nav>
+      </header>
+
+      <main className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-h-[600px]">
+        {activeTab === 'memory' && <MemoryLab />}
+        {activeTab === 'buffering' && <BufferLab />}
+        {activeTab === 'scheduling' && <SchedulingLab />}
+      </main>
+
+      <footer className="max-w-6xl mx-auto mt-8 text-center text-slate-400 text-sm">
+        Designed for A-Level Computer Science Revision • Section 6.3 & 6.4
+      </footer>
+    </div>
+  );
+};
+
+const TabButton = ({ active, onClick, icon, label }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-200 font-medium ${
+      active 
+      ? 'bg-indigo-600 text-white shadow-lg' 
+      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+    }`}
+  >
+    {icon}
+    {label}
+  </button>
+);
+
+// --- 1. Memory Lab ---
+const MemoryLab = () => {
+  const [mode, setMode] = useState('fixed');
+  const [processes, setProcesses] = useState([]);
+  const [inputSize, setInputSize] = useState(100);
+  const [error, setError] = useState('');
+
+  const addProcess = () => {
+    setError('');
+    if (inputSize <= 0) return;
+
+    if (mode === 'fixed') {
+      if (inputSize > FIXED_SLOT_SIZE) {
+        setError(`Process too large! Max slot size is ${FIXED_SLOT_SIZE}MB.`);
+        return;
+      }
+      const occupiedSlots = processes.map(p => p.slotIndex);
+      let targetSlot = -1;
+      for (let i = 0; i < TOTAL_RAM / FIXED_SLOT_SIZE; i++) {
+        if (!occupiedSlots.includes(i)) {
+          targetSlot = i;
+          break;
+        }
+      }
+      if (targetSlot === -1) {
+        setError('No free partitions available!');
+      } else {
+        setProcesses([...processes, { id: Date.now(), size: inputSize, slotIndex: targetSlot }]);
+      }
+    } else {
+      const sortedProcesses = [...processes].sort((a, b) => a.offset - b.offset);
+      let offset = 0;
+      let placed = false;
+      
+      for (let i = 0; i < sortedProcesses.length; i++) {
+        if (sortedProcesses[i].offset - offset >= inputSize) {
+          setProcesses([...processes, { id: Date.now(), size: inputSize, offset: offset }]);
+          placed = true;
+          break;
+        }
+        offset = sortedProcesses[i].offset + sortedProcesses[i].size;
+      }
+
+      if (!placed) {
+        if (TOTAL_RAM - offset >= inputSize) {
+          setProcesses([...processes, { id: Date.now(), size: inputSize, offset: offset }]);
+        } else {
+          setError('Insufficient contiguous memory! (External Fragmentation)');
+        }
+      }
+    }
+  };
+
+  const removeProcess = (id) => {
+    setProcesses(processes.filter(p => p.id !== id));
+  };
+
+  const defragment = () => {
+    if (mode === 'fixed') return;
+    const sorted = [...processes].sort((a, b) => a.offset - b.offset);
+    let currentOffset = 0;
+    const defragged = sorted.map(p => {
+      const newP = { ...p, offset: currentOffset };
+      currentOffset += p.size;
+      return newP;
+    });
+    setProcesses(defragged);
+  };
+
+  return (
+    <div className="p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-6">
+          <section>
+            <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+              <Database size={20} className="text-indigo-600" />
+              Allocation Method
+            </h3>
+            <div className="flex bg-slate-100 p-1 rounded-lg">
+              <button 
+                onClick={() => { setMode('fixed'); setProcesses([]); }}
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${mode === 'fixed' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}
+              >
+                Fixed Partitioning
+              </button>
+              <button 
+                onClick={() => { setMode('dynamic'); setProcesses([]); }}
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${mode === 'dynamic' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}
+              >
+                Dynamic Partitioning
+              </button>
+            </div>
+          </section>
+
+          <section className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <h3 className="font-bold mb-3 text-sm uppercase tracking-wider text-slate-400">Add Process</h3>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input 
+                  type="number" 
+                  value={inputSize}
+                  onChange={(e) => setInputSize(Number(e.target.value))}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                  placeholder="Size (MB)"
+                />
+                <span className="absolute right-3 top-2 text-slate-400 text-sm">MB</span>
+              </div>
+              <button 
+                onClick={addProcess}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Load
+              </button>
+            </div>
+            {error && <div className="mt-2 text-red-500 text-xs italic">{error}</div>}
+          </section>
+
+          {mode === 'dynamic' && (
+            <button 
+              onClick={defragment}
+              className="w-full py-3 border-2 border-dashed border-indigo-200 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all font-medium flex items-center justify-center gap-2"
+            >
+              <RotateCcw size={18} /> Defragment RAM
+            </button>
+          )}
+
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl">
+            <p className="text-xs text-blue-800 leading-relaxed font-medium italic">
+              {mode === 'fixed' 
+                ? "Internal fragmentation occurs when a process doesn't fully fill its assigned slot."
+                : "External fragmentation occurs when total free memory is enough but not in one block."}
+            </p>
+          </div>
+        </div>
+
+        <div className="lg:col-span-2">
+          <div className="relative w-full h-[450px] bg-slate-200 rounded-xl overflow-hidden border-2 border-slate-300 ring-4 ring-slate-100">
+            {mode === 'fixed' ? (
+              <div className="grid grid-rows-8 h-full">
+                {Array.from({ length: 8 }).map((_, idx) => {
+                  const process = processes.find(p => p.slotIndex === idx);
+                  return (
+                    <div key={idx} className="border-b border-slate-300 relative last:border-0 group">
+                      {process ? (
+                        <div className="h-full flex">
+                          <div 
+                            style={{ width: `${(process.size / 128) * 100}%` }}
+                            className="bg-indigo-500 h-full flex items-center justify-between px-4 text-white font-bold text-sm shadow-inner"
+                          >
+                            <span>P_{process.id.toString().slice(-3)}</span>
+                            <span>{process.size}MB</span>
+                            <button onClick={() => removeProcess(process.id)} className="opacity-0 group-hover:opacity-100"><Trash2 size={14} /></button>
+                          </div>
+                          {process.size < 128 && (
+                            <div className="flex-1 bg-red-100 flex items-center justify-center text-[10px] text-red-400 font-medium">
+                              Internal Frag: {128 - process.size}MB
+                            </div>
+                          )}
+                        </div>
+                      ) : <div className="h-full flex items-center justify-center text-slate-300 text-xs italic">Empty Partition</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="h-full relative">
+                {processes.map((p) => (
+                  <div 
+                    key={p.id}
+                    style={{ 
+                      top: `${(p.offset / TOTAL_RAM) * 100}%`,
+                      height: `${(p.size / TOTAL_RAM) * 100}%` 
+                    }}
+                    className="absolute left-0 right-0 bg-indigo-500 border-b border-indigo-600 flex items-center justify-between px-4 text-white font-bold text-sm group"
+                  >
+                    <span>Process {p.id.toString().slice(-3)} ({p.size}MB)</span>
+                    <button onClick={() => removeProcess(p.id)} className="opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- 2. Buffer Lab ---
+const BufferLab = () => {
+  const [isDouble, setIsDouble] = useState(false);
+  const [bufferA, setBufferA] = useState(0); 
+  const [bufferB, setBufferB] = useState(0); 
+  const [activeBuffer, setActiveBuffer] = useState('A'); 
+  const [isRunning, setIsRunning] = useState(false);
+  const [cpuState, setCpuState] = useState('IDLE'); 
+  const [isDraining, setIsDraining] = useState(false); 
+  const [stats, setStats] = useState({ totalTransferred: 0, cpuWaitTime: 0 });
+
+  useEffect(() => {
+    let timer;
+    if (isRunning) {
+      timer = setInterval(() => {
+        // CPU PRODUCER LOGIC
+        if (!isDouble) {
+          // --- Single Buffer Logic ---
+          if (!isDraining && bufferA < 100) {
+            setCpuState('FILLING');
+            setBufferA(prev => {
+              const newVal = prev + 5;
+              if (newVal >= 100) {
+                setIsDraining(true);
+                return 100;
+              }
+              return newVal;
+            });
+          } else {
+            setCpuState('WAITING');
+            setStats(s => ({ ...s, cpuWaitTime: s.cpuWaitTime + 1 }));
+          }
+        } else {
+          // --- Double Buffer Logic ---
+          const fillTarget = activeBuffer === 'A' ? 'B' : 'A';
+          const currentTargetVal = fillTarget === 'A' ? bufferA : bufferB;
+          
+          if (currentTargetVal < 100) {
+            setCpuState('FILLING');
+            if (fillTarget === 'A') setBufferA(prev => Math.min(100, prev + 5));
+            else setBufferB(prev => Math.min(100, prev + 5));
+          } else {
+            setCpuState('WAITING');
+            setStats(s => ({ ...s, cpuWaitTime: s.cpuWaitTime + 1 }));
+          }
+        }
+
+        // PRINTER CONSUMER LOGIC
+        const currentDrainBuffer = activeBuffer === 'A' ? bufferA : bufferB;
+        if (currentDrainBuffer > 0) {
+          if (activeBuffer === 'A') {
+            setBufferA(prev => {
+              const newVal = Math.max(0, prev - 2.5);
+              if (newVal === 0) {
+                setStats(s => ({ ...s, totalTransferred: s.totalTransferred + 1 }));
+                if (isDouble) {
+                    if (bufferB >= 100) setActiveBuffer('B');
+                } else {
+                    setIsDraining(false); 
+                }
+              }
+              return newVal;
+            });
+          } else {
+            setBufferB(prev => {
+              const newVal = Math.max(0, prev - 2.5);
+              if (newVal === 0) {
+                setStats(s => ({ ...s, totalTransferred: s.totalTransferred + 1 }));
+                if (isDouble && bufferA >= 100) setActiveBuffer('A');
+              }
+              return newVal;
+            });
+          }
+        } else if (isDouble) {
+           if (activeBuffer === 'A' && bufferB >= 100) setActiveBuffer('B');
+           else if (activeBuffer === 'B' && bufferA >= 100) setActiveBuffer('A');
+        }
+      }, 100);
+    } else {
+      setCpuState('IDLE');
+    }
+    return () => clearInterval(timer);
+  }, [isRunning, bufferA, bufferB, activeBuffer, isDouble, isDraining]);
+
+  const reset = () => {
+    setIsRunning(false);
+    setBufferA(0);
+    setBufferB(0);
+    setStats({ totalTransferred: 0, cpuWaitTime: 0 });
+    setActiveBuffer('A');
+    setCpuState('IDLE');
+    setIsDraining(false);
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="w-full lg:w-1/3 space-y-6">
+          <section>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Layers size={20} className="text-indigo-600" />
+              Buffering Method
+            </h3>
+            <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-lg text-sm font-medium">
+              <button 
+                onClick={() => { setIsDouble(false); reset(); }}
+                className={`py-2 rounded-md transition-all ${!isDouble ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}
+              >
+                Single Buffer
+              </button>
+              <button 
+                onClick={() => { setIsDouble(true); reset(); }}
+                className={`py-2 rounded-md transition-all ${isDouble ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}
+              >
+                Double Buffer
+              </button>
+            </div>
+          </section>
+
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setIsRunning(!isRunning)}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${isRunning ? 'bg-amber-500 text-white' : 'bg-green-600 text-white'}`}
+            >
+              {isRunning ? <><Pause size={20}/> Pause</> : <><Play size={20}/> Start Simulation</>}
+            </button>
+            <button onClick={reset} className="p-3 bg-slate-200 text-slate-600 rounded-xl hover:bg-slate-300">
+              <RotateCcw size={20} />
+            </button>
+          </div>
+
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <h4 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-4">Live Performance</h4>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-slate-600 font-medium">CPU Wait Cycles</span>
+                  <span className="font-mono font-bold text-red-600">{stats.cpuWaitTime}</span>
+                </div>
+                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-red-500 transition-all duration-300" style={{ width: `${Math.min(100, stats.cpuWaitTime / 2)}%` }}></div>
+                </div>
+              </div>
+              <div className="flex justify-between text-sm pt-2 border-t border-slate-200">
+                <span className="text-slate-600 font-medium">Units Transferred</span>
+                <span className="font-mono font-bold text-indigo-600">{stats.totalTransferred}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center border-2 border-slate-100 rounded-3xl p-8 bg-slate-50/50">
+           <div className="flex items-center justify-between relative h-64">
+              {/* Producer */}
+              <div className="flex flex-col items-center gap-3 w-32">
+                <div className={`p-6 rounded-3xl transition-all duration-300 ${
+                  cpuState === 'FILLING' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 scale-110' : 
+                  cpuState === 'WAITING' ? 'bg-red-100 text-red-400 border-2 border-red-200' : 'bg-slate-200 text-slate-400'
+                }`}>
+                  <Cpu size={48} className={cpuState === 'FILLING' ? 'animate-pulse' : ''} />
+                </div>
+                <span className={`text-xs font-black uppercase tracking-widest ${cpuState === 'WAITING' ? 'text-red-500' : 'text-slate-500'}`}>
+                  {cpuState}
+                </span>
+              </div>
+
+              {/* Buffers Column */}
+              <div className="flex flex-col gap-6 w-48 px-4">
+                 <div className={`relative w-full h-20 border-4 rounded-2xl overflow-hidden transition-all duration-300 ${(!isDouble || activeBuffer === 'A') ? 'border-indigo-500 bg-white shadow-lg' : 'border-slate-200 opacity-30 scale-95'}`}>
+                    <div className="absolute inset-y-0 left-0 bg-indigo-500 transition-all duration-100" style={{ width: `${bufferA}%` }}></div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                      <span className="text-[10px] font-black text-slate-800 tracking-tighter uppercase">Buffer A</span>
+                      {((activeBuffer === 'A' && ((isDouble && bufferA > 0) || (!isDouble && isDraining)))) && 
+                        <span className="text-[8px] font-bold text-indigo-700 bg-indigo-100 px-1 rounded animate-pulse">DRAINING</span>
+                      }
+                    </div>
+                 </div>
+
+                 {isDouble && (
+                   <div className={`relative w-full h-20 border-4 rounded-2xl overflow-hidden transition-all duration-300 ${(activeBuffer === 'B') ? 'border-indigo-500 bg-white shadow-lg' : 'border-slate-200 opacity-30 scale-95'}`}>
+                    <div className="absolute inset-y-0 left-0 bg-indigo-500 transition-all duration-100" style={{ width: `${bufferB}%` }}></div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                      <span className="text-[10px] font-black text-slate-800 tracking-tighter uppercase">Buffer B</span>
+                      {(activeBuffer === 'B' && bufferB > 0) && <span className="text-[8px] font-bold text-indigo-700 bg-indigo-100 px-1 rounded animate-pulse">DRAINING</span>}
+                    </div>
+                   </div>
+                 )}
+              </div>
+
+              {/* Consumer */}
+              <div className="flex flex-col items-center gap-3 w-32">
+                <div className={`p-6 rounded-3xl transition-all duration-300 ${
+                  isRunning && ((activeBuffer === 'A' && bufferA > 0) || (activeBuffer === 'B' && bufferB > 0)) 
+                  ? 'bg-amber-600 text-white shadow-xl shadow-amber-100 scale-105' 
+                  : 'bg-slate-200 text-slate-400'
+                }`}>
+                  <Printer size={48} />
+                </div>
+                <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                  Printer
+                </span>
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- 3. Scheduling Lab ---
+const SchedulingLab = () => {
+  const [processes, setProcesses] = useState([
+    { id: 1, name: 'Task A', status: 'ready', progress: 0, color: 'bg-blue-500' },
+    { id: 2, name: 'Task B', status: 'ready', progress: 0, color: 'bg-emerald-500' },
+    { id: 3, name: 'Task C', status: 'ready', progress: 0, color: 'bg-purple-500' },
+  ]);
+  const [readyQueue, setReadyQueue] = useState([1, 2, 3]);
+  const [timeSlice, setTimeSlice] = useState(3);
+  const [currentSlice, setCurrentSlice] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [logs, setLogs] = useState(["System Initialized."]);
+
+  const addLog = (msg) => setLogs(prev => [msg, ...prev].slice(0, 5));
+
+  useEffect(() => {
+    let timer;
+    if (isRunning) {
+      timer = setInterval(() => {
+        setProcesses(prev => {
+          const newProcesses = [...prev];
+          const runningIdx = newProcesses.findIndex(p => p.status === 'running');
+          
+          if (runningIdx === -1) {
+            if (readyQueue.length > 0) {
+              const nextId = readyQueue[0];
+              const nextP = newProcesses.find(p => p.id === nextId);
+              if (nextP) {
+                nextP.status = 'running';
+                setReadyQueue(prevQ => prevQ.slice(1));
+                setCurrentSlice(0);
+                addLog(`${nextP.name} started.`);
+              }
+            }
+            return newProcesses;
+          }
+
+          const runningP = newProcesses[runningIdx];
+          runningP.progress += 4;
+          if (runningP.progress >= 100) {
+            runningP.status = 'completed';
+            addLog(`${runningP.name} finished.`);
+            return newProcesses;
+          }
+
+          if (Math.random() < 0.08) {
+            runningP.status = 'blocked';
+            addLog(`${runningP.name} blocked.`);
+            return newProcesses;
+          }
+
+          if (currentSlice + 1 >= timeSlice) {
+            runningP.status = 'ready';
+            setReadyQueue(prevQ => [...prevQ, runningP.id]);
+            setCurrentSlice(0);
+            addLog(`${runningP.name} preempted.`);
+          } else {
+            setCurrentSlice(prev => prev + 1);
+          }
+
+          return newProcesses;
+        });
+
+        setProcesses(prev => {
+          const updated = [...prev];
+          updated.forEach(p => {
+            if (p.status === 'blocked' && Math.random() < 0.15) {
+              p.status = 'ready';
+              setReadyQueue(prevQ => [...prevQ, p.id]);
+              addLog(`${p.name} unblocked.`);
+            }
+          });
+          return updated;
+        });
+
+      }, 800);
+    }
+    return () => clearInterval(timer);
+  }, [isRunning, timeSlice, currentSlice, readyQueue]);
+
+  const reset = () => {
+    setIsRunning(false);
+    setProcesses([
+      { id: 1, name: 'Task A', status: 'ready', progress: 0, color: 'bg-blue-500' },
+      { id: 2, name: 'Task B', status: 'ready', progress: 0, color: 'bg-emerald-500' },
+      { id: 3, name: 'Task C', status: 'ready', progress: 0, color: 'bg-purple-500' },
+    ]);
+    setReadyQueue([1, 2, 3]);
+    setCurrentSlice(0);
+    setLogs(["System Reset."]);
+  };
+
+  return (
+    <div className="p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="space-y-6">
+          <section>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Zap size={20} className="text-indigo-600" />
+              Scheduler
+            </h3>
+            <div className="space-y-4 text-sm">
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase">Quantum (Time Slice)</label>
+                <input 
+                  type="range" min="1" max="8" 
+                  value={timeSlice} 
+                  onChange={(e) => setTimeSlice(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-200 rounded-lg accent-indigo-600 cursor-pointer" 
+                />
+              </div>
+              <button 
+                onClick={() => setIsRunning(!isRunning)}
+                className={`w-full py-3 rounded-xl font-bold transition-all ${isRunning ? 'bg-amber-500 text-white' : 'bg-indigo-600 text-white'}`}
+              >
+                {isRunning ? 'Pause' : 'Start'}
+              </button>
+              <button onClick={reset} className="w-full py-2 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs hover:bg-slate-200">Reset</button>
+            </div>
+          </section>
+
+          <section className="bg-slate-900 p-4 rounded-xl text-white">
+            <h4 className="text-[10px] font-bold text-slate-500 mb-3 uppercase tracking-widest">Events</h4>
+            <div className="space-y-1 font-mono text-[10px]">
+              {logs.map((log, i) => <div key={i} className={i === 0 ? 'text-indigo-400' : 'text-slate-400'}>{'>'} {log}</div>)}
+            </div>
+          </section>
+        </div>
+
+        <div className="lg:col-span-3 grid grid-cols-3 gap-4">
+          <div className="bg-slate-50 rounded-2xl p-4 border-2 border-dashed border-slate-200">
+             <h4 className="text-center font-bold text-slate-400 text-xs mb-4 uppercase flex items-center justify-center gap-2">
+                <ListOrdered size={14} /> Ready Queue
+             </h4>
+             <div className="space-y-3">
+                {readyQueue.map((id, index) => {
+                  const p = processes.find(proc => proc.id === id);
+                  return <div key={p.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative">
+                    <span className="absolute -left-2 -top-2 w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">{index + 1}</span>
+                    <span className="text-xs font-bold text-slate-700">{p.name}</span>
+                  </div>;
+                })}
+             </div>
+          </div>
+
+          <div className="bg-indigo-50/30 rounded-2xl p-4 border-2 border-indigo-100">
+             <h4 className="text-center font-bold text-indigo-400 text-xs mb-4 uppercase">Running</h4>
+             <div className="flex flex-col items-center justify-center h-48">
+                {processes.filter(p => p.status === 'running').map(p => (
+                  <div key={p.id} className="w-full bg-white p-4 rounded-2xl shadow-xl ring-2 ring-indigo-500">
+                    <div className="flex justify-between text-xs font-black mb-2"><span>{p.name}</span><span>{p.progress}%</span></div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${p.progress}%` }}></div></div>
+                  </div>
+                ))}
+             </div>
+          </div>
+
+          <div className="bg-green-50/30 rounded-2xl p-4 border-2 border-green-100">
+             <h4 className="text-center font-bold text-green-400 text-xs mb-4 uppercase">Terminated</h4>
+             <div className="space-y-2">
+                {processes.filter(p => p.status === 'completed').map(p => (
+                  <div key={p.id} className="bg-white p-2 rounded-lg border border-green-100 text-[10px] font-bold text-green-600 text-center opacity-50">{p.name}</div>
+                ))}
+             </div>
+          </div>
+
+          <div className="col-start-2 mt-4 bg-red-50 rounded-2xl p-4 border-2 border-red-100">
+             <h4 className="text-center font-bold text-red-400 text-xs mb-4 uppercase">Blocked</h4>
+             <div className="flex flex-wrap gap-2 justify-center">
+                {processes.filter(p => p.status === 'blocked').map(p => (
+                  <div key={p.id} className="bg-white px-3 py-2 rounded-lg border border-red-200 text-[10px] font-bold text-red-600 animate-pulse">{p.name}</div>
+                ))}
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
