@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OOP Zoo Architect - Interactive Revision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        
+        /* UML Box Styling based on Topic 10.1.2 */
+        .uml-box {
+            border: 2px solid #1e293b;
+            background: white;
+            box-shadow: 4px 4px 0px #1e293b;
+            transition: all 0.2s ease;
+        }
+        .uml-box:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #1e293b;
+        }
+        .uml-header {
+            background: #1e293b;
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        .uml-section {
+            padding: 0.4rem;
+            border-top: 1px solid #1e293b;
+            min-height: 1.5rem;
+            font-size: 0.8rem;
+        }
+        .inheritance-arrow {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 12px solid #1e293b;
+            margin: 0 auto;
+        }
+        .inheritance-line {
+            width: 2px;
+            height: 15px;
+            background: #1e293b;
+            margin: 0 auto;
+        }
+
+        /* Console styling */
+        #console {
+            background: #0f172a;
+            color: #38bdf8;
+            height: 350px;
+            overflow-y: auto;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .log-instantiation { color: #a6e22e; }
+        .log-method { color: #e6db74; }
+        .log-error { color: #f92672; font-weight: bold; }
+        .log-info { color: #66d9ef; font-style: italic; }
+        .log-poly { color: #fd971f; font-weight: bold; border-left: 2px solid #fd971f; padding-left: 8px; margin: 4px 0; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 border-b-2 border-slate-200 pb-4">
+            <h1 class="text-3xl font-bold text-slate-800">🦁 OOP Zoo Architect</h1>
+            <p class="text-slate-600 mt-2">Interactive Revision Tool for <strong>Topic 10: Principles of Programming</strong></p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: UML & THEORY -->
+            <div class="lg:col-span-5 space-y-4">
+                <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 overflow-y-auto max-h-[700px]">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <span>📋</span> Class Diagrams (UML)
+                    </h2>
+                    
+                    <!-- Superclass -->
+                    <div class="uml-box mx-auto w-64">
+                        <div class="uml-header italic text-xs">Animal (Superclass)</div>
+                        <div class="uml-section code-font">
+                            # species : String<br>
+                            # age : Integer
+                        </div>
+                        <div class="uml-section code-font">
+                            + getSpecies() : String <span class="text-slate-400 text-[10px] block">/* No Parameter */</span>
+                            + setAge(newAge : Integer) <span class="text-slate-400 text-[10px] block">/* With Parameter */</span>
+                            + makeSound()
+                        </div>
+                    </div>
+
+                    <div class="flex justify-around items-start">
+                        <!-- Left Subclass -->
+                        <div class="w-1/2">
+                            <div class="py-2">
+                                <div class="inheritance-arrow"></div>
+                                <div class="inheritance-line"></div>
+                            </div>
+                            <div class="uml-box mx-auto w-48">
+                                <div class="uml-header text-xs">Lion (Subclass)</div>
+                                <div class="uml-section code-font">
+                                    - prideName : String <span class="text-red-500 font-bold">/* Private */</span>
+                                </div>
+                                <div class="uml-section code-font">
+                                    + makeSound() <br>
+                                    + setPride(name : String)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Subclass -->
+                        <div class="w-1/2">
+                            <div class="py-2">
+                                <div class="inheritance-arrow"></div>
+                                <div class="inheritance-line"></div>
+                            </div>
+                            <div class="uml-box mx-auto w-48">
+                                <div class="uml-header text-xs text-blue-100 bg-blue-900">Penguin (Subclass)</div>
+                                <div class="uml-section code-font">
+                                    - colonySize : Integer
+                                </div>
+                                <div class="uml-section code-font">
+                                    + makeSound() <br>
+                                    + swim()
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="mt-6 p-4 bg-slate-100 rounded-lg text-xs grid grid-cols-3 gap-2">
+                        <div><span class="font-bold">+</span> Public</div>
+                        <div><span class="font-bold">-</span> Private</div>
+                        <div><span class="font-bold">#</span> Protected</div>
+                        <div class="col-span-3 text-slate-500 italic mt-1 border-t pt-1 text-center">Arrows point to Superclass!</div>
+                    </div>
+                </section>
+
+                <section class="bg-purple-50 p-6 rounded-xl border border-purple-100">
+                    <h3 class="font-bold text-purple-800 mb-2">Exam Check: Parameters</h3>
+                    <ul class="text-sm text-purple-700 space-y-2 list-disc ml-4">
+                        <li><strong>No Parameters:</strong> <code>getSpecies()</code> has empty brackets. It just returns a value.</li>
+                        <li><strong>With Parameters:</strong> <code>setAge(newAge)</code> has data inside brackets. It needs that data to work.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- RIGHT COLUMN: INTERACTION & CONSOLE -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Action Controls -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-semibold mb-4">Architecture Controls</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Group 1: Instantiation -->
+                        <div>
+                            <p class="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">1. Create Objects (Instantiation)</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="instantiate('Simba', 'Lion')" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-md font-medium text-sm">New Lion (Simba)</button>
+                                <button onclick="instantiate('Pingu', 'Penguin')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-md font-medium text-sm">New Penguin (Pingu)</button>
+                            </div>
+                        </div>
+
+                        <!-- Group 2: Method Testing -->
+                        <div>
+                            <p class="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">2. Test Methods (Parameters)</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="callWithParam()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition text-sm">Call setAge(5) [With Param]</button>
+                                <button onclick="callNoParam()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition text-sm">Call getSpecies() [No Param]</button>
+                            </div>
+                        </div>
+
+                        <!-- Group 3: Concepts -->
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                            <p class="text-sm font-semibold text-indigo-600 mb-3 uppercase tracking-wider">3. Polymorphism & Encapsulation</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="testPolymorphism()" class="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-bold text-sm">Run Polymorphism Loop</button>
+                                <button onclick="testEncapsulation()" class="flex-1 px-4 py-3 border-2 border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition font-bold text-sm">Test Private Access (-)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution Output -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="font-bold text-slate-700">Memory Output</h3>
+                        <button onclick="clearConsole()" class="text-xs text-slate-400 hover:text-slate-600">Clear Logs</button>
+                    </div>
+                    <div id="console">
+                        <div class="log-info">System initialized. Visibility symbols and parameters are ready for testing.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const consoleEl = document.getElementById('console');
+        let zoo = [];
+        let selectedObject = null;
+
+        function log(msg, className = '') {
+            const div = document.createElement('div');
+            div.className = className + ' mb-1';
+            div.innerHTML = `> ${msg}`;
+            consoleEl.appendChild(div);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function instantiate(name, type) {
+            const newObj = {
+                name: name,
+                type: type,
+                species: type === 'Lion' ? 'Panthera leo' : 'Aptenodytes forsteri',
+                age: 0,
+                prideName: name === 'Simba' ? 'Pride Rock' : 'Unknown',
+                id: Math.random().toString(36).substr(2, 5),
+                makeSound: function() {
+                    return type === 'Lion' ? '"ROAAAAR!"' : '"Noot Noot! / Squawk!"';
+                }
+            };
+            
+            zoo.push(newObj);
+            selectedObject = newObj;
+            
+            log(`INSTANTIATED: <strong>${name}</strong> the ${type}.`, 'log-instantiation');
+            log(`- Active object set to ${name}.`, 'log-info');
+        }
+
+        function callWithParam() {
+            if (!selectedObject) {
+                log("ERROR: No animal selected.", "log-error");
+                return;
+            }
+            const newAge = 5;
+            selectedObject.age = newAge;
+            log(`METHOD CALL: ${selectedObject.name}.setAge(<span class="text-white">${newAge}</span>)`, 'log-method');
+            log(`Logic: The parameter <strong>${newAge}</strong> was passed into the method to update the attribute.`, 'log-info');
+        }
+
+        function callNoParam() {
+            if (!selectedObject) {
+                log("ERROR: No animal selected.", "log-error");
+                return;
+            }
+            const species = selectedObject.species;
+            log(`METHOD CALL: ${selectedObject.name}.getSpecies()`, 'log-method');
+            log(`Result: Returning "<strong>${species}</strong>" from internal memory.`, 'log-info');
+            log(`Note: Brackets are empty () because no external data was needed.`, 'log-poly');
+        }
+
+        function testPolymorphism() {
+            if (zoo.length === 0) {
+                log("ERROR: The zoo is empty!", "log-error");
+                return;
+            }
+
+            log(`RUNNING POLYMORPHISM DEMO...`, 'log-poly');
+            zoo.forEach((animal, index) => {
+                setTimeout(() => {
+                    log(`Object [${animal.name}] (${animal.type}) -> animal.makeSound() -> <strong class="text-white">${animal.makeSound()}</strong>`, 'log-method');
+                }, index * 400);
+            });
+        }
+
+        function testEncapsulation() {
+            if (!selectedObject) {
+                log("ERROR: Instantiate an object first.", "log-error");
+                return;
+            }
+            log(`ATTEMPTING: External script trying to read <code>${selectedObject.name}.prideName</code>...`, 'log-info');
+            setTimeout(() => {
+                log(`ACCESS DENIED: 'prideName' has <strong>Private (-)</strong> visibility in UML.`, 'log-error');
+                log(`REVISION: Only methods inside the Lion class can see this attribute.`, 'log-info');
+            }, 400);
+        }
+
+        function clearConsole() {
+            consoleEl.innerHTML = '<div class="log-info">Console cleared.</div>';
+        }
+    </script>
+</body>
+</html>
