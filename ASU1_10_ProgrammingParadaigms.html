@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 10: Principles of Programming Paradigms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .paradigm-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .active-tab {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .step-animate {
+            animation: fadeInRight 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .pulse-once {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Visual Blocks Styling */
+        .visual-block {
+            border-radius: 8px 8px 8px 25px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .visual-block::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 12px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 8px 0 0 25px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-slate-800">Topic 10: Principles of Programming</h1>
+            <p class="text-slate-600 mt-2">10.1.1 - Distinguishing features of different types of programming paradigms</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <button onclick="switchParadigm('procedural')" id="tab-procedural" class="paradigm-card p-4 rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 hover:border-blue-300 active-tab">
+                Procedural
+            </button>
+            <button onclick="switchParadigm('eventdriven')" id="tab-eventdriven" class="paradigm-card p-4 rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 hover:border-blue-300">
+                Event-Driven
+            </button>
+            <button onclick="switchParadigm('visual')" id="tab-visual" class="paradigm-card p-4 rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 hover:border-blue-300">
+                Visual
+            </button>
+            <button onclick="switchParadigm('markup')" id="tab-markup" class="paradigm-card p-4 rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 hover:border-blue-300">
+                Mark-Up
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Information Panel -->
+            <div id="info-panel" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 min-h-[500px]">
+                <div id="content-container">
+                    <!-- Dynamic Content Injected Here -->
+                </div>
+            </div>
+
+            <!-- Live Simulator Panel -->
+            <div class="bg-slate-900 rounded-2xl p-8 shadow-xl flex flex-col min-h-[500px]">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-blue-400 font-bold uppercase tracking-wider text-sm">Paradigm Simulator</h3>
+                    <div class="flex space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                </div>
+                
+                <div id="simulator-canvas" class="flex-grow flex items-center justify-center bg-slate-800 rounded-xl overflow-hidden relative">
+                    <!-- Dynamic Visual Aid Injected Here -->
+                </div>
+
+                <div class="mt-6">
+                    <p id="simulator-caption" class="text-slate-400 text-sm italic text-center">Select a paradigm to see how logic flows.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Comparison Summary Footer -->
+        <footer class="mt-8 bg-blue-50 p-6 rounded-xl border border-blue-100">
+            <h4 class="font-bold text-blue-900 mb-2">Summary Note:</h4>
+            <p class="text-blue-800 text-sm leading-relaxed">
+                Each paradigm has unique features: Procedural focuses on <strong>steps</strong>, Event-Driven responds to <strong>actions</strong>, Visual simplifies via <strong>graphics</strong>, and Mark-Up provides <strong>meaning/structure</strong> to text.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const data = {
+            procedural: {
+                title: "Procedural Programming",
+                features: [
+                    "<strong>Algorithmic Structure:</strong> Focus on logical, step-by-step processes.",
+                    "<strong>Execution Flow:</strong> Obeys sequential control (loops, conditionals).",
+                    "<strong>Precise Control:</strong> Tight control over hardware/system software.",
+                    "<strong>Reusability:</strong> Functions/procedures allow modular code."
+                ],
+                examples: "C, Python (procedural style)",
+                apps: "Scientific computations, financial modeling, system software.",
+                visual: `
+                    <div class="flex flex-col space-y-4 w-full px-12">
+                        <div id="step-1" class="bg-blue-600 text-white p-3 rounded text-center code-font text-sm">STEP 1: Initialize Variables</div>
+                        <div class="flex justify-center text-blue-400">↓</div>
+                        <div id="step-2" class="bg-blue-600 text-white p-3 rounded text-center code-font text-sm">STEP 2: Loop 10 Times</div>
+                        <div class="flex justify-center text-blue-400">↓</div>
+                        <div id="step-3" class="bg-blue-600 text-white p-3 rounded text-center code-font text-sm">STEP 3: Print Results</div>
+                        <button onclick="runProcedural()" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">Run Sequence</button>
+                    </div>
+                `,
+                caption: "Observe the linear, top-down execution of instructions."
+            },
+            eventdriven: {
+                title: "Event-Driven Programming",
+                features: [
+                    "<strong>Event Handling:</strong> Driven by user actions (clicks, keys) or sensors.",
+                    "<strong>Event Listeners:</strong> Functions triggered by specific triggers.",
+                    "<strong>GUI Focus:</strong> Central to modern interactive applications.",
+                    "<strong>Concurrency:</strong> Handles multiple events asynchronously."
+                ],
+                examples: "JavaScript, VB.NET",
+                apps: "Games, mobile apps, web-based systems.",
+                visual: `
+                    <div class="text-center space-y-6">
+                        <div id="event-log" class="bg-slate-700 p-4 rounded mb-4 h-24 overflow-y-auto text-green-400 text-xs text-left code-font">
+                            [Waiting for interaction...]
+                        </div>
+                        <div class="flex space-x-4">
+                            <button onclick="logEvent('CLICKED')" class="bg-red-500 p-8 rounded-full shadow-lg hover:bg-red-400 active:scale-95 transition-all text-white font-bold">CLICK ME</button>
+                            <div onmouseover="logEvent('HOVERED')" class="bg-yellow-500 p-8 rounded-lg shadow-lg cursor-pointer text-yellow-900 font-bold">HOVER ME</div>
+                        </div>
+                    </div>
+                `,
+                caption: "Logic stays idle until an 'event' (user action) triggers a function."
+            },
+            visual: {
+                title: "Visual Programming",
+                features: [
+                    "<strong>Graphical Interface:</strong> Manipulate blocks/icons instead of typing.",
+                    "<strong>Simplified Logic:</strong> Accessible to beginners (abstracts syntax).",
+                    "<strong>Ease of Use:</strong> Reduces complexity and syntax errors.",
+                    "<strong>Rapid Prototyping:</strong> Quick testing via drag-and-drop."
+                ],
+                examples: "Scratch, LabVIEW",
+                apps: "Education, engineering tasks, prototyping.",
+                visual: `
+                    <div class="space-y-3 w-64">
+                        <div class="visual-block bg-orange-500 text-white p-3 text-sm font-bold shadow-md">when flag clicked</div>
+                        <div class="visual-block bg-blue-500 text-white p-3 text-sm font-bold ml-4 shadow-md">move 10 steps</div>
+                        <div class="visual-block bg-purple-500 text-white p-3 text-sm font-bold ml-4 shadow-md">say "Hello!"</div>
+                        <div class="mt-8 flex justify-center">
+                            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center animate-bounce">
+                                😺
+                            </div>
+                        </div>
+                    </div>
+                `,
+                caption: "Logic is constructed like a puzzle, removing the fear of syntax errors."
+            },
+            markup: {
+                title: "Mark-Up Languages",
+                features: [
+                    "<strong>Mark-Up Commands:</strong> Add 'tags' to provide meaning to text.",
+                    "<strong>Instruction-Based:</strong> Tells browsers/apps how to display content.",
+                    "<strong>Standardized Tags:</strong> Uses chevrons (e.g. &lt;h1&gt;).",
+                    "<strong>Integration:</strong> Combined with JS or CSS for extra power."
+                ],
+                examples: "HTML, XML",
+                apps: "Web page design, data interchange (XML).",
+                visual: `
+                    <div class="w-full flex flex-col space-y-4 p-4">
+                        <div class="bg-slate-700 p-3 rounded border border-slate-600">
+                            <p class="text-blue-300 text-xs mb-1">Code Editor</p>
+                            <code class="text-white text-sm">&lt;h1&gt;Hello World&lt;/h1&gt;<br>&lt;p&gt;This is structured text.&lt;/p&gt;</code>
+                        </div>
+                        <div class="bg-white p-6 rounded shadow-inner text-slate-800">
+                             <p class="text-slate-400 text-[10px] mb-2 border-b">Browser View</p>
+                             <h1 class="text-2xl font-bold">Hello World</h1>
+                             <p class="text-gray-600 mt-2">This is structured text.</p>
+                        </div>
+                    </div>
+                `,
+                caption: "Tags do not compute logic; they define structure and layout."
+            }
+        };
+
+        function switchParadigm(id) {
+            // Update Tabs
+            document.querySelectorAll('.paradigm-card').forEach(btn => btn.classList.remove('active-tab'));
+            document.getElementById('tab-' + id).classList.add('active-tab');
+
+            // Update Info Panel
+            const paradigm = data[id];
+            const content = `
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">${paradigm.title}</h2>
+                <div class="space-y-4 mb-6">
+                    <h4 class="text-blue-600 font-bold text-sm uppercase tracking-wider">Key Features</h4>
+                    <ul class="space-y-3">
+                        ${paradigm.features.map(f => `
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">✦</span>
+                                <span class="text-slate-700 text-sm">${f}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                <div class="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100">
+                    <div>
+                        <h4 class="text-blue-600 font-bold text-sm uppercase mb-1">Examples</h4>
+                        <p class="text-slate-600 text-sm font-semibold">${paradigm.examples}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-blue-600 font-bold text-sm uppercase mb-1">Applications</h4>
+                        <p class="text-slate-600 text-sm">${paradigm.apps}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('content-container').innerHTML = content;
+
+            // Update Simulator
+            document.getElementById('simulator-canvas').innerHTML = paradigm.visual;
+            document.getElementById('simulator-caption').innerText = paradigm.caption;
+        }
+
+        // Interaction Logic for Procedural
+        async function runProcedural() {
+            const steps = ['step-1', 'step-2', 'step-3'];
+            for (const stepId of steps) {
+                const el = document.getElementById(stepId);
+                el.classList.add('pulse-once', 'bg-green-600');
+                await new Promise(r => setTimeout(r, 600));
+                el.classList.remove('pulse-once', 'bg-green-600');
+            }
+        }
+
+        // Interaction Logic for Event Driven
+        function logEvent(type) {
+            const log = document.getElementById('event-log');
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+            log.innerHTML = `[${time}] EVENT DETECTED: ${type}<br>` + log.innerHTML;
+        }
+
+        // Initialize first view
+        window.onload = () => switchParadigm('procedural');
+    </script>
+</body>
+</html>
