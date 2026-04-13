@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event-Driven Programming Tutorial - Tkinter Grade Calculator</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --secondary: #059669;
+      --accent: #7c3aed;
+      --border: #dbe3ee;
+      --code-bg: #0f172a;
+      --code-text: #e5e7eb;
+      --warn: #b45309;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+      color: white;
+      padding: 2rem 1.25rem;
+    }
+
+    .header-inner,
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
+    }
+
+    header p {
+      margin: 0.35rem 0;
+      max-width: 900px;
+    }
+
+    .container {
+      padding: 1.25rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-right: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .step {
+      border-left: 6px solid var(--primary);
+      padding-left: 1rem;
+    }
+
+    .paradigm {
+      background: #eef6ff;
+      border: 1px solid #cfe0ff;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin: 0.75rem 0 0;
+    }
+
+    .paradigm strong {
+      color: var(--primary);
+    }
+
+    .note {
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      color: var(--warn);
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    code {
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+    }
+
+    ul, ol {
+      padding-left: 1.3rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eff6ff;
+    }
+
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(245, 247, 251, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sticky-nav .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .sticky-nav a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: bold;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+    }
+
+    .checklist li {
+      margin-bottom: 0.4rem;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 2rem 1rem 3rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Event-Driven Programming Tutorial</h1>
+      <p><strong>Project:</strong> Tkinter Grade Calculator</p>
+      <p>This resource will guide you step by step through building a simple Python GUI program while helping you identify the programming paradigms used in the solution.</p>
+      <p>
+        <span class="pill">Event-driven</span>
+        <span class="pill">Procedural</span>
+        <span class="pill">Object-oriented</span>
+        <span class="pill">Scripting</span>
+      </p>
+    </div>
+  </header>
+
+  <nav class="sticky-nav">
+    <div class="container">
+      <a href="#overview">Overview</a>
+      <a href="#setup">Setup</a>
+      <a href="#steps">Build Steps</a>
+      <a href="#complete">Full Code</a>
+      <a href="#paradigms">Paradigm Links</a>
+      <a href="#tasks">Tasks</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section id="overview" class="card">
+      <h2>What you are building</h2>
+      <p>You are going to create a simple grade calculator using <strong>Tkinter</strong>, which is a Python library used to build graphical user interfaces (GUIs).</p>
+      <p>The user will type in three scores, click a button, and the program will calculate the average and display a grade.</p>
+      <div class="grid">
+        <div class="note">
+          <h3>Learning goals</h3>
+          <ul>
+            <li>Create a simple GUI using Python</li>
+            <li>Use an <strong>event handler</strong> linked to a button</li>
+            <li>Apply variables, input, processing and selection</li>
+            <li>Identify where different programming paradigms appear</li>
+          </ul>
+        </div>
+        <div class="warning">
+          <h3>Key idea</h3>
+          <p>This is mainly an <strong>event-driven program</strong>, but it also contains procedural and object-oriented features. Real programs often combine paradigms.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup" class="card">
+      <h2>Before you start</h2>
+      <ol>
+        <li>Open your Python editor, for example IDLE, VS Code or Thonny.</li>
+        <li>Create a new Python file.</li>
+        <li>Save it as <code>grade_calculator.py</code>.</li>
+        <li>Work through the steps below, testing your code as you go.</li>
+      </ol>
+      <div class="note">
+        <strong>Tip:</strong> Do not paste the final answer straight away. Build it one section at a time so you understand how each part works.
+      </div>
+    </section>
+
+    <section id="steps" class="card">
+      <h2>Step-by-step build guide</h2>
+
+      <article class="step card">
+        <h3>Step 1: Import Tkinter</h3>
+        <p>Add the following code at the top of your program:</p>
+<pre><code>import tkinter as tk
+from tkinter import messagebox</code></pre>
+        <p><strong>What this does:</strong> This imports the tools needed to create the GUI. The message box will be used later if the user enters invalid data.</p>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> Python is often used as a <strong>scripting language</strong> because code can be written and run quickly without a separate compilation stage.
+        </div>
+      </article>
+
+      <article class="step card">
+        <h3>Step 2: Create the main window</h3>
+        <p>Now create the program window:</p>
+<pre><code>window = tk.Tk()
+window.title("Grade Calculator")
+window.geometry("350x250")</code></pre>
+        <p><strong>What this does:</strong> It creates the main window, gives it a title and sets the size.</p>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> This is also an example of <strong>object-oriented programming</strong>. The window is an object created from Tkinter.
+        </div>
+      </article>
+
+      <article class="step card">
+        <h3>Step 3: Add a title label</h3>
+        <p>Add this underneath your window code:</p>
+<pre><code>title_label = tk.Label(window, text="Grade Calculator", font=("Arial", 16))
+title_label.pack(pady=10)</code></pre>
+        <p><strong>What this does:</strong> This adds a heading to the window. The <code>pack()</code> method places the label in the interface.</p>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> <code>tk.Label(...)</code> creates an object. <code>.pack()</code> is a method being called on that object.
+        </div>
+      </article>
+
+      <article class="step card">
+        <h3>Step 4: Add the input boxes</h3>
+        <p>Add three labels and three entry boxes:</p>
+<pre><code>label1 = tk.Label(window, text="Enter score 1:")
+label1.pack()
+entry1 = tk.Entry(window)
+entry1.pack()
+
+label2 = tk.Label(window, text="Enter score 2:")
+label2.pack()
+entry2 = tk.Entry(window)
+entry2.pack()
+
+label3 = tk.Label(window, text="Enter score 3:")
+label3.pack()
+entry3 = tk.Entry(window)
+entry3.pack()</code></pre>
+        <p><strong>What this does:</strong> These input boxes allow the user to type in scores.</p>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> The interface is made from objects such as labels and entry boxes. This again shows <strong>object-oriented features</strong> inside the program.
+        </div>
+      </article>
+
+      <article class="step card">
+        <h3>Step 5: Create a result label</h3>
+        <p>Add a label that will later show the answer:</p>
+<pre><code>result_label = tk.Label(window, text="Average:    Grade:", font=("Arial", 12))
+result_label.pack(pady=10)</code></pre>
+        <p><strong>What this does:</strong> It creates an area where the result will be shown after the button is clicked.</p>
+      </article>
+
+      <article class="step card">
+        <h3>Step 6: Create the processing function</h3>
+        <p>Now add this function above the code that creates the window:</p>
+<pre><code>def calculate_grade():
+    try:
+        score1 = float(entry1.get())
+        score2 = float(entry2.get())
+        score3 = float(entry3.get())
+
+        average = (score1 + score2 + score3) / 3
+
+        if average &gt;= 80:
+            grade = "A"
+        elif average &gt;= 70:
+            grade = "B"
+        elif average &gt;= 60:
+            grade = "C"
+        elif average &gt;= 50:
+            grade = "D"
+        else:
+            grade = "Fail"
+
+        result_label.config(text=f"Average: {average:.1f}   Grade: {grade}")
+
+    except ValueError:
+        messagebox.showerror("Input Error", "Please enter numbers only.")</code></pre>
+        <p><strong>What this does:</strong></p>
+        <ul>
+          <li>Gets the values from the three entry boxes</li>
+          <li>Converts them into numbers</li>
+          <li>Calculates the average</li>
+          <li>Uses selection to work out the grade</li>
+          <li>Updates the result label</li>
+          <li>Shows an error if the user types invalid data</li>
+        </ul>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> The code inside this function is mainly <strong>procedural</strong> because it runs step by step using sequence, variables and selection.
+        </div>
+      </article>
+
+      <article class="step card">
+        <h3>Step 7: Add the button</h3>
+        <p>Add this underneath your entry boxes:</p>
+<pre><code>calculate_button = tk.Button(window, text="Calculate Grade", command=calculate_grade)
+calculate_button.pack(pady=10)</code></pre>
+        <p><strong>What this does:</strong> This creates a button. When the user clicks it, the <code>calculate_grade()</code> function is run.</p>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> This is the clearest example of <strong>event-driven programming</strong>. The program waits for an event. The event is the button click. The function is the event handler.
+        </div>
+      </article>
+
+      <article class="step card">
+        <h3>Step 8: Start the program</h3>
+        <p>Add this final line at the bottom of the program:</p>
+<pre><code>window.mainloop()</code></pre>
+        <p><strong>What this does:</strong> This starts the GUI and keeps the program running while it waits for user events.</p>
+        <div class="paradigm">
+          <strong>Paradigm link:</strong> <code>mainloop()</code> is central to the <strong>event-driven</strong> model because it keeps listening for actions such as clicks and keyboard input.
+        </div>
+      </article>
+    </section>
+
+    <section id="complete" class="card">
+      <h2>Complete program</h2>
+      <p>Once you have built the program step by step, your finished code should look like this:</p>
+<pre><code>import tkinter as tk
+from tkinter import messagebox
+
+def calculate_grade():
+    try:
+        score1 = float(entry1.get())
+        score2 = float(entry2.get())
+        score3 = float(entry3.get())
+
+        average = (score1 + score2 + score3) / 3
+
+        if average &gt;= 80:
+            grade = "A"
+        elif average &gt;= 70:
+            grade = "B"
+        elif average &gt;= 60:
+            grade = "C"
+        elif average &gt;= 50:
+            grade = "D"
+        else:
+            grade = "Fail"
+
+        result_label.config(text=f"Average: {average:.1f}   Grade: {grade}")
+
+    except ValueError:
+        messagebox.showerror("Input Error", "Please enter numbers only.")
+
+window = tk.Tk()
+window.title("Grade Calculator")
+window.geometry("350x250")
+
+title_label = tk.Label(window, text="Grade Calculator", font=("Arial", 16))
+title_label.pack(pady=10)
+
+label1 = tk.Label(window, text="Enter score 1:")
+label1.pack()
+entry1 = tk.Entry(window)
+entry1.pack()
+
+label2 = tk.Label(window, text="Enter score 2:")
+label2.pack()
+entry2 = tk.Entry(window)
+entry2.pack()
+
+label3 = tk.Label(window, text="Enter score 3:")
+label3.pack()
+entry3 = tk.Entry(window)
+entry3.pack()
+
+calculate_button = tk.Button(window, text="Calculate Grade", command=calculate_grade)
+calculate_button.pack(pady=10)
+
+result_label = tk.Label(window, text="Average:    Grade:", font=("Arial", 12))
+result_label.pack(pady=10)
+
+window.mainloop()</code></pre>
+    </section>
+
+    <section id="paradigms" class="card">
+      <h2>How this program links to programming paradigms</h2>
+      <table>
+        <tr>
+          <th>Paradigm</th>
+          <th>How it appears in this program</th>
+        </tr>
+        <tr>
+          <td><strong>Event-driven</strong></td>
+          <td>The program waits for the user to click the button. The click is an event, and <code>calculate_grade</code> is the event handler.</td>
+        </tr>
+        <tr>
+          <td><strong>Procedural</strong></td>
+          <td>Inside the function, the instructions run in a sequence: input, process, selection and output.</td>
+        </tr>
+        <tr>
+          <td><strong>Object-oriented</strong></td>
+          <td>Tkinter creates interface objects such as windows, labels, buttons and entry boxes. Methods like <code>.get()</code>, <code>.pack()</code> and <code>.config()</code> are called on these objects.</td>
+        </tr>
+        <tr>
+          <td><strong>Scripting</strong></td>
+          <td>Python allows quick development and testing, which is one reason it is often described as a scripting language.</td>
+        </tr>
+      </table>
+      <div class="note" style="margin-top: 1rem;">
+        <strong>Important:</strong> Although this is mainly an event-driven program, it is not purely event-driven. It combines features from more than one paradigm.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Check your understanding</h2>
+      <ol class="checklist">
+        <li>What is the event in this program?</li>
+        <li>What is the event handler?</li>
+        <li>Which part of the program is procedural?</li>
+        <li>Give one example of an object in this program.</li>
+        <li>Which method is used to read data from an entry box?</li>
+      </ol>
+    </section>
+
+    <section id="tasks" class="card">
+      <h2>Student tasks</h2>
+      <h3>Task 1: Build the program</h3>
+      <p>Follow the tutorial and create the full working program.</p>
+
+      <h3>Task 2: Test the program</h3>
+      <p>Test your program using the following values:</p>
+      <ul>
+        <li>80, 75, 90</li>
+        <li>60, 62, 58</li>
+        <li>40, 35, 50</li>
+        <li>Try entering text instead of a number</li>
+      </ul>
+
+      <h3>Task 3: Explain the paradigm</h3>
+      <p>Write a short paragraph explaining why this is an event-driven program.</p>
+
+      <h3>Task 4: Spot the other paradigms</h3>
+      <p>Identify one feature of the program that links to procedural programming and one that links to object-oriented programming.</p>
+
+      <h3>Extension challenge</h3>
+      <ul>
+        <li>Add a clear button</li>
+        <li>Only allow values between 0 and 100</li>
+        <li>Display a different message for each grade</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Exam-style question</h2>
+      <p><strong>Question:</strong> Identify two programming paradigms used in this program and explain how they are applied.</p>
+      <div class="note">
+        <strong>Model response:</strong> Event-driven programming is used because the program waits for the user to click the button, which triggers the function. Procedural programming is used inside the function because the instructions are carried out step by step to get input, process the values and display the result.
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">
+    Tutorial resource for classroom use - Tkinter Grade Calculator
+  </div>
+</body>
+</html>
