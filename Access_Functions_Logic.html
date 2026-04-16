@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declarative Discovery Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .lego-block {
+            transition: all 0.2s ease;
+        }
+
+        .lego-block:hover {
+            transform: translateY(-2px);
+        }
+
+        .pipeline-arrow::after {
+            content: '↓';
+            display: block;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #94a3b8;
+            margin: 0.5rem 0;
+        }
+
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .fact-card {
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-animate {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .suspect-card {
+            transition: all 0.3s ease;
+        }
+        .suspect-eliminated {
+            opacity: 0.3;
+            filter: grayscale(1);
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Declarative Discovery Hub</h1>
+                <p class="text-sm text-slate-500">Mastering Functional & Logic Paradigms</p>
+            </div>
+            <nav class="flex space-x-6">
+                <button onclick="switchTab('functional')" id="btn-functional" class="py-2 font-semibold transition tab-active">Functional Builder</button>
+                <button onclick="switchTab('logic')" id="btn-logic" class="py-2 font-semibold transition text-slate-500 hover:text-slate-700">Logic Detective</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- INTRO SECTION -->
+        <section id="intro-banner" class="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 p-8 rounded-2xl text-white shadow-lg">
+            <h2 class="text-2xl font-bold mb-2">Welcome to the Hub</h2>
+            <p id="intro-text" class="text-blue-100 max-w-2xl leading-relaxed">
+                Explore how <strong>Declarative</strong> programming focuses on the "What" rather than the "How". 
+            </p>
+        </section>
+
+        <!-- MODULE A: FUNCTIONAL BUILDER -->
+        <div id="tab-functional" class="tab-content space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Toolbox -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <span class="bg-blue-100 text-blue-600 p-1.5 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                                </span>
+                                Blocks
+                            </h3>
+                            <span id="level-indicator" class="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">Level 1</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-6">Each block is a <strong>Pure Function</strong>. It receives data, processes it, and returns a <strong>new</strong> result without changing the input.</p>
+                        
+                        <div class="grid grid-cols-1 gap-3">
+                            <button onclick="addToPipeline('double')" class="lego-block bg-indigo-500 text-white p-4 rounded-xl text-sm font-bold shadow-md text-left flex justify-between items-center group">
+                                <span>Double (x * 2)</span>
+                                <span class="opacity-0 group-hover:opacity-100 transition-opacity">Add +</span>
+                            </button>
+                            <button onclick="addToPipeline('square')" class="lego-block bg-purple-500 text-white p-4 rounded-xl text-sm font-bold shadow-md text-left flex justify-between items-center group">
+                                <span>Square (x * x)</span>
+                                <span class="opacity-0 group-hover:opacity-100 transition-opacity">Add +</span>
+                            </button>
+                            <button onclick="addToPipeline('add10')" class="lego-block bg-teal-500 text-white p-4 rounded-xl text-sm font-bold shadow-md text-left flex justify-between items-center group">
+                                <span>Add 10 (x + 10)</span>
+                                <span class="opacity-0 group-hover:opacity-100 transition-opacity">Add +</span>
+                            </button>
+                            <button onclick="addToPipeline('filterEven')" class="lego-block bg-rose-500 text-white p-4 rounded-xl text-sm font-bold shadow-md text-left flex justify-between items-center group">
+                                <span>Filter Even Only</span>
+                                <span class="opacity-0 group-hover:opacity-100 transition-opacity">Add +</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-slate-300 p-6 rounded-2xl shadow-xl">
+                        <h4 class="font-bold text-white mb-2 uppercase text-[10px] tracking-widest opacity-60">Challenge Objective</h4>
+                        <p id="challenge-desc" class="text-sm mb-4">Reach the target output starting from the input.</p>
+                        <div class="bg-black/30 p-4 rounded-lg border border-white/10">
+                            <span class="text-xs block mb-1 opacity-50">Target Result:</span>
+                            <div id="target-display" class="text-2xl font-bold text-emerald-400 code-font">[20, 30, 40]</div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                             <button onclick="changeChallenge(-1)" class="text-[10px] bg-white/10 hover:bg-white/20 p-2 rounded uppercase font-bold">Prev</button>
+                             <button onclick="changeChallenge(1)" class="text-[10px] bg-white/10 hover:bg-white/20 p-2 rounded uppercase font-bold flex-grow text-center">Next Challenge</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Canvas -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[500px] flex flex-col relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="font-bold text-xl">The Data Pipeline</h3>
+                            <button onclick="clearPipeline()" class="text-xs font-bold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition uppercase">Reset Pipeline</button>
+                        </div>
+
+                        <div class="flex flex-col items-center max-w-md mx-auto w-full" id="pipeline-container">
+                            <!-- Input -->
+                            <div class="w-full bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200 flex justify-center items-center gap-4 mb-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Initial Data</span>
+                                <span id="input-display" class="code-font font-bold text-lg text-indigo-600">[5, 10, 15]</span>
+                            </div>
+
+                            <!-- Blocks appended here -->
+                            <div id="blocks-list" class="w-full"></div>
+                            
+                            <!-- Final Output -->
+                            <div id="final-result-box" class="w-full mt-6 step-animate hidden">
+                                <div class="w-full bg-emerald-50 p-6 rounded-2xl border-2 border-emerald-200 flex flex-col items-center">
+                                    <span class="text-[10px] font-bold text-emerald-600 uppercase mb-2 tracking-widest">Final Pipeline Output</span>
+                                    <span id="final-output" class="code-font font-bold text-3xl text-emerald-700">[...]</span>
+                                    <div id="win-message" class="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-full text-sm font-bold hidden">
+                                        ✨ Mission Accomplished!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE B: LOGIC DETECTIVE -->
+        <div id="tab-logic" class="tab-content hidden space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Facts and Suspects -->
+                <div class="space-y-6">
+                    <!-- Suspect Board -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="bg-rose-100 text-rose-600 p-1.5 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            </span>
+                            Suspect Board
+                        </h3>
+                        <div id="suspect-board" class="grid grid-cols-2 gap-2">
+                            <!-- JS Generated -->
+                        </div>
+                        <button onclick="resetInvestigation()" class="mt-4 w-full text-[10px] font-bold text-slate-400 uppercase border border-slate-200 p-2 rounded hover:bg-slate-50 transition">Restart Investigation</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-indigo-600">
+                            Known Facts
+                        </h3>
+                        <div class="max-h-[200px] overflow-y-auto space-y-2" id="facts-list">
+                            <!-- JS Generated -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Query Console -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 h-full flex flex-col">
+                        <h3 class="font-bold text-xl mb-6">Investigation Logs</h3>
+                        
+                        <div class="bg-indigo-900 p-6 rounded-2xl text-white shadow-lg mb-6">
+                            <h4 class="text-[10px] font-bold uppercase opacity-50 tracking-widest mb-3">The Crime Details</h4>
+                            <p class="text-sm">The <span class="text-amber-300 font-bold italic">Gold Star</span> is missing. To find the culprit, they must satisfy <strong>all three</strong> logic tests: Opportunity, Motive, and Means.</p>
+                        </div>
+
+                        <div class="space-y-6 flex-grow">
+                            <!-- Multi-Stage Rule Selection -->
+                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Select Evidence Type to Filter</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <button onclick="runInvestigationQuery('opportunity')" class="p-4 bg-white border-2 rounded-xl border-slate-200 hover:border-blue-500 transition-all shadow-sm text-left">
+                                        <div class="font-bold text-sm">Test Opportunity</div>
+                                        <div class="text-[9px] code-font text-blue-600 mt-1">suspect(X) :- was_at(X, Library, 10am)</div>
+                                    </button>
+                                    <button onclick="runInvestigationQuery('motive')" class="p-4 bg-white border-2 rounded-xl border-slate-200 hover:border-blue-500 transition-all shadow-sm text-left">
+                                        <div class="font-bold text-sm">Test Motive</div>
+                                        <div class="text-[9px] code-font text-blue-600 mt-1">suspect(X) :- needs_prize(X)</div>
+                                    </button>
+                                    <button onclick="runInvestigationQuery('means')" class="p-4 bg-white border-2 rounded-xl border-slate-200 hover:border-blue-500 transition-all shadow-sm text-left">
+                                        <div class="font-bold text-sm">Test Means</div>
+                                        <div class="text-[9px] code-font text-blue-600 mt-1">suspect(X) :- was_seen_running(X)</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Terminal -->
+                            <div class="bg-slate-900 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex gap-1.5">
+                                        <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 font-mono">LOGIC_ENGINE_V2.0</span>
+                                </div>
+                                
+                                <div id="investigation-output" class="space-y-2 code-font text-sm min-h-[150px]">
+                                    <div class="text-slate-500 italic">Initiate query by selecting an evidence type above...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- GLOBAL UI STATE ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            
+            document.getElementById('btn-functional').className = "py-2 font-semibold transition text-slate-500 hover:text-slate-700";
+            document.getElementById('btn-logic').className = "py-2 font-semibold transition text-slate-500 hover:text-slate-700";
+            document.getElementById('btn-' + tabId).className = "py-2 font-semibold transition tab-active";
+
+            const intro = document.getElementById('intro-text');
+            if(tabId === 'functional') {
+                intro.innerHTML = "<strong>Functional Programming</strong> defines computation in terms of basic mathematical functions.";
+            } else {
+                intro.innerHTML = "<strong>Logic Programming</strong> uses relations to define facts and rules to infer information.";
+            }
+        }
+
+        // --- MODULE A: FUNCTIONAL BUILDER (MULTI-LEVEL) ---
+        const challenges = [
+            { id: 1, name: "The Basics", input: [5, 10, 15], target: [20, 30, 40], desc: "Add 10 then Double everything." },
+            { id: 2, name: "Perfect Squares", input: [2, 3, 4], target: [4, 16], desc: "Square them, then filter only the even results." },
+            { id: 3, name: "Compound Math", input: [1, 2, 3], target: [44, 48, 52], desc: "Double, Square, then Add 10? Or is it Square, Double, Add 10? Find the order." }
+        ];
+
+        let currentChallengeIdx = 0;
+        let pipeline = [];
+
+        const blockConfig = {
+            double: { label: 'Double', fn: arr => arr.map(x => x * 2), color: 'bg-indigo-500' },
+            square: { label: 'Square', fn: arr => arr.map(x => x * x), color: 'bg-purple-500' },
+            add10: { label: 'Add 10', fn: arr => arr.map(x => x + 10), color: 'bg-teal-500' },
+            filterEven: { label: 'Filter Even', fn: arr => arr.filter(x => x % 2 === 0), color: 'bg-rose-500' }
+        };
+
+        function updateChallengeDisplay() {
+            const ch = challenges[currentChallengeIdx];
+            document.getElementById('level-indicator').innerText = `Level ${ch.id}`;
+            document.getElementById('challenge-desc').innerText = ch.desc;
+            document.getElementById('input-display').innerText = `[${ch.input.join(', ')}]`;
+            document.getElementById('target-display').innerText = `[${ch.target.join(', ')}]`;
+            clearPipeline();
+        }
+
+        function changeChallenge(dir) {
+            currentChallengeIdx = (currentChallengeIdx + dir + challenges.length) % challenges.length;
+            updateChallengeDisplay();
+        }
+
+        function addToPipeline(type) {
+            pipeline.push(type);
+            updatePipelineUI();
+        }
+
+        function clearPipeline() {
+            pipeline = [];
+            updatePipelineUI();
+        }
+
+        function removeStep(index) {
+            pipeline.splice(index, 1);
+            updatePipelineUI();
+        }
+
+        function updatePipelineUI() {
+            const list = document.getElementById('blocks-list');
+            list.innerHTML = '';
+            
+            const ch = challenges[currentChallengeIdx];
+            let currentData = [...ch.input];
+
+            pipeline.forEach((type, idx) => {
+                const config = blockConfig[type];
+                currentData = config.fn(currentData);
+
+                const step = document.createElement('div');
+                step.className = `w-full flex flex-col items-center step-animate ${idx > 0 ? 'pipeline-arrow' : 'mt-4'}`;
+                step.innerHTML = `
+                    <div class="w-full ${config.color} text-white p-4 rounded-xl shadow-lg flex justify-between items-center">
+                        <div class="font-bold text-sm">${config.label}</div>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-black/20 px-3 py-1 rounded-lg code-font text-xs">[${currentData.join(', ')}]</div>
+                            <button onclick="removeStep(${idx})" class="hover:bg-black/10 p-1 rounded transition">×</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(step);
+            });
+
+            const resultBox = document.getElementById('final-result-box');
+            if(pipeline.length > 0) {
+                resultBox.classList.remove('hidden');
+                document.getElementById('final-output').innerText = `[${currentData.join(', ')}]`;
+                
+                const isWin = currentData.length === ch.target.length && currentData.every((v, i) => v === ch.target[i]);
+                document.getElementById('win-message').classList.toggle('hidden', !isWin);
+            } else {
+                resultBox.classList.add('hidden');
+            }
+        }
+
+        // --- MODULE B: LOGIC DETECTIVE (MULTI-QUERY INVESTIGATION) ---
+        const suspects = [
+            { name: "John", traits: ["opportunity", "motive", "means"] }, // THE CULPRIT
+            { name: "Jane", traits: ["opportunity", "motive"] },
+            { name: "Bob", traits: ["means"] },
+            { name: "Mary", traits: ["opportunity"] },
+            { name: "Alice", traits: ["motive", "means"] },
+            { name: "Dave", traits: ["opportunity", "means"] }
+        ];
+
+        const worldFacts = [
+            { text: "was_at(john, library, 10am)", trait: "opportunity" },
+            { text: "was_at(jane, library, 10am)", trait: "opportunity" },
+            { text: "was_at(mary, library, 10am)", trait: "opportunity" },
+            { text: "was_at(dave, library, 10am)", trait: "opportunity" },
+            { text: "was_at(bob, cafe, 10am)", trait: "none" },
+            { text: "needs_prize(john)", trait: "motive" },
+            { text: "needs_prize(jane)", trait: "motive" },
+            { text: "needs_prize(alice)", trait: "motive" },
+            { text: "was_seen_running(john)", trait: "means" },
+            { text: "was_seen_running(bob)", trait: "means" },
+            { text: "was_seen_running(alice)", trait: "means" },
+            { text: "was_seen_running(dave)", trait: "means" }
+        ];
+
+        let activeSuspects = suspects.map(s => s.name);
+        let history = [];
+
+        function renderInvestigation() {
+            // Facts
+            const factsEl = document.getElementById('facts-list');
+            factsEl.innerHTML = '';
+            worldFacts.forEach(f => {
+                const item = document.createElement('div');
+                item.className = "fact-card bg-slate-50 border-slate-200 p-2 rounded text-[9px] code-font text-slate-500";
+                item.innerText = f.text;
+                factsEl.appendChild(item);
+            });
+
+            // Suspect Board
+            const boardEl = document.getElementById('suspect-board');
+            boardEl.innerHTML = '';
+            suspects.forEach(s => {
+                const isEliminated = !activeSuspects.includes(s.name);
+                const el = document.createElement('div');
+                el.className = `suspect-card p-3 rounded-lg border flex flex-col items-center ${isEliminated ? 'suspect-eliminated border-slate-200' : 'bg-white border-blue-100 shadow-sm'}`;
+                el.innerHTML = `
+                    <div class="w-8 h-8 bg-slate-200 rounded-full mb-1 flex items-center justify-center text-xs font-bold text-slate-400">?</div>
+                    <span class="text-xs font-bold">${s.name}</span>
+                `;
+                boardEl.appendChild(el);
+            });
+
+            // Terminal Output
+            const output = document.getElementById('investigation-output');
+            output.innerHTML = history.length === 0 ? '<div class="text-slate-500 italic">Initiate query by selecting evidence...</div>' : '';
+            history.forEach(line => {
+                const div = document.createElement('div');
+                div.className = line.type === 'query' ? 'text-blue-400' : 'text-emerald-400 ml-4';
+                div.innerText = line.text;
+                output.appendChild(div);
+            });
+            output.scrollTop = output.scrollHeight;
+
+            if(activeSuspects.length === 1 && history.length > 0) {
+                const div = document.createElement('div');
+                div.className = "mt-4 bg-emerald-900/50 p-3 rounded border border-emerald-500/50 text-emerald-300 animate-pulse";
+                div.innerText = `[CRITICAL_HIT]: Culprit identified! It's ${activeSuspects[0]}. Investigation closed.`;
+                output.appendChild(div);
+            }
+        }
+
+        function runInvestigationQuery(trait) {
+            if(activeSuspects.length === 1) return;
+
+            const ruleName = trait.charAt(0).toUpperCase() + trait.slice(1);
+            history.push({ type: 'query', text: `?- test_${trait}(Who).` });
+            
+            // Filter logic: Who from the current suspects matches this trait?
+            const filtered = activeSuspects.filter(name => {
+                const suspectData = suspects.find(s => s.name === name);
+                return suspectData.traits.includes(trait);
+            });
+
+            activeSuspects = filtered;
+            
+            if(filtered.length > 0) {
+                history.push({ type: 'result', text: `Results: ${filtered.join(', ')} matches the ${ruleName} criterion.` });
+            } else {
+                history.push({ type: 'result', text: `Results: false. No remaining suspects match ${ruleName}.` });
+            }
+
+            renderInvestigation();
+        }
+
+        function resetInvestigation() {
+            activeSuspects = suspects.map(s => s.name);
+            history = [];
+            renderInvestigation();
+        }
+
+        // Initialize
+        window.onload = () => {
+            updateChallengeDisplay();
+            renderInvestigation();
+            switchTab('functional');
+        };
+    </script>
+</body>
+</html>
