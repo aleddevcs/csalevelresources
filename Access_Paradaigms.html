@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradigm Explorer | Intro to Programming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .tab-active {
+            border-bottom: 4px solid #667eea;
+            color: #667eea;
+        }
+
+        .robot-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            width: 200px;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: #e2e8f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes pulse-once {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); background: #cbd5e1; }
+            100% { transform: scale(1); }
+        }
+
+        .cell-active {
+            animation: pulse-once 0.5s ease-in-out;
+            background: #667eea !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white py-12 px-6 shadow-lg">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 uppercase tracking-tight">Programming Paradigms</h1>
+            <p class="text-xl opacity-90">An interactive guide to the different ways we talk to computers.</p>
+        </div>
+    </header>
+
+    <main class="max-auto max-w-5xl px-6 py-12">
+        
+        <!-- Introduction Section -->
+        <section class="mb-20 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex flex-col md:flex-row gap-10 items-center">
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold mb-4 text-slate-800">What is a Paradigm?</h2>
+                    <p class="text-lg text-slate-600 mb-6">
+                        Think of a <strong>paradigm</strong> as a "style" or a "strategy." It's not just about the code you write; it's about how you approach solving the problem.
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 italic text-blue-800">
+                        "Most problems can be solved using any paradigm, but the choice determines how fast, easy, or secure the solution is."
+                    </div>
+                </div>
+                <div class="flex-1 bg-slate-100 p-6 rounded-xl border border-slate-200 w-full">
+                    <h3 class="font-bold mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        The House Metaphor
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-white rounded-lg shadow-sm">
+                            <span class="font-bold text-indigo-600">Imperative:</span> "Lay brick 1, then brick 2. Apply mortar. Level it. Repeat." (Focus on **HOW**)
+                        </div>
+                        <div class="p-3 bg-white rounded-lg shadow-sm">
+                            <span class="font-bold text-emerald-600">Declarative:</span> "I need a two-story blue house with 3 windows." (Focus on **WHAT**)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Interaction Area -->
+        <div class="flex overflow-x-auto border-b border-slate-200 mb-8 sticky top-0 bg-slate-50 z-10">
+            <button onclick="switchTab('procedural')" id="tab-procedural" class="tab-btn px-6 py-4 font-semibold text-slate-500 hover:text-indigo-600 tab-active">Procedural</button>
+            <button onclick="switchTab('oop')" id="tab-oop" class="tab-btn px-6 py-4 font-semibold text-slate-500 hover:text-indigo-600">Object-Oriented</button>
+            <button onclick="switchTab('event')" id="tab-event" class="tab-btn px-6 py-4 font-semibold text-slate-500 hover:text-indigo-600">Event-Driven</button>
+            <button onclick="switchTab('scripting')" id="tab-scripting" class="tab-btn px-6 py-4 font-semibold text-slate-500 hover:text-indigo-600">Scripting</button>
+        </div>
+
+        <!-- 1. Procedural Section -->
+        <section id="content-procedural" class="tab-content block space-y-8">
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <h2 class="text-3xl font-bold mb-4">1. Procedural Programming</h2>
+                    <p class="text-slate-600 mb-4">This is a <strong>top-down approach</strong>. You break a problem into small, logical steps. It is the style most beginners learn first.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center gap-2"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div> <strong>Sequence:</strong> The order of steps.</li>
+                        <li class="flex items-center gap-2"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div> <strong>Selection:</strong> Making decisions (If/Else).</li>
+                        <li class="flex items-center gap-2"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div> <strong>Iteration:</strong> Repeating steps (Loops).</li>
+                    </ul>
+                    <div class="text-sm font-mono bg-slate-800 text-slate-300 p-4 rounded-lg">
+                        Languages: C, BASIC, Pascal, Python
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold mb-4 text-center">Interactive Robot Step-Builder</h3>
+                    <div class="flex flex-col items-center">
+                        <div id="robot-grid" class="robot-grid mb-4">
+                            <!-- Grid generated via JS -->
+                        </div>
+                        <div class="flex gap-2 mb-4">
+                            <button onclick="robotMove('up')" class="bg-indigo-100 hover:bg-indigo-200 p-2 rounded">UP</button>
+                            <button onclick="robotMove('down')" class="bg-indigo-100 hover:bg-indigo-200 p-2 rounded">DOWN</button>
+                            <button onclick="robotMove('left')" class="bg-indigo-100 hover:bg-indigo-200 p-2 rounded">LEFT</button>
+                            <button onclick="robotMove('right')" class="bg-indigo-100 hover:bg-indigo-200 p-2 rounded">RIGHT</button>
+                        </div>
+                        <div id="robot-log" class="text-xs font-mono text-slate-500 w-full text-center">Instructions log: Ready...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. OOP Section -->
+        <section id="content-oop" class="tab-content hidden space-y-8">
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <h2 class="text-3xl font-bold mb-4 text-indigo-800">2. Object-Oriented (OOP)</h2>
+                    <p class="text-slate-600 mb-4">Instead of just steps, we focus on <strong>data</strong>. We create "blueprints" (Classes) and make "real things" (Objects) from them.</p>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                            <p class="font-bold text-indigo-700">Inheritance</p>
+                            <p class="text-xs text-indigo-600">Creating child classes from parents.</p>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                            <p class="font-bold text-indigo-700">Encapsulation</p>
+                            <p class="text-xs text-indigo-600">Hiding data inside the object.</p>
+                        </div>
+                    </div>
+                    <div class="text-sm font-mono bg-slate-800 text-slate-300 p-4 rounded-lg">
+                        Languages: Java, C++, Python, Ruby
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
+                    <h3 class="font-bold mb-4">The Class vs. Object Visualizer</h3>
+                    <div class="border-2 border-dashed border-slate-300 p-4 mb-4 rounded-lg">
+                        <p class="text-xs uppercase text-slate-400 font-bold mb-2">Class: Car Blueprint</p>
+                        <div class="flex justify-center gap-4">
+                            <div class="w-12 h-6 bg-slate-200 rounded"></div>
+                            <div class="w-12 h-6 bg-slate-200 rounded"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">Props: color, model, speed()</p>
+                    </div>
+                    <button onclick="spawnCar()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Create Object Instance</button>
+                    <div id="car-instances" class="mt-4 flex flex-wrap justify-center gap-2">
+                        <!-- Instances added here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Event-Driven Section -->
+        <section id="content-event" class="tab-content hidden space-y-8">
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <h2 class="text-3xl font-bold mb-4 text-orange-600">3. Event-Driven</h2>
+                    <p class="text-slate-600 mb-4">The program sits in a <strong>Main Loop</strong> and waits for things to happen (Events). It doesn't run start-to-finish; it responds.</p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 flex items-center justify-center bg-orange-100 text-orange-600 rounded font-bold">1</div>
+                            <span class="text-sm"><strong>Event:</strong> User clicks or timer ends.</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 flex items-center justify-center bg-orange-100 text-orange-600 rounded font-bold">2</div>
+                            <span class="text-sm"><strong>Listener:</strong> Program catches the event.</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 flex items-center justify-center bg-orange-100 text-orange-600 rounded font-bold">3</div>
+                            <span class="text-sm"><strong>Handler:</strong> Code block runs in response.</span>
+                        </div>
+                    </div>
+                    <div class="text-sm font-mono bg-slate-800 text-slate-300 p-4 rounded-lg">
+                        Languages: JavaScript, C#, Visual Basic
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold mb-4 text-center">Live Logic Console</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-center gap-2">
+                            <button id="event-btn" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">User Event: Click Me</button>
+                            <button onclick="startTimerEvent()" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800">System Event: Start Timer</button>
+                        </div>
+                        <div id="event-monitor" class="bg-slate-100 p-4 rounded-lg min-h-[120px] font-mono text-xs overflow-y-auto">
+                            <div class="text-slate-400">&gt; Waiting for triggers...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Scripting Section -->
+        <section id="content-scripting" class="tab-content hidden space-y-8">
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <h2 class="text-3xl font-bold mb-4 text-emerald-700">4. Scripting</h2>
+                    <p class="text-slate-600 mb-4">Small bits of code used to <strong>automate</strong> specific tasks. It's often used for the web or system maintenance.</p>
+                    <div class="bg-emerald-50 p-4 rounded-xl mb-6">
+                        <p class="text-sm"><strong>Automation:</strong> Why do something manually 100 times when a 5-line script can do it in a second?</p>
+                    </div>
+                    <div class="text-sm font-mono bg-slate-800 text-slate-300 p-4 rounded-lg">
+                        Languages: Bash, PowerShell, Python, PHP
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold mb-4 text-center">Manual vs. Scripted Task</h3>
+                    <p class="text-xs text-slate-500 mb-4 text-center">Task: Rename 10 "Files"</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <button onclick="manualRename()" class="w-full text-xs bg-slate-200 py-2 rounded mb-2">Manual Click x10</button>
+                            <div id="manual-count" class="text-2xl font-bold">0</div>
+                        </div>
+                        <div class="text-center">
+                            <button onclick="scriptedRename()" class="w-full text-xs bg-emerald-600 text-white py-2 rounded mb-2">Run Script .sh</button>
+                            <div id="script-count" class="text-2xl font-bold">0</div>
+                        </div>
+                    </div>
+                    <p id="script-status" class="mt-4 text-center text-[10px] font-mono text-slate-400 italic">Ready for execution...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Review Footer -->
+        <section class="mt-20 pt-10 border-t border-slate-200">
+            <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    Summary Review
+                </h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="opacity-80 hover:opacity-100 transition">
+                        <h4 class="font-bold text-indigo-400">Procedural</h4>
+                        <p class="text-xs">Logical steps, top-down. Simple to learn.</p>
+                    </div>
+                    <div class="opacity-80 hover:opacity-100 transition">
+                        <h4 class="font-bold text-indigo-400">OOP</h4>
+                        <p class="text-xs">Data-centric. Uses Objects and Blueprints.</p>
+                    </div>
+                    <div class="opacity-80 hover:opacity-100 transition">
+                        <h4 class="font-bold text-indigo-400">Event-Driven</h4>
+                        <p class="text-xs">Reactive. Waits for clicks and triggers.</p>
+                    </div>
+                    <div class="opacity-80 hover:opacity-100 transition">
+                        <h4 class="font-bold text-indigo-400">Scripting</h4>
+                        <p class="text-xs">Fast automation. Perfect for system tasks.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 text-center text-slate-400 text-sm">
+        <p>Built for CDM484 Programming Paradigms | Cardiff and Vale College</p>
+    </footer>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+            
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('tab-active');
+        }
+
+        // --- 1. Procedural Simulation ---
+        const gridEl = document.getElementById('robot-grid');
+        let robotPos = 12; // Middle of 5x5 grid (0-24)
+        
+        function renderGrid() {
+            gridEl.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                if (i === robotPos) {
+                    cell.innerHTML = '🤖';
+                    cell.classList.add('cell-active');
+                }
+                gridEl.appendChild(cell);
+            }
+        }
+
+        function robotMove(dir) {
+            const log = document.getElementById('robot-log');
+            if (dir === 'up' && robotPos >= 5) robotPos -= 5;
+            if (dir === 'down' && robotPos < 20) robotPos += 5;
+            if (dir === 'left' && robotPos % 5 !== 0) robotPos -= 1;
+            if (dir === 'right' && robotPos % 5 !== 4) robotPos += 1;
+            
+            log.innerText = `[Instruction]: MOVE ${dir.toUpperCase()} completed.`;
+            renderGrid();
+        }
+        renderGrid();
+
+        // --- 2. OOP Simulation ---
+        function spawnCar() {
+            const container = document.getElementById('car-instances');
+            const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            const car = document.createElement('div');
+            car.className = `w-10 h-5 ${randomColor} rounded-sm shadow-sm relative mb-2`;
+            car.title = "Object Instance #"+(container.children.length + 1);
+            
+            container.appendChild(car);
+            
+            if (container.children.length > 20) container.innerHTML = ''; // Reset
+        }
+
+        // --- 3. Event-Driven Simulation ---
+        const monitor = document.getElementById('event-monitor');
+        const eventBtn = document.getElementById('event-btn');
+
+        function addLog(msg, colorClass) {
+            const div = document.createElement('div');
+            div.className = colorClass || 'text-slate-600';
+            div.innerText = `> ${new Date().toLocaleTimeString()}: ${msg}`;
+            monitor.prepend(div);
+        }
+
+        eventBtn.addEventListener('click', () => {
+            addLog('EVENT DETECTED: [click]', 'text-orange-600 font-bold');
+            setTimeout(() => addLog('HANDLER RUNNING: Updating UI...', 'text-slate-500 text-[10px]'), 200);
+        });
+
+        function startTimerEvent() {
+            addLog('SYSTEM: Starting 3s timer...', 'text-slate-800');
+            setTimeout(() => {
+                addLog('EVENT DETECTED: [Timer Expired]', 'text-orange-600 font-bold');
+                addLog('HANDLER RUNNING: Playing alert sound (simulated)', 'text-slate-500 text-[10px]');
+            }, 3000);
+        }
+
+        // --- 4. Scripting Simulation ---
+        let manualCount = 0;
+        let scriptRunning = false;
+
+        function manualRename() {
+            if (manualCount < 10) {
+                manualCount++;
+                document.getElementById('manual-count').innerText = manualCount;
+                if (manualCount === 10) document.getElementById('manual-count').classList.add('text-green-600');
+            }
+        }
+
+        function scriptedRename() {
+            if (scriptRunning) return;
+            scriptRunning = true;
+            const status = document.getElementById('script-status');
+            const counter = document.getElementById('script-count');
+            
+            status.innerText = "Executing loop: for file in folder...";
+            status.classList.add('text-emerald-600');
+
+            let count = 0;
+            const interval = setInterval(() => {
+                count++;
+                counter.innerText = count;
+                if (count >= 10) {
+                    clearInterval(interval);
+                    status.innerText = "Script complete. (0.002ms)";
+                    counter.classList.add('text-green-600');
+                    scriptRunning = false;
+                }
+            }, 50); // Simulated ultra-fast script execution
+        }
+    </script>
+</body>
+</html>
