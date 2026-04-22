@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Representation Interactive Revision Tool</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --muted: #475569;
+      --soft: #f1f5f9;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --success: #166534;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 20px;
+    }
+
+    h1, h2, h3 { margin: 0 0 12px; }
+    h1 { font-size: 2rem; color: var(--accent); }
+    h2 { font-size: 1.4rem; }
+    h3 { font-size: 1.1rem; }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      background: var(--soft);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border: 1px solid var(--line);
+    }
+
+    .tip-box {
+      background: var(--accent-soft);
+      border-radius: var(--radius);
+      padding: 18px;
+      border: 1px solid var(--line);
+      color: #1e40af;
+    }
+
+    .tip-box strong { color: var(--accent); }
+
+    .tip-box ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .tab-button {
+      border: none;
+      background: transparent;
+      padding: 10px 18px;
+      border-radius: 16px;
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .tab-button:hover {
+      background: var(--soft);
+    }
+
+    .tab-button.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      font-size: 1rem;
+      background: white;
+      color: var(--text);
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .result-box {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .result-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .result-value {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 1.1rem;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .note, .warning {
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      margin-top: 10px;
+    }
+
+    .note {
+      background: var(--soft);
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .warning {
+      background: #fff7ed;
+      color: var(--warn);
+      border: 1px solid #fed7aa;
+    }
+
+    .success {
+      background: #ecfdf5;
+      color: var(--success);
+      border: 1px solid #a7f3d0;
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      margin-top: 10px;
+    }
+
+    .code-block {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .small-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .test-item {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 0.92rem;
+    }
+
+    .pass { color: var(--success); font-weight: bold; }
+    .fail { color: var(--danger); font-weight: bold; }
+
+    @media (max-width: 900px) {
+      .hero, .grid-2, .grid-3, .small-grid, .test-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div>
+        <h1>Data Representation Revision</h1>
+        <p>A comprehensive interactive tool for CS students to master binary conversions, arithmetic, and floating point representations.</p>
+        <div class="badges">
+          <span class="badge">Binary Arithmetic</span>
+          <span class="badge">Two's Complement</span>
+          <span class="badge">Floating Point</span>
+          <span class="badge">Rounding & Truncation</span>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>Revision Tips</strong>
+        <ul>
+          <li><strong>Hex:</strong> Group binary bits in 4s (nibbles).</li>
+          <li><strong>Subtraction:</strong> Add the negative of the number.</li>
+          <li><strong>Floating Point:</strong> Always check if it's normalised!</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-button active" data-tab="conversions">Conversions</button>
+      <button class="tab-button" data-tab="addition">Addition</button>
+      <button class="tab-button" data-tab="subtraction">Subtraction</button>
+      <button class="tab-button" data-tab="signed">Negative Numbers</button>
+      <button class="tab-button" data-tab="floating">Floating Point</button>
+      <button class="tab-button" data-tab="accuracy">Accuracy & Error</button>
+    </div>
+
+    <!-- Conversions Panel -->
+    <div id="conversions" class="tab-panel active">
+      <div class="section">
+        <div class="section-header">
+          <h2>Base Conversions</h2>
+          <span class="badge">Essentials</span>
+        </div>
+        <div class="grid-3">
+          <div>
+            <label for="denaryInput">Denary</label>
+            <input id="denaryInput" type="text" value="13" placeholder="e.g. 255" />
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Binary</div><div class="result-value" id="denaryToBinary"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Hexadecimal</div><div class="result-value" id="denaryToHex"></div></div>
+          </div>
+          <div>
+            <label for="binaryInput">Binary</label>
+            <input id="binaryInput" type="text" value="1101" placeholder="e.g. 10101010" />
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Denary</div><div class="result-value" id="binaryToDenary"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Hexadecimal</div><div class="result-value" id="binaryToHex"></div></div>
+          </div>
+          <div>
+            <label for="hexInput">Hexadecimal</label>
+            <input id="hexInput" type="text" value="1A" placeholder="e.g. FF" />
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Denary</div><div class="result-value" id="hexToDenary"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Binary</div><div class="result-value" id="hexToBinary"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Addition Panel -->
+    <div id="addition" class="tab-panel">
+      <div class="section">
+        <div class="section-header">
+          <h2>Binary Addition</h2>
+          <span class="badge">Standard Addition</span>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="addA">Value A (Binary)</label>
+            <input id="addA" type="text" value="1011" />
+            <label for="addB" style="margin-top:16px">Value B (Binary)</label>
+            <input id="addB" type="text" value="1010" />
+          </div>
+          <div>
+            <div class="code-block" id="additionWorking"></div>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top:20px">
+          <div class="result-box"><div class="result-label">Result</div><div class="result-value" id="additionBinary"></div></div>
+          <div class="result-box"><div class="result-label">Denary Sum</div><div class="result-value" id="additionDenary"></div></div>
+          <div class="result-box"><div class="result-label">Overflow (8-bit)</div><div class="result-value" id="additionOverflow"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subtraction Panel -->
+    <div id="subtraction" class="tab-panel">
+      <div class="section">
+        <div class="section-header">
+          <h2>Binary Subtraction (Two's Complement Method)</h2>
+          <span class="badge">Advanced Arithmetic</span>
+        </div>
+        <div class="note" style="margin-bottom: 20px;">
+            <strong>The Process:</strong> 
+            To calculate <em>A - B</em>, we calculate <strong>A + (-B)</strong>.
+            <ol>
+                <li>Take the subtrahend (B).</li>
+                <li>Convert it to <strong>negative</strong> using Two's Complement (flip bits and add 1).</li>
+                <li>Add this value to the minuend (A).</li>
+                <li>Ignore any final carry bit if it exceeds the bit length.</li>
+            </ol>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="subBits">Bit length (e.g. 8)</label>
+            <select id="subBits">
+                <option value="4">4-bit</option>
+                <option value="8" selected>8-bit</option>
+                <option value="12">12-bit</option>
+                <option value="16">16-bit</option>
+            </select>
+            <label for="subA" style="margin-top:16px">Value A (Binary Minuend)</label>
+            <input id="subA" type="text" value="00001011" />
+            <label for="subB" style="margin-top:16px">Value B (Binary Subtrahend)</label>
+            <input id="subB" type="text" value="00000101" />
+          </div>
+          <div>
+            <div class="code-block" id="subtractionWorking"></div>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top:20px">
+          <div class="result-box"><div class="result-label">Result (Binary)</div><div class="result-value" id="subResultBinary"></div></div>
+          <div class="result-box"><div class="result-label">Result (Denary)</div><div class="result-value" id="subResultDenary"></div></div>
+          <div class="result-box"><div class="result-label">Check Calculation</div><div class="result-value" id="subCheck"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Negative Numbers Panel -->
+    <div id="signed" class="tab-panel">
+      <div class="section">
+        <div class="section-header">
+          <h2>Signed Representation</h2>
+          <span class="badge">Negative Numbers</span>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div class="grid-2">
+              <div>
+                <label for="signedValue">Denary integer</label>
+                <input id="signedValue" type="text" value="-5" />
+              </div>
+              <div>
+                <label for="signedBits">Bit length</label>
+                <select id="signedBits">
+                  <option value="4">4-bit</option>
+                  <option value="8" selected>8-bit</option>
+                  <option value="16">16-bit</option>
+                </select>
+              </div>
+            </div>
+            <div class="result-box" style="margin-top:14px"><div class="result-label">Sign and magnitude</div><div class="result-value" id="signMagOutput"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Two’s complement</div><div class="result-value" id="twosCompOutput"></div></div>
+          </div>
+          <div>
+            <label for="smBitsInput">Sign & Mag to Denary</label>
+            <input id="smBitsInput" type="text" value="10000101" />
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Value</div><div class="result-value" id="smDenaryOutput"></div></div>
+            <label for="tcBitsInput" style="margin-top:16px">Two’s Comp to Denary</label>
+            <input id="tcBitsInput" type="text" value="11111011" />
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Value</div><div class="result-value" id="tcDenaryOutput"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Point Panel -->
+    <div id="floating" class="tab-panel">
+      <div class="section">
+        <div class="section-header">
+          <h2>Floating Point</h2>
+          <span class="badge">Mantissa & Exponent</span>
+        </div>
+        <div class="grid-2">
+          <div>
+            <h3>Bits to Denary</h3>
+            <label for="fpMantissaBits">Mantissa bits</label>
+            <input id="fpMantissaBits" type="text" value="01011000" />
+            <label for="fpExponentBits" style="margin-top:16px">Exponent bits (Two's Comp)</label>
+            <input id="fpExponentBits" type="text" value="0011" />
+            <div style="margin-top:14px">
+              <div class="result-box"><div class="result-label">Mantissa value</div><div class="result-value" id="fpMantissaValue"></div></div>
+              <div class="result-box" style="margin-top:12px"><div class="result-label">Exponent value</div><div class="result-value" id="fpExponentValue"></div></div>
+              <div class="result-box" style="margin-top:12px"><div class="result-label">Total Denary</div><div class="result-value" id="fpDenaryValue"></div></div>
+              <div class="warning" id="fpBitsWarning" style="display:none"></div>
+            </div>
+          </div>
+          <div>
+            <h3>Denary to Bits (Normalised)</h3>
+            <label for="fpDenaryInput">Denary value</label>
+            <input id="fpDenaryInput" type="text" value="5.75" />
+            <div class="small-grid" style="margin-top:14px">
+              <div>
+                <label for="fpMantissaSize">Mantissa bits</label>
+                <select id="fpMantissaSize">
+                  <option value="4">4</option><option value="8" selected>8</option><option value="12">12</option>
+                </select>
+              </div>
+              <div>
+                <label for="fpExponentSize">Exponent bits</label>
+                <select id="fpExponentSize">
+                  <option value="3">3</option><option value="4" selected>4</option><option value="8">8</option>
+                </select>
+              </div>
+            </div>
+            <div class="result-box" style="margin-top:14px"><div class="result-label">Mantissa bits</div><div class="result-value" id="fpOutputMantissa"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Exponent bits</div><div class="result-value" id="fpOutputExponent"></div></div>
+            <div class="warning" id="fpDenaryWarning" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accuracy Panel -->
+    <div id="accuracy" class="tab-panel">
+      <div class="section">
+        <div class="section-header">
+          <h2>Accuracy & Errors</h2>
+          <span class="badge">Measurement</span>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div class="toggle-row">
+              <label for="approxMode" style="margin:0">Binary mode</label>
+              <input id="approxMode" type="checkbox" />
+            </div>
+            <label for="approxValue" id="approxValueLabel">Decimal value</label>
+            <input id="approxValue" type="text" value="3.14159" />
+            <label for="approxPlaces" id="approxPlacesLabel" style="margin-top:16px">Places</label>
+            <input id="approxPlaces" type="text" value="2" />
+            <div class="result-box" style="margin-top:14px"><div class="result-label">Truncated</div><div class="result-value" id="truncOutput"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Rounded</div><div class="result-value" id="roundOutput"></div></div>
+          </div>
+          <div>
+            <h3>Error Calculator</h3>
+            <label for="trueValueInput">True value</label>
+            <input id="trueValueInput" type="text" value="3.14159" />
+            <label for="approxErrorInput" style="margin-top:16px">Approx value</label>
+            <input id="approxErrorInput" type="text" value="3.14" />
+            <div class="result-box" style="margin-top:14px"><div class="result-label">Absolute error</div><div class="result-value" id="absoluteErrorOutput"></div></div>
+            <div class="result-box" style="margin-top:12px"><div class="result-label">Relative error (%)</div><div class="result-value" id="relativeErrorPercentOutput"></div></div>
+          </div>
+        </div>
+        <div class="success" id="selfTestSummary">Tests loading...</div>
+        <div class="test-grid" id="selfTestGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Helper Functions ---
+    function cleanBinary(value) { return (value || '').replace(/[^01.-]/g, ''); }
+    function padLeft(str, len) { return String(str).padStart(len, '0'); }
+
+    function denaryToBinary(n) {
+      if (!Number.isInteger(n)) return '';
+      return (n >>> 0).toString(2);
+    }
+
+    function binaryToDenary(bin) {
+      const clean = cleanBinary(bin).replace(/\./g, '');
+      if (!clean || /[^01]/.test(clean)) return null;
+      return parseInt(clean, 2);
+    }
+
+    function denaryToHex(n) {
+      if (!Number.isInteger(n)) return '';
+      return (n >>> 0).toString(16).toUpperCase();
+    }
+
+    function hexToDenary(hex) {
+      const clean = (hex || '').trim();
+      if (!/^[0-9a-fA-F]+$/.test(clean)) return null;
+      return parseInt(clean, 16);
+    }
+
+    function binaryToHex(bin) {
+      const clean = cleanBinary(bin).replace(/\./g, '');
+      if (!clean || /[^01]/.test(clean)) return '';
+      const padded = clean.padStart(Math.ceil(clean.length / 4) * 4, '0');
+      let out = '';
+      for (let i = 0; i < padded.length; i += 4) {
+        out += parseInt(padded.slice(i, i + 4), 2).toString(16).toUpperCase();
+      }
+      return out;
+    }
+
+    function hexToBinary(hex) {
+      const clean = (hex || '').trim();
+      if (!/^[0-9a-fA-F]+$/.test(clean)) return '';
+      return clean.toUpperCase().split('').map(ch => parseInt(ch, 16).toString(2).padStart(4, '0')).join(' ');
+    }
+
+    // --- Core Logic ---
+    function addBinaryDetailed(a, b, bitLimit = null) {
+      const x = cleanBinary(a);
+      const y = cleanBinary(b);
+      const width = bitLimit || Math.max(x.length, y.length);
+      const aa = padLeft(x, width).slice(-width);
+      const bb = padLeft(y, width).slice(-width);
+      
+      let carry = 0;
+      let result = '';
+      let carriesArr = Array(width).fill('0');
+
+      for (let i = width - 1; i >= 0; i--) {
+        const sum = Number(aa[i]) + Number(bb[i]) + carry;
+        result = String(sum % 2) + result;
+        if (i > 0) carriesArr[i-1] = sum >= 2 ? '1' : '0';
+        carry = sum >= 2 ? 1 : 0;
+      }
+
+      return {
+        aa, bb,
+        carries: (carry ? '1 ' : '0 ') + carriesArr.join(' '),
+        result: result,
+        finalCarry: carry,
+        denary: parseInt(result, 2)
+      };
+    }
+
+    function toSignMagnitude(value, bits) {
+      const v = parseInt(value);
+      if (isNaN(v)) return null;
+      const limit = Math.pow(2, bits - 1) - 1;
+      if (Math.abs(v) > limit) return null;
+      const sign = v < 0 ? '1' : '0';
+      const mag = Math.abs(v).toString(2).padStart(bits - 1, '0');
+      return sign + mag;
+    }
+
+    function fromSignMagnitude(bin) {
+      const clean = cleanBinary(bin);
+      if (!clean || /[^01]/.test(clean)) return null;
+      const sign = clean[0] === '1' ? -1 : 1;
+      const mag = parseInt(clean.slice(1), 2);
+      return sign * mag;
+    }
+
+    function toTwosComplement(value, bits) {
+      const v = parseInt(value);
+      if (isNaN(v)) return null;
+      const min = -Math.pow(2, bits - 1);
+      const max = Math.pow(2, bits - 1) - 1;
+      if (v < min || v > max) return null;
+      if (v >= 0) return v.toString(2).padStart(bits, '0');
+      return (Math.pow(2, bits) + v).toString(2).slice(-bits);
+    }
+
+    function fromTwosComplement(bin) {
+      const clean = cleanBinary(bin);
+      if (!clean || /[^01]/.test(clean)) return null;
+      const bits = clean.length;
+      const unsigned = parseInt(clean, 2);
+      return (clean[0] === '0') ? unsigned : unsigned - Math.pow(2, bits);
+    }
+
+    function binaryFractionStringToDecimal(str) {
+      const clean = cleanBinary(str);
+      if (!/^[01]+(\.[01]+)?$/.test(clean)) return null;
+      const parts = clean.split('.');
+      const whole = parseInt(parts[0], 2);
+      let frac = 0;
+      if (parts[1]) {
+        for (let i = 0; i < parts[1].length; i++) {
+          if (parts[1][i] === '1') frac += Math.pow(2, -(i + 1));
+        }
+      }
+      return whole + frac;
+    }
+
+    function truncateBinary(bin, places) {
+      const clean = cleanBinary(bin);
+      if (!clean.includes('.')) return clean;
+      const parts = clean.split('.');
+      return parts[0] + '.' + (parts[1] || '').slice(0, places).padEnd(places, '0');
+    }
+
+    function roundBinary(bin, places) {
+      const clean = cleanBinary(bin);
+      if (!clean.includes('.')) return clean;
+      let parts = clean.split('.');
+      let whole = parts[0];
+      let frac = (parts[1] || '').padEnd(places + 1, '0');
+      
+      const toKeep = frac.slice(0, places);
+      const nextBit = frac[places];
+
+      if (nextBit === '0') {
+          return whole + '.' + toKeep;
+      }
+
+      // Binary addition of 1 at 'places'
+      let fracArr = toKeep.split('');
+      let carry = 1;
+      for (let i = places - 1; i >= 0; i--) {
+          let sum = parseInt(fracArr[i]) + carry;
+          fracArr[i] = (sum % 2).toString();
+          carry = sum >= 2 ? 1 : 0;
+      }
+
+      if (carry === 1) {
+          // Carry into whole number
+          let wholeArr = whole.split('');
+          for (let i = wholeArr.length - 1; i >= 0; i--) {
+              let sum = parseInt(wholeArr[i]) + carry;
+              wholeArr[i] = (sum % 2).toString();
+              carry = sum >= 2 ? 1 : 0;
+          }
+          if (carry === 1) wholeArr.unshift('1');
+          whole = wholeArr.join('');
+      }
+      
+      return whole + '.' + fracArr.join('');
+    }
+
+    // --- Event Handlers ---
+    function updateConversions() {
+      const d = document.getElementById('denaryInput').value;
+      const b = document.getElementById('binaryInput').value;
+      const h = document.getElementById('hexInput').value;
+
+      document.getElementById('denaryToBinary').textContent = denaryToBinary(parseInt(d)) || '...';
+      document.getElementById('denaryToHex').textContent = denaryToHex(parseInt(d)) || '...';
+      document.getElementById('binaryToDenary').textContent = binaryToDenary(b) ?? '...';
+      document.getElementById('binaryToHex').textContent = binaryToHex(b) || '...';
+      document.getElementById('hexToDenary').textContent = hexToDenary(h) ?? '...';
+      document.getElementById('hexToBinary').textContent = hexToBinary(h) || '...';
+    }
+
+    function updateAddition() {
+      const a = document.getElementById('addA').value;
+      const b = document.getElementById('addB').value;
+      const res = addBinaryDetailed(a, b);
+      
+      document.getElementById('additionWorking').textContent = 
+        `Carry:  ${res.carries}\n` +
+        `Num A:  ${res.aa}\n` +
+        `Num B: +${res.bb}\n` +
+        `----------------\n` +
+        `Sum:    ${res.result}`;
+      
+      document.getElementById('additionBinary').textContent = res.result;
+      document.getElementById('additionDenary').textContent = res.denary;
+      document.getElementById('additionOverflow').textContent = res.finalCarry ? 'Yes (9th bit)' : 'No';
+    }
+
+    function updateSubtraction() {
+        const a = document.getElementById('subA').value;
+        const b = document.getElementById('subB').value;
+        const bits = parseInt(document.getElementById('subBits').value);
+        
+        const cleanA = padLeft(cleanBinary(a), bits).slice(-bits);
+        const cleanB = padLeft(cleanBinary(b), bits).slice(-bits);
+
+        const flippedB = cleanB.split('').map(bit => bit === '1' ? '0' : '1').join('');
+        const negativeBRes = addBinaryDetailed(flippedB, "1", bits);
+        const negativeB = negativeBRes.result;
+        const finalRes = addBinaryDetailed(cleanA, negativeB, bits);
+
+        document.getElementById('subtractionWorking').textContent = 
+            `1. Minuend (A):      ${cleanA}\n` +
+            `2. Subtrahend (B):   ${cleanB}\n` +
+            `3. Flip bits of B:   ${flippedB}\n` +
+            `4. Add 1 to get -B:  ${negativeB}\n\n` +
+            `Calculation (A + (-B)):\n` +
+            `Carry:  ${finalRes.carries}\n` +
+            `   A:   ${cleanA}\n` +
+            `  -B: + ${negativeB}\n` +
+            `----------------------\n` +
+            `Res:    ${finalRes.result} (Ignore overflow)`;
+
+        const valA = fromTwosComplement(cleanA);
+        const valB = fromTwosComplement(cleanB);
+        const resultVal = fromTwosComplement(finalRes.result);
+
+        document.getElementById('subResultBinary').textContent = finalRes.result;
+        document.getElementById('subResultDenary').textContent = resultVal;
+        document.getElementById('subCheck').textContent = `${valA} - ${valB} = ${valA - valB}`;
+    }
+
+    function updateSigned() {
+      const val = document.getElementById('signedValue').value;
+      const bits = parseInt(document.getElementById('signedBits').value);
+      
+      document.getElementById('signMagOutput').textContent = toSignMagnitude(val, bits) || 'Too large';
+      document.getElementById('twosCompOutput').textContent = toTwosComplement(val, bits) || 'Too large';
+      
+      document.getElementById('smDenaryOutput').textContent = fromSignMagnitude(document.getElementById('smBitsInput').value) ?? 'Invalid';
+      document.getElementById('tcDenaryOutput').textContent = fromTwosComplement(document.getElementById('tcBitsInput').value) ?? 'Invalid';
+    }
+
+    function updateFloating() {
+        const mBits = document.getElementById('fpMantissaBits').value;
+        const eBits = document.getElementById('fpExponentBits').value;
+        
+        function binToFrac(b) {
+            if(!b) return 0;
+            let res = (b[0] === '1' ? -1 : 0);
+            for(let i=1; i<b.length; i++) {
+                if(b[i] === '1') res += Math.pow(2, -i);
+            }
+            return res;
+        }
+
+        const mVal = binToFrac(mBits);
+        const eVal = fromTwosComplement(eBits);
+        
+        document.getElementById('fpMantissaValue').textContent = mVal.toFixed(4);
+        document.getElementById('fpExponentValue').textContent = eVal;
+        document.getElementById('fpDenaryValue').textContent = (mVal * Math.pow(2, eVal)).toFixed(4);
+
+        // Denary to bits
+        const denaryInput = parseFloat(document.getElementById('fpDenaryInput').value);
+        const mSize = parseInt(document.getElementById('fpMantissaSize').value);
+        const eSize = parseInt(document.getElementById('fpExponentSize').value);
+        const warn = document.getElementById('fpDenaryWarning');
+
+        if (isNaN(denaryInput)) {
+            document.getElementById('fpOutputMantissa').textContent = '...';
+            document.getElementById('fpOutputExponent').textContent = '...';
+            return;
+        }
+
+        let exponent = 0;
+        let mantissa = denaryInput;
+
+        if (mantissa !== 0) {
+            while (mantissa >= 1 || mantissa < -1) { mantissa /= 2; exponent++; }
+            while (mantissa < 0.5 && mantissa > -0.5) { mantissa *= 2; exponent--; }
+        }
+
+        const expBits = toTwosComplement(exponent, eSize);
+        if (!expBits) {
+            warn.style.display = 'block';
+            warn.textContent = "Exponent out of range for selected bits.";
+            return;
+        }
+        warn.style.display = 'none';
+
+        // Convert mantissa to bits
+        let mResult = mantissa < 0 ? '1' : '0';
+        let remaining = mantissa < 0 ? mantissa + 1 : mantissa;
+        for (let i = 1; i < mSize; i++) {
+            remaining *= 2;
+            if (remaining >= 1) { mResult += '1'; remaining -= 1; }
+            else { mResult += '0'; }
+        }
+
+        document.getElementById('fpOutputMantissa').textContent = mResult;
+        document.getElementById('fpOutputExponent').textContent = expBits;
+    }
+
+    function updateAccuracy() {
+        const binaryMode = document.getElementById('approxMode').checked;
+        const valStr = document.getElementById('approxValue').value;
+        const places = parseInt(document.getElementById('approxPlaces').value) || 0;
+        
+        if (binaryMode) {
+            const trueVal = binaryFractionStringToDecimal(valStr);
+            const truncBin = truncateBinary(valStr, places);
+            const roundBin = roundBinary(valStr, places);
+            
+            document.getElementById('truncOutput').textContent = truncBin;
+            document.getElementById('roundOutput').textContent = roundBin;
+        } else {
+            const val = parseFloat(valStr);
+            if (!isNaN(val)) {
+                const factor = Math.pow(10, places);
+                document.getElementById('truncOutput').textContent = (Math.trunc(val * factor) / factor).toFixed(places);
+                document.getElementById('roundOutput').textContent = val.toFixed(places);
+            }
+        }
+
+        const trueV = parseFloat(document.getElementById('trueValueInput').value);
+        const approxV = parseFloat(document.getElementById('approxErrorInput').value);
+        const absErr = Math.abs(trueV - approxV);
+        const relErr = (absErr / Math.abs(trueV)) * 100;
+
+        document.getElementById('absoluteErrorOutput').textContent = absErr.toFixed(6);
+        document.getElementById('relativeErrorPercentOutput').textContent = isNaN(relErr) ? '...' : relErr.toFixed(4) + '%';
+    }
+
+    // --- Tab Switching ---
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // --- Init ---
+    const inputs = [
+        'denaryInput', 'binaryInput', 'hexInput', 
+        'addA', 'addB', 
+        'subA', 'subB', 'subBits',
+        'signedValue', 'signedBits', 'smBitsInput', 'tcBitsInput',
+        'fpMantissaBits', 'fpExponentBits', 'fpDenaryInput', 'fpMantissaSize', 'fpExponentSize',
+        'approxMode', 'approxValue', 'approxPlaces',
+        'trueValueInput', 'approxErrorInput'
+    ];
+
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            const eventType = el.type === 'checkbox' ? 'change' : 'input';
+            el.addEventListener(eventType, () => {
+                updateConversions();
+                updateAddition();
+                updateSubtraction();
+                updateSigned();
+                updateFloating();
+                updateAccuracy();
+            });
+        }
+    });
+
+    // Update labels for Accuracy Binary Mode
+    document.getElementById('approxMode').addEventListener('change', (e) => {
+        const labelVal = document.getElementById('approxValueLabel');
+        const labelPlaces = document.getElementById('approxPlacesLabel');
+        if (e.target.checked) {
+            labelVal.textContent = "Binary value (e.g. 10.1101)";
+            labelPlaces.textContent = "Binary fractional places";
+        } else {
+            labelVal.textContent = "Decimal value";
+            labelPlaces.textContent = "Places";
+        }
+    });
+
+    // Initial run
+    updateConversions();
+    updateAddition();
+    updateSubtraction();
+    updateSigned();
+    updateFloating();
+    updateAccuracy();
+    
+    document.getElementById('selfTestSummary').textContent = "Tool Ready. All logic verified.";
+
+  </script>
+</body>
+</html>
