@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wireframing Task Guide</title>
+  <style>
+    :root{
+      --bg:#0a1020;
+      --panel:#131b36;
+      --panel2:#1a2547;
+      --border:#32457c;
+      --text:#edf2ff;
+      --muted:#b7c3ea;
+      --accent:#7fb0ff;
+      --accent2:#8de0b7;
+      --warn:#ffd166;
+      --good:#5dd39e;
+      --shadow:0 18px 40px rgba(0,0,0,.28);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#08101f 0%,#0f1730 100%);color:var(--text)}
+    body{min-height:100vh}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .hero{
+      background:linear-gradient(135deg, rgba(127,176,255,.24), rgba(141,224,183,.12));
+      border:1px solid var(--border);
+      border-radius:26px;
+      padding:28px;
+      box-shadow:var(--shadow);
+      margin-bottom:20px;
+    }
+    .hero h1{margin:0 0 12px;font-size:2.2rem}
+    .hero p{margin:0;color:var(--muted);line-height:1.7;font-size:1.04rem}
+    .top-grid{
+      display:grid;
+      grid-template-columns:2fr 1fr;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    @media (max-width:980px){
+      .top-grid{grid-template-columns:1fr}
+    }
+    .card{
+      background:linear-gradient(180deg,var(--panel2),var(--panel));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+    h2,h3{margin-top:0}
+    p,li{line-height:1.65}
+    .muted{color:var(--muted)}
+    .pill{
+      display:inline-block;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      padding:7px 12px;
+      border-radius:999px;
+      margin:0 8px 8px 0;
+      font-size:.92rem;
+      font-weight:700;
+    }
+    .grid{
+      display:grid;
+      gap:18px;
+    }
+    .grid-2{grid-template-columns:1fr 1fr}
+    @media (max-width:980px){
+      .grid-2{grid-template-columns:1fr}
+    }
+    .step{
+      border-left:4px solid var(--accent);
+      padding-left:14px;
+      margin-bottom:18px;
+    }
+    .step h3{margin-bottom:8px}
+    .checklist label{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:10px 0;
+      border-bottom:1px dashed rgba(255,255,255,.1);
+      cursor:pointer;
+    }
+    .checklist input{margin-top:4px;transform:scale(1.2)}
+    .task-box{
+      background:rgba(255,255,255,.04);
+      border:1px dashed var(--border);
+      border-radius:16px;
+      padding:16px;
+    }
+    .example-frame{
+      background:#eef3ff;
+      color:#233759;
+      border-radius:18px;
+      padding:18px;
+      border:1px solid #b9c8ec;
+      min-height:380px;
+    }
+    .wf-header,.wf-hero,.wf-text,.wf-footer,.wf-cta{
+      background:#ffffff;
+      border:2px dashed #89a4de;
+      border-radius:14px;
+      padding:16px;
+      text-align:center;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+    .wf-header{min-height:62px}
+    .wf-hero{min-height:110px}
+    .wf-text{min-height:82px}
+    .wf-footer{min-height:62px}
+    .wf-cta{min-height:72px}
+    .wf-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .wf-box{
+      background:#ffffff;
+      border:2px dashed #89a4de;
+      border-radius:14px;
+      min-height:92px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:12px;
+      font-weight:700;
+    }
+    a{
+      color:#cfe0ff;
+    }
+    .resource-list a{
+      display:block;
+      padding:10px 12px;
+      margin-bottom:10px;
+      text-decoration:none;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      border-radius:12px;
+    }
+    .resource-list a:hover{background:rgba(255,255,255,.08)}
+    .btn-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    button{
+      border:1px solid var(--border);
+      background:#192652;
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    button:hover{filter:brightness(1.08)}
+    .progress{
+      height:12px;
+      background:rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .progress-bar{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      transition:width .25s ease;
+    }
+    .footer-note{
+      color:var(--muted);
+      font-size:.94rem;
+      margin-top:18px;
+    }
+    .warning{
+      border-left:4px solid var(--warn);
+      background:rgba(255,209,102,.08);
+      padding:12px 14px;
+      border-radius:12px;
+      margin-top:12px;
+    }
+    .success{
+      border-left:4px solid var(--good);
+      background:rgba(93,211,158,.08);
+      padding:12px 14px;
+      border-radius:12px;
+      margin-top:12px;
+    }
+    .mini-title{
+      font-size:.94rem;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .sticky{
+      position:sticky;
+      top:14px;
+    }
+    code{
+      background:rgba(255,255,255,.08);
+      padding:2px 6px;
+      border-radius:6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>Wireframing Task Guide</h1>
+      <p>
+        In this task, you will create a simple homepage wireframe for a website concept of your choice.
+        You are not creating the final design yet. Instead, you are planning the layout so you can decide
+        where each section of the page should go before you build it properly later.
+      </p>
+      <div class="btn-row">
+        <span class="pill">Planning first</span>
+        <span class="pill">Layout only</span>
+        <span class="pill">No colours needed</span>
+        <span class="pill">Use Figma or paper</span>
+      </div>
+    </section>
+
+    <section class="top-grid">
+      <div class="card">
+        <div class="mini-title">Task Overview</div>
+        <h2>What you need to do</h2>
+        <p>
+          Create a <strong>homepage wireframe</strong> for one simple website concept. Your wireframe must show
+          the main structure of the page and where the user will find key content.
+        </p>
+        <p><strong>Choose one website idea:</strong></p>
+        <div>
+          <span class="pill">Fast food website</span>
+          <span class="pill">Gaming website</span>
+          <span class="pill">Pet adoption centre</span>
+          <span class="pill">Gym / fitness website</span>
+          <span class="pill">Movie streaming site</span>
+        </div>
+
+        <div class="warning">
+          Do not worry about making it look polished yet. The aim is to focus on <strong>structure</strong>,
+          <strong>layout</strong> and <strong>navigation</strong>.
+        </div>
+      </div>
+
+      <div class="card sticky">
+        <div class="mini-title">Progress</div>
+        <h2>Your checklist progress</h2>
+        <div id="progressText" class="muted">0 of 8 complete</div>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+        <div class="success" id="doneMessage" style="display:none">
+          Checklist complete. You should now have a clear homepage wireframe ready to review or submit.
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-2">
+      <div class="card">
+        <div class="mini-title">Step-by-step guidance</div>
+        <h2>How to complete the task</h2>
+
+        <div class="step">
+          <h3>Step 1 – Pick one simple website idea</h3>
+          <p>
+            Choose one of the website concepts above. Keep it simple. The goal is not to plan a full business website,
+            but to practice laying out a homepage clearly.
+          </p>
+        </div>
+
+        <div class="step">
+          <h3>Step 2 – Decide what content should appear on the homepage</h3>
+          <p>
+            Think about what a user should see first. For example, a homepage usually includes a title or logo,
+            a navigation bar, a large hero section, some information, and a footer.
+          </p>
+          <p>
+            Ask yourself: <em>What would a user expect to find immediately when they arrive on this website?</em>
+          </p>
+        </div>
+
+        <div class="step">
+          <h3>Step 3 – Add the main structure</h3>
+          <p>
+            Start by creating the large sections of the page. Most homepages include:
+          </p>
+          <ul>
+            <li>Header</li>
+            <li>Navigation bar</li>
+            <li>Hero image or banner</li>
+            <li>One or more content sections</li>
+            <li>Footer</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <h3>Step 4 – Add labels to each section</h3>
+          <p>
+            You do not need real images or final text. Instead, use labels such as <code>Hero Image</code>,
+            <code>Welcome Text</code>, <code>Featured Products</code> or <code>Contact Info</code>.
+          </p>
+        </div>
+
+        <div class="step">
+          <h3>Step 5 – Keep the wireframe simple</h3>
+          <p>
+            A wireframe is a rough plan. It should use simple boxes, placeholders and labels. Avoid spending time on colours,
+            fancy fonts or detailed graphics.
+          </p>
+        </div>
+
+        <div class="step">
+          <h3>Step 6 – Review your layout</h3>
+          <p>
+            Check whether the page is easy to follow from top to bottom. The user should be able to tell:
+          </p>
+          <ul>
+            <li>What the website is about</li>
+            <li>Where the navigation is</li>
+            <li>What the important content is</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="mini-title">Model example</div>
+        <h2>Example homepage wireframe</h2>
+        <p class="muted">
+          Use this as a guide only. Your own wireframe can be different as long as it includes the key sections.
+        </p>
+
+        <div class="example-frame">
+          <div class="wf-header">HEADER: Logo + Navigation</div>
+          <div class="wf-hero">HERO IMAGE / MAIN BANNER</div>
+          <div class="wf-text">INTRODUCTION / WELCOME TEXT</div>
+          <div class="wf-row">
+            <div class="wf-box">IMAGE / FEATURED ITEM</div>
+            <div class="wf-box">TEXT / DESCRIPTION</div>
+          </div>
+          <div class="wf-cta">CALL TO ACTION / BUTTON</div>
+          <div class="wf-footer">FOOTER: Contact info / links</div>
+        </div>
+
+        <div class="warning">
+          Your sections do not have to be exactly the same, but your page should still have a clear beginning, middle and end.
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-2" style="margin-top:18px">
+      <div class="card">
+        <div class="mini-title">Checklist</div>
+        <h2>What your wireframe must include</h2>
+        <div class="checklist" id="checklist">
+          <label><input type="checkbox"> I have chosen one simple website idea</label>
+          <label><input type="checkbox"> I have added a logo or website title area</label>
+          <label><input type="checkbox"> I have included a navigation bar with at least 3 links</label>
+          <label><input type="checkbox"> I have included a hero section or main banner</label>
+          <label><input type="checkbox"> I have added at least 2 content sections</label>
+          <label><input type="checkbox"> I have included a footer</label>
+          <label><input type="checkbox"> I have labelled my sections clearly</label>
+          <label><input type="checkbox"> My wireframe focuses on layout rather than colours or detail</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="mini-title">Success criteria</div>
+        <h2>What a good answer looks like</h2>
+        <div class="task-box">
+          <p>
+            A good wireframe will:
+          </p>
+          <ul>
+            <li>Be neat and easy to understand</li>
+            <li>Show a clear page structure</li>
+            <li>Include obvious navigation</li>
+            <li>Use labels to explain each section</li>
+            <li>Make sense for the chosen website idea</li>
+          </ul>
+        </div>
+
+        <div class="warning">
+          Common mistakes:
+          <ul>
+            <li>Adding too much detail</li>
+            <li>Forgetting the navigation bar</li>
+            <li>Not including enough content sections</li>
+            <li>Trying to make it look finished instead of planned</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-2" style="margin-top:18px">
+      <div class="card">
+        <div class="mini-title">Help and support</div>
+        <h2>Useful resources (including tutorial)</h2>
+        <div class="resource-list">
+          <a href="https://www.figma.com/" target="_blank" rel="noopener noreferrer">Open Figma</a>
+          <a href="https://help.figma.com/hc/en-us/articles/360040314193-Guide-to-frames-sections-and-slices-in-Figma" target="_blank" rel="noopener noreferrer">Figma guide: frames and layout</a>
+          <a href="https://www.youtube.com/watch?v=D4NyQ5iOMF0" target="_blank" rel="noopener noreferrer">Figma wireframing quick tutorial</a>
+          <a href="https://www.interaction-design.org/literature/topics/wireframing" target="_blank" rel="noopener noreferrer">What is a wireframe?</a>
+        </div>
+        <p class="muted">
+          If you are unsure, start with simple boxes and labels. You can improve the layout after the structure is in place.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="mini-title">Extension</div>
+        <h2>Stretch challenge</h2>
+        <p>
+          If you finish early, improve your wireframe by adding one or more of the following:
+        </p>
+        <ul>
+          <li>A call-to-action button such as <code>Book Now</code> or <code>Join Today</code></li>
+          <li>A third content section</li>
+          <li>Better spacing between sections</li>
+          <li>A clearer user journey from top to bottom</li>
+        </ul>
+
+        <div class="success">
+          Stretch aim: make the layout feel more logical and professional without turning it into a full final design.
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <div class="mini-title">Final reminder</div>
+      <h2>Before you finish</h2>
+      <p>
+        Make sure your wireframe is a <strong>plan</strong>, not a polished final webpage. The purpose of this task is to
+        help you understand how web pages are structured before you move into a more detailed design or build stage.
+      </p>
+      <div class="btn-row">
+        <button onclick="window.print()">Print / Save as PDF</button>
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to top</button>
+      </div>
+      <div class="footer-note">
+        Teacher use: this page can be uploaded as a single HTML classroom resource or shared on Teams / GitHub Pages.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const doneMessage = document.getElementById('doneMessage');
+
+    function updateProgress(){
+      const total = checkboxes.length;
+      const done = [...checkboxes].filter(cb => cb.checked).length;
+      const percent = Math.round((done / total) * 100);
+      progressBar.style.width = percent + '%';
+      progressText.textContent = `${done} of ${total} complete`;
+      doneMessage.style.display = done === total ? 'block' : 'none';
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateProgress));
+    updateProgress();
+  </script>
+</body>
+</html>
