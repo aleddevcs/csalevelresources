@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Planning Studio | UX, Sitemap and Wireframes</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121935;
+      --panel-2:#182246;
+      --panel-3:#0f1630;
+      --border:#2a376a;
+      --text:#edf2ff;
+      --muted:#b8c2e2;
+      --accent:#6ea8fe;
+      --good:#5dd39e;
+      --bad:#ff8a8a;
+      --warn:#ffd166;
+      --shadow:0 18px 40px rgba(0,0,0,.28);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#09101f 0%, #101733 100%);color:var(--text)}
+    body{min-height:100vh}
+    .container{max-width:1380px;margin:0 auto;padding:22px}
+    .hero{
+      background:linear-gradient(135deg, rgba(110,168,254,.22), rgba(93,211,158,.12));
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:24px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+    .hero h1{margin:0 0 10px;font-size:2rem}
+    .hero p{margin:0;color:var(--muted);line-height:1.6}
+    .tabs{
+      display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 20px;
+    }
+    .tab-btn{
+      border:1px solid var(--border);
+      background:var(--panel);
+      color:var(--text);
+      padding:12px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .tab-btn.active{
+      background:linear-gradient(135deg, rgba(110,168,254,.25), rgba(110,168,254,.08));
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(110,168,254,.15) inset;
+    }
+    .panel{
+      display:none;
+      border:1px solid var(--border);
+      border-radius:24px;
+      background:rgba(18,25,53,.92);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel.active{display:block}
+    .panel-inner{padding:20px}
+    .section-title{margin:0 0 6px;font-size:1.45rem}
+    .section-sub{margin:0 0 16px;color:var(--muted);line-height:1.6}
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:1.2fr .8fr}
+    .grid-3{grid-template-columns:1fr 1fr 1fr}
+    @media (max-width:980px){
+      .grid-2,.grid-3{grid-template-columns:1fr}
+    }
+    .card{
+      background:linear-gradient(180deg,var(--panel-2),var(--panel-3));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:18px;
+    }
+    .card h3,.card h4{margin-top:0}
+    .muted{color:var(--muted)}
+    .small{font-size:.94rem}
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.85rem;
+      font-weight:700;
+      margin:0 6px 8px 0;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+    }
+    .badge-good{color:#072f1f;background:var(--good);border:none}
+    .badge-bad{color:#3f0909;background:var(--bad);border:none}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    button, select{
+      border:1px solid var(--border);
+      background:#162047;
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    button:hover, select:hover{filter:brightness(1.08)}
+    .website-stage{
+      width:100%;
+      min-height:610px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      overflow:hidden;
+      background:#eff4ff;
+      position:relative;
+    }
+
+    /* mock websites */
+    .mock-site{
+      display:none;
+      min-height:610px;
+      position:relative;
+      color:#10203a;
+    }
+    .mock-site.active{display:block}
+    .mock-header{
+      height:76px;display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;background:#ffffff;border-bottom:1px solid #d7e1f3;
+      font-weight:700;
+    }
+    .mock-logo{font-size:1.25rem}
+    .mock-nav{display:flex;gap:16px;flex-wrap:wrap}
+    .mock-hero{
+      padding:36px 24px;min-height:180px;
+      background:linear-gradient(135deg,#dce8ff,#c8ffd8);
+      display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center;
+    }
+    .mock-hero h2{margin:0 0 10px;font-size:2rem}
+    .mock-hero p{margin:0;color:#29425f;line-height:1.5}
+    .hero-box{
+      background:rgba(255,255,255,.7);
+      border:2px dashed #7ca5d7;border-radius:16px;height:140px;
+      display:flex;align-items:center;justify-content:center;font-weight:700;
+    }
+    .mock-main{
+      display:grid;grid-template-columns:2fr 1fr;gap:18px;padding:22px;
+    }
+    .mock-content{display:grid;gap:16px}
+    .content-block,.sidebar-block{
+      background:#ffffff;border:1px solid #dbe3f3;border-radius:16px;padding:18px;
+    }
+    .content-row{
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    }
+    .mini-image{
+      height:100px;background:#e8eefc;border-radius:12px;border:2px dashed #9cb6e8;
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:#47618c;
+    }
+    .mock-footer{
+      background:#0f1a33;color:#e9efff;padding:18px 24px;margin-top:10px;
+    }
+
+    .bad-site .mock-header{height:56px;padding:0 12px}
+    .bad-site .mock-nav{gap:6px;font-size:.8rem}
+    .bad-site .mock-hero{
+      grid-template-columns:1fr;
+      background:linear-gradient(135deg,#ffe8e8,#fff1c9);
+      padding:14px 12px;
+      min-height:120px;
+    }
+    .bad-site .mock-hero h2{font-size:1.2rem}
+    .bad-site .mock-main{grid-template-columns:1fr 1fr 1fr;padding:10px;gap:8px}
+    .bad-site .content-block,.bad-site .sidebar-block{padding:10px;border-radius:8px}
+    .bad-site .content-row{grid-template-columns:1fr 1fr 1fr}
+    .bad-site .mock-footer{padding:10px 12px;font-size:.82rem}
+    .chaos-box{
+      background:#fff;
+      border:1px solid #f4b0b0;
+      box-shadow:0 0 0 3px rgba(255,0,0,.03) inset;
+      padding:6px;border-radius:8px;
+    }
+
+    .hotspot{
+      position:absolute;
+      border:3px solid transparent;
+      border-radius:14px;
+      cursor:pointer;
+      background:rgba(110,168,254,.08);
+    }
+    .hotspot:hover{border-color:rgba(110,168,254,.75)}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .feedback-box{
+      min-height:180px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px dashed var(--border);
+      padding:14px;
+      line-height:1.6;
+    }
+
+    /* Sitemap builder */
+    .tool-layout{
+      display:grid;
+      grid-template-columns:300px 1fr 320px;
+      gap:18px;
+    }
+    @media (max-width:1100px){
+      .tool-layout{grid-template-columns:1fr}
+    }
+    .bank{
+      display:grid;gap:10px;
+    }
+    .page-chip{
+      padding:12px 14px;
+      border-radius:12px;
+      background:#172250;
+      border:1px solid var(--border);
+      cursor:grab;
+      font-weight:700;
+      user-select:none;
+    }
+    .page-chip:active{cursor:grabbing}
+    .dropzone{
+      min-height:108px;
+      border-radius:16px;
+      border:2px dashed #47619f;
+      background:rgba(255,255,255,.03);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .dropzone.over{background:rgba(110,168,254,.08);border-color:var(--accent)}
+    .zone-title{font-weight:700;margin-bottom:4px}
+    .zone-small{color:var(--muted);font-size:.9rem;margin-bottom:10px}
+    .tree-wrap{
+      display:grid;gap:14px;
+    }
+    .child-list,.subchild-list{display:flex;flex-wrap:wrap;gap:10px;min-height:48px}
+    .tree-node{
+      padding:10px 12px;border-radius:12px;background:#213062;border:1px solid #4f68a8;
+      font-weight:700;
+    }
+    .subzone{
+      margin-top:10px;padding-top:10px;border-top:1px dashed #40558f;
+    }
+    .output-pre{
+      white-space:pre-wrap;
+      background:#0b1228;border:1px solid var(--border);padding:14px;border-radius:14px;
+      min-height:220px;
+      font-family:Consolas,monospace;
+    }
+
+    /* Wireframe builder */
+    .wf-layout{
+      display:grid;
+      grid-template-columns:280px 1fr 320px;
+      gap:18px;
+    }
+    @media (max-width:1100px){
+      .wf-layout{grid-template-columns:1fr}
+    }
+    .tool-btn{
+      width:100%;text-align:left;margin-bottom:10px;
+    }
+    .canvas{
+      background:#f0f4ff;
+      border:1px solid var(--border);
+      border-radius:20px;
+      min-height:650px;
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .wf-block{
+      background:#fff;
+      border:2px dashed #8aa5dd;
+      border-radius:16px;
+      color:#29425f;
+      padding:16px;
+      font-weight:700;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .wf-header{min-height:70px}
+    .wf-hero{min-height:160px}
+    .wf-text{min-height:100px}
+    .wf-image-text{
+      min-height:120px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .wf-gallery{min-height:110px}
+    .wf-cta{min-height:90px}
+    .wf-footer{min-height:70px}
+    .wf-inner{
+      width:100%;height:100%;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:12px;
+      background:#eef3ff;
+      border:1px dashed #9cb6e8;
+    }
+    .wf-image-text .wf-inner{min-height:84px}
+    .wf-controls{
+      position:absolute;right:10px;top:10px;display:flex;gap:8px;flex-wrap:wrap;
+    }
+    .mini-btn{
+      padding:6px 8px;font-size:.78rem;border-radius:10px;
+      background:#1d2b56;
+    }
+    .empty-state{
+      color:#3f5479;
+      border:2px dashed #9fb4e5;
+      border-radius:18px;
+      background:#ffffff;
+      padding:24px;
+      text-align:center;
+      min-height:200px;
+      display:flex;align-items:center;justify-content:center;line-height:1.7;
+    }
+    .checklist li{margin-bottom:8px}
+    .footer-note{margin-top:18px;color:var(--muted);font-size:.92rem}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>Website Planning Studio</h1>
+      <p>
+        A single front-end HTML resource for Lesson 1. Students can analyse website design, build a sitemap,
+        and create a simple homepage wireframe before moving into Figma or their assignment work.
+      </p>
+    </section>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="analyzer">1. Good vs Bad Website Analyzer</button>
+      <button class="tab-btn" data-tab="sitemap">2. Sitemap Builder</button>
+      <button class="tab-btn" data-tab="wireframe">3. Wireframe Builder Lite</button>
+    </div>
+
+    <section class="panel active" id="analyzer">
+      <div class="panel-inner">
+        <h2 class="section-title">Good vs Bad Website Analyzer</h2>
+        <p class="section-sub">
+          Switch between the two mock websites, then click on highlighted areas to judge the design,
+          navigation and content choices. This is ideal for whole-class discussion or independent critique.
+        </p>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="controls">
+              <button id="showGood">Show Good Example</button>
+              <button id="showBad">Show Poor Example</button>
+              <button id="resetFeedback">Reset Feedback</button>
+            </div>
+
+            <div class="website-stage">
+              <!-- GOOD SITE -->
+              <div class="mock-site good-site active" id="goodSite">
+                <div class="mock-header">
+                  <div class="mock-logo">BlueWave Adventures</div>
+                  <div class="mock-nav">
+                    <span>Home</span><span>Activities</span><span>Prices</span><span>Gallery</span><span>Contact</span>
+                  </div>
+                </div>
+                <div class="mock-hero">
+                  <div>
+                    <h2>Explore Coastal Activities</h2>
+                    <p>Clear headline, simple message, and a clear focus on what the website offers.</p>
+                  </div>
+                  <div class="hero-box">Hero Image Area</div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-content">
+                    <div class="content-block">
+                      <h3 style="margin-top:0">Welcome Section</h3>
+                      <p>Concise text introduces the purpose of the website and helps users understand what to do next.</p>
+                    </div>
+                    <div class="content-row">
+                      <div class="content-block">
+                        <div class="mini-image">Image</div>
+                        <p>Surfing</p>
+                      </div>
+                      <div class="content-block">
+                        <div class="mini-image">Image</div>
+                        <p>Kayaking</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="sidebar-block">
+                    <h3 style="margin-top:0">Quick Information</h3>
+                    <p>Contact details, booking button, and opening times are easy to find.</p>
+                  </div>
+                </div>
+                <div class="mock-footer">Footer with contact details, links and social icons</div>
+
+                <div class="hotspot" style="top:10px;left:14px;width:95%;height:70px" data-site="good" data-part="nav"></div>
+                <div class="hotspot" style="top:86px;left:14px;width:95%;height:180px" data-site="good" data-part="hero"></div>
+                <div class="hotspot" style="top:280px;left:18px;width:62%;height:255px" data-site="good" data-part="content"></div>
+                <div class="hotspot" style="top:280px;right:18px;width:29%;height:210px" data-site="good" data-part="sidebar"></div>
+                <div class="hotspot" style="bottom:10px;left:14px;width:95%;height:56px" data-site="good" data-part="footer"></div>
+              </div>
+
+              <!-- BAD SITE -->
+              <div class="mock-site bad-site" id="badSite">
+                <div class="mock-header">
+                  <div class="mock-logo">MegaSiteNow123</div>
+                  <div class="mock-nav">
+                    <span>Home</span><span>About Us</span><span>Latest News</span><span>Bookings</span><span>Offers</span><span>Gallery</span><span>FAQs</span><span>Support</span><span>Contact</span>
+                  </div>
+                </div>
+                <div class="mock-hero">
+                  <div>
+                    <h2>WELCOME CLICK EVERYTHING FAST</h2>
+                    <p>Too much text, weak hierarchy and no clear call to action.</p>
+                  </div>
+                  <div class="hero-box">Tiny image</div>
+                </div>
+                <div class="mock-main">
+                  <div class="chaos-box">
+                    <div class="content-row">
+                      <div class="content-block">Box 1</div>
+                      <div class="content-block">Box 2</div>
+                      <div class="content-block">Box 3</div>
+                    </div>
+                    <p class="small">Lots of small areas compete for attention.</p>
+                  </div>
+                  <div class="chaos-box">
+                    <div class="content-block">Menu repeated again</div>
+                    <div class="content-block">Random text block</div>
+                  </div>
+                  <div class="chaos-box">
+                    <div class="sidebar-block">Important details are hidden in clutter.</div>
+                  </div>
+                </div>
+                <div class="mock-footer">Very small footer with too much compressed information and poor spacing</div>
+
+                <div class="hotspot" style="top:8px;left:10px;width:96%;height:56px" data-site="bad" data-part="nav"></div>
+                <div class="hotspot" style="top:70px;left:10px;width:96%;height:128px" data-site="bad" data-part="hero"></div>
+                <div class="hotspot" style="top:204px;left:10px;width:96%;height:245px" data-site="bad" data-part="content"></div>
+                <div class="hotspot" style="bottom:10px;left:10px;width:96%;height:48px" data-site="bad" data-part="footer"></div>
+              </div>
+            </div>
+
+            <div class="legend">
+              <span class="pill">Click highlighted areas</span>
+              <span class="pill">Judge navigation</span>
+              <span class="pill">Judge content</span>
+              <span class="pill">Judge layout</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Feedback and Teaching Points</h3>
+            <div id="feedbackBox" class="feedback-box">
+              Select an area from the website example to reveal analysis and discussion points.
+            </div>
+            <div style="margin-top:14px">
+              <span class="pill badge-good">Good example = clear structure</span>
+              <span class="pill badge-bad">Poor example = clutter and confusion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="sitemap">
+      <div class="panel-inner">
+        <h2 class="section-title">Sitemap Builder</h2>
+        <p class="section-sub">
+          Drag page cards into the sitemap structure. Start with the main pages under Home,
+          then add optional subpages to show how a website is organised.
+        </p>
+
+        <div class="tool-layout">
+          <div class="card">
+            <h3>Page Bank</h3>
+            <p class="muted small">Drag these into the structure. You can reuse the same page if needed by clicking reset.</p>
+            <div class="bank" id="pageBank">
+              <div class="page-chip" draggable="true" data-page="About">About</div>
+              <div class="page-chip" draggable="true" data-page="Activities">Activities</div>
+              <div class="page-chip" draggable="true" data-page="Gallery">Gallery</div>
+              <div class="page-chip" draggable="true" data-page="Contact">Contact</div>
+              <div class="page-chip" draggable="true" data-page="Prices">Prices</div>
+              <div class="page-chip" draggable="true" data-page="FAQ">FAQ</div>
+              <div class="page-chip" draggable="true" data-page="Book Now">Book Now</div>
+              <div class="page-chip" draggable="true" data-page="Testimonials">Testimonials</div>
+            </div>
+            <div class="controls" style="margin-top:14px">
+              <button id="resetSitemap">Reset Sitemap</button>
+              <button id="sampleSitemap">Load Example</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Build the Structure</h3>
+            <div class="tree-wrap">
+              <div class="dropzone" id="homeZone">
+                <div class="zone-title">Top Level</div>
+                <div class="zone-small">Drop main pages here under Home</div>
+                <div class="tree-node">Home</div>
+                <div id="childList" class="child-list"></div>
+              </div>
+
+              <div class="dropzone" id="subZone">
+                <div class="zone-title">Subpages</div>
+                <div class="zone-small">Choose a parent page, then drop subpages here</div>
+                <div style="margin-bottom:10px">
+                  <label for="parentSelect" class="small muted">Parent page:</label><br>
+                  <select id="parentSelect" style="margin-top:6px;width:100%">
+                    <option value="">Select a top-level page</option>
+                  </select>
+                </div>
+                <div id="subChildList" class="subchild-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Generated Sitemap</h3>
+            <pre id="sitemapOutput" class="output-pre">Home</pre>
+            <div class="footer-note">
+              This text version helps students convert their structure into a navigation diagram for planning work.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="wireframe">
+      <div class="panel-inner">
+        <h2 class="section-title">Wireframe Builder Lite</h2>
+        <p class="section-sub">
+          Add sections to create a simple homepage layout. This helps students think about structure and layout
+          before moving into a more detailed design tool such as Figma.
+        </p>
+
+        <div class="wf-layout">
+          <div class="card">
+            <h3>Build Your Homepage</h3>
+            <button class="tool-btn" data-add="header">Add Header</button>
+            <button class="tool-btn" data-add="hero">Add Hero Section</button>
+            <button class="tool-btn" data-add="text">Add Text Section</button>
+            <button class="tool-btn" data-add="imageText">Add Image + Text Section</button>
+            <button class="tool-btn" data-add="gallery">Add Gallery Section</button>
+            <button class="tool-btn" data-add="cta">Add Call to Action</button>
+            <button class="tool-btn" data-add="footer">Add Footer</button>
+
+            <div class="controls" style="margin-top:14px">
+              <button id="loadWireframeExample">Load Example Layout</button>
+              <button id="clearWireframe">Clear Canvas</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Canvas</h3>
+            <div id="wireframeCanvas" class="canvas">
+              <div class="empty-state" id="emptyState">
+                Add sections from the left to build a homepage wireframe.<br>
+                Focus on structure rather than colours or final graphics.
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Checklist</h3>
+            <ul class="checklist">
+              <li>Does your page have a clear header?</li>
+              <li>Is navigation placed near the top?</li>
+              <li>Have you included a main hero area?</li>
+              <li>Do the sections follow a logical order?</li>
+              <li>Can a user understand the page quickly?</li>
+            </ul>
+            <div class="output-pre" id="wireframeSummary">No sections added yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Tabs
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.panel');
+    tabButtons.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        tabButtons.forEach(b=>b.classList.remove('active'));
+        panels.forEach(p=>p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Analyzer
+    const feedbackBox = document.getElementById('feedbackBox');
+    const goodSite = document.getElementById('goodSite');
+    const badSite = document.getElementById('badSite');
+
+    const analyzerFeedback = {
+      good: {
+        nav: "<strong>Good navigation:</strong> The navigation bar is clearly placed at the top, the labels are short, and users can quickly understand where each link will take them. This supports usability and makes the site easier to move through.",
+        hero: "<strong>Good hero section:</strong> The hero area has a clear heading, supporting text and enough space to make the main message stand out. This creates strong visual hierarchy and helps the user identify the purpose of the website immediately.",
+        content: "<strong>Good content layout:</strong> The content areas are spaced out well, making the page easy to scan. The user can separate different sections visually, which improves readability.",
+        sidebar: "<strong>Useful supporting content:</strong> Important details such as contact information or a booking prompt are easy to find without distracting from the main content.",
+        footer: "<strong>Clear footer:</strong> The footer provides useful extra information in a predictable place. This supports consistency and gives users another way to find key links."
+      },
+      bad: {
+        nav: "<strong>Poor navigation:</strong> Too many links are packed into a small area. This makes the website harder to scan and may overwhelm the user. Good navigation should be short, clear and consistent.",
+        hero: "<strong>Weak hero section:</strong> The message is unclear and the layout lacks hierarchy. Important information does not stand out enough, so the user may not understand the purpose of the website quickly.",
+        content: "<strong>Cluttered content area:</strong> Too many boxes compete for attention, spacing is limited, and there is no clear visual flow. This reduces usability and makes the page harder to read.",
+        footer: "<strong>Poor footer design:</strong> The footer is cramped and difficult to read. Important information should be organised and spaced clearly."
+      }
+    };
+
+    document.getElementById('showGood').addEventListener('click', ()=>{
+      goodSite.classList.add('active');
+      badSite.classList.remove('active');
+      feedbackBox.innerHTML = "Good example selected. Click on the highlighted areas to discuss strengths in layout, content and navigation.";
+    });
+    document.getElementById('showBad').addEventListener('click', ()=>{
+      badSite.classList.add('active');
+      goodSite.classList.remove('active');
+      feedbackBox.innerHTML = "Poor example selected. Click on the highlighted areas to discuss problems in layout, content and navigation.";
+    });
+    document.getElementById('resetFeedback').addEventListener('click', ()=>{
+      feedbackBox.innerHTML = "Select an area from the website example to reveal analysis and discussion points.";
+    });
+
+    document.querySelectorAll('.hotspot').forEach(spot=>{
+      spot.addEventListener('click', ()=>{
+        const site = spot.dataset.site;
+        const part = spot.dataset.part;
+        feedbackBox.innerHTML = analyzerFeedback[site][part];
+      });
+    });
+
+    // Sitemap builder
+    let draggedPage = null;
+    const childList = document.getElementById('childList');
+    const subChildList = document.getElementById('subChildList');
+    const parentSelect = document.getElementById('parentSelect');
+    const sitemapOutput = document.getElementById('sitemapOutput');
+
+    const sitemapState = {
+      topLevel: [],
+      subpages: {}
+    };
+
+    function refreshParentSelect(){
+      parentSelect.innerHTML = '<option value="">Select a top-level page</option>';
+      sitemapState.topLevel.forEach(page=>{
+        const opt = document.createElement('option');
+        opt.value = page;
+        opt.textContent = page;
+        parentSelect.appendChild(opt);
+      });
+    }
+
+    function renderTopLevel(){
+      childList.innerHTML = '';
+      sitemapState.topLevel.forEach(page=>{
+        const node = document.createElement('div');
+        node.className = 'tree-node';
+        node.textContent = page;
+        childList.appendChild(node);
+      });
+      refreshParentSelect();
+      renderSubpages();
+      renderSitemapText();
+    }
+
+    function renderSubpages(){
+      const parent = parentSelect.value;
+      subChildList.innerHTML = '';
+      if(!parent || !sitemapState.subpages[parent]) return;
+      sitemapState.subpages[parent].forEach(page=>{
+        const node = document.createElement('div');
+        node.className = 'tree-node';
+        node.textContent = page;
+        subChildList.appendChild(node);
+      });
+    }
+
+    function renderSitemapText(){
+      let text = 'Home';
+      sitemapState.topLevel.forEach((page, index)=>{
+        const isLast = index === sitemapState.topLevel.length - 1;
+        text += `\n ${isLast ? '└' : '├'}── ${page}`;
+        const subs = sitemapState.subpages[page] || [];
+        subs.forEach((sub, subIndex)=>{
+          const subLast = subIndex === subs.length - 1;
+          text += `\n ${isLast ? ' ' : '│'}   ${subLast ? '└' : '├'}── ${sub}`;
+        });
+      });
+      sitemapOutput.textContent = text;
+    }
+
+    document.querySelectorAll('.page-chip').forEach(chip=>{
+      chip.addEventListener('dragstart', e=>{
+        draggedPage = chip.dataset.page;
+      });
+    });
+
+    function setupDropzone(zone, onDropFn){
+      zone.addEventListener('dragover', e=>{
+        e.preventDefault();
+        zone.classList.add('over');
+      });
+      zone.addEventListener('dragleave', ()=>{
+        zone.classList.remove('over');
+      });
+      zone.addEventListener('drop', e=>{
+        e.preventDefault();
+        zone.classList.remove('over');
+        if(draggedPage) onDropFn(draggedPage);
+      });
+    }
+
+    setupDropzone(document.getElementById('homeZone'), (page)=>{
+      if(!sitemapState.topLevel.includes(page)){
+        sitemapState.topLevel.push(page);
+        if(!sitemapState.subpages[page]) sitemapState.subpages[page] = [];
+        renderTopLevel();
+      }
+    });
+
+    setupDropzone(document.getElementById('subZone'), (page)=>{
+      const parent = parentSelect.value;
+      if(!parent) return;
+      if(!sitemapState.subpages[parent]) sitemapState.subpages[parent] = [];
+      if(!sitemapState.subpages[parent].includes(page) && page !== parent){
+        sitemapState.subpages[parent].push(page);
+        renderSubpages();
+        renderSitemapText();
+      }
+    });
+
+    parentSelect.addEventListener('change', renderSubpages);
+
+    document.getElementById('resetSitemap').addEventListener('click', ()=>{
+      sitemapState.topLevel = [];
+      sitemapState.subpages = {};
+      renderTopLevel();
+      sitemapOutput.textContent = 'Home';
+    });
+
+    document.getElementById('sampleSitemap').addEventListener('click', ()=>{
+      sitemapState.topLevel = ['About','Activities','Gallery','Contact'];
+      sitemapState.subpages = {
+        'About':['Testimonials'],
+        'Activities':['Prices','Book Now'],
+        'Gallery':[],
+        'Contact':['FAQ']
+      };
+      renderTopLevel();
+      parentSelect.value = 'Activities';
+      renderSubpages();
+    });
+
+    // Wireframe Builder
+    const wireframeCanvas = document.getElementById('wireframeCanvas');
+    const emptyState = document.getElementById('emptyState');
+    const wireframeSummary = document.getElementById('wireframeSummary');
+    let wfCount = 0;
+    const sectionNames = [];
+
+    function blockHTML(type, id){
+      if(type === 'header'){
+        return `<div class="wf-block wf-header" data-id="${id}" data-type="Header"><div class="wf-controls">${controlButtons(id)}</div>HEADER: Logo + Navigation</div>`;
+      }
+      if(type === 'hero'){
+        return `<div class="wf-block wf-hero" data-id="${id}" data-type="Hero Section"><div class="wf-controls">${controlButtons(id)}</div>HERO SECTION / MAIN BANNER</div>`;
+      }
+      if(type === 'text'){
+        return `<div class="wf-block wf-text" data-id="${id}" data-type="Text Section"><div class="wf-controls">${controlButtons(id)}</div>TEXT SECTION</div>`;
+      }
+      if(type === 'imageText'){
+        return `<div class="wf-block wf-image-text" data-id="${id}" data-type="Image + Text Section">
+                  <div class="wf-controls">${controlButtons(id)}</div>
+                  <div class="wf-inner">IMAGE</div>
+                  <div class="wf-inner">TEXT</div>
+                </div>`;
+      }
+      if(type === 'gallery'){
+        return `<div class="wf-block wf-gallery" data-id="${id}" data-type="Gallery Section"><div class="wf-controls">${controlButtons(id)}</div>GALLERY / FEATURED ITEMS</div>`;
+      }
+      if(type === 'cta'){
+        return `<div class="wf-block wf-cta" data-id="${id}" data-type="Call to Action"><div class="wf-controls">${controlButtons(id)}</div>CALL TO ACTION BUTTON / PROMPT</div>`;
+      }
+      if(type === 'footer'){
+        return `<div class="wf-block wf-footer" data-id="${id}" data-type="Footer"><div class="wf-controls">${controlButtons(id)}</div>FOOTER</div>`;
+      }
+      return '';
+    }
+
+    function controlButtons(id){
+      return `
+        <button class="mini-btn" onclick="moveUp('${id}')">↑</button>
+        <button class="mini-btn" onclick="moveDown('${id}')">↓</button>
+        <button class="mini-btn" onclick="removeBlock('${id}')">✕</button>
+      `;
+    }
+
+    function updateWireframeSummary(){
+      const blocks = Array.from(wireframeCanvas.querySelectorAll('.wf-block'));
+      if(blocks.length === 0){
+        wireframeSummary.textContent = 'No sections added yet.';
+        emptyState.style.display = 'flex';
+        return;
+      }
+      emptyState.style.display = 'none';
+      const names = blocks.map((b, i)=> `${i+1}. ${b.dataset.type}`);
+      wireframeSummary.textContent = names.join('\n');
+    }
+
+    function addBlock(type){
+      wfCount++;
+      const id = 'wf_' + wfCount;
+      wireframeCanvas.insertAdjacentHTML('beforeend', blockHTML(type, id));
+      updateWireframeSummary();
+    }
+
+    window.removeBlock = function(id){
+      const el = wireframeCanvas.querySelector(`[data-id="${id}"]`);
+      if(el) el.remove();
+      updateWireframeSummary();
+    }
+
+    window.moveUp = function(id){
+      const el = wireframeCanvas.querySelector(`[data-id="${id}"]`);
+      if(el && el.previousElementSibling && el.previousElementSibling.id !== 'emptyState'){
+        el.parentNode.insertBefore(el, el.previousElementSibling);
+      }
+      updateWireframeSummary();
+    }
+
+    window.moveDown = function(id){
+      const el = wireframeCanvas.querySelector(`[data-id="${id}"]`);
+      if(el && el.nextElementSibling){
+        el.parentNode.insertBefore(el.nextElementSibling, el);
+      }
+      updateWireframeSummary();
+    }
+
+    document.querySelectorAll('[data-add]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        addBlock(btn.dataset.add);
+      });
+    });
+
+    document.getElementById('clearWireframe').addEventListener('click', ()=>{
+      Array.from(wireframeCanvas.querySelectorAll('.wf-block')).forEach(b=>b.remove());
+      updateWireframeSummary();
+    });
+
+    document.getElementById('loadWireframeExample').addEventListener('click', ()=>{
+      Array.from(wireframeCanvas.querySelectorAll('.wf-block')).forEach(b=>b.remove());
+      ['header','hero','text','imageText','cta','footer'].forEach(addBlock);
+      updateWireframeSummary();
+    });
+
+    updateWireframeSummary();
+  </script>
+</body>
+</html>
