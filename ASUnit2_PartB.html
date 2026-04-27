@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WJEC AS Unit 2 Section B: Python Scratch-Build Mastery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'Fira Code', monospace; }
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 0.9rem;
+      padding: 1rem;
+      overflow-x: auto;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .callout { border-left: 4px solid #f59e0b; background: #fffbeb; }
+    .good { border-left: 4px solid #10b981; background: #ecfdf5; }
+    .note { border-left: 4px solid #6366f1; background: #eef2ff; }
+    .nav-btn.active { background: #2563eb; color: white; }
+    .chip {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div style="width:100%; background:#111827; color:white; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:1000;">
+  
+  <div style="font-weight:700;">
+    WJEC Unit 2 Revision
+  </div>
+
+  <div style="display:flex; gap:10px;">
+    <a href="ASUnit2_PartA.html" 
+       style="text-decoration:none; padding:8px 14px; border-radius:999px; background:#4f46e5; color:white; font-weight:600;">
+       Section A
+    </a>
+
+    <a href="ASUnit2_PartB.html" 
+       style="text-decoration:none; padding:8px 14px; border-radius:999px; background:#374151; color:white; font-weight:600;">
+       Section B
+    </a>
+  </div>
+
+</div>
+  <div class="flex min-h-screen">
+    <aside class="hidden md:flex fixed left-0 top-0 h-full w-72 bg-slate-900 text-slate-300 flex-col border-r border-slate-800">
+      <div class="p-6 border-b border-slate-800">
+        <h1 class="text-xl font-extrabold text-white">Unit 2 Scratch Builder</h1>
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-500 mt-2">WJEC Python Section B</p>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-2">
+        <button onclick="showSection('home')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">Overview</button>
+        <button onclick="showSection('template')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">1. Core Template</button>
+        <button onclick="showSection('inputs')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2. Sequential Inputs</button>
+        <button onclick="showSection('validation')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">3. Validation Choices</button>
+        <button onclick="showSection('savefixed')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">4. Fixed File Format</button>
+        <button onclick="showSection('retrieve')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">5. Retrieving Data</button>
+        <button onclick="showSection('oneitem')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">6. One Item vs Many</button>
+        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-3 mt-4">Model Solutions</p>
+        <button onclick="showSection('y2016')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2016 Happy Hols</button>
+        <button onclick="showSection('y2017')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2017 Pete's Plumbers</button>
+        <button onclick="showSection('y2018')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2018 Caravan Customers</button>
+        <button onclick="showSection('y2019')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2019 KimsCalc</button>
+        <button onclick="showSection('y2024')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2024 PVPR Pets</button>
+        <button onclick="showSection('y2025')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2025 Simple Save/Recall</button>
+      </div>
+      <div class="p-4 border-t border-slate-800 text-xs text-center text-slate-500">
+        Scratch-built questions only
+      </div>
+    </aside>
+
+    <main class="flex-1 md:ml-72 p-6 md:p-10">
+      <section id="home" class="page max-w-6xl mx-auto space-y-8">
+        <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-3xl p-8 shadow-xl">
+          <p class="text-xs uppercase tracking-[0.25em] font-bold text-blue-100">WJEC AS Unit 2 Section B</p>
+          <h2 class="text-4xl font-extrabold mt-3">Python Scratch-Build Mastery</h2>
+          <p class="text-blue-100 text-lg mt-3 max-w-4xl">This version is organised more like a teaching sequence: start with the template, then move into inputs, validation, saving in a fixed-width format, and finally retrieval. The aim is to keep the code practical and exam-friendly rather than over-engineered.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <span class="chip bg-blue-100 text-blue-700">Step 1</span>
+            <h3 class="text-xl font-bold mt-3">Build the structure first</h3>
+            <p class="text-slate-600 mt-2">Menu, add option, retrieve option, exit option. Students should have the shell ready before worrying about validation.</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <span class="chip bg-amber-100 text-amber-700">Step 2</span>
+            <h3 class="text-xl font-bold mt-3">Be pragmatic with validation</h3>
+            <p class="text-slate-600 mt-2">They do not need to use every validation type every time. Often four methods is enough, and some questions only ask for one.</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <span class="chip bg-emerald-100 text-emerald-700">Step 3</span>
+            <h3 class="text-xl font-bold mt-3">Know the file pattern</h3>
+            <p class="text-slate-600 mt-2">Fixed-width records with <code>.ljust()</code> help when multiple records are stored. Single-value save/recall is simpler and suits 2019 and 2025-style tasks.</p>
+          </div>
+        </div>
+
+        <div class="callout rounded-2xl p-6">
+          <h3 class="text-xl font-bold text-amber-900">Exam approach</h3>
+          <p class="text-amber-900 mt-2">Students should not aim for the most sophisticated code. They should aim for code that is clear, quick to build, and matches the wording of the task. In many papers, each validation technique only earns one mark up to a maximum, so there is no need to overcomplicate the solution if time is tight.</p>
+        </div>
+      </section>
+
+      <section id="template" class="page hidden max-w-5xl mx-auto space-y-6">
+        <h2 class="text-3xl font-extrabold">1. Core Template</h2>
+        <p class="text-slate-600 text-lg">Start with this before adding any field-specific logic. This gives students a usable structure quickly.</p>
+        <div class="code-block text-sm"><pre>def add_record():
+    # input values
+    # validate values
+    # create record
+    # save record
+    pass
+
+
+def show_records():
+    # retrieve or search data from file
+    pass
+
+
+def main():
+    option = ""
+
+    while option != "3":
+        print("\nSYSTEM MENU")
+        print("1. Add Record")
+        print("2. Show / Search Records")
+        print("3. Exit")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            add_record()
+        elif option == "2":
+            show_records()
+        elif option == "3":
+            print("System closed.")
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+
+        <div class="good rounded-2xl p-6">
+          <p class="text-emerald-900"><strong>Why this is a good starting point:</strong> students can get the menu and function structure in place first, then fill in the inputs and file handling afterwards. It stops them from staring at a blank screen.</p>
+        </div>
+      </section>
+
+      <section id="inputs" class="page hidden max-w-5xl mx-auto space-y-6">
+        <h2 class="text-3xl font-extrabold">2. Sequential Inputs</h2>
+        <p class="text-slate-600 text-lg">Rather than writing a separate function for every single input, students can input values one after another inside the same procedure, just like your pets solution.</p>
+        <div class="note rounded-2xl p-6">
+          <p class="text-indigo-900"><strong>Teaching point:</strong> this is often a better exam approach because it is faster to write and easier for students to follow under timed conditions.</p>
+        </div>
+        <div class="code-block text-sm"><pre>def add_pet():
+    valid = False
+    while valid == False:
+        pet_id = input("Pet ID (1-10): ")
+        if 1 &lt;= len(pet_id) &lt;= 10:
+            valid = True
+        else:
+            print("Pet ID must be 1-10 characters.")
+
+    valid = False
+    while valid == False:
+        name = input("Full Name (1-30): ")
+        if 1 &lt;= len(name) &lt;= 30:
+            valid = True
+        else:
+            print("Full name must be 1-30 characters.")
+
+    valid = False
+    while valid == False:
+        species = input("Species (1-20): ")
+        if 1 &lt;= len(species) &lt;= 20:
+            valid = True
+        else:
+            print("Species must be 1-20 characters.")
+
+    # create record and save afterwards</pre></div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h3 class="font-bold text-lg mb-3">Why this works well</h3>
+          <ul class="list-disc pl-5 text-slate-700 space-y-2">
+            <li>It keeps all inputs in one place.</li>
+            <li>Students can clearly see the order of fields.</li>
+            <li>It is easier to adapt in the exam if the field names change.</li>
+            <li>It avoids lots of small functions that can feel slower to build.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="validation" class="page hidden max-w-5xl mx-auto space-y-6">
+        <h2 class="text-3xl font-extrabold">3. Validation Choices</h2>
+        <p class="text-slate-600 text-lg">Students need to know several validation methods, but they also need to be selective. Use what the question asks for, or what gives enough marks quickly.</p>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-4">Common validation types</h3>
+            <ul class="space-y-3 text-slate-700">
+              <li><strong>Presence:</strong> cannot be blank</li>
+              <li><strong>Length:</strong> min or max number of characters</li>
+              <li><strong>Type:</strong> integer, float, letters only</li>
+              <li><strong>Range:</strong> between a minimum and maximum value</li>
+              <li><strong>Format:</strong> starts with a letter, contains a space, fixed pattern</li>
+              <li><strong>Lookup / dictionary:</strong> value must be from a set list</li>
+            </ul>
+          </div>
+          <div class="callout rounded-2xl p-6">
+            <h3 class="font-bold text-lg text-amber-900 mb-3">Pragmatic exam advice</h3>
+            <p class="text-amber-900">If the paper asks for four different validation techniques, students can stop at four. If the paper only asks for one type, there is no benefit in turning the program into something huge unless they have time.</p>
+          </div>
+        </div>
+
+        <div class="grid gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3 text-blue-700">Example 1: Length check only</h3>
+            <div class="code-block text-sm"><pre>valid = False
+while valid == False:
+    pet_id = input("Pet ID (1-10): ")
+    if 1 &lt;= len(pet_id) &lt;= 10:
+        valid = True
+    else:
+        print("Pet ID must be 1-10 characters.")</pre></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3 text-blue-700">Example 2: Presence and length separated</h3>
+            <div class="code-block text-sm"><pre>valid = False
+while valid == False:
+    name = input("Full Name: ")
+    if name == "":
+        print("Name cannot be empty.")
+    elif len(name) &gt; 30:
+        print("Name must be no more than 30 characters.")
+    else:
+        valid = True</pre></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3 text-blue-700">Example 3: Type and range check</h3>
+            <div class="code-block text-sm"><pre>valid = False
+while valid == False:
+    age = input("Enter age: ")
+    if not age.isdigit():
+        print("Enter numbers only.")
+    elif int(age) &lt; 1 or int(age) &gt; 20:
+        print("Age must be between 1 and 20.")
+    else:
+        valid = True</pre></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3 text-blue-700">Example 4: Format / lookup check</h3>
+            <div class="code-block text-sm"><pre>allowed_species = ["Dog", "Cat", "Rabbit"]
+
+valid = False
+while valid == False:
+    species = input("Species: ")
+    if species.capitalize() not in allowed_species:
+        print("Species must be Dog, Cat or Rabbit.")
+    else:
+        species = species.capitalize()
+        valid = True</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="savefixed" class="page hidden max-w-5xl mx-auto space-y-6">
+        <h2 class="text-3xl font-extrabold">4. Saving in a Fixed File Format</h2>
+        <p class="text-slate-600 text-lg">When a question needs several records to be stored and later searched, fixed-width storage using <code>.ljust()</code> is very useful.</p>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h3 class="font-bold text-lg mb-3">Why use <code>.ljust()</code>?</h3>
+          <ul class="list-disc pl-5 text-slate-700 space-y-2">
+            <li>Each field always starts at the same position.</li>
+            <li>That makes later retrieval with slicing much easier.</li>
+            <li>It suits questions where there may be many stored items.</li>
+          </ul>
+        </div>
+
+        <div class="code-block text-sm"><pre>record = (
+    pet_id.ljust(10) +
+    name.ljust(30) +
+    nickname.ljust(20) +
+    species.ljust(20) +
+    dob.ljust(20) +
+    size.ljust(10) +
+    description.ljust(50) +
+    "\n"
+)
+
+with open("pets.txt", "a") as file:
+    file.write(record)
+
+print("Pet details stored successfully.")</pre></div>
+
+        <div class="note rounded-2xl p-6">
+          <p class="text-indigo-900"><strong>Key link:</strong> the way data is saved affects the way it must be searched later. If students save in fixed widths, they should retrieve using fixed slices.</p>
+        </div>
+      </section>
+
+      <section id="retrieve" class="page hidden max-w-5xl mx-auto space-y-6">
+        <h2 class="text-3xl font-extrabold">5. Retrieving Data</h2>
+        <p class="text-slate-600 text-lg">Once students understand how the data was stored, retrieval becomes much easier. Fixed-width files lead naturally to slicing.</p>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3">Retrieve and show all records</h3>
+            <div class="code-block text-sm"><pre>with open("pets.txt", "r") as file:
+    for line in file:
+        print("Pet ID:", line[0:10].strip())
+        print("Full Name:", line[10:40].strip())
+        print("Nickname:", line[40:60].strip())
+        print("Species:", line[60:80].strip())
+        print("Date of Birth:", line[80:100].strip())
+        print("Size:", line[100:110].strip())
+        print("Description:", line[110:160].strip())
+        print("----------------------------")</pre></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3">Retrieve one matching record</h3>
+            <div class="code-block text-sm"><pre>search_id = input("Enter Pet ID to find: ")
+found = False
+
+with open("pets.txt", "r") as file:
+    for line in file:
+        if line[0:10].strip() == search_id:
+            print("Pet ID:", line[0:10].strip())
+            print("Full Name:", line[10:40].strip())
+            found = True
+
+if found == False:
+    print("No matching record found.")</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="oneitem" class="page hidden max-w-5xl mx-auto space-y-6">
+        <h2 class="text-3xl font-extrabold">6. Saving One Item vs Saving Several Items</h2>
+        <p class="text-slate-600 text-lg">Not every paper needs fixed-width records. Some questions only need one value saved and recalled.</p>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3">Several items stored</h3>
+            <p class="text-slate-600 mb-4">Used for customer, plumber or pet systems.</p>
+            <div class="code-block text-sm"><pre>with open("pets.txt", "a") as file:
+    file.write(record)</pre></div>
+            <ul class="list-disc pl-5 text-slate-700 mt-4 space-y-2">
+              <li>Use append mode <code>"a"</code>.</li>
+              <li>Usually store one full record per line.</li>
+              <li>Often needs searching or displaying several records later.</li>
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-lg mb-3">One item stored</h3>
+            <p class="text-slate-600 mb-4">Used for 2019 and 2025-style save/recall questions.</p>
+            <div class="code-block text-sm"><pre>with open("lastResult.txt", "w") as file:
+    file.write(str(result))
+
+with open("lastResult.txt", "r") as file:
+    print(file.read())</pre></div>
+            <ul class="list-disc pl-5 text-slate-700 mt-4 space-y-2">
+              <li>Use write mode <code>"w"</code> when only the latest value matters.</li>
+              <li>Much simpler than fixed-width records.</li>
+              <li>No slicing is needed when recalling a single value.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout rounded-2xl p-6">
+          <p class="text-amber-900"><strong>Quick rule:</strong> if the exam asks for a list of records, think <code>.ljust()</code> and slicing. If it only asks to save the last result or last reading, just save one value to the file and read it back later.</p>
+        </div>
+      </section>
+
+      <section id="y2016" class="page hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="chip bg-blue-100 text-blue-700">2016</span>
+          <h2 class="text-3xl font-extrabold">Happy Hols</h2>
+        </div>
+        <p class="text-slate-600">Full model in your preferred style: sequential inputs, straightforward validation, fixed-width storage, and retrieval of a specified customer from disk.</p>
+        <div class="code-block text-[13px]"><pre>def add_customer():
+    valid = False
+    while valid == False:
+        customer_id = input("Customer ID: ")
+        if customer_id == "":
+            print("Customer ID cannot be empty.")
+        elif not customer_id.isdigit():
+            print("Customer ID must be numeric.")
+        elif len(customer_id) &gt; 10:
+            print("Customer ID must be no more than 10 digits.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        title = input("Title: ")
+        if title == "":
+            print("Title cannot be empty.")
+        elif len(title) &gt; 10:
+            print("Title must be no more than 10 characters.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        first_name = input("First Name: ")
+        if first_name == "":
+            print("First name cannot be empty.")
+        elif len(first_name) &gt; 25:
+            print("First name must be no more than 25 characters.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        surname = input("Surname: ")
+        if surname == "":
+            print("Surname cannot be empty.")
+        elif len(surname) &gt; 25:
+            print("Surname must be no more than 25 characters.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        postcode = input("Postcode: ")
+        if postcode == "":
+            print("Postcode cannot be empty.")
+        elif len(postcode) &gt; 8:
+            print("Postcode must be no more than 8 characters.")
+        else:
+            valid = True
+
+    record = (
+        customer_id.ljust(10) +
+        title.ljust(10) +
+        first_name.ljust(25) +
+        surname.ljust(25) +
+        postcode.ljust(8) +
+        "\n"
+    )
+
+    with open("customerdetails.txt", "a") as file:
+        file.write(record)
+
+    print("Customer details stored successfully.")
+
+
+def retrieve_customer():
+    search_id = input("Enter customer ID to find: ")
+    found = False
+
+    try:
+        with open("customerdetails.txt", "r") as file:
+            for line in file:
+                current_id = line[0:10].strip()
+                if current_id == search_id:
+                    print("Customer ID:", line[0:10].strip())
+                    print("Title:", line[10:20].strip())
+                    print("First Name:", line[20:45].strip())
+                    print("Surname:", line[45:70].strip())
+                    print("Postcode:", line[70:78].strip())
+                    found = True
+
+        if found == False:
+            print("No matching customer found.")
+    except FileNotFoundError:
+        print("No customer file exists yet.")
+
+
+def main():
+    option = ""
+
+    while option != "3":
+        print("\nHappy Hols Customer System")
+        print("1. Add Customer")
+        print("2. Retrieve Customer")
+        print("3. Exit")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            add_customer()
+        elif option == "2":
+            retrieve_customer()
+        elif option == "3":
+            print("System closed.")
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+      </section>
+
+      <section id="y2017" class="page hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="chip bg-blue-100 text-blue-700">2017</span>
+          <h2 class="text-3xl font-extrabold">Pete's Plumbers</h2>
+        </div>
+        <p class="text-slate-600">Full model in your preferred style. The actual paper asks students to count matching plumbers, but this version also includes a simple search-for-one option so students can practise both patterns.</p>
+        <div class="code-block text-[13px]"><pre>def add_plumber():
+    valid = False
+    while valid == False:
+        plumber_id = input("Plumber ID: ")
+        if plumber_id == "":
+            print("Plumber ID cannot be empty.")
+        elif not plumber_id.isdigit():
+            print("Plumber ID must be numeric.")
+        elif len(plumber_id) &gt; 10:
+            print("Plumber ID must be no more than 10 digits.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        first_name = input("First Name: ")
+        if first_name == "":
+            print("First name cannot be empty.")
+        elif len(first_name) &gt; 20:
+            print("First name must be no more than 20 characters.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        surname = input("Surname: ")
+        if surname == "":
+            print("Surname cannot be empty.")
+        elif len(surname) &gt; 20:
+            print("Surname must be no more than 20 characters.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        speciality = input("Speciality: ")
+        if speciality == "":
+            print("Speciality cannot be empty.")
+        elif len(speciality) &gt; 30:
+            print("Speciality must be no more than 30 characters.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        callout_rate = input("Call-out Rate: ")
+        if callout_rate == "":
+            print("Call-out rate cannot be empty.")
+        elif not callout_rate.replace(".", "", 1).isdigit():
+            print("Call-out rate must be numeric.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        hourly_rate = input("Hourly Rate: ")
+        if hourly_rate == "":
+            print("Hourly rate cannot be empty.")
+        elif not hourly_rate.replace(".", "", 1).isdigit():
+            print("Hourly rate must be numeric.")
+        else:
+            valid = True
+
+    record = (
+        plumber_id.ljust(10) +
+        first_name.ljust(20) +
+        surname.ljust(20) +
+        speciality.ljust(30) +
+        callout_rate.ljust(10) +
+        hourly_rate.ljust(10) +
+        "\n"
+    )
+
+    with open("plumberdetails.txt", "a") as file:
+        file.write(record)
+
+    print("Plumber details stored successfully.")
+
+
+def search_one_plumber():
+    search_id = input("Enter plumber ID to find: ")
+    found = False
+
+    try:
+        with open("plumberdetails.txt", "r") as file:
+            for line in file:
+                if line[0:10].strip() == search_id:
+                    print("Plumber ID:", line[0:10].strip())
+                    print("First Name:", line[10:30].strip())
+                    print("Surname:", line[30:50].strip())
+                    print("Speciality:", line[50:80].strip())
+                    print("Call-out Rate:", line[80:90].strip())
+                    print("Hourly Rate:", line[90:100].strip())
+                    found = True
+
+        if found == False:
+            print("No matching plumber found.")
+    except FileNotFoundError:
+        print("No plumber file exists yet.")
+
+
+def count_matching_plumbers():
+    search_term = input("Enter speciality to count: ").lower()
+    count = 0
+
+    try:
+        with open("plumberdetails.txt", "r") as file:
+            for line in file:
+                speciality = line[50:80].strip().lower()
+                if speciality == search_term:
+                    count = count + 1
+
+        print("Number of matching plumbers:", count)
+    except FileNotFoundError:
+        print("No plumber file exists yet.")
+
+
+def main():
+    option = ""
+
+    while option != "4":
+        print("\nPete's Plumbers")
+        print("1. Add Plumber")
+        print("2. Search for One Plumber")
+        print("3. Count Matching Plumbers")
+        print("4. Exit")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            add_plumber()
+        elif option == "2":
+            search_one_plumber()
+        elif option == "3":
+            count_matching_plumbers()
+        elif option == "4":
+            print("System closed.")
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+      </section>
+
+      <section id="y2018" class="page hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="chip bg-blue-100 text-blue-700">2018</span>
+          <h2 class="text-3xl font-extrabold">Caravan Customers</h2>
+        </div>
+        <p class="text-slate-600">Full model showing four clear validation techniques: presence, type, length and format. It stores customer details and recalls a specified customer.</p>
+        <div class="code-block text-[13px]"><pre>def add_customer():
+    valid = False
+    while valid == False:
+        customer_id = input("Customer ID: ")
+        if customer_id == "":
+            print("Customer ID cannot be empty.")
+        elif not customer_id.isdigit():
+            print("Customer ID must be numeric.")
+        elif len(customer_id) &gt; 10:
+            print("Customer ID must be no more than 10 digits.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        name = input("Customer Name: ")
+        if name == "":
+            print("Name cannot be empty.")
+        elif len(name) &gt; 30:
+            print("Name must be no more than 30 characters.")
+        elif not name.replace(" ", "").isalpha():
+            print("Name must contain letters only.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        postcode = input("Postcode: ")
+        if postcode == "":
+            print("Postcode cannot be empty.")
+        elif len(postcode) &gt; 8:
+            print("Postcode must be no more than 8 characters.")
+        elif " " not in postcode:
+            print("Postcode must include a space.")
+        else:
+            valid = True
+
+    valid = False
+    while valid == False:
+        nights = input("Number of Nights: ")
+        if not nights.isdigit():
+            print("Number of nights must be numeric.")
+        elif int(nights) &lt; 1 or int(nights) &gt; 28:
+            print("Number of nights must be between 1 and 28.")
+        else:
+            valid = True
+
+    record = (
+        customer_id.ljust(10) +
+        name.ljust(30) +
+        postcode.ljust(8) +
+        nights.ljust(4) +
+        "\n"
+    )
+
+    with open("customerDetails.txt", "a") as file:
+        file.write(record)
+
+    print("Customer details stored successfully.")
+
+
+def recall_customer():
+    search_id = input("Enter customer ID to recall: ")
+    found = False
+
+    try:
+        with open("customerDetails.txt", "r") as file:
+            for line in file:
+                if line[0:10].strip() == search_id:
+                    print("Customer ID:", line[0:10].strip())
+                    print("Name:", line[10:40].strip())
+                    print("Postcode:", line[40:48].strip())
+                    print("Nights:", line[48:52].strip())
+                    found = True
+
+        if found == False:
+            print("No matching customer found.")
+    except FileNotFoundError:
+        print("No customer file exists yet.")
+
+
+def main():
+    option = ""
+
+    while option != "3":
+        print("\nCaravan Customer System")
+        print("1. Add Customer")
+        print("2. Recall Customer")
+        print("3. Exit")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            add_customer()
+        elif option == "2":
+            recall_customer()
+        elif option == "3":
+            print("System closed.")
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+      </section>
+
+      <section id="y2019" class="page hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="chip bg-emerald-100 text-emerald-700">2019</span>
+          <h2 class="text-3xl font-extrabold">KimsCalc</h2>
+        </div>
+        <p class="text-slate-600">Full model solution for the calculator-style paper: two integer inputs from 0 to 9, three operations, display result, save, recall and clear.</p>
+        <div class="code-block text-[13px]"><pre>def get_number(prompt):
+    valid = False
+    while valid == False:
+        number = input(prompt)
+        if not number.isdigit():
+            print("Enter a whole number.")
+        elif int(number) &lt; 0 or int(number) &gt; 9:
+            print("Number must be between 0 and 9.")
+        else:
+            valid = True
+    return int(number)
+
+
+def save_result(result):
+    with open("lastResult.txt", "w") as file:
+        file.write(str(result))
+    print("Result stored successfully.")
+
+
+def recall_result():
+    try:
+        with open("lastResult.txt", "r") as file:
+            print("Last result:", file.read())
+    except FileNotFoundError:
+        print("No saved result found.")
+
+
+def clear_screen():
+    print("Previous results cleared.")
+    print("\n" * 10)
+
+
+def main():
+    option = ""
+    result = 0
+
+    while option != "6":
+        print("\nKimsCalc")
+        print("1. Add")
+        print("2. Subtract")
+        print("3. Multiply")
+        print("4. Save Result")
+        print("5. Recall Last Result")
+        print("6. Exit")
+        print("7. Clear Screen")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            num1 = get_number("Enter first number (0-9): ")
+            num2 = get_number("Enter second number (0-9): ")
+            result = num1 + num2
+            print("Result:", result)
+
+        elif option == "2":
+            num1 = get_number("Enter first number (0-9): ")
+            num2 = get_number("Enter second number (0-9): ")
+            result = num1 - num2
+            print("Result:", result)
+
+        elif option == "3":
+            num1 = get_number("Enter first number (0-9): ")
+            num2 = get_number("Enter second number (0-9): ")
+            result = num1 * num2
+            print("Result:", result)
+
+        elif option == "4":
+            save_result(result)
+
+        elif option == "5":
+            recall_result()
+
+        elif option == "6":
+            print("Calculator closed.")
+
+        elif option == "7":
+            clear_screen()
+
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+      </section>
+
+      <section id="y2024" class="page hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="chip bg-blue-100 text-blue-700">2024</span>
+          <h2 class="text-3xl font-extrabold">PVPR Pets</h2>
+        </div>
+        <p class="text-slate-600">Full model in the same style as your own solution: sequential inputs, length validation on each field, fixed-width storage, confirmation message and retrieval of a specified pet.</p>
+        <div class="code-block text-[13px]"><pre>def add_pet():
+    valid = False
+    while valid == False:
+        pet_id = input("Pet ID (1-10): ")
+        if 1 &lt;= len(pet_id) &lt;= 10:
+            valid = True
+        else:
+            print("Pet ID must be 1-10 characters.")
+
+    valid = False
+    while valid == False:
+        name = input("Full Name (1-30): ")
+        if 1 &lt;= len(name) &lt;= 30:
+            valid = True
+        else:
+            print("Full name must be 1-30 characters.")
+
+    valid = False
+    while valid == False:
+        nickname = input("Nickname (0-20): ")
+        if len(nickname) &lt;= 20:
+            valid = True
+        else:
+            print("Nickname must be 0-20 characters.")
+
+    valid = False
+    while valid == False:
+        species = input("Species (1-20): ")
+        if 1 &lt;= len(species) &lt;= 20:
+            valid = True
+        else:
+            print("Species must be 1-20 characters.")
+
+    valid = False
+    while valid == False:
+        dob = input("Date of Birth (estimated) (4-20): ")
+        if 4 &lt;= len(dob) &lt;= 20:
+            valid = True
+        else:
+            print("DOB must be 4-20 characters.")
+
+    valid = False
+    while valid == False:
+        size = input("Size (1-10): ")
+        if 1 &lt;= len(size) &lt;= 10:
+            valid = True
+        else:
+            print("Size must be 1-10 characters.")
+
+    valid = False
+    while valid == False:
+        description = input("Description (1-50): ")
+        if 1 &lt;= len(description) &lt;= 50:
+            valid = True
+        else:
+            print("Description must be 1-50 characters.")
+
+    record = (
+        pet_id.ljust(10) +
+        name.ljust(30) +
+        nickname.ljust(20) +
+        species.ljust(20) +
+        dob.ljust(20) +
+        size.ljust(10) +
+        description.ljust(50) +
+        "\n"
+    )
+
+    with open("pets.txt", "a") as file:
+        file.write(record)
+
+    print("Pet details stored successfully.")
+
+
+def retrieve_pet():
+    search_id = input("Enter pet ID to find: ")
+    found = False
+
+    try:
+        with open("pets.txt", "r") as file:
+            for line in file:
+                if line[0:10].strip() == search_id:
+                    print("Pet ID:", line[0:10].strip())
+                    print("Full Name:", line[10:40].strip())
+                    print("Nickname:", line[40:60].strip())
+                    print("Species:", line[60:80].strip())
+                    print("Date of Birth:", line[80:100].strip())
+                    print("Size:", line[100:110].strip())
+                    print("Description:", line[110:160].strip())
+                    found = True
+
+        if found == False:
+            print("No matching pet found.")
+    except FileNotFoundError:
+        print("No pet file exists yet.")
+
+
+def main():
+    option = ""
+
+    while option != "3":
+        print("\nPVPR Pet System")
+        print("1. Add Pet")
+        print("2. Retrieve Pet")
+        print("3. Exit")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            add_pet()
+        elif option == "2":
+            retrieve_pet()
+        elif option == "3":
+            print("System closed.")
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+      </section>
+
+      <section id="y2025" class="page hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="chip bg-amber-100 text-amber-700">2025</span>
+          <h2 class="text-3xl font-extrabold">AZSalt / Simple Save-Recall</h2>
+        </div>
+        <p class="text-slate-600">Full model for the simpler 2025-style program: input one reading, output the correct message, terminate on 100, save the last reading and recall it.</p>
+        <div class="code-block text-[13px]"><pre>def save_reading(value):
+    with open("saltResult.txt", "w") as file:
+        file.write(str(value))
+    print("Last reading stored successfully.")
+
+
+def recall_reading():
+    try:
+        with open("saltResult.txt", "r") as file:
+            print("Last reading:", file.read())
+    except FileNotFoundError:
+        print("No saved reading found.")
+
+
+def process_reading(current_level):
+    if current_level &lt; 0 or current_level &gt; 10:
+        print("fault detected")
+    elif current_level &gt; 6:
+        print("add water")
+    elif current_level &gt;= 4:
+        print("stop addition")
+    elif current_level &gt;= 2:
+        print("add salt")
+    else:
+        print("double the salt addition")
+
+
+def main():
+    option = ""
+
+    while option != "3":
+        print("\nAZ Salt Monitor")
+        print("1. Input Reading")
+        print("2. Recall Last Reading")
+        print("3. Exit")
+
+        option = input("Choose option: ")
+
+        if option == "1":
+            valid = False
+            while valid == False:
+                reading = input("Enter salinity reading (or 100 to terminate): ")
+                try:
+                    current_level = float(reading)
+                    valid = True
+                except ValueError:
+                    print("Enter a valid number.")
+
+            if current_level == 100:
+                print("program terminated")
+                option = "3"
+            else:
+                process_reading(current_level)
+                save_reading(current_level)
+
+        elif option == "2":
+            recall_reading()
+
+        elif option == "3":
+            print("System closed.")
+
+        else:
+            print("Invalid option.")
+
+
+main()</pre></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.page').forEach(section => section.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      const buttons = Array.from(document.querySelectorAll('.nav-btn'));
+      const match = buttons.find(btn => {
+        const text = btn.textContent.toLowerCase();
+        return (id === 'home' && text.includes('overview')) ||
+               (id === 'template' && text.includes('core template')) ||
+               (id === 'inputs' && text.includes('sequential inputs')) ||
+               (id === 'validation' && text.includes('validation choices')) ||
+               (id === 'savefixed' && text.includes('fixed file format')) ||
+               (id === 'retrieve' && text.includes('retrieving data')) ||
+               (id === 'oneitem' && text.includes('one item vs many')) ||
+               (id === 'y2016' && text.includes('2016')) ||
+               (id === 'y2017' && text.includes('2017')) ||
+               (id === 'y2018' && text.includes('2018')) ||
+               (id === 'y2019' && text.includes('2019')) ||
+               (id === 'y2024' && text.includes('2024')) ||
+               (id === 'y2025' && text.includes('2025'));
+      });
+      if (match) match.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.onload = () => showSection('home');
+  </script>
+</body>
+</html>
