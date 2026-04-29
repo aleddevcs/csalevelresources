@@ -75,10 +75,11 @@
         <button onclick="showSection('y2019')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2019 KimsCalc</button>
         <button onclick="showSection('y2024')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2024 PVPR Pets</button>
         <button onclick="showSection('y2025')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">2025 Simple Save/Recall</button>
-      </div>
-      <div class="p-4 border-t border-slate-800 text-xs text-center text-slate-500">
-        Scratch-built questions only
-      </div>
+        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-3 mt-4">Video Tutorials</p>
+    <button onclick="showSection('video-caravan')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">Video: Caravan Customers</button>
+    <button onclick="showSection('video-kimscalc')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">Video: KimsCalc</button>
+    <button onclick="showSection('video-2025')" class="nav-btn w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">Video: 2025 Save/Recall</button></div>
+    <div class="p-4 border-t border-slate-800 text-xs text-center text-slate-500">Scratch-built questions only</div>
     </aside>
 
     <main class="flex-1 md:ml-72 p-6 md:p-10">
@@ -1058,6 +1059,52 @@ def main():
 
 main()</pre></div>
       </section>
+     <section id="video-caravan" class="page hidden max-w-5xl mx-auto space-y-6">
+  <h2 class="text-3xl font-extrabold">Video Tutorial: Caravan Customers</h2>
+  <p class="text-slate-600 text-lg">Watch the walkthrough for the 2018 Caravan Customers program.</p>
+  <div class="aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+    <iframe 
+      class="w-full h-full"
+      src="https://www.youtube-nocookie.com/embed/9gwZLOuFP2c" 
+      title="YouTube video player" 
+      frameborder="0" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+    </iframe>
+  </div>
+</section>
+<section id="video-kimscalc" class="page hidden max-w-5xl mx-auto space-y-6">
+  <h2 class="text-3xl font-extrabold">Video Tutorial: KimsCalc</h2>
+  <p class="text-slate-600 text-lg">Watch the walkthrough for the 2019 KimsCalc program.</p>
+
+  <div class="aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+    <iframe 
+      class="w-full h-full"
+      src="https://www.youtube.com/embed/TOtc1Oi7FKA"
+      title="KimsCalc Tutorial"
+      frameborder="0"
+      allowfullscreen>
+    </iframe>
+  </div>
+</section>
+
+<section id="video-2025" class="page hidden max-w-5xl mx-auto space-y-6">
+  <h2 class="text-3xl font-extrabold">Video Tutorial: 2025 Simple Save/Recall</h2>
+  <p class="text-slate-600 text-lg">Watch the walkthrough for the 2025 Simple Save/Recall program.</p>
+
+  <div class="aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+    <iframe 
+      class="w-full h-full"
+      src="https://www.youtube.com/embed/TaqFs6o3cQ0"
+      title="2025 Save Recall Tutorial"
+      frameborder="0"
+      allowfullscreen>
+    </iframe>
+  </div>
+</section>
+
     </main>
   </div>
 
@@ -1081,7 +1128,10 @@ main()</pre></div>
                (id === 'y2018' && text.includes('2018')) ||
                (id === 'y2019' && text.includes('2019')) ||
                (id === 'y2024' && text.includes('2024')) ||
-               (id === 'y2025' && text.includes('2025'));
+               (id === 'y2025' && text.includes('2025')) ||
+               (id === 'video-caravan' && text.includes('caravan customers')) ||
+               (id === 'video-kimscalc' && text.includes('kimscalc')) ||
+               (id === 'video-2025' && text.includes('2025 save/recall'));
       });
       if (match) match.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
