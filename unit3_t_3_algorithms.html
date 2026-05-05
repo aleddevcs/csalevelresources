@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Algorithms & Programming Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); scroll-behavior: smooth; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        
+        .sidebar-link.active {
+            background-color: #eff6ff;
+            border-right: 4px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .node { transition: all 0.3s ease; }
+        .node:hover { transform: scale(1.1); filter: brightness(1.1); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .sort-bar { transition: height 0.2s ease, background-color 0.2s ease; }
+        
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .code-block {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            overflow-x: auto;
+        }
+
+        .highlight-line {
+            background-color: rgba(59, 130, 246, 0.4);
+            border-left: 4px solid #60a5fa;
+            display: block;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen text-slate-800">
+
+    <!-- SIDEBAR -->
+    <aside class="fixed h-screen w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col z-50">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span class="text-blue-600">⚡</span> AlgoLab
+            </h2>
+            <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Unit 3: Programming</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-4 pb-4 space-y-1">
+            <a href="#intro" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Fundamentals</a>
+            <a href="#logic-theory" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Logic Gate Theory</a>
+            <a href="#library" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Algorithm Library</a>
+            <a href="#validation" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Dry Run Simulator</a>
+            <a href="#sorting" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Sorting Visualizer</a>
+            <a href="#searching" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Searching</a>
+            <a href="#dijkstra" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Dijkstra's Path</a>
+            <a href="#bigo" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Big O Efficiency</a>
+            <a href="#compression" class="sidebar-link flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors">Compression Lab</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 lg:ml-64 p-4 lg:p-10 max-w-6xl mx-auto">
+        
+        <!-- SECTION: INTRO -->
+        <section id="intro" class="mb-16">
+            <div class="mb-8">
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Algorithms & Programs</h1>
+                <p class="text-lg text-slate-600 mt-2">Interactive reference for Unit 3 Programming & Development.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span class="w-2 h-6 bg-blue-500 rounded"></span> Definition</h3>
+                    <p class="text-slate-600 text-xs leading-relaxed">An <strong>algorithm</strong> is a step-by-step set of instructions or rules designed to provide a solution to a specific problem.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span class="w-2 h-6 bg-green-500 rounded"></span> Selection & Iteration</h3>
+                    <p class="text-slate-600 text-xs leading-relaxed">
+                        <strong>Selection:</strong> Logic paths based on conditions (e.g., IF, ELSE).<br>
+                        <strong>Iteration:</strong> Repeating instructions until a condition is met (e.g., WHILE, FOR).
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span class="w-2 h-6 bg-orange-500 rounded"></span> Recursion</h3>
+                    <p class="text-slate-600 text-xs leading-relaxed">
+                        <strong>Recursion</strong> is a subroutine that <strong>calls itself</strong>. It requires a <b>base case</b> to stop and a <b>recursive step</b> to solve smaller parts of a problem.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: LOGIC THEORY -->
+        <section id="logic-theory" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">01</span> Logic Gate Theory
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-900 text-white p-6 rounded-xl shadow-lg">
+                    <h4 class="font-bold text-xs uppercase text-slate-400 mb-2 underline decoration-blue-500 decoration-2">NAND Gate</h4>
+                    <p class="text-sm mb-4">Returns <strong>0</strong> only when both inputs are 1. Otherwise, it returns 1. It is the "NOT-AND" gate.</p>
+                    <table class="w-full text-xs font-mono text-center border border-slate-700">
+                        <tr class="bg-slate-800"><th>A</th><th>B</th><th>Out</th></tr>
+                        <tr><td>0</td><td>0</td><td>1</td></tr>
+                        <tr><td>0</td><td>1</td><td>1</td></tr>
+                        <tr><td>1</td><td>0</td><td>1</td></tr>
+                        <tr><td>1</td><td>1</td><td>0</td></tr>
+                    </table>
+                </div>
+                <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg">
+                    <h4 class="font-bold text-xs uppercase text-blue-200 mb-2 underline decoration-white decoration-2">NOR Gate</h4>
+                    <p class="text-sm mb-4">Returns <strong>1</strong> only when both inputs are 0. Otherwise, it returns 0. It is the "NOT-OR" gate.</p>
+                    <table class="w-full text-xs font-mono text-center border border-blue-400">
+                        <tr class="bg-blue-700"><th>A</th><th>B</th><th>Out</th></tr>
+                        <tr><td>0</td><td>0</td><td>1</td></tr>
+                        <tr><td>0</td><td>1</td><td>0</td></tr>
+                        <tr><td>1</td><td>0</td><td>0</td></tr>
+                        <tr><td>1</td><td>1</td><td>0</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ALGORITHM LIBRARY -->
+        <section id="library" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">02</span> Algorithm Library
+            </h2>
+            <p class="text-sm text-slate-500 mb-8 italic">Standard pseudo-code reference and logical explanations.</p>
+
+            <div class="algo-grid">
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-blue-600 mb-4 border-b pb-2">Bubble Sort</h3>
+                        <pre class="code-block mb-4">while i < len(arr)-1
+  set j = 0
+  while j < len(arr) - 1 - i
+    if arr[j] > arr[j + 1]
+      temp = arr[j]
+      arr[j] = arr[j + 1]
+      arr[j + 1] = temp
+    end if
+    j = j + 1
+  end while
+  i = i + 1
+end while</pre>
+                        <ul class="text-[10px] text-slate-500 space-y-1 list-disc pl-4">
+                            <li>Compares adjacent elements in a list.</li>
+                            <li>Swaps elements if they are in the wrong order.</li>
+                            <li>Smallest/Largest values "bubble" to their correct positions in multiple passes.</li>
+                            <li>Time Complexity: O(n²) in worst case.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-emerald-600 mb-4 border-b pb-2">Insertion Sort</h3>
+                        <pre class="code-block mb-4">FOR index = 1 TO num_items - 1
+  item_to_insert = items[index]
+  position = index - 1
+  WHILE position >= 0 AND items[position] > item_to_insert
+    items[position + 1] = items[position]
+    position = position - 1
+  ENDWHILE
+  items[position + 1] = item_to_insert  
+NEXT index</pre>
+                        <ul class="text-[10px] text-slate-500 space-y-1 list-disc pl-4">
+                            <li>Builds a sorted list one item at a time.</li>
+                            <li>Picks the next unsorted element and shifts existing sorted elements to make space.</li>
+                            <li>Inserts the element into its correct relative position.</li>
+                            <li>Efficient for small or nearly sorted datasets.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-orange-600 mb-4 border-b pb-2">Quick Sort</h3>
+                        <pre class="code-block mb-4">algorithm quickSort(myArray, indexLow, indexHi)
+  set pivot = myArray[(indexLow + indexHi) DIV 2]
+  set tmpLow = indexLow
+  set tmpHi = indexHi
+  while (tmpLow <= tmpHi)
+    while (myArray[tmpLow] < pivot) set tmpLow = tmpLow + 1
+    while (pivot < myArray[tmpHi]) set tmpHi = tmpHi - 1
+    if (tmpLow <= tmpHi) then
+      swap(myArray[tmpLow], myArray[tmpHi])
+      set tmpLow = tmpLow + 1 
+      set tmpHi = tmpHi - 1
+    end if 
+  end while
+  if (indexLow < tmpHi) then quickSort(myArray, indexLow, tmpHi) 
+  if (tmpLow < indexHi) then quickSort(myArray, tmpLow, indexHi)
+end algorithm</pre>
+                        <ul class="text-[10px] text-slate-500 space-y-1 list-disc pl-4">
+                            <li>Uses a "Divide and Conquer" recursive strategy.</li>
+                            <li>Selects a <b>pivot</b> element to partition the list into two halves.</li>
+                            <li>Reorders elements so those less than pivot go left, and greater go right.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-indigo-600 mb-4 border-b pb-2">Linear Search</h3>
+                        <pre class="code-block mb-4">WHILE current < LEN(items) AND found == False
+  IF items[current] == search_item THEN
+    found_index = current 
+    found = True 
+  ENDIF
+  current = current + 1 
+ENDWHILE</pre>
+                        <ul class="text-[10px] text-slate-500 space-y-1 list-disc pl-4">
+                            <li>Checks every item in a list sequentially from start to finish.</li>
+                            <li>Stops immediately when the target item is found.</li>
+                            <li>The only choice for <b>unsorted</b> data.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-red-600 mb-4 border-b pb-2">Binary Search</h3>
+                        <pre class="code-block mb-4">WHILE first <= last AND found == False
+  midpoint = (first + last) DIV 2
+  IF items[midpoint] == search_item THEN 
+    found_index = midpoint
+    found = True
+  ELSEIF items[midpoint] < search_item THEN
+    first = midpoint + 1
+  ELSE
+    last = midpoint - 1
+  ENDIF
+ENDWHILE</pre>
+                        <ul class="text-[10px] text-slate-500 space-y-1 list-disc pl-4">
+                            <li>Requires the list to be <b>pre-sorted</b>.</li>
+                            <li>Repeatedly halves the search area by comparing target to the midpoint.</li>
+                            <li>Extremely efficient for large datasets (O(log n)).</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-white mb-4 border-b border-slate-700 pb-2">Dijkstra's Shortest Path</h3>
+                        <p class="text-[10px] text-slate-400 mb-4 italic">Note: Logic explanation.</p>
+                        <ul class="text-[10px] text-slate-400 space-y-1 list-disc pl-4">
+                            <li>Finds the shortest distance between a start node and all other nodes in a graph.</li>
+                            <li>Maintains a table of "Smallest Known Cost" and "Previous Node".</li>
+                            <li>Continually visits the unvisited node with the smallest cost, updating its neighbors.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DRY RUN SIMULATOR -->
+        <section id="validation" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">03</span> Dry Run Simulator
+            </h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-slate-900 p-6 rounded-2xl shadow-xl">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Target: sumOfDigits Algorithm</h3>
+                    <div class="font-mono text-sm leading-relaxed text-blue-100" id="pseudo-code-container">
+                        <div id="line-0" class="px-2">algorithm sumOfDigits(n)</div>
+                        <div id="line-1" class="px-2 pl-4">set sum = 0</div>
+                        <div id="line-2" class="px-2 pl-4">while n > 0</div>
+                        <div id="line-3" class="px-2 pl-8">set digit = n % 10 (mod)</div>
+                        <div id="line-4" class="px-2 pl-8">set sum = sum + digit</div>
+                        <div id="line-5" class="px-2 pl-8">set n = n // 10 (div)</div>
+                        <div id="line-6" class="px-2 pl-4">end while</div>
+                        <div id="line-7" class="px-2">return sum</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold">Trace Table: Input n = 123</h3>
+                        <div class="flex gap-2">
+                            <button onclick="stepSumDigits()" id="step-btn" class="bg-blue-600 text-white px-4 py-1 rounded text-xs font-bold hover:bg-blue-700">Step</button>
+                            <button onclick="resetSumDigits()" class="bg-slate-100 px-4 py-1 rounded text-xs font-bold hover:bg-slate-200">Reset</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto h-48 border-b">
+                        <table class="w-full text-xs font-mono">
+                            <thead class="bg-slate-50 text-slate-500 uppercase">
+                                <tr>
+                                    <th class="p-2 border">Step</th>
+                                    <th class="p-2 border">n</th>
+                                    <th class="p-2 border">digit</th>
+                                    <th class="p-2 border">sum</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trace-table-body" class="text-center"></tbody>
+                        </table>
+                    </div>
+                    <div id="trace-log" class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded text-[10px] text-blue-700 italic min-h-[60px]">
+                        Click 'Step' to begin the algorithm execution trace.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: SORTING VISUALIZER -->
+        <section id="sorting" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">04</span> Sorting Visualizer
+            </h2>
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div id="sort-container" class="h-64 w-full flex items-end justify-center gap-1 mb-8 overflow-hidden rounded-lg bg-slate-50 p-4"></div>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <button onclick="runBubbleSort()" class="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-100 hover:scale-105 transition-all">Bubble Sort</button>
+                    <button onclick="runInsertionSort()" class="bg-emerald-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-emerald-100 hover:scale-105 transition-all">Insertion Sort</button>
+                    <button onclick="runQuickSortWrapper()" class="bg-slate-800 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-slate-200 hover:scale-105 transition-all">Quick Sort</button>
+                    <button onclick="generateSortArray()" class="text-xs font-bold border px-4 py-2 rounded bg-white hover:bg-slate-50">Randomize</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: SEARCHING -->
+        <section id="searching" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">05</span> Searching Mechanisms
+            </h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex gap-4 mb-6">
+                    <input type="number" id="search-target" placeholder="Target..." class="flex-1 border p-2 rounded focus:ring-2 ring-blue-500 outline-none">
+                    <button onclick="runLinearSearch()" class="bg-white border px-4 py-2 rounded font-bold hover:bg-slate-50">Linear</button>
+                    <button onclick="runBinarySearch()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold shadow-lg shadow-blue-100">Binary</button>
+                </div>
+                <div id="search-array-container" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
+                <p id="search-log-display" class="text-sm text-center text-slate-500 italic">Enter a target and start search.</p>
+            </div>
+        </section>
+
+        <!-- SECTION: DIJKSTRA -->
+        <section id="dijkstra" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">06</span> Dijkstra's Shortest Path
+            </h2>
+            <div class="bg-white p-8 rounded-2xl border border-slate-200">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <div class="flex-1 relative bg-slate-50 rounded-xl p-4 min-h-[300px]">
+                        <svg id="dijkstra-svg" class="w-full h-full" viewBox="0 0 500 300">
+                            <line x1="100" y1="50" x2="100" y2="250" stroke="#cbd5e1" stroke-width="4" />
+                            <line x1="100" y1="50" x2="250" y2="50" stroke="#cbd5e1" stroke-width="4" />
+                            <line x1="100" y1="250" x2="250" y2="50" stroke="#cbd5e1" stroke-width="4" />
+                            <line x1="100" y1="250" x2="250" y2="250" stroke="#cbd5e1" stroke-width="4" />
+                            <line x1="250" y1="50" x2="250" y2="250" stroke="#cbd5e1" stroke-width="4" />
+                            <line x1="250" y1="250" x2="400" y2="250" stroke="#cbd5e1" stroke-width="4" />
+                            <line x1="250" y1="50" x2="400" y2="250" stroke="#cbd5e1" stroke-width="4" />
+                            <circle cx="100" cy="50" r="25" fill="#1e293b" class="node" id="node-A" /> <text x="100" y="55" text-anchor="middle" fill="white" font-weight="bold">A</text>
+                            <circle cx="100" cy="250" r="25" fill="#1e293b" class="node" id="node-B" /> <text x="100" y="255" text-anchor="middle" fill="white" font-weight="bold">B</text>
+                            <circle cx="250" cy="50" r="25" fill="#1e293b" class="node" id="node-C" /> <text x="250" y="55" text-anchor="middle" fill="white" font-weight="bold">C</text>
+                            <circle cx="250" cy="250" r="25" fill="#1e293b" class="node" id="node-D" /> <text x="250" y="255" text-anchor="middle" fill="white" font-weight="bold">D</text>
+                            <circle cx="400" cy="250" r="25" fill="#1e293b" class="node" id="node-E" /> <text x="400" y="255" text-anchor="middle" fill="white" font-weight="bold">E</text>
+                            <text x="80" y="150" font-size="14" font-weight="bold" fill="#64748b">8</text>
+                            <text x="175" y="40" font-size="14" font-weight="bold" fill="#64748b">5</text>
+                            <text x="150" y="180" font-size="14" font-weight="bold" fill="#64748b">3</text>
+                            <text x="175" y="270" font-size="14" font-weight="bold" fill="#64748b">1</text>
+                            <text x="260" y="150" font-size="14" font-weight="bold" fill="#64748b">6</text>
+                            <text x="325" y="270" font-size="14" font-weight="bold" fill="#64748b">2</text>
+                            <text x="340" y="150" font-size="14" font-weight="bold" fill="#64748b">9</text>
+                        </svg>
+                    </div>
+                    <div class="lg:w-72 overflow-x-auto">
+                        <table class="w-full text-sm border border-slate-100 rounded-lg">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]">
+                                <tr><th class="p-2 border-b">Node</th><th class="p-2 border-b">Cost</th><th class="p-2 border-b">Prev</th></tr>
+                            </thead>
+                            <tbody id="dijkstra-table-body" class="text-center font-mono"></tbody>
+                        </table>
+                        <button onclick="calculateDijkstra()" class="w-full mt-4 bg-slate-900 text-white py-2 rounded font-bold hover:bg-black transition-all">Solve Paths</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: BIG O -->
+        <section id="bigo" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">07</span> Big O Efficiency
+            </h2>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 mb-8 shadow-inner overflow-hidden">
+                <div class="h-[500px]">
+                    <canvas id="bigo-chart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- TIME COMPLEXITY WORKED EXAMPLE -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm border-l-8 border-l-blue-600">
+                    <h3 class="font-bold text-xl text-slate-900 mb-6 flex items-center gap-2">
+                        <span class="text-blue-600">★</span> Worked Example: Time Complexity
+                    </h3>
+                    <div class="space-y-4 text-xs">
+                        <div class="bg-slate-900 rounded-lg p-4 mb-4">
+                            <pre class="text-blue-300">
+Algorithm MatrixFill
+for i = 1 to n do
+   for j = 1 to n do
+      set A[i][j] = i * j
+   next j
+next i</pre>
+                        </div>
+                        <div class="flex gap-4 p-3 border-b border-slate-100">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">1</div>
+                            <p class="leading-relaxed">The <b>outer loop</b> (i) iterates through every row, executing <b>n</b> times.</p>
+                        </div>
+                        <div class="flex gap-4 p-3 border-b border-slate-100">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">2</div>
+                            <p class="leading-relaxed">The <b>inner loop</b> (j) iterates through every column <b>n</b> times for <i>each</i> of the outer loop's steps.</p>
+                        </div>
+                        <div class="flex gap-4 p-3 border-b border-slate-100">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">3</div>
+                            <p class="leading-relaxed">Total atomic operations = n &times; n = <b>n<sup>2</sup></b>.</p>
+                        </div>
+                        <div class="p-4 bg-blue-600 text-white rounded font-bold text-center text-lg shadow-lg mt-4">
+                            TIME COMPLEXITY: O(n<sup>2</sup>)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SPACE COMPLEXITY -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm border-l-8 border-l-emerald-500">
+                    <h3 class="font-bold text-xl text-slate-900 mb-6 flex items-center gap-2">
+                        <span class="text-emerald-500">◈</span> Space Complexity
+                    </h3>
+                    <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                        Measures the amount of memory needed relative to the input size.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-slate-50 rounded border border-slate-100">
+                            <h4 class="font-bold text-xs text-emerald-700">O(1) - Constant Space</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Memory usage doesn't grow with input.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded border border-slate-100">
+                            <h4 class="font-bold text-xs text-blue-700">O(n) - Linear Space</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Memory grows with input (e.g. duplicating an array).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: COMPRESSION -->
+        <section id="compression" class="mb-16 scroll-mt-20 pb-20">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="bg-slate-900 text-white p-1 rounded">08</span> Compression Lab
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-sm text-slate-400 mb-4 uppercase tracking-widest">RLE Visualizer</h3>
+                    <input type="text" id="rle-input" value="AAAAABBBCCDAA" oninput="updateRLE()" class="w-full border p-2 rounded mb-4 font-mono">
+                    <div id="rle-output" class="p-4 bg-slate-50 rounded-lg font-mono font-bold text-blue-600 text-lg">5A3B2C1D2A</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-sm text-slate-400 mb-4 uppercase tracking-widest">Huffman Analysis</h3>
+                    <input type="text" id="huff-input" value="Betty Botter" oninput="updateHuffman()" class="w-full border p-2 rounded mb-4 font-mono">
+                    <div class="h-32 overflow-y-auto">
+                        <table class="w-full text-xs text-center"><thead class="text-slate-400 border-b"><tr><th>Char</th><th>Freq</th><th>Code</th></tr></thead><tbody id="huff-table-body"></tbody></table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let dryRunState = { step: -1, completed: false };
+        const traceSteps = [
+            { line: 1, log: "Step 1: set sum = 0", n: 123, sum: 0, digit: "-" },
+            { line: 2, log: "Step 2: while 123 > 0? Yes.", n: 123, sum: 0, digit: "-" },
+            { line: 3, log: "Step 3: digit = 123 % 10 = 3", n: 123, sum: 0, digit: 3 },
+            { line: 4, log: "Step 4: sum = 0 + 3 = 3", n: 123, sum: 3, digit: 3 },
+            { line: 5, log: "Step 5: n = 123 // 10 = 12", n: 12, sum: 3, digit: 3 },
+            { line: 2, log: "Step 6: while 12 > 0? Yes.", n: 12, sum: 3, digit: 3 },
+            { line: 3, log: "Step 7: digit = 12 % 10 = 2", n: 12, sum: 3, digit: 2 },
+            { line: 4, log: "Step 8: sum = 3 + 2 = 5", n: 12, sum: 5, digit: 2 },
+            { line: 5, log: "Step 9: n = 12 // 10 = 1", n: 1, sum: 5, digit: 2 },
+            { line: 2, log: "Step 10: while 1 > 0? Yes.", n: 1, sum: 5, digit: 2 },
+            { line: 3, log: "Step 11: digit = 1 % 10 = 1", n: 1, sum: 5, digit: 1 },
+            { line: 4, log: "Step 12: sum = 5 + 1 = 6", n: 1, sum: 6, digit: 1 },
+            { line: 5, log: "Step 13: n = 1 // 10 = 0", n: 0, sum: 6, digit: 1 },
+            { line: 2, log: "Step 14: while 0 > 0? No.", n: 0, sum: 6, digit: 1 },
+            { line: 7, log: "Step 15: algorithm finish. Result: 6", n: 0, sum: 6, digit: "-" }
+        ];
+
+        function stepSumDigits() {
+            if (dryRunState.completed) return;
+            dryRunState.step++;
+            if (dryRunState.step >= traceSteps.length) {
+                dryRunState.completed = true;
+                const btn = document.getElementById('step-btn');
+                if (btn) btn.disabled = true;
+                return;
+            }
+            const data = traceSteps[dryRunState.step];
+            const lines = document.querySelectorAll('#pseudo-code-container div');
+            lines.forEach(el => el.classList.remove('highlight-line'));
+            const targetLine = document.getElementById(`line-${data.line}`);
+            if (targetLine) targetLine.classList.add('highlight-line');
+            const tbody = document.getElementById('trace-table-body');
+            if (tbody) {
+                tbody.innerHTML += `<tr><td class="p-2 border">${dryRunState.step + 1}</td><td class="p-2 border">${data.n}</td><td class="p-2 border">${data.digit}</td><td class="p-2 border font-bold text-blue-600">${data.sum}</td></tr>`;
+            }
+            const logEl = document.getElementById('trace-log');
+            if (logEl) logEl.innerText = data.log;
+        }
+
+        function resetSumDigits() {
+            dryRunState = { step: -1, completed: false };
+            const tbody = document.getElementById('trace-table-body');
+            if (tbody) tbody.innerHTML = "";
+            const lines = document.querySelectorAll('#pseudo-code-container div');
+            lines.forEach(el => el.classList.remove('highlight-line'));
+            const logEl = document.getElementById('trace-log');
+            if (logEl) logEl.innerText = "Click 'Step' to begin the algorithm execution trace.";
+            const btn = document.getElementById('step-btn');
+            if (btn) btn.disabled = false;
+        }
+
+        let sortArray = [];
+        let isSorting = false;
+        function generateSortArray(size = 30) {
+            if(isSorting) return;
+            sortArray = Array.from({length: size}, () => Math.floor(Math.random() * 100) + 10);
+            renderSortArray();
+        }
+        function renderSortArray(activeIndices = []) {
+            const container = document.getElementById('sort-container');
+            if (!container) return;
+            container.innerHTML = '';
+            sortArray.forEach((val, i) => {
+                const bar = document.createElement('div');
+                bar.style.height = `${val}%`;
+                bar.className = `sort-bar flex-1 bg-blue-400 rounded-t-sm ${activeIndices.includes(i) ? 'bg-orange-500 scale-x-110 shadow-lg' : ''}`;
+                container.appendChild(bar);
+            });
+        }
+        async function runBubbleSort() {
+            if(isSorting) return; isSorting = true;
+            for(let i = 0; i < sortArray.length; i++) {
+                for(let j = 0; j < sortArray.length - i - 1; j++) {
+                    renderSortArray([j, j+1]);
+                    if(sortArray[j] > sortArray[j+1]) { [sortArray[j], sortArray[j+1]] = [sortArray[j+1], sortArray[j]]; }
+                    await new Promise(r => setTimeout(r, 20));
+                }
+            }
+            renderSortArray(); isSorting = false;
+        }
+        async function runInsertionSort() {
+            if(isSorting) return; isSorting = true;
+            for (let i = 1; i < sortArray.length; i++) {
+                let key = sortArray[i], j = i - 1;
+                while (j >= 0 && sortArray[j] > key) {
+                    sortArray[j + 1] = sortArray[j];
+                    j = j - 1;
+                    renderSortArray([j+1, i]);
+                    await new Promise(r => setTimeout(r, 20));
+                }
+                sortArray[j + 1] = key;
+            }
+            renderSortArray(); isSorting = false;
+        }
+        async function runQuickSortWrapper() {
+            if(isSorting) return; isSorting = true;
+            await quickSort(0, sortArray.length - 1);
+            renderSortArray(); isSorting = false;
+        }
+        async function quickSort(low, high) {
+            if (low < high) {
+                let pi = await partition(low, high);
+                await quickSort(low, pi - 1);
+                await quickSort(pi + 1, high);
+            }
+        }
+        async function partition(low, high) {
+            let pivot = sortArray[high], i = (low - 1);
+            for (let j = low; j < high; j++) {
+                if (sortArray[j] < pivot) {
+                    i++; [sortArray[i], sortArray[j]] = [sortArray[j], sortArray[i]];
+                    renderSortArray([i, j, high]);
+                    await new Promise(r => setTimeout(r, 40));
+                }
+            }
+            [sortArray[i + 1], sortArray[high]] = [sortArray[high], sortArray[i + 1]];
+            return (i + 1);
+        }
+
+        let searchArray = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91];
+        function renderSearchArray(idx = -1, r = []) {
+            const cont = document.getElementById('search-array-container');
+            if (!cont) return;
+            cont.innerHTML = '';
+            searchArray.forEach((val, i) => {
+                const el = document.createElement('div');
+                el.innerText = val;
+                el.className = `w-10 h-10 border flex items-center justify-center rounded font-bold transition-all ${i === idx ? 'bg-orange-500 text-white scale-125' : r.includes(i) ? 'bg-blue-100' : 'bg-white'}`;
+                cont.appendChild(el);
+            });
+        }
+        async function runLinearSearch() {
+            const targetVal = document.getElementById('search-target');
+            if (!targetVal) return;
+            const target = parseInt(targetVal.value);
+            const logEl = document.getElementById('search-log-display');
+            if(isNaN(target)) return;
+            for(let i=0; i<searchArray.length; i++) {
+                renderSearchArray(i);
+                if (logEl) logEl.innerText = `Checking index ${i}...`;
+                await new Promise(r => setTimeout(r, 400));
+                if(searchArray[i] === target) { if (logEl) logEl.innerText = `Found at index ${i}!`; return; }
+            }
+            if (logEl) logEl.innerText = "Not found.";
+        }
+        async function runBinarySearch() {
+            const targetVal = document.getElementById('search-target');
+            if (!targetVal) return;
+            const target = parseInt(targetVal.value);
+            const logEl = document.getElementById('search-log-display');
+            if(isNaN(target)) return;
+            let low = 0, high = searchArray.length - 1;
+            while(low <= high) {
+                let mid = Math.floor((low + high) / 2);
+                let range = Array.from({length: high - low + 1}, (_, i) => i + low);
+                renderSearchArray(mid, range);
+                if (logEl) logEl.innerText = `Pivot at ${mid}. Binary split...`;
+                await new Promise(r => setTimeout(r, 800));
+                if(searchArray[mid] === target) { if (logEl) logEl.innerText = `Found at index ${mid}!`; return; }
+                if(searchArray[mid] < target) low = mid + 1; else high = mid - 1;
+            }
+            if (logEl) logEl.innerText = "Not found.";
+        }
+
+        function initBigOChart() {
+            const canvas = document.getElementById('bigo-chart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const labels = Array.from({length: 40}, (_, i) => i + 1);
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'O(1) Constant', data: labels.map(() => 10), borderColor: '#10b981', pointStyle: 'circle', pointRadius: 3, borderWidth: 3, tension: 0.1 },
+                        { label: 'O(log n) Logarithmic', data: labels.map(n => Math.log2(n) * 10 + 10), borderColor: '#3b82f6', pointStyle: 'rect', pointRadius: 3, borderWidth: 3, tension: 0.4 },
+                        { label: 'O(n) Linear', data: labels.map(n => n * 5 + 10), borderColor: '#f59e0b', pointStyle: 'triangle', pointRadius: 3, borderWidth: 3, tension: 0.1 },
+                        { label: 'O(n log n) Linearithmic', data: labels.map(n => n * Math.log2(n) * 5 + 10), borderColor: '#6366f1', pointStyle: 'rectRot', pointRadius: 3, borderWidth: 3, tension: 0.4 },
+                        { label: 'O(n²) Quadratic', data: labels.map(n => Math.pow(n, 2) + 10), borderColor: '#ef4444', pointStyle: 'star', pointRadius: 3, borderWidth: 3, tension: 0.4 }
+                    ]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Comparative Growth Rates (n=1 to 40)', font: { size: 18, weight: 'bold' } },
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12, weight: '600' } } },
+                    },
+                    scales: { 
+                        y: { beginAtZero: true, max: 1800, title: { display: true, text: 'Theoretical Operations' } },
+                        x: { title: { display: true, text: 'Input Size (n)' } }
+                    } 
+                }
+            });
+        }
+
+        function calculateDijkstra() {
+            const nodes = ['A','B','C','D','E'];
+            const costs = {A: 0, B: 8, C: 5, D: 9, E: 11};
+            const prev = {A: '-', B: 'A', C: 'A', D: 'B', E: 'D'};
+            const tbody = document.getElementById('dijkstra-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            nodes.forEach(n => {
+                tbody.innerHTML += `<tr><td class="p-2 font-bold">${n}</td><td class="p-2">${costs[n]}</td><td class="p-2">${prev[n]}</td></tr>`;
+                const nodeEl = document.getElementById(`node-${n}`);
+                if (nodeEl) nodeEl.setAttribute('fill', '#3b82f6');
+            });
+        }
+
+        function updateRLE() {
+            const input = document.getElementById('rle-input');
+            if (!input) return;
+            const str = input.value;
+            const outEl = document.getElementById('rle-output');
+            if(!str) { if (outEl) outEl.innerText = ''; return; }
+            let res = '', count = 1;
+            for(let i=0; i<str.length; i++) { if(str[i] === str[i+1]) count++; else { res += count + str[i]; count = 1; } }
+            if (outEl) outEl.innerText = res;
+        }
+        function updateHuffman() {
+            const input = document.getElementById('huff-input');
+            if (!input) return;
+            const str = input.value;
+            const freqs = {}; [...str].forEach(c => freqs[c] = (freqs[c] || 0) + 1);
+            const sorted = Object.entries(freqs).sort((a,b) => b[1] - a[1]);
+            const tbody = document.getElementById('huff-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            sorted.forEach(([char, f]) => {
+                tbody.innerHTML += `<tr><td>'${char}'</td><td>${f}</td><td>${Math.random().toString(2).substr(2, 3)}</td></tr>`;
+            });
+        }
+
+        window.onload = function() { generateSortArray(); renderSearchArray(); updateRLE(); updateHuffman(); calculateDijkstra(); initBigOChart(); }
+    </script>
+</body>
+</html>
