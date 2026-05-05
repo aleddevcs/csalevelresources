@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit 3 Topic 1: Data Structures Quick Revision</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .card { background: white; border: 1px solid #e5e7eb; border-radius: 1rem; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .pill { border: 1px solid #d1d5db; border-radius: 999px; padding: 0.35rem 0.75rem; font-size: 0.875rem; }
+    .code { background:#111827; color:#e5e7eb; border-radius:0.75rem; padding:1rem; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:0.9rem; }
+    .node { width: 48px; height: 48px; border-radius: 999px; display:flex; align-items:center; justify-content:center; background:#eef2ff; border:2px solid #6366f1; font-weight:700; }
+    .smallnode { width: 36px; height: 36px; border-radius: 999px; display:flex; align-items:center; justify-content:center; background:#f0fdf4; border:2px solid #22c55e; font-weight:700; font-size:0.85rem; }
+    .slot { min-width: 56px; min-height: 48px; border:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; background:#f8fafc; }
+    .stack-slot { width: 120px; min-height: 45px; border:1px solid #94a3b8; display:flex; align-items:center; justify-content:center; background:#f8fafc; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <header class="bg-slate-900 text-white p-6 sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <h1 class="text-2xl lg:text-3xl font-bold">Unit 3 – Topic 1: Data Structures</h1>
+        <p class="text-slate-300">A-Level quick notes, examples, exam phrasing and interactive revision.</p>
+      </div>
+      <nav class="flex flex-wrap gap-2 text-sm">
+        <a class="pill hover:bg-white hover:text-slate-900" href="#arrays">Arrays</a>
+        <a class="pill hover:bg-white hover:text-slate-900" href="#stackqueue">Stacks & Queues</a>
+        <a class="pill hover:bg-white hover:text-slate-900" href="#hash">Hash Tables</a>
+        <a class="pill hover:bg-white hover:text-slate-900" href="#linked">Linked Lists</a>
+        <a class="pill hover:bg-white hover:text-slate-900" href="#trees">Trees</a>
+        <a class="pill hover:bg-white hover:text-slate-900" href="#quiz">Quiz</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 lg:p-8 space-y-8">
+    <section class="card p-6">
+      <h2 class="text-2xl font-bold mb-3">Core Exam Definition</h2>
+      <p class="text-lg"><strong>A data structure</strong> is a way of organising and storing data so that it can be accessed, processed and modified efficiently.</p>
+      <div class="grid md:grid-cols-3 gap-4 mt-5">
+        <div class="bg-indigo-50 p-4 rounded-xl"><strong>Primitive data types:</strong> integer, real/float, character, Boolean and pointer.</div>
+        <div class="bg-emerald-50 p-4 rounded-xl"><strong>Static structures:</strong> fixed size, e.g. arrays.</div>
+        <div class="bg-amber-50 p-4 rounded-xl"><strong>Dynamic structures:</strong> can grow/shrink, e.g. linked lists.</div>
+      </div>
+    </section>
+
+    <section id="arrays" class="card p-6 space-y-5">
+      <h2 class="text-2xl font-bold">1. Arrays up to Three Dimensions</h2>
+      <p>An <strong>array</strong> stores multiple related items of the same data type under one identifier. Arrays are usually indexed from 0 and allow direct access using an index.</p>
+      <div class="grid lg:grid-cols-3 gap-4">
+        <div class="bg-slate-100 p-4 rounded-xl"><h3 class="font-bold">1D Array</h3><p>A single row/list of values.</p><pre class="code mt-2">OUTPUT words[2]
+// Displays "sugar"</pre></div>
+        <div class="bg-slate-100 p-4 rounded-xl"><h3 class="font-bold">2D Array</h3><p>A table of rows and columns.</p><pre class="code mt-2">OUTPUT data[1][3]
+// Displays "because"</pre></div>
+        <div class="bg-slate-100 p-4 rounded-xl"><h3 class="font-bold">3D Array</h3><p>Layers of 2D arrays.</p><pre class="code mt-2">OUTPUT game[year][level][word]
+// Accesses a value in a 3D array</pre></div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-bold text-xl mb-2">Interactive 2D Array</h3>
+          <p class="mb-3">Click a cell to see its array reference.</p>
+          <div id="arrayGrid" class="overflow-auto"></div>
+          <p id="arrayOutput" class="mt-3 font-semibold bg-indigo-50 p-3 rounded-xl">Selected value will appear here.</p>
+        </div>
+        <div>
+          <h3 class="font-bold text-xl mb-2">Exam Focus</h3>
+          <ul class="list-disc ml-6 space-y-2">
+            <li>Use an index to access or update a value.</li>
+            <li>Use nested loops for 2D and triple nested loops for 3D arrays.</li>
+            <li>Arrays are fixed size in many exam contexts.</li>
+            <li>WJEC examples may use either row-column or column-row references, so be consistent with the question.</li>
+          </ul>
+          <pre class="mt-4 code">FOR i = 0 TO rows - 1        // outer loop: rows
+    FOR j = 0 TO columns - 1  // inner loop: columns
+        OUTPUT array[i][j]
+    NEXT j
+NEXT i</pre>
+        </div>
+      </div>
+      <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl"><strong>Memory aid:</strong> Array = numbered boxes. 2D = table. 3D = layers of tables.</div>
+    </section>
+
+    <section id="stackqueue" class="card p-6 space-y-6">
+      <h2 class="text-2xl font-bold">2. Stacks and Queues Using Pointers and Arrays</h2>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white border rounded-xl p-4">
+          <h3 class="text-xl font-bold">Stack – LIFO</h3>
+          <p><strong>Last In, First Out.</strong> The last item pushed is the first item popped.</p>
+          <div id="stackView" class="my-4 flex flex-col-reverse items-center"></div>
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="pushStack()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Push</button>
+            <button onclick="popStack()" class="bg-slate-800 text-white px-4 py-2 rounded-lg">Pop</button>
+            <button onclick="resetStack()" class="bg-slate-200 px-4 py-2 rounded-lg">Reset</button>
+          </div>
+          <p id="stackMsg" class="mt-3 font-semibold"></p>
+          <ul class="list-disc ml-6 mt-4"><li>Pointer: <strong>top</strong></li><li>Uses: undo, function calls, recursion</li></ul>
+        </div>
+
+        <div class="bg-white border rounded-xl p-4">
+          <h3 class="text-xl font-bold">Queue – FIFO</h3>
+          <p><strong>First In, First Out.</strong> The first item enqueued is the first item dequeued.</p>
+          <div id="queueView" class="my-4 flex gap-2 items-center overflow-auto"></div>
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="enqueue()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg">Enqueue</button>
+            <button onclick="dequeue()" class="bg-slate-800 text-white px-4 py-2 rounded-lg">Dequeue</button>
+            <button onclick="resetQueue()" class="bg-slate-200 px-4 py-2 rounded-lg">Reset</button>
+          </div>
+          <p id="queueMsg" class="mt-3 font-semibold"></p>
+          <ul class="list-disc ml-6 mt-4"><li>Pointers: <strong>front</strong> and <strong>rear</strong></li><li>Uses: print queues, order processing, scheduling</li></ul>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-indigo-50 p-4 rounded-xl"><strong>Stack memory aid:</strong> stack of plates → last plate on is first plate off.</div>
+        <div class="bg-emerald-50 p-4 rounded-xl"><strong>Queue memory aid:</strong> line of people → first person in line is served first.</div>
+      </div>
+    </section>
+
+    <section id="hash" class="card p-6 space-y-5">
+      <h2 class="text-2xl font-bold">3. Hash Tables</h2>
+      <p>A <strong>hash table</strong> stores data as a key-value pair. A hashing algorithm calculates an index, often using <strong>MOD</strong>. This can provide direct access, but collisions must be handled.</p>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-xl font-bold mb-2">Interactive Hashing Example</h3>
+          <p>Hash function: <strong>index = key MOD 10</strong></p>
+          <div class="flex gap-2 flex-wrap my-3">
+            <button onclick="hashMode='linear'; renderHash()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Linear Probing</button>
+            <button onclick="hashMode='chain'; renderHash()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg">Separate Chaining</button>
+          </div>
+          <div id="hashTable" class="space-y-1"></div>
+          <p id="hashExplanation" class="mt-3 bg-slate-100 p-3 rounded-xl"></p>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-2">Exam Focus</h3>
+          <ul class="list-disc ml-6 space-y-2">
+            <li><strong>Collision:</strong> when two keys generate the same index.</li>
+            <li><strong>Linear probing:</strong> check the next available location.</li>
+            <li><strong>Separate chaining:</strong> store a linked list at the hash index.</li>
+            <li>Separate chaining can slow retrieval because the linked list may also need searching.</li>
+            <li>Linear probing can cause clustering if many collisions occur.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl"><strong>Memory aid:</strong> Hash = calculate a shortcut location. Collision = two students trying to sit in the same seat.</div>
+    </section>
+
+    <section id="linked" class="card p-6 space-y-5">
+      <h2 class="text-2xl font-bold">4. Linked Lists Using Pointers and Arrays</h2>
+      <p>A <strong>linked list</strong> is a dynamic data structure made of nodes. Each node stores data and a pointer to the next node.</p>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-xl font-bold mb-3">Interactive Ordered Linked List</h3>
+          <div id="linkedView" class="flex gap-2 items-center overflow-auto p-3 bg-slate-100 rounded-xl"></div>
+          <div class="flex gap-2 flex-wrap mt-3">
+            <button onclick="insertLinked('E')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Insert E</button>
+            <button onclick="deleteLinked('C')" class="bg-slate-800 text-white px-4 py-2 rounded-lg">Delete C</button>
+            <button onclick="resetLinked()" class="bg-slate-200 px-4 py-2 rounded-lg">Reset</button>
+          </div>
+          <p id="linkedMsg" class="mt-3 font-semibold"></p>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-2">Exam Focus</h3>
+          <ul class="list-disc ml-6 space-y-2">
+            <li>Adding/deleting changes pointers rather than shifting all elements.</li>
+            <li>Linked lists do not provide direct access; they must be traversed.</li>
+            <li>Sorted linked lists allow searches to stop early.</li>
+            <li>Unsorted linked lists may require searching the whole list.</li>
+          </ul>
+          <div class="code mt-3">SET current = head
+WHILE current ≠ NULL
+    OUTPUT current.data
+    SET current = current.next
+END WHILE</div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-green-50 p-4 rounded-xl"><strong>Advantages:</strong> dynamic size, efficient insertion/deletion, no need to pre-allocate fixed size.</div>
+        <div class="bg-red-50 p-4 rounded-xl"><strong>Disadvantages:</strong> sequential access, extra memory for pointers, difficult reverse traversal in singly linked lists.</div>
+      </div>
+    </section>
+
+    <section id="trees" class="card p-6 space-y-6">
+      <h2 class="text-2xl font-bold">5. Binary Trees and Traversals</h2>
+      <p>A <strong>binary tree</strong> is a hierarchical data structure where each node has up to two children. A binary search tree places smaller or equal values to the left and greater values to the right.</p>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-xl font-bold mb-3">Example Tree</h3>
+          <div class="overflow-auto bg-slate-100 p-4 rounded-xl">
+            <pre class="text-sm leading-6 font-mono">        F
+      /   \
+     B     G
+    / \     \
+   A   D     I
+      / \   /
+     C   E H</pre>
+          </div>
+          <div class="flex gap-2 flex-wrap mt-3">
+            <button onclick="showTraversal('in')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">In-order</button>
+            <button onclick="showTraversal('pre')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg">Pre-order</button>
+            <button onclick="showTraversal('post')" class="bg-slate-800 text-white px-4 py-2 rounded-lg">Post-order</button>
+          </div>
+          <p id="traversalOutput" class="mt-3 font-semibold bg-indigo-50 p-3 rounded-xl">Choose a traversal.</p>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-2">Traversal Rules</h3>
+          <ul class="list-disc ml-6 space-y-2">
+            <li><strong>In-order:</strong> Left, Root, Right. Used to output/search a BST in order.</li>
+            <li><strong>Pre-order:</strong> Root, Left, Right. Useful for copying a tree.</li>
+            <li><strong>Post-order:</strong> Left, Right, Root. Useful for deleting a tree.</li>
+          </ul>
+          <h3 class="text-xl font-bold mt-5 mb-2">Balanced vs Unbalanced</h3>
+          <p>A balanced tree keeps operations such as add, delete and find closer to logarithmic time. An unbalanced tree can degrade towards linear time.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-slate-100 p-4 rounded-xl"><strong>Leaf deletion:</strong> remove the node.</div>
+        <div class="bg-slate-100 p-4 rounded-xl"><strong>One child:</strong> link the parent directly to the child.</div>
+        <div class="bg-slate-100 p-4 rounded-xl"><strong>Two children:</strong> replace with in-order predecessor or successor, then delete that node.</div>
+      </div>
+      <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl"><strong>Memory aid:</strong> Pre = root first. In = root in the middle. Post = root last.</div>
+    </section>
+
+    <section id="quiz" class="card p-6 space-y-4">
+      <h2 class="text-2xl font-bold">Quick Check Quiz</h2>
+      <div id="quizBox" class="space-y-4"></div>
+      <button onclick="markQuiz()" class="bg-indigo-600 text-white px-5 py-2 rounded-lg">Check Answers</button>
+      <p id="quizResult" class="font-bold"></p>
+    </section>
+  </main>
+
+  <script>
+    const arrayData = [
+      ['1','Finn','Jackson','7b'],
+      ['2','Jakub','Kowalski','7b'],
+      ['3','Molly','Wilcox','7a']
+    ];
+    const columnLabels = ['0: ID','1: firstname','2: Surname','3: Class'];
+    function renderArray(){
+      const grid = document.getElementById('arrayGrid');
+      let html = '<table class="border-collapse">';
+      html += '<tr><th class="border px-4 py-2 bg-slate-200"></th>';
+      columnLabels.forEach(label => html += `<th class="border px-4 py-2 bg-slate-200 font-bold">${label}</th>`);
+      html += '</tr>';
+      arrayData.forEach((row,i)=>{
+        html += `<tr><th class="border px-4 py-2 bg-slate-200 font-bold">${i}</th>`;
+        row.forEach((cell,j)=> html += `<td onclick="selectArray(${i},${j})" class="border px-4 py-2 cursor-pointer hover:bg-indigo-100">${cell}</td>`);
+        html += '</tr>';
+      });
+      html += '</table>';
+      grid.innerHTML = html;
+    }
+    function selectArray(i,j){ document.getElementById('arrayOutput').textContent = `StudentArray[${i}][${j}] = ${arrayData[i][j]}`; }
+
+    const names = ['Ben','Django','Anna','Zoe','Mia','Omar'];
+    let stack = ['Ben','Django','Anna']; let stackIndex = 3;
+    function renderStack(){
+      const view = document.getElementById('stackView');
+      view.innerHTML = stack.map((x,i)=>`<div class="stack-slot ${i===stack.length-1?'bg-indigo-100 font-bold':''}">${x}${i===stack.length-1?' ← top':''}</div>`).join('') || '<div class="text-slate-500">Empty stack</div>';
+    }
+    function pushStack(){ if(stack.length>=5){stackMsg.textContent='Stack overflow risk: fixed array is full.';return;} stack.push(names[stackIndex++ % names.length]); stackMsg.textContent='Pushed item to top.'; renderStack(); }
+    function popStack(){ if(!stack.length){stackMsg.textContent='Stack underflow: cannot pop an empty stack.';return;} stackMsg.textContent=`Popped ${stack.pop()}.`; renderStack(); }
+    function resetStack(){ stack=['Ben','Django','Anna']; stackMsg.textContent='Stack reset.'; renderStack(); }
+
+    let queue = ['Order 1','Order 2','Order 3']; let qIndex=4;
+    function renderQueue(){
+      queueView.innerHTML = queue.map((x,i)=>`<div class="slot ${i===0?'bg-emerald-100 font-bold':''}">${i===0?'Front: ':''}${x}${i===queue.length-1?' :Rear':''}</div>`).join('') || '<div class="text-slate-500">Empty queue</div>';
+    }
+    function enqueue(){ queue.push('Order '+qIndex++); queueMsg.textContent='Added to rear of queue.'; renderQueue(); }
+    function dequeue(){ if(!queue.length){queueMsg.textContent='Queue empty.';return;} queueMsg.textContent=`Dequeued ${queue.shift()} from front.`; renderQueue(); }
+    function resetQueue(){ queue=['Order 1','Order 2','Order 3']; qIndex=4; queueMsg.textContent='Queue reset.'; renderQueue(); }
+
+    let hashMode='linear'; const hashItems=[['Alice',5],['Bob',12],['Charlie',22],['David',32]];
+    function renderHash(){
+      const table = Array.from({length:10},()=>[]);
+      if(hashMode==='linear'){
+        hashItems.forEach(([name,key])=>{ let idx=key%10; while(table[idx].length) idx=(idx+1)%10; table[idx]=[name]; });
+        hashExplanation.textContent='Linear probing: Bob hashes to 2, Charlie also hashes to 2 so moves to 3, David moves to 4, Alice goes to 5.';
+      } else {
+        hashItems.forEach(([name,key])=> table[key%10].push(name));
+        hashExplanation.textContent='Separate chaining: Bob, Charlie and David all hash to index 2, so they are stored in a linked list at index 2.';
+      }
+      hashTable.innerHTML = table.map((v,i)=>`<div class="flex"><div class="slot font-bold bg-slate-200">${i}</div><div class="slot flex-1 justify-start px-3">${v.length?v.join(' → '):'empty'}</div></div>`).join('');
+    }
+
+    let linked=['A','C','G','L'];
+    function renderLinked(){ linkedView.innerHTML = linked.map((x,i)=>`<div class="flex items-center gap-2"><div class="slot font-bold">${x}</div>${i<linked.length-1?'<span>→</span>':'<span>→ NULL</span>'}</div>`).join(''); }
+    function insertLinked(val){ if(!linked.includes(val)){ linked.push(val); linked.sort(); linkedMsg.textContent='Inserted E by updating pointers, no shifting needed.'; } else linkedMsg.textContent='E is already in the list.'; renderLinked(); }
+    function deleteLinked(val){ if(linked.includes(val)){ linked=linked.filter(x=>x!==val); linkedMsg.textContent='Deleted C by bypassing it with the previous pointer.'; } else linkedMsg.textContent='C is not currently in the list.'; renderLinked(); }
+    function resetLinked(){ linked=['A','C','G','L']; linkedMsg.textContent='Linked list reset.'; renderLinked(); }
+
+    function showTraversal(type){
+      const data = {
+        in: ['In-order = Left, Root, Right → A, B, C, D, E, F, G, H, I'],
+        pre: ['Pre-order = Root, Left, Right → F, B, A, D, C, E, G, I, H'],
+        post: ['Post-order = Left, Right, Root → A, C, E, D, B, H, I, G, F']
+      };
+      traversalOutput.textContent = data[type][0];
+    }
+
+    const questions = [
+      ['Which structure uses LIFO?', ['Queue','Stack','Hash table'], 'Stack'],
+      ['Which structure uses front and rear pointers?', ['Queue','Stack','Tree'], 'Queue'],
+      ['Which traversal visits the root first?', ['In-order','Pre-order','Post-order'], 'Pre-order'],
+      ['Which collision method uses a linked list?', ['Linear probing','Separate chaining','Binary search'], 'Separate chaining'],
+      ['Why can linked lists be easier for insertion than arrays?', ['They use pointers','They always use direct access','They cannot grow'], 'They use pointers']
+    ];
+    function renderQuiz(){
+      quizBox.innerHTML = questions.map((q,idx)=>`<div class="bg-slate-100 p-4 rounded-xl"><p class="font-bold mb-2">${idx+1}. ${q[0]}</p>${q[1].map(a=>`<label class="block"><input type="radio" name="q${idx}" value="${a}"> ${a}</label>`).join('')}</div>`).join('');
+    }
+    function markQuiz(){
+      let score=0;
+      questions.forEach((q,idx)=>{ const ans=document.querySelector(`input[name="q${idx}"]:checked`); if(ans && ans.value===q[2]) score++; });
+      quizResult.textContent = `Score: ${score}/${questions.length}`;
+    }
+
+    renderArray(); renderStack(); renderQueue(); renderHash(); renderLinked(); renderQuiz();
+  </script>
+</body>
+</html>
