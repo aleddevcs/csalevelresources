@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Foundations — Challenge Ladder</title>
+<style>
+  :root{
+    --paper:#f7f5f0;
+    --ink:#1c1f1a;
+    --py-blue:#2b5b84;
+    --py-yellow:#e8b923;
+    --step-line:#c9c2af;
+    --code-bg:#20241f;
+    --code-text:#e9e4d4;
+    --card-bg:#ffffff;
+    --muted:#5c5c52;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    line-height:1.55;
+    padding: 0 0 80px 0;
+  }
+  code, .mono{
+    font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    background: var(--py-blue);
+    color: #fdfaf0;
+    padding: 46px 8vw 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:220px; height:220px;
+    border-radius:50%;
+    background: var(--py-yellow);
+    opacity:0.12;
+  }
+  .eyebrow-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family: Georgia, serif;
+    font-size:0.92rem;
+    color:#cfe0ee;
+    margin-bottom:14px;
+  }
+  .eyebrow-row .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--py-yellow);
+  }
+  h1{
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-weight:600;
+    font-size: clamp(2rem, 4.2vw, 2.9rem);
+    margin:0 0 12px 0;
+    letter-spacing:-0.01em;
+    max-width: 14ch;
+  }
+  header p.lede{
+    max-width: 62ch;
+    font-size:1.08rem;
+    color:#e7edf3;
+    margin:0;
+  }
+  .header-meta{
+    margin-top:28px;
+    display:flex;
+    gap:34px;
+    flex-wrap:wrap;
+    font-family: Georgia, serif;
+    font-size:0.95rem;
+    color:#d9e4ee;
+  }
+  .header-meta strong{
+    display:block;
+    color:#fff;
+    font-size:1.05rem;
+  }
+
+  /* ---------- Main container ---------- */
+  main{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 8vw;
+  }
+
+  .intro-panel{
+    background:var(--card-bg);
+    border:1px solid #e4ddc9;
+    border-left:5px solid var(--py-yellow);
+    padding: 26px 30px;
+    margin-top:40px;
+    border-radius:2px;
+    box-shadow: 0 8px 24px rgba(30,30,20,0.06);
+  }
+  .intro-panel h2{
+    margin-top:0;
+    font-size:1.15rem;
+  }
+  .intro-panel ol{
+    padding-left:1.2em;
+    margin-bottom:0;
+  }
+  .intro-panel li{margin-bottom:6px;}
+
+  .constructs-strip{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin: 26px 0 8px;
+  }
+  .construct-chip{
+    font-family: Georgia, serif;
+    font-size:0.85rem;
+    padding: 5px 13px;
+    border-radius: 999px;
+    border:1px solid var(--py-blue);
+    color: var(--py-blue);
+    background: #eef3f7;
+  }
+
+  /* ---------- Ladder ---------- */
+  .ladder{
+    position:relative;
+    margin-top: 44px;
+  }
+  .ladder::before{
+    content:"";
+    position:absolute;
+    left: 27px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: var(--step-line);
+  }
+  .step{
+    position:relative;
+    padding-left: 76px;
+    margin-bottom: 46px;
+  }
+  .step-number{
+    position:absolute;
+    left:0; top:0;
+    width:56px; height:56px;
+    border-radius:50%;
+    background: var(--py-blue);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family: Georgia, serif;
+    font-size:1.35rem;
+    font-weight:600;
+    border: 4px solid var(--paper);
+    box-shadow: 0 0 0 2px var(--step-line);
+  }
+  .step.stretch .step-number{
+    background: var(--py-yellow);
+    color: #3a2c00;
+  }
+
+  .step-card{
+    background:var(--card-bg);
+    border:1px solid #e4ddc9;
+    border-radius:3px;
+    padding: 22px 26px 24px;
+    box-shadow: 0 4px 14px rgba(30,30,20,0.05);
+  }
+  .step-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .step-head h3{
+    margin:0;
+    font-size:1.28rem;
+    font-weight:600;
+  }
+  .tag-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .tag{
+    font-family:"JetBrains Mono", monospace;
+    font-size:0.72rem;
+    padding: 3px 9px;
+    border-radius:4px;
+    background:#f1efe4;
+    color:var(--muted);
+    border:1px solid #e0dbc8;
+    white-space:nowrap;
+  }
+  .step-goal{
+    color:var(--muted);
+    margin: 6px 0 16px;
+    font-size:0.99rem;
+  }
+  .step-goal strong{color:var(--ink);}
+
+  ul.spec, ol.spec{
+    margin: 0 0 16px 0;
+    padding-left:1.2em;
+  }
+  ul.spec li, ol.spec li{margin-bottom:5px;}
+
+  pre.starter{
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius:4px;
+    overflow-x:auto;
+    font-size:0.86rem;
+    line-height:1.6;
+    margin: 4px 0 16px;
+  }
+  pre.starter .fill{
+    color: var(--py-yellow);
+  }
+  pre.starter .cmt{
+    color:#8fa38a;
+  }
+
+  .helplink{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family: Georgia, serif;
+    font-size:0.9rem;
+    color: var(--py-blue);
+    text-decoration:none;
+    border-bottom: 1px solid #b9cede;
+    padding-bottom:1px;
+  }
+  .helplink:hover{ color:#173650; border-color: var(--py-blue); }
+  .help-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+    margin-top:4px;
+  }
+
+  .done-check{
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px dashed #ddd6c0;
+    font-family: Georgia, serif;
+    font-size:0.92rem;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .done-check input{ width:16px; height:16px; }
+
+  /* ---------- Closing panel ---------- */
+  .closing{
+    margin-top: 20px;
+    background: var(--py-blue);
+    color:#f2f6f9;
+    border-radius:3px;
+    padding: 28px 30px;
+  }
+  .closing h2{
+    margin-top:0;
+    font-size:1.2rem;
+    color:#fff;
+  }
+  .closing p{color:#dbe6ee; max-width:70ch;}
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+    margin-top:40px;
+    font-family: Georgia, serif;
+  }
+
+  @media (max-width:600px){
+    header{padding:36px 6vw 32px;}
+    main{padding:0 6vw;}
+    .step{padding-left:64px;}
+    .step-number{width:46px;height:46px;font-size:1.1rem;}
+    .ladder::before{left:22px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow-row"><span class="dot"></span>Unit 2 — Practical Programming to Solve Problems</div>
+  <h1>Python Foundations: Step by Step</h1>
+  <p class="lede">Six challenges, one climb. Work down the ladder at your own pace — ask the person next to you before you ask your teacher. By the bottom step you'll be writing the same kind of program you'll meet in Unit 2 Section B.</p>
+  <div class="header-meta">
+    <div><strong>90 minutes</strong>solo, self-paced coding</div>
+    <div><strong>6 steps</strong>1 starter, 5 build-your-own</div>
+    <div><strong>End of lesson</strong>share your code on the whiteboard</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="intro-panel">
+    <h2>How this lesson works</h2>
+    <ol>
+      <li>Work through the steps of the ladder <strong>in order</strong> — each one uses what you built in the last.</li>
+      <li>Test your code after every few lines. Don't write twenty lines and then run it for the first time.</li>
+      <li>Stuck for more than a couple of minutes? Try the linked W3Schools page for that step before putting your hand up.</li>
+      <li>Save each challenge as its own file: <code>step1.py</code>, <code>step2.py</code>, and so on — you'll want them later.</li>
+      <li>Near the end we'll put some solutions up on the whiteboard and walk through them together, so keep your code tidy enough to explain.</li>
+    </ol>
+  </div>
+
+  <div class="constructs-strip">
+    <span class="construct-chip">variables</span>
+    <span class="construct-chip">input / output</span>
+    <span class="construct-chip">selection (if / elif)</span>
+    <span class="construct-chip">iteration (while / for)</span>
+    <span class="construct-chip">lists</span>
+    <span class="construct-chip">file handling</span>
+  </div>
+
+  <div class="ladder">
+
+    <!-- RUNG 1 -->
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-card">
+        <div class="step-head">
+          <h3>Data Collector</h3>
+          <div class="tag-row"><span class="tag">variables</span><span class="tag">input()</span><span class="tag">f-strings</span></div>
+        </div>
+        <p class="step-goal">Goal: get comfortable taking input and building it into readable output.</p>
+        <ul class="spec">
+          <li>Ask the user for their <strong>name</strong>, <strong>age</strong>, and <strong>favourite subject</strong>.</li>
+          <li>Print a single sentence that uses all three, e.g. <code>"Aled is 16 and loves Computer Science."</code></li>
+          <li>Use an f-string, not string concatenation with <code>+</code>.</li>
+        </ul>
+        <pre class="starter"><span class="cmt"># step1.py</span>
+name = <span class="fill">___</span>
+age = <span class="fill">___</span>
+subject = <span class="fill">___</span>
+
+print(f<span class="fill">"..."</span>)</pre>
+        <div class="help-row">
+          <a class="helplink" href="https://www.w3schools.com/python/python_variables.asp" target="_blank" rel="noopener">W3Schools: Variables →</a>
+          <a class="helplink" href="https://www.w3schools.com/python/python_string_formatting.asp" target="_blank" rel="noopener">W3Schools: f-strings →</a>
+        </div>
+        <div class="done-check"><input type="checkbox" id="c1"><label for="c1">Step 1 complete — saved as step1.py</label></div>
+      </div>
+    </div>
+
+    <!-- RUNG 2 -->
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-card">
+        <div class="step-head">
+          <h3>The Bouncer</h3>
+          <div class="tag-row"><span class="tag">selection</span><span class="tag">iteration</span><span class="tag">validation</span></div>
+        </div>
+        <p class="step-goal">Goal: reject bad input and keep asking until you get something valid — this shows up in almost every exam question.</p>
+        <ul class="spec">
+          <li>Ask the user to enter their age.</li>
+          <li>If the age is <strong>below 11 or above 19</strong>, print an error message and ask again.</li>
+          <li>Keep looping until a valid age is entered, then print <code>"Welcome in!"</code></li>
+        </ul>
+        <pre class="starter"><span class="cmt"># step2.py</span>
+valid = False
+while <span class="fill">___</span>:
+    age = int(input(<span class="fill">"..."</span>))
+    if <span class="fill">___</span>:
+        print(<span class="fill">"..."</span>)
+    else:
+        valid = <span class="fill">___</span>
+
+print(<span class="fill">"..."</span>)</pre>
+        <div class="help-row">
+          <a class="helplink" href="https://www.w3schools.com/python/python_while_loops.asp" target="_blank" rel="noopener">W3Schools: while loops →</a>
+          <a class="helplink" href="https://www.w3schools.com/python/python_conditions.asp" target="_blank" rel="noopener">W3Schools: if / else →</a>
+        </div>
+        <div class="done-check"><input type="checkbox" id="c2"><label for="c2">Step 2 complete — saved as step2.py</label></div>
+      </div>
+    </div>
+
+    <!-- RUNG 3 -->
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-card">
+        <div class="step-head">
+          <h3>Menu Machine</h3>
+          <div class="tag-row"><span class="tag">selection</span><span class="tag">iteration</span><span class="tag">program structure</span></div>
+        </div>
+        <p class="step-goal">Goal: build the menu-driven shape that almost every Section B program uses.</p>
+        <ul class="spec">
+          <li>Display a menu with three options: <code>1. Add</code>, <code>2. Search</code>, <code>3. Quit</code>.</li>
+          <li>Take the user's choice and use <code>if</code> / <code>elif</code> to branch — for now, each option can just <code>print</code> which one was chosen.</li>
+          <li>Keep looping and re-showing the menu until the user chooses Quit.</li>
+        </ul>
+        <pre class="starter"><span class="cmt"># step3.py</span>
+choice = ""
+while choice != <span class="fill">___</span>:
+    print("1. Add")
+    print("2. Search")
+    print("3. Quit")
+    choice = input(<span class="fill">"..."</span>)
+
+    if choice == "1":
+        print(<span class="fill">"..."</span>)
+    elif choice == "2":
+        print(<span class="fill">"..."</span>)
+    elif choice == "3":
+        print(<span class="fill">"..."</span>)
+    else:
+        print(<span class="fill">"..."</span>)</pre>
+        <div class="help-row">
+          <a class="helplink" href="https://www.w3schools.com/python/python_while_loops.asp" target="_blank" rel="noopener">W3Schools: while loops →</a>
+          <a class="helplink" href="https://www.w3schools.com/python/python_conditions.asp" target="_blank" rel="noopener">W3Schools: elif →</a>
+        </div>
+        <div class="done-check"><input type="checkbox" id="c3"><label for="c3">Step 3 complete — saved as step3.py</label></div>
+      </div>
+    </div>
+
+    <!-- RUNG 4 -->
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-card">
+        <div class="step-head">
+          <h3>List Logger</h3>
+          <div class="tag-row"><span class="tag">lists</span><span class="tag">iteration</span><span class="tag">searching</span></div>
+        </div>
+        <p class="step-goal">Goal: store several records in memory and search them — no starter code this time, you're building from scratch.</p>
+        <ul class="spec">
+          <li>Use a loop to collect <strong>5 names</strong> from the user, adding each one to a list.</li>
+          <li>Once all 5 are collected, ask the user to enter a name to search for.</li>
+          <li>Loop through the list and count how many times that name appears — print the count.</li>
+          <li>Print <code>"Found"</code> if the count is above 0, otherwise <code>"Not found"</code>.</li>
+        </ul>
+        <div class="help-row">
+          <a class="helplink" href="https://www.w3schools.com/python/python_lists.asp" target="_blank" rel="noopener">W3Schools: Lists →</a>
+          <a class="helplink" href="https://www.w3schools.com/python/python_for_loops.asp" target="_blank" rel="noopener">W3Schools: for loops →</a>
+        </div>
+        <div class="done-check"><input type="checkbox" id="c4"><label for="c4">Step 4 complete — saved as step4.py</label></div>
+      </div>
+    </div>
+
+    <!-- RUNG 5 -->
+    <div class="step">
+      <div class="step-number">5</div>
+      <div class="step-card">
+        <div class="step-head">
+          <h3>File Writer</h3>
+          <div class="tag-row"><span class="tag">file handling</span><span class="tag">iteration</span></div>
+        </div>
+        <p class="step-goal">Goal: get your list onto disk. This is the exact skill Section B calls "storing details on disk."</p>
+        <ul class="spec">
+          <li>Take the list of 5 names from Step 4 (or collect them again).</li>
+          <li>Open a text file called <code>names.txt</code> for writing.</li>
+          <li>Write each name to the file on its own line.</li>
+          <li>Close the file, then open <code>names.txt</code> yourself and check the names are actually there.</li>
+        </ul>
+        <div class="help-row">
+          <a class="helplink" href="https://www.w3schools.com/python/python_file_write.asp" target="_blank" rel="noopener">W3Schools: Write to file →</a>
+        </div>
+        <div class="done-check"><input type="checkbox" id="c5"><label for="c5">Step 5 complete — saved as step5.py</label></div>
+      </div>
+    </div>
+
+    <!-- RUNG 6 - STRETCH -->
+    <div class="step stretch">
+      <div class="step-number">★</div>
+      <div class="step-card">
+        <div class="step-head">
+          <h3>File Reader — and the full build</h3>
+          <div class="tag-row"><span class="tag">stretch</span><span class="tag">file handling</span><span class="tag">all constructs</span></div>
+        </div>
+        <p class="step-goal">Goal: read stored data back and search it — then combine everything into one program.</p>
+        <ul class="spec">
+          <li>Open <code>names.txt</code> for reading and loop through each line, printing it.</li>
+          <li>Ask the user for a name to search for, and count how many lines in the file match it.</li>
+          <li><strong>Full build:</strong> combine Steps 3, 5 and 6 into one menu-driven program — <code>Add</code> appends a name to the file, <code>Search</code> reads the file and reports the count, <code>Quit</code> ends the program. This is a miniature version of a real Section B question.</li>
+        </ul>
+        <div class="help-row">
+          <a class="helplink" href="https://www.w3schools.com/python/python_file_open.asp" target="_blank" rel="noopener">W3Schools: Read files →</a>
+        </div>
+        <div class="done-check"><input type="checkbox" id="c6"><label for="c6">Stretch complete — saved as step6.py</label></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="closing">
+    <h2>Before the end of the lesson</h2>
+    <p>Be ready to put one of your programs up on the whiteboard. We'll pick a few and talk through the variables, selection, iteration and lists each one uses — so make sure your variable names actually make sense to someone reading them for the first time.</p>
+  </div>
+
+  <footer>WJEC/Eduqas AS Computer Science — Unit 2 preparation</footer>
+</main>
+
+</body>
+</html>
