@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linked List Manipulator</title>
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --navy-dark:#121D33;
+    --amber:#D9A441;
+    --amber-light:#F3DDAE;
+    --offwhite:#F5F6F8;
+    --white:#FFFFFF;
+    --ink:#1F2733;
+    --muted:#5B6472;
+    --line:#E1E4EA;
+    --blue-light:#CADCFC;
+    --danger:#B23A3A;
+    --head-font:Cambria, Georgia, 'Times New Roman', serif;
+    --body-font:Calibri, 'Segoe UI', Arial, sans-serif;
+    --code-font:'Courier New', Courier, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:var(--body-font); color:var(--ink); background:transparent;}
+  .app{max-width:1180px; margin:0 auto;}
+
+  header.top{
+    background:var(--navy);
+    border-radius:14px;
+    padding:22px 28px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute;
+    right:-40px; top:-40px;
+    width:160px; height:160px;
+    border-radius:50%;
+    background:rgba(217,164,65,0.12);
+  }
+  header.top .eyebrow{color:var(--amber); font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin:0 0 6px 0;}
+  header.top h1{font-family:var(--head-font); color:var(--white); font-size:26px; margin:0 0 6px 0;}
+  header.top p{color:var(--amber-light); font-size:14px; margin:0; font-style:italic; max-width:760px;}
+
+  .layout{display:grid; grid-template-columns:300px 1fr; gap:18px; align-items:start;}
+  @media (max-width: 860px){ .layout{grid-template-columns:1fr;} }
+
+  .card{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px;}
+  .card h2{font-family:var(--head-font); font-size:15px; color:var(--navy); margin:0 0 10px 0;}
+
+  .task-list{margin:0; padding-left:20px; font-size:13px; line-height:1.65; color:var(--ink);}
+  .task-list li{margin-bottom:6px;}
+  .task-list li::marker{color:var(--amber); font-weight:700;}
+
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:5px;}
+  .field input[type="text"]{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:var(--body-font); font-size:14px; background:var(--offwhite); color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--amber); outline-offset:1px;}
+
+  .btn{display:inline-block; width:100%; padding:10px 12px; border-radius:8px; border:none;
+       font-family:var(--body-font); font-weight:700; font-size:14px; cursor:pointer; margin-top:4px;}
+  .btn-primary{background:var(--amber); color:var(--navy-dark);}
+  .btn-primary:hover{background:#c9943a;}
+  .btn-secondary{background:var(--offwhite); color:var(--navy); border:1px solid var(--line);}
+  .btn-secondary:hover{background:#eceef2;}
+  .btn-row{display:flex; gap:8px;}
+  .btn-row .btn{margin-top:8px;}
+  .msg{font-size:12.5px; color:var(--danger); min-height:16px; margin-top:6px;}
+
+  .hint{
+    background:var(--offwhite);
+    border:1px dashed var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:12px;
+  }
+
+  .tips{font-size:12.5px; color:var(--ink); line-height:1.6; margin:0; padding-left:18px;}
+  .tips li{margin-bottom:6px;}
+  .tips li::marker{color:var(--amber);}
+
+  .table-panel{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:22px 24px; min-height:260px;}
+  .table-panel h2{font-family:var(--head-font); font-size:17px; color:var(--navy); margin:0 0 4px 0;}
+  .table-panel .subtle{font-size:12.5px; color:var(--muted); margin:0 0 20px 0;}
+
+  .list-track{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0;
+    min-height:110px;
+    padding:10px 0 20px 0;
+  }
+  .head-label{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-right:8px;
+    flex-shrink:0;
+  }
+  .head-label .tag{
+    font-size:11px;
+    font-weight:700;
+    color:var(--navy);
+    background:var(--amber-light);
+    border-radius:6px;
+    padding:3px 8px;
+    margin-bottom:6px;
+    white-space:nowrap;
+  }
+  .head-arrow{font-size:20px; color:var(--navy);}
+
+  .node{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-right:4px;
+    flex-shrink:0;
+    position:relative;
+  }
+  .node-box{
+    min-width:78px;
+    padding:14px 16px;
+    border-radius:10px;
+    background:var(--blue-light);
+    border:2px solid var(--navy);
+    font-weight:700;
+    font-size:16px;
+    color:var(--navy-dark);
+    text-align:center;
+    position:relative;
+  }
+  .node.new .node-box{
+    background:var(--amber);
+    border-color:var(--navy);
+  }
+  .node-remove{
+    position:absolute;
+    top:-9px; right:-9px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--white);
+    border:1.5px solid var(--navy);
+    color:var(--navy);
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    line-height:1;
+  }
+  .node-remove:hover{background:var(--danger); border-color:var(--danger); color:var(--white);}
+  .arrow-between{
+    font-size:20px;
+    color:var(--navy);
+    margin:0 6px;
+    flex-shrink:0;
+  }
+  .null-tail{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-left:6px;
+    flex-shrink:0;
+  }
+  .null-tail .bar{width:2px; height:26px; background:var(--navy); margin-bottom:4px;}
+  .null-tail .lbl{font-size:11px; font-style:italic; color:var(--muted);}
+  .empty-msg{color:var(--muted); font-style:italic; font-size:14px; padding:20px 0;}
+
+  .exam-box{
+    background:var(--navy);
+    border-radius:12px;
+    padding:18px 22px;
+    margin-top:18px;
+  }
+  .exam-box h2{font-family:var(--head-font); color:var(--amber); font-size:16px; margin:0 0 4px 0;}
+  .exam-box .qtext{color:var(--white); font-size:13.5px; line-height:1.6; margin:8px 0;}
+  .exam-box .qtext b{color:var(--amber-light);}
+  .exam-box .part{color:var(--offwhite); font-size:13.5px; margin:4px 0; padding-left:14px;}
+  .exam-box .marks{color:var(--amber); font-weight:700;}
+  .exam-box .selfcheck{
+    background:var(--navy-dark);
+    border-radius:8px;
+    padding:10px 14px;
+    margin-top:12px;
+    color:var(--amber-light);
+    font-size:12.5px;
+    font-style:italic;
+  }
+
+  .log-panel{background:var(--navy); border-radius:12px; padding:18px 20px; margin-top:18px;}
+  .log-panel h2{font-family:var(--head-font); color:var(--amber); font-size:16px; margin:0 0 10px 0;}
+  .log-list{list-style:none; margin:0; padding:0; max-height:220px; overflow-y:auto;}
+  .log-list li{background:var(--navy-dark); color:var(--offwhite); border-radius:8px; padding:9px 12px; font-size:12.5px; margin-bottom:7px; line-height:1.5;}
+  .log-list li b{color:var(--amber);}
+  .log-list li.insert{border-left:3px solid var(--amber);}
+  .log-list li.delete{border-left:3px solid var(--danger);}
+  .log-empty{color:var(--amber-light); font-size:13px; font-style:italic;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <p class="eyebrow">Unit 3 &middot; 1.1.4 &middot; Interactive</p>
+    <h1>Linked List Manipulator</h1>
+    <p>Insert and delete nodes in a sorted linked list, and see exactly which pointers change &mdash; the same skill examiners ask you to show by redrawing a diagram.</p>
+  </header>
+
+  <div class="layout">
+
+    <aside>
+      <div class="card">
+        <h2>Your task</h2>
+        <ol class="task-list">
+          <li>Click <b>Load example</b> to start with the list A &rarr; C &rarr; G &rarr; L.</li>
+          <li>Type <b>E</b> into the box and click <b>Insert</b>. Read the step log &mdash; which node's pointer changed?</li>
+          <li>Now delete <b>C</b> using the &times; on its node. Check how A's pointer is rewired.</li>
+          <li>On paper, redraw both diagrams exactly as you would in an exam answer &mdash; every arrow, including the null at the end.</li>
+          <li>Reset the list, add at least 5 values of your own choosing (one at a time), and try to <b>predict</b> where each one will land before you click Insert.</li>
+          <li>Attempt the exam-style question at the bottom without the tool, then use it to self-check.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Add / remove a node</h2>
+        <div class="hint">New nodes are inserted automatically in alphabetical order &mdash; exactly like the sorted linked list in your notes. Click the &times; on any node to delete it.</div>
+        <div class="field">
+          <label for="valueInput">Value</label>
+          <input type="text" id="valueInput" placeholder="e.g. E" maxlength="14">
+        </div>
+        <button class="btn btn-primary" id="insertBtn" type="button">Insert node</button>
+        <div class="msg" id="msg"></div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="exampleBtn" type="button">Load example</button>
+          <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Exam tips</h2>
+        <ul class="tips">
+          <li>Always draw the pointer arrows explicitly, including the final arrow to <b>null</b> / end of list.</li>
+          <li>You never shift the other data along like an array &mdash; only the pointers of the affected node(s) change.</li>
+          <li>Marks are usually split: one for the node in the correct position, one for correctly redrawn arrows.</li>
+          <li>If the <b>head</b> node itself changes, say so &mdash; the start pointer must be redrawn too.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main>
+      <div class="table-panel">
+        <h2>Linked list view</h2>
+        <p class="subtle">Nodes are always shown in alphabetical order, just like the sorted list in your notes.</p>
+        <div class="list-track" id="listTrack"></div>
+      </div>
+
+      <div class="exam-box">
+        <h2>Exam-style question</h2>
+        <p class="qtext">The diagram shows a linked list holding data in alphabetical order: <b>A &rarr; C &rarr; G &rarr; L &rarr; (null)</b></p>
+        <p class="part">(a) Redraw the linked list after the data item 'E' has been inserted. <span class="marks">[2]</span></p>
+        <p class="part">(b) Redraw the amended linked list after the data item 'C' has been deleted. <span class="marks">[2]</span></p>
+        <div class="selfcheck">Try this on paper first. Then click <b>Load example</b> above, insert E, delete C, and compare your diagrams to the tool.</div>
+      </div>
+
+      <div class="log-panel">
+        <h2>Step log</h2>
+        <ul class="log-list" id="logList"></ul>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+  var state = { nodes: [] }; // { id, value }
+  var nextId = 1;
+  var lastChangedId = null;
+
+  var el = {
+    valueInput: document.getElementById('valueInput'),
+    insertBtn: document.getElementById('insertBtn'),
+    msg: document.getElementById('msg'),
+    exampleBtn: document.getElementById('exampleBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    listTrack: document.getElementById('listTrack'),
+    logList: document.getElementById('logList')
+  };
+
+  function cmp(a, b){
+    return a.value.toLowerCase().localeCompare(b.value.toLowerCase());
+  }
+
+  function sorted(){
+    return state.nodes.slice().sort(cmp);
+  }
+
+  function showMsg(text){ el.msg.textContent = text || ''; }
+
+  // ---------- Render ----------
+
+  function render(){
+    var list = sorted();
+    el.listTrack.innerHTML = '';
+
+    if (list.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-msg';
+      empty.textContent = 'The list is empty. Load the example or insert a node to begin.';
+      el.listTrack.appendChild(empty);
+      return;
+    }
+
+    var headLabel = document.createElement('div');
+    headLabel.className = 'head-label';
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = 'head';
+    headLabel.appendChild(tag);
+    var harrow = document.createElement('span');
+    harrow.className = 'head-arrow';
+    harrow.textContent = '\u2192';
+    headLabel.appendChild(harrow);
+    el.listTrack.appendChild(headLabel);
+
+    list.forEach(function(n, i){
+      var nodeWrap = document.createElement('div');
+      nodeWrap.className = 'node' + (n.id === lastChangedId ? ' new' : '');
+
+      var box = document.createElement('div');
+      box.className = 'node-box';
+      box.textContent = n.value;
+
+      var rm = document.createElement('button');
+      rm.className = 'node-remove';
+      rm.type = 'button';
+      rm.title = 'Delete this node';
+      rm.textContent = '\u00D7';
+      rm.addEventListener('click', function(){ doDelete(n.id); });
+      box.appendChild(rm);
+
+      nodeWrap.appendChild(box);
+      el.listTrack.appendChild(nodeWrap);
+
+      if (i < list.length - 1){
+        var arrow = document.createElement('span');
+        arrow.className = 'arrow-between';
+        arrow.textContent = '\u2192';
+        el.listTrack.appendChild(arrow);
+      }
+    });
+
+    var nullTail = document.createElement('div');
+    nullTail.className = 'null-tail';
+    var bar = document.createElement('div');
+    bar.className = 'bar';
+    var lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = 'null';
+    nullTail.appendChild(bar);
+    nullTail.appendChild(lbl);
+    el.listTrack.appendChild(nullTail);
+  }
+
+  function addLog(kind, html){
+    var emptyEl = el.logList.querySelector('.log-empty');
+    if (emptyEl) emptyEl.remove();
+    var li = document.createElement('li');
+    li.className = kind;
+    li.innerHTML = html;
+    el.logList.appendChild(li);
+    el.logList.scrollTop = el.logList.scrollHeight;
+  }
+
+  function resetLog(){
+    el.logList.innerHTML = '';
+    var li = document.createElement('li');
+    li.className = 'log-empty';
+    li.textContent = 'Insert or delete a node to see the pointer updates here.';
+    el.logList.appendChild(li);
+  }
+
+  // ---------- Actions ----------
+
+  function doInsert(){
+    var raw = el.valueInput.value.trim();
+    if (raw === ''){ showMsg('Type a value first.'); return; }
+    if (state.nodes.some(function(n){ return n.value.toLowerCase() === raw.toLowerCase(); })){
+      showMsg('That value is already in the list.');
+      return;
+    }
+    showMsg('');
+    var before = sorted();
+    var newNode = { id: nextId++, value: raw.slice(0,14) };
+    state.nodes.push(newNode);
+    var after = sorted();
+    var idx = after.findIndex(function(n){ return n.id === newNode.id; });
+    var prev = idx > 0 ? after[idx-1] : null;
+    var next = idx < after.length-1 ? after[idx+1] : null;
+
+    var msg;
+    if (before.length === 0){
+      msg = 'List was empty \u2192 <b>' + newNode.value + '</b> becomes the only node, and its pointer is set to null.';
+    } else if (!prev){
+      msg = '<b>' + newNode.value + '</b> is inserted at the head. Its pointer is set to former head <b>' + next.value + '</b>, and the list\u2019s head pointer now points to <b>' + newNode.value + '</b>.';
+    } else if (!next){
+      msg = '<b>' + newNode.value + '</b> is inserted at the end. Former tail <b>' + prev.value + '</b>\u2019s pointer now points to <b>' + newNode.value + '</b>, and its pointer is set to null.';
+    } else {
+      msg = 'Traversed the list to find where <b>' + newNode.value + '</b> belongs \u2014 between <b>' + prev.value + '</b> and <b>' + next.value + '</b>. <b>' + prev.value + '</b>\u2019s pointer now points to <b>' + newNode.value + '</b>, and <b>' + newNode.value + '</b>\u2019s pointer points to <b>' + next.value + '</b>.';
+    }
+    lastChangedId = newNode.id;
+    addLog('insert', '<b>Insert:</b> ' + msg);
+    el.valueInput.value = '';
+    el.valueInput.focus();
+    render();
+  }
+
+  function doDelete(id){
+    var before = sorted();
+    var idx = before.findIndex(function(n){ return n.id === id; });
+    if (idx === -1) return;
+    var target = before[idx];
+    var prev = idx > 0 ? before[idx-1] : null;
+    var next = idx < before.length-1 ? before[idx+1] : null;
+
+    var msg;
+    if (before.length === 1){
+      msg = '<b>' + target.value + '</b> was the only node \u2014 the list is now empty.';
+    } else if (!prev){
+      msg = '<b>' + target.value + '</b> was the head node. The list\u2019s head pointer now points to <b>' + next.value + '</b> (the new first node).';
+    } else if (!next){
+      msg = '<b>' + target.value + '</b> was the tail node. <b>' + prev.value + '</b>\u2019s pointer is now set to null \u2014 <b>' + prev.value + '</b> becomes the new tail.';
+    } else {
+      msg = '<b>' + prev.value + '</b>\u2019s pointer is updated to bypass <b>' + target.value + '</b> and point directly to <b>' + next.value + '</b>, skipping the deleted node.';
+    }
+    state.nodes = state.nodes.filter(function(n){ return n.id !== id; });
+    lastChangedId = prev ? prev.id : (next ? next.id : null);
+    addLog('delete', '<b>Delete:</b> ' + msg);
+    render();
+  }
+
+  // ---------- Wire up controls ----------
+
+  el.insertBtn.addEventListener('click', doInsert);
+  el.valueInput.addEventListener('keydown', function(ev){ if (ev.key === 'Enter') doInsert(); });
+
+  el.resetBtn.addEventListener('click', function(){
+    state.nodes = [];
+    lastChangedId = null;
+    showMsg('');
+    resetLog();
+    render();
+  });
+
+  el.exampleBtn.addEventListener('click', function(){
+    state.nodes = [];
+    lastChangedId = null;
+    var example = ['A','C','G','L'];
+    example.forEach(function(v){ state.nodes.push({ id: nextId++, value: v }); });
+    showMsg('');
+    resetLog();
+    addLog('insert', '<b>Loaded example:</b> A \u2192 C \u2192 G \u2192 L \u2192 null');
+    render();
+  });
+
+  resetLog();
+  render();
+
+})();
+</script>
+</body>
+</html>
