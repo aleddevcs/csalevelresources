@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Array Manipulation: Predict &amp; Trace</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1c2333;--muted:#5b6478;--line:#d9dee8;--accent:#0f5fa8;--accent2:#e8f1fb;--ok:#1f8a4c;--okbg:#e6f6ec;--bad:#c0392b;--badbg:#fbe9e7;--warn:#b7791f;--warnbg:#fff6e0;--mono:ui-monospace,Consolas,"Courier New",monospace}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{background:var(--accent);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:1.25rem}header .sub{opacity:.85;font-size:.9rem}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+h2{margin:0 0 8px;font-size:1.1rem}p{margin:6px 0}.muted{color:var(--muted)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.secondary{background:#fff;color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--accent2);color:var(--accent);font-size:.85rem;font-weight:600}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:8px;display:none}.feedback.show{display:block}
+.feedback.good{background:var(--okbg);color:var(--ok)}.feedback.wrong{background:var(--badbg);color:var(--bad)}.feedback.info{background:var(--warnbg);color:var(--warn)}
+code,pre{font-family:var(--mono)}pre{background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:.95rem}
+input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:200px}
+.score{font-weight:700}
+
+.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.steps{margin:6px 0 0;padding-left:18px}
+.steps li{margin:3px 0}.steps li.done{color:var(--muted)}.steps li.cur{font-weight:700;color:var(--accent)}
+.state{background:#f9fafc;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:120px}
+.cells{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.cell{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 10px;font-family:var(--mono);position:relative;transition:.3s}
+.cell small{display:block;color:var(--muted);font-size:.7rem;text-align:center}
+.cell.new{background:#d9f7e4;border-color:var(--ok)}.cell.gone{background:#ffd9d4;text-decoration:line-through;opacity:.6}.cell.changed{background:#fff2b3}
+.rowlabel{font-family:var(--mono);color:var(--muted);font-size:.8rem;margin-top:6px}
+.out{background:#0f172a;color:#a7f3d0;padding:8px 12px;border-radius:8px;font-family:var(--mono);min-height:40px;white-space:pre}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.nav button{padding:5px 10px;font-size:.85rem}
+.nav button.done{background:var(--ok);border-color:var(--ok)}
+.nav button.cur{outline:3px solid #ffe27a}
+.lvl{font-size:.8rem;font-weight:600;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div><h1>Predict &amp; Trace: Array Manipulation</h1><div class="sub">Adding, removing, changing and looping · Lesson 1 Activity 2</div></div><div class="pill" id="prog">0 / 9 correct</div></header>
+<main>
+<div class="card">
+  <p class="muted">For each snippet: <strong>predict</strong> the result with your partner and write it down, <strong>submit</strong>, then <strong>trace</strong> it line by line to see exactly why. No peeking at the trace first!</p>
+  <div class="nav" id="nav"></div>
+  <div class="grid">
+    <div>
+      <div class="lvl" id="lvl"></div>
+      <h2 id="title"></h2>
+      <pre id="code"></pre>
+      <p id="prompt"></p>
+      <div class="row"><input type="text" id="ans" style="min-width:320px" autocomplete="off"><button id="submit">Submit prediction</button></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div>
+      <h2>Trace</h2>
+      <div class="row"><button class="secondary" id="step">Step ▶</button><button class="secondary" id="restart">Restart trace</button></div>
+      <ol class="steps" id="steps"></ol>
+      <div class="state" style="margin-top:10px"><div class="rowlabel">Array state</div><div id="state"></div><div class="rowlabel">Output</div><div class="out" id="out"></div></div>
+    </div>
+  </div>
+</div>
+</main>
+<script>
+// Each challenge: code, prompt, answer checker, and a list of trace steps producing {arr, out, note}
+const C=[
+{lvl:'Level 1 · 1D add',title:'append and insert',code:`fruits = ["apple", "banana"]
+fruits.append("cherry")
+fruits.insert(1, "orange")
+print(fruits)`,prompt:'What is printed?',answer:['apple','orange','banana','cherry'],
+ steps:[{a:['apple','banana'],o:'',n:'Line 1: create the list with two elements.'},{a:['apple','banana','cherry'],mark:{new:[2]},o:'',n:'append adds to the END – index 2.'},{a:['apple','orange','banana','cherry'],mark:{new:[1]},o:'',n:'insert(1, …) puts it AT index 1; everything after shifts right.'},{a:['apple','orange','banana','cherry'],o:"['apple', 'orange', 'banana', 'cherry']",n:'print shows the final list.'}]},
+{lvl:'Level 1 · 1D remove',title:'remove vs pop',code:`fruits = ["apple", "orange", "banana", "cherry"]
+fruits.remove("banana")
+fruits.pop(0)
+print(fruits)`,prompt:'What is printed?',answer:['orange','cherry'],
+ steps:[{a:['apple','orange','banana','cherry'],o:'',n:'Start.'},{a:['apple','orange','banana','cherry'],mark:{gone:[2]},o:'',n:'remove("banana") finds the first VALUE "banana" and deletes it.'},{a:['apple','orange','cherry'],o:'',n:'List shrinks; "cherry" is now index 2.'},{a:['apple','orange','cherry'],mark:{gone:[0]},o:'',n:'pop(0) removes by INDEX – element 0, "apple".'},{a:['orange','cherry'],o:"['orange', 'cherry']",n:'print.'}]},
+{lvl:'Level 1 · 1D modify',title:'overwrite by index',code:`scores = [55, 72, 68]
+scores[0] = 90
+scores[2] = scores[2] + 10
+print(scores[1])
+print(scores)`,prompt:'What TWO lines are printed? (separate with a space or comma)',answer:['72','90','72','78'],
+ steps:[{a:[55,72,68],o:'',n:'Start.'},{a:[90,72,68],mark:{changed:[0]},o:'',n:'scores[0] = 90 replaces the value at index 0.'},{a:[90,72,78],mark:{changed:[2]},o:'',n:'scores[2] + 10 → 68 + 10 = 78 stored back in index 2.'},{a:[90,72,78],o:'72',n:'print(scores[1]) prints ONE element.'},{a:[90,72,78],o:'72\n[90, 72, 78]',n:'print(scores) prints the whole list.'}]},
+{lvl:'Level 2 · 1D loop',title:'loop by value vs by index',code:`nums = [3, 8, 5]
+total = 0
+for i in range(len(nums)):
+    total = total + nums[i]
+print(total)`,prompt:'What is printed?',answer:['16'],
+ steps:[{a:[3,8,5],o:'',n:'len(nums) is 3 so range gives i = 0, 1, 2.'},{a:[3,8,5],mark:{changed:[0]},o:'',n:'i=0: total = 0 + nums[0] = 3'},{a:[3,8,5],mark:{changed:[1]},o:'',n:'i=1: total = 3 + nums[1] = 11'},{a:[3,8,5],mark:{changed:[2]},o:'',n:'i=2: total = 11 + nums[2] = 16'},{a:[3,8,5],o:'16',n:'Loop ends when i would be 3 (not < 3).'}]},
+{lvl:'Level 2 · 2D add row',title:'append a row',code:`matrix = [[1, 2], [3, 4]]
+matrix.append([5, 6])
+print(len(matrix))
+print(matrix[2][0])`,prompt:'What TWO values are printed?',answer:['3','5'],
+ steps:[{a:[[1,2],[3,4]],o:'',n:'A list of two lists (2 rows × 2 columns).'},{a:[[1,2],[3,4],[5,6]],mark:{newrow:2},o:'',n:'append([5, 6]) adds a whole new ROW at index 2.'},{a:[[1,2],[3,4],[5,6]],o:'3',n:'len(matrix) counts rows, not elements → 3.'},{a:[[1,2],[3,4],[5,6]],o:'3\n5',n:'matrix[2][0] = row 2, column 0 → 5.'}]},
+{lvl:'Level 2 · 2D add column',title:'add a column (needs a loop!)',code:`matrix = [[1, 2], [3, 4]]
+for row in matrix:
+    row.append(7)
+print(matrix)`,prompt:'What is printed?',answer:['1','2','7','3','4','7'],
+ steps:[{a:[[1,2],[3,4]],o:'',n:'Start. To add a column you must touch EVERY row.'},{a:[[1,2,7],[3,4]],mark:{new2:[0,2]},o:'',n:'First pass: row = [1, 2]; append 7.'},{a:[[1,2,7],[3,4,7]],mark:{new2:[1,2]},o:'',n:'Second pass: row = [3, 4]; append 7.'},{a:[[1,2,7],[3,4,7]],o:'[[1, 2, 7], [3, 4, 7]]',n:'Now 2 rows × 3 columns.'}]},
+{lvl:'Level 2 · 2D remove',title:'pop a row, pop a column',code:`m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+m.pop(1)
+for row in m:
+    row.pop(1)
+print(m)`,prompt:'What is printed?',answer:['1','3','7','9'],
+ steps:[{a:[[1,2,3],[4,5,6],[7,8,9]],o:'',n:'3 × 3.'},{a:[[1,2,3],[4,5,6],[7,8,9]],mark:{gonerow:1},o:'',n:'m.pop(1) removes ROW 1 – the whole middle list.'},{a:[[1,2,3],[7,8,9]],o:'',n:'Two rows left.'},{a:[[1,2,3],[7,8,9]],mark:{gone2:[[0,1],[1,1]]},o:'',n:'The loop pops index 1 from EACH row – removing the middle column.'},{a:[[1,3],[7,9]],o:'[[1, 3], [7, 9]]',n:'2 × 2 remain.'}]},
+{lvl:'Level 3 · 2D nested loop',title:'nested loops with indices',code:`grid = [[1, 2, 3], [4, 5, 6]]
+for i in range(len(grid)):
+    for j in range(len(grid[i])):
+        if i == j:
+            print(grid[i][j])`,prompt:'What is printed? (list all values)',answer:['1','5'],
+ steps:[{a:[[1,2,3],[4,5,6]],o:'',n:'Outer loop i = 0, 1 (rows). Inner loop j = 0, 1, 2 (columns).'},{a:[[1,2,3],[4,5,6]],mark:{ch2:[0,0]},o:'1',n:'i=0, j=0: i == j → print grid[0][0] = 1'},{a:[[1,2,3],[4,5,6]],mark:{ch2:[0,1]},o:'1',n:'i=0, j=1 and j=2: not equal, nothing printed.'},{a:[[1,2,3],[4,5,6]],mark:{ch2:[1,0]},o:'1',n:'i=1, j=0: not equal.'},{a:[[1,2,3],[4,5,6]],mark:{ch2:[1,1]},o:'1\n5',n:'i=1, j=1: equal → print grid[1][1] = 5'},{a:[[1,2,3],[4,5,6]],mark:{ch2:[1,2]},o:'1\n5',n:'i=1, j=2: not equal. Done – the "diagonal".'}]},
+{lvl:'Level 3 · 3D',title:'three indices',code:`d = [[[1, 2], [3, 4]],
+     [[5, 6], [7, 8]]]
+d[0][1][1] = 13
+d.append([[9, 10], [11, 12]])
+print(d[1][0][1])
+print(d[0][1])
+print(len(d))`,prompt:'What THREE lines are printed?',answer:['6','3','13','3'],
+ steps:[{a:'3d',o:'',n:'d has 2 layers, each 2 rows × 2 columns. Order is d[layer][row][column].'},{a:'3d',o:'',n:'d[0][1][1] → layer 0, row 1, column 1 → was 4, now 13.'},{a:'3d',o:'',n:'append adds a whole new LAYER (index 2) containing 2 rows.'},{a:'3d',o:'6',n:'d[1][0][1] → layer 1, row 0, column 1 → 6'},{a:'3d',o:'6\n[3, 13]',n:'d[0][1] with only two indices gives a whole ROW → [3, 13]'},{a:'3d',o:'6\n[3, 13]\n3',n:'len(d) counts layers → 3'}]}
+];
+let cur=0, step=0, done=[];
+const $=id=>document.getElementById(id);
+function norm(s){return (s.match(/-?\d+(\.\d+)?|[A-Za-z]+/g)||[]).map(x=>x.toLowerCase());}
+function nav(){$('nav').innerHTML=C.map((c,i)=>`<button class="${done[i]?'done':'secondary'} ${i===cur?'cur':''}" data-i="${i}">${i+1}</button>`).join('');$('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{cur=+b.dataset.i;load();});$('prog').textContent=`${done.filter(Boolean).length} / ${C.length} correct`;}
+function load(){const c=C[cur];$('lvl').textContent=c.lvl;$('title').textContent=c.title;$('code').textContent=c.code;$('prompt').textContent=c.prompt;$('ans').value='';$('fb').className='feedback';$('ans').disabled=!!done[cur];$('submit').disabled=!!done[cur];step=0;renderTrace();nav();}
+function cellsHTML(arr,mark={},base=[]){
+  if(!Array.isArray(arr))return '';
+  if(!Array.isArray(arr[0])){return `<div class="cells">${arr.map((v,i)=>{let cls='cell';const p=[...base,i];if(mark.new&&mark.new.includes(i))cls+=' new';if(mark.gone&&mark.gone.includes(i))cls+=' gone';if(mark.changed&&mark.changed.includes(i))cls+=' changed';if(mark.new2&&mark.new2[0]===base[0]&&mark.new2[1]===i)cls+=' new';if(mark.gone2&&mark.gone2.some(g=>g[0]===base[0]&&g[1]===i))cls+=' gone';if(mark.ch2&&mark.ch2[0]===base[0]&&mark.ch2[1]===i)cls+=' changed';return `<div class="${cls}">${JSON.stringify(v).replace(/"/g,'')}<small>[${p.join('][')}]</small></div>`;}).join('')}</div>`;}
+  return arr.map((r,i)=>`<div class="rowlabel" style="${mark.gonerow===i?'text-decoration:line-through;color:var(--bad)':''}${mark.newrow===i?'color:var(--ok);font-weight:700':''}">row [${i}]${mark.gonerow===i?' – removed':''}${mark.newrow===i?' – new':''}</div>`+cellsHTML(r,mark,[...base,i])).join('');
+}
+const D3=[[[[1,2],[3,4]],[[5,6],[7,8]]],[[[1,2],[3,13]],[[5,6],[7,8]]],[[[1,2],[3,13]],[[5,6],[7,8]],[[9,10],[11,12]]]];
+function renderTrace(){const c=C[cur];const s=c.steps[Math.min(step,c.steps.length-1)];$('steps').innerHTML=c.steps.map((x,i)=>`<li class="${i<step?'done':i===step?'cur':''}">${x.n}</li>`).join('');
+  let a=s.a;if(a==='3d'){const idx=step<=0?0:step===1?1:2;a=D3[idx];$('state').innerHTML=a.map((L,i)=>`<div class="rowlabel" style="font-weight:700">layer [${i}]</div>`+cellsHTML(L,{},[i])).join('');}else $('state').innerHTML=cellsHTML(a,s.mark||{});
+  $('out').textContent=s.o||'';$('step').disabled=step>=c.steps.length-1;}
+$('step').onclick=()=>{if(step<C[cur].steps.length-1){step++;renderTrace();}};
+$('restart').onclick=()=>{step=0;renderTrace();};
+$('submit').onclick=()=>{const got=norm($('ans').value),want=C[cur].answer.map(x=>x.toLowerCase());const ok=got.length===want.length&&got.every((v,i)=>v===want[i]);const f=$('fb');if(ok){done[cur]=true;f.className='feedback show good';f.innerHTML='Correct prediction! Now step through the trace to check your reasoning matched.';$('ans').disabled=true;$('submit').disabled=true;nav();}else{f.className='feedback show wrong';f.innerHTML='Not the result Python gives. Step through the trace on the right, then try again on the <em>next</em> challenge – or discuss with your partner where the reasoning went wrong.';}};
+$('ans').addEventListener('keydown',e=>{if(e.key==='Enter')$('submit').click();});
+load();
+</script>
+</body>
+</html>

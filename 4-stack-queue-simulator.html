@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stack &amp; Queue Simulator</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1c2333;--muted:#5b6478;--line:#d9dee8;--accent:#0f5fa8;--accent2:#e8f1fb;--ok:#1f8a4c;--okbg:#e6f6ec;--bad:#c0392b;--badbg:#fbe9e7;--warn:#b7791f;--warnbg:#fff6e0;--mono:ui-monospace,Consolas,"Courier New",monospace}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{background:var(--accent);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:1.25rem}header .sub{opacity:.85;font-size:.9rem}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+h2{margin:0 0 8px;font-size:1.1rem}p{margin:6px 0}.muted{color:var(--muted)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.secondary{background:#fff;color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--accent2);color:var(--accent);font-size:.85rem;font-weight:600}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:8px;display:none}.feedback.show{display:block}
+.feedback.good{background:var(--okbg);color:var(--ok)}.feedback.wrong{background:var(--badbg);color:var(--bad)}.feedback.info{background:var(--warnbg);color:var(--warn)}
+code,pre{font-family:var(--mono)}pre{background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:.95rem}
+input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:200px}
+.score{font-weight:700}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:820px){.two{grid-template-columns:1fr}}
+.slots{display:flex;gap:6px;margin:10px 0;align-items:flex-end}
+.slot{width:78px;height:54px;border:2px solid var(--line);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);position:relative;font-weight:600}
+.slot.filled{background:var(--accent2);border-color:var(--accent)}
+.slot.old{background:#f1f1f1;color:#aaa;border-style:dashed}
+.slot .idx{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:.7rem;color:var(--muted);font-weight:400}
+.slot .ptr{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:.72rem;font-weight:700;color:var(--bad)}
+.stackwrap{padding:26px 0 30px}
+.ptrs{font-family:var(--mono);background:#0f172a;color:#e2e8f0;padding:8px 12px;border-radius:8px;margin-top:8px}
+.log{font-family:var(--mono);font-size:.85rem;background:#f9fafc;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:150px;overflow:auto;margin-top:8px}
+.tasks li{margin:4px 0}
+input.small{min-width:110px;width:110px}
+</style>
+</head>
+<body>
+<header><div><h1>Stack &amp; Queue Simulator</h1><div class="sub">Stretch / preview of Lesson 2 · Representing stacks and queues with an array and pointers</div></div><div class="pill">Both use the SAME array – only the pointers differ</div></header>
+<main>
+<div class="two">
+<div class="card">
+  <h2>Stack – LIFO (Last In, First Out)</h2>
+  <p class="muted">One pointer, <code>top</code>. Starts at -1 (empty). Push: <code>top += 1; stack[top] = x</code>. Pop: <code>x = stack[top]; top -= 1</code>.</p>
+  <div class="stackwrap"><div class="slots" id="sSlots"></div></div>
+  <div class="ptrs" id="sPtr"></div>
+  <div class="row" style="margin-top:10px"><input class="small" type="text" id="sVal" placeholder="value" maxlength="6"><button id="push">push</button><button class="secondary" id="pop">pop</button><button class="secondary" id="speek">peek</button><button class="secondary" id="sReset">reset</button></div>
+  <div class="feedback" id="sFb"></div>
+  <div class="log" id="sLog"></div>
+</div>
+<div class="card">
+  <h2>Queue – FIFO (First In, First Out)</h2>
+  <p class="muted">Two pointers, <code>front</code> and <code>rear</code>. Enqueue: <code>rear += 1; queue[rear] = x</code>. Dequeue: <code>x = queue[front]; front += 1</code>. Empty when <code>front &gt; rear</code>.</p>
+  <div class="stackwrap"><div class="slots" id="qSlots"></div></div>
+  <div class="ptrs" id="qPtr"></div>
+  <div class="row" style="margin-top:10px"><input class="small" type="text" id="qVal" placeholder="value" maxlength="6"><button id="enq">enqueue</button><button class="secondary" id="deq">dequeue</button><button class="secondary" id="qpeek">peek</button><button class="secondary" id="qReset">reset</button></div>
+  <div class="feedback" id="qFb"></div>
+  <div class="log" id="qLog"></div>
+</div>
+</div>
+<div class="card">
+  <h2>Try these (pairs)</h2>
+  <ol class="tasks">
+    <li>Push <code>Ben</code>, <code>Django</code>, <code>Anna</code>, then pop once, then push <code>Zoe</code>. What is in the array now, and what is <code>top</code>? Notice that "Anna" is still <em>in the array</em> – why doesn't that matter?</li>
+    <li>Pop the stack until you get an error. What is the error called? What is <code>top</code> when it happens?</li>
+    <li>Fill the stack completely and try one more push. What is that error called?</li>
+    <li>Enqueue five names and dequeue two. Which slots are wasted? Why is a simple linear queue a problem, and what do you think a <em>circular</em> queue does about it?</li>
+    <li>Exam question [4]: "Explain the differences between stack and queue data structures." Write four distinct points using the words <em>LIFO, FIFO, top, front, rear, push, pop, enqueue, dequeue</em>.</li>
+  </ol>
+</div>
+</main>
+<script>
+const SIZE=6;
+const $=id=>document.getElementById(id);
+function fb(id,msg,cls){const f=$(id);f.className='feedback show '+cls;f.textContent=msg;}
+function log(id,msg){const l=$(id);l.innerHTML+=msg+'<br>';l.scrollTop=l.scrollHeight;}
+// STACK
+let stack=Array(SIZE).fill(null), sTop=-1;
+function drawS(){$('sSlots').innerHTML=stack.map((v,i)=>`<div class="slot ${v!==null?(i<=sTop?'filled':'old'):''}"><span class="idx">[${i}]</span>${v===null?'':v}${i===sTop?'<span class="ptr">▲ top</span>':''}</div>`).join('')+(sTop===-1?'<div class="muted" style="align-self:center">top = -1 → empty</div>':'');$('sPtr').textContent=`top = ${sTop}   size = ${SIZE}   items = ${sTop+1}`;}
+$('push').onclick=()=>{const v=$('sVal').value.trim();if(!v){fb('sFb','Type a value first.','info');return;}if(sTop===SIZE-1){fb('sFb','OVERFLOW – the stack is full (top = size - 1). Push refused.','wrong');log('sLog',`push(${v}) → overflow`);return;}sTop++;stack[sTop]=v;fb('sFb',`push(${v}): top = ${sTop}, stack[${sTop}] = ${v}`,'good');log('sLog',`push(${v})  top→${sTop}`);$('sVal').value='';$('sVal').focus();drawS();};
+$('pop').onclick=()=>{if(sTop===-1){fb('sFb','UNDERFLOW – the stack is empty (top = -1). Nothing to pop.','wrong');log('sLog','pop() → underflow');return;}const v=stack[sTop];sTop--;fb('sFb',`pop() returned ${v}: top = ${sTop}. The value is still in memory but is now "above" top, so it is ignored.`,'good');log('sLog',`pop() = ${v}  top→${sTop}`);drawS();};
+$('speek').onclick=()=>{if(sTop===-1){fb('sFb','Stack is empty – nothing to peek.','info');return;}fb('sFb',`peek() = ${stack[sTop]} (top unchanged at ${sTop})`,'info');};
+$('sReset').onclick=()=>{stack=Array(SIZE).fill(null);sTop=-1;$('sLog').innerHTML='';$('sFb').className='feedback';drawS();};
+$('sVal').addEventListener('keydown',e=>{if(e.key==='Enter')$('push').click();});
+// QUEUE
+let queue=Array(SIZE).fill(null), front=0, rear=-1;
+function drawQ(){$('qSlots').innerHTML=queue.map((v,i)=>{const live=i>=front&&i<=rear;let p='';if(i===front&&i===rear&&front<=rear)p='▲ front/rear';else if(i===front&&front<=rear)p='▲ front';else if(i===rear)p='▲ rear';return `<div class="slot ${v!==null?(live?'filled':'old'):''}"><span class="idx">[${i}]</span>${v===null?'':v}${p?`<span class="ptr">${p}</span>`:''}</div>`;}).join('');$('qPtr').textContent=`front = ${front}   rear = ${rear}   items = ${Math.max(0,rear-front+1)}   ${front>rear?'(empty: front > rear)':''}`;}
+$('enq').onclick=()=>{const v=$('qVal').value.trim();if(!v){fb('qFb','Type a value first.','info');return;}if(rear===SIZE-1){fb('qFb',`OVERFLOW – rear = ${rear} is the last slot. ${front>0?'There ARE empty slots at the front, but a linear queue cannot reuse them – this is why circular queues exist.':'The queue is full.'}`,'wrong');log('qLog',`enqueue(${v}) → overflow`);return;}rear++;queue[rear]=v;fb('qFb',`enqueue(${v}): rear = ${rear}, queue[${rear}] = ${v}`,'good');log('qLog',`enqueue(${v})  rear→${rear}`);$('qVal').value='';$('qVal').focus();drawQ();};
+$('deq').onclick=()=>{if(front>rear){fb('qFb','UNDERFLOW – the queue is empty (front > rear).','wrong');log('qLog','dequeue() → underflow');return;}const v=queue[front];front++;fb('qFb',`dequeue() returned ${v}: front = ${front}. Slot ${front-1} is now wasted.`,'good');log('qLog',`dequeue() = ${v}  front→${front}`);drawQ();};
+$('qpeek').onclick=()=>{if(front>rear){fb('qFb','Queue is empty – nothing to peek.','info');return;}fb('qFb',`peek() = ${queue[front]} (front unchanged at ${front})`,'info');};
+$('qReset').onclick=()=>{queue=Array(SIZE).fill(null);front=0;rear=-1;$('qLog').innerHTML='';$('qFb').className='feedback';drawQ();};
+$('qVal').addEventListener('keydown',e=>{if(e.key==='Enter')$('enq').click();});
+drawS();drawQ();
+</script>
+</body>
+</html>

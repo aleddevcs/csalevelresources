@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Array Explorer: 1D, 2D and 3D</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1c2333;--muted:#5b6478;--line:#d9dee8;--accent:#0f5fa8;--accent2:#e8f1fb;--ok:#1f8a4c;--okbg:#e6f6ec;--bad:#c0392b;--badbg:#fbe9e7;--warn:#b7791f;--warnbg:#fff6e0;--mono:ui-monospace,Consolas,"Courier New",monospace}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{background:var(--accent);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:1.25rem}header .sub{opacity:.85;font-size:.9rem}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+h2{margin:0 0 8px;font-size:1.1rem}p{margin:6px 0}.muted{color:var(--muted)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.secondary{background:#fff;color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--accent2);color:var(--accent);font-size:.85rem;font-weight:600}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:8px;display:none}.feedback.show{display:block}
+.feedback.good{background:var(--okbg);color:var(--ok)}.feedback.wrong{background:var(--badbg);color:var(--bad)}.feedback.info{background:var(--warnbg);color:var(--warn)}
+code,pre{font-family:var(--mono)}pre{background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:.95rem}
+input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:200px}
+.score{font-weight:700}
+
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px 8px 0 0;border:1px solid var(--line);background:#eef1f6;cursor:pointer;font-weight:600}
+.tab.active{background:#fff;border-bottom-color:#fff;color:var(--accent)}
+table.arr{border-collapse:collapse;margin:8px 0;font-size:.95rem}
+table.arr th{background:#eef1f6;color:var(--muted);font-weight:600;padding:5px 8px;border:1px solid var(--line);font-family:var(--mono);font-size:.8rem}
+table.arr td{border:1px solid var(--line);padding:7px 10px;font-family:var(--mono);cursor:pointer;background:#fff;min-width:64px;text-align:center}
+table.arr td:hover{background:var(--accent2)}
+table.arr td.hl{background:#ffe27a;font-weight:700}
+table.arr td.right{background:var(--okbg)}table.arr td.wrong{background:var(--badbg)}
+.layer{display:inline-block;vertical-align:top;margin:6px 14px 6px 0;padding:8px;border:1px solid var(--line);border-radius:10px;background:#f9fafc}
+.layer h4{margin:0 0 4px;font-family:var(--mono);font-size:.85rem;color:var(--accent)}
+.q{font-size:1.05rem;margin:8px 0}
+.mode{display:flex;gap:8px;flex-wrap:wrap}
+.mode label{padding:6px 12px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:#fff}
+.mode input{margin-right:6px}
+.explain{background:#f9fafc;border-left:4px solid var(--accent);padding:10px 12px;margin-top:10px;font-size:.95rem}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.team{padding:10px;border-radius:10px;border:1px solid var(--line);text-align:center}
+.team.active{border-color:var(--accent);background:var(--accent2)}
+.team .big{font-size:1.8rem;font-weight:800}
+</style>
+</head>
+<body>
+<header><div><h1>Array Explorer</h1><div class="sub">Reading and writing indices in 1D, 2D and 3D arrays · Lesson 1 Activity 1</div></div><div class="pill">Zero-based indexing: the first element is [0]</div></header>
+<main>
+<div class="card">
+  <div class="tabs"><div class="tab active" data-d="1">1D – a list</div><div class="tab" data-d="2">2D – a table</div><div class="tab" data-d="3">3D – a cube</div></div>
+  <div id="explore"></div>
+  <div class="explain" id="explain"></div>
+</div>
+
+<div class="card">
+  <h2>Challenge (pairs – take turns, keep the score honest!)</h2>
+  <div class="row" style="justify-content:space-between">
+    <div class="mode">
+      <label><input type="radio" name="mode" value="find" checked>Find the value – I give the index, you click the cell</label>
+      <label><input type="radio" name="mode" value="index">Name the index – I highlight a cell, you type the index</label>
+    </div>
+    <button id="new">New question</button>
+  </div>
+  <p class="q" id="question">Press <strong>New question</strong> to begin.</p>
+  <div class="row" id="answerRow" style="display:none">
+    <input type="text" id="ans" placeholder="e.g. words[2]  or  data[1][3]" autocomplete="off">
+    <button id="submit">Submit</button>
+  </div>
+  <div class="feedback" id="fb"></div>
+  <div class="teams" style="margin-top:14px">
+    <div class="team active" id="t0"><div>Player A</div><div class="big" id="s0">0</div></div>
+    <div class="team" id="t1"><div>Player B</div><div class="big" id="s1">0</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Exam-style: check you can do it on paper</h2>
+  <p>This is the exact style WJEC uses. A 2D array called <code>alphabet</code> is shown below. Describe how you would update the value <code>'.'</code> to <code>'!'</code>. <strong>[2]</strong></p>
+  <div id="alpha"></div>
+  <div class="row"><input type="text" id="examAns" placeholder="alphabet[?][?] = '!'"><button id="examCheck">Check</button></div>
+  <div class="feedback" id="examFb"></div>
+</div>
+</main>
+<script>
+const W1={name:'words',data:["path","floor","sugar","because","beautiful","clothes","whole"]};
+const W2={name:'data',data:[["school","pull","where","said","today","they","push"],["path","floor","sugar","because","beautiful","clothes","whole"],["accident","answer","eight","group","length","minute","popular"]]};
+const W3={name:'game',data:[
+ [["cat","dog","sun","moon"],["apple","pear","plum","lime"],["red","blue","green","pink"]],
+ [["table","chair","door","lamp"],["pencil","ruler","pen","glue"],["circle","square","oval","star"]]
+]};
+const EXPL={
+1:`<strong>One index.</strong> <code>words[2]</code> is <code>"sugar"</code> – the <em>third</em> element, because counting starts at 0. Length is 7, so the last valid index is 6. <code>words[7]</code> would be an error (index out of range).`,
+2:`<strong>Two indices: [row][column].</strong> <code>data[1][3]</code> means row 1, then column 3 → <code>"because"</code>. Which dimension comes first is the programmer's choice – just be consistent. WJEC will accept either order if it is clear.`,
+3:`<strong>Three indices: [layer][row][column].</strong> <code>game[1][2][0]</code> → year-group 1, level 2, word 0 → <code>"circle"</code>. Hard to picture, easy to code: decide the order, then stick to it.`};
+let dim=1, current=null, turn=0, scores=[0,0];
+const ex=document.getElementById('explore');
+function cell(val,path){return `<td data-path="${path.join(',')}" title="${W(dim).name}[${path.join('][')}]">${val}</td>`;}
+function W(d){return d===1?W1:d===2?W2:W3;}
+function render(){
+  const w=W(dim);let h='';
+  if(dim===1){h=`<p><code>${w.name} = [${w.data.map(x=>'"'+x+'"').join(', ')}]</code></p><table class="arr"><tr>${w.data.map((_,i)=>`<th>[${i}]</th>`).join('')}</tr><tr>${w.data.map((v,i)=>cell(v,[i])).join('')}</tr></table>`;}
+  else if(dim===2){h=`<p><code>${w.name}</code> has ${w.data.length} rows × ${w.data[0].length} columns.</p><table class="arr"><tr><th></th>${w.data[0].map((_,j)=>`<th>[${j}]</th>`).join('')}</tr>${w.data.map((r,i)=>`<tr><th>[${i}]</th>${r.map((v,j)=>cell(v,[i,j])).join('')}</tr>`).join('')}</table>`;}
+  else {h=`<p><code>${w.name}</code> has ${w.data.length} layers × ${w.data[0].length} rows × ${w.data[0][0].length} columns.</p>`+w.data.map((L,i)=>`<div class="layer"><h4>${w.name}[${i}] – layer ${i}</h4><table class="arr"><tr><th></th>${L[0].map((_,k)=>`<th>[${k}]</th>`).join('')}</tr>${L.map((r,j)=>`<tr><th>[${j}]</th>${r.map((v,k)=>cell(v,[i,j,k])).join('')}</tr>`).join('')}</table></div>`).join('');}
+  ex.innerHTML=h;document.getElementById('explain').innerHTML=EXPL[dim];
+  ex.querySelectorAll('td').forEach(td=>td.onclick=()=>clickCell(td));
+  if(current&&current.mode==='index')highlight(current.path);
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');dim=+t.dataset.d;current=null;document.getElementById('question').innerHTML='Press <strong>New question</strong> to begin.';document.getElementById('answerRow').style.display='none';fb('');render();});
+function highlight(path){ex.querySelectorAll('td').forEach(td=>td.classList.toggle('hl',td.dataset.path===path.join(',')));}
+function randPath(){const w=W(dim);const p=[];let a=w.data;while(Array.isArray(a)){const i=Math.floor(Math.random()*a.length);p.push(i);a=a[i];}return p;}
+function valueAt(path){let a=W(dim).data;path.forEach(i=>a=a[i]);return a;}
+function fb(msg,cls){const f=document.getElementById('fb');f.className='feedback'+(msg?' show '+cls:'');f.innerHTML=msg;}
+document.getElementById('new').onclick=()=>{
+  const mode=document.querySelector('input[name=mode]:checked').value;const path=randPath();current={mode,path,done:false};
+  ex.querySelectorAll('td').forEach(td=>td.classList.remove('hl','right','wrong'));fb('');
+  const w=W(dim);
+  if(mode==='find'){document.getElementById('question').innerHTML=`Player ${turn?'B':'A'}: click the cell that <code>${w.name}[${path.join('][')}]</code> refers to.`;document.getElementById('answerRow').style.display='none';}
+  else{highlight(path);document.getElementById('question').innerHTML=`Player ${turn?'B':'A'}: type the index of the highlighted cell, e.g. <code>${w.name}[…]</code>`;document.getElementById('answerRow').style.display='flex';const a=document.getElementById('ans');a.value='';a.focus();}
+};
+function award(ok,extra){scores[turn]+= ok?1:0;document.getElementById('s'+turn).textContent=scores[turn];fb(ok?'Correct! +1':'Not quite. '+extra,ok?'good':'wrong');current.done=true;turn=1-turn;document.getElementById('t0').classList.toggle('active',turn===0);document.getElementById('t1').classList.toggle('active',turn===1);}
+function clickCell(td){if(!current||current.done||current.mode!=='find')return;const ok=td.dataset.path===current.path.join(',');td.classList.add(ok?'right':'wrong');if(!ok)highlight(current.path);award(ok,`The correct cell was <code>${valueAt(current.path)}</code> – remember the first index is 0 and the order is ${dim===1?'[position]':dim===2?'[row][column]':'[layer][row][column]'}.`);}
+function parseIdx(s){const m=[...s.matchAll(/\[\s*(\d+)\s*\]/g)].map(x=>+x[1]);if(m.length)return m;const n=s.match(/\d+/g);return n?n.map(Number):[];}
+document.getElementById('submit').onclick=()=>{if(!current||current.done||current.mode!=='index')return;const got=parseIdx(document.getElementById('ans').value);const ok=got.length===current.path.length&&got.every((v,i)=>v===current.path[i]);award(ok,`The index was <code>${W(dim).name}[${current.path.join('][')}]</code>. You gave ${got.length?'['+got.join('][')+']':'nothing I could read'}.`);};
+document.getElementById('ans').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('submit').click();});
+// exam
+const AL=[['a','b','c','d','e','f','g'],['h','i','j','k','l','m','n'],['o','p','q','r','s','t','u'],['v','w','x','y','z',' ','.']];
+document.getElementById('alpha').innerHTML=`<table class="arr"><tr><th></th>${AL[0].map((_,j)=>`<th>${j}</th>`).join('')}</tr>${AL.map((r,i)=>`<tr><th>${i}</th>${r.map(v=>`<td style="cursor:default">'${v}'</td>`).join('')}</tr>`).join('')}</table>`;
+document.getElementById('examCheck').onclick=()=>{const s=document.getElementById('examAns').value;const idx=parseIdx(s);const f=document.getElementById('examFb');const good=idx.length===2&&((idx[0]===3&&idx[1]===6)||(idx[0]===6&&idx[1]===3));const hasAssign=/=\s*['"]?!/.test(s);if(good&&hasAssign){f.className='feedback show good';f.innerHTML='2 marks: correct indices <code>[3][6]</code> (or <code>[6][3]</code> – the mark scheme accepts either) and correct assignment of <code>\'!\'</code>.';}else if(good){f.className='feedback show info';f.innerHTML='1 mark for the indices – but you also need to show the <em>assignment</em>: <code>alphabet[3][6] = \'!\'</code>.';}else{f.className='feedback show wrong';f.innerHTML='Find the row and column of <code>\'.\'</code> – it is in the last row, last column. Remember to count from 0.';}};
+render();
+</script>
+</body>
+</html>
