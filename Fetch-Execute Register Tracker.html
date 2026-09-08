@@ -1,0 +1,453 @@
+<title>Fetch-Execute Register Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F7F8FA; --panel:#FFFFFF; --mist:#EEF2F5; --line:#C9D3DC;
+  --ink:#16202B; --slate:#2B3A4A; --text:#1F2933; --muted:#5C6B7A;
+  --copper:#D9822B; --copper-lt:#F6E3CF; --copper-ink:#7A4512;
+  --good:#3C8D5A; --good-lt:#DDEFE3; --bad:#B3412F; --bad-lt:#F4DCD7;
+  --focus:#2F6DB5; --reg-bg:#16202B; --reg-fg:#FFFFFF; --reg-dim:#8B98A5;
+  --sans:"IBM Plex Sans",system-ui,Segoe UI,Arial,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101820; --panel:#16202B; --mist:#1E2A37; --line:#33424F;
+    --ink:#F3F6F8; --slate:#22303D; --text:#E4EAF0; --muted:#9AA8B5;
+    --copper:#E39A4C; --copper-lt:#3D2A17; --copper-ink:#F6D3AD;
+    --good:#5CB07A; --good-lt:#1C3A28; --bad:#E06A56; --bad-lt:#44201A;
+    --focus:#7FB0F0; --reg-bg:#2B3A4A; --reg-fg:#F3F6F8; --reg-dim:#5C6B7A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101820; --panel:#16202B; --mist:#1E2A37; --line:#33424F;
+  --ink:#F3F6F8; --slate:#22303D; --text:#E4EAF0; --muted:#9AA8B5;
+  --copper:#E39A4C; --copper-lt:#3D2A17; --copper-ink:#F6D3AD;
+  --good:#5CB07A; --good-lt:#1C3A28; --bad:#E06A56; --bad-lt:#44201A;
+  --focus:#7FB0F0; --reg-bg:#2B3A4A; --reg-fg:#F3F6F8; --reg-dim:#5C6B7A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.hidden{display:none!important}
+
+header{padding:20px 28px 8px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--copper)}
+h1{margin:2px 0 4px;font-size:26px;font-weight:700;color:var(--ink);text-wrap:balance}
+.brief{margin:0;max-width:72ch;color:var(--muted)}
+
+.stepper{display:flex;gap:6px;padding:14px 28px;flex-wrap:wrap}
+.step{flex:1;min-width:88px;padding:8px 10px;border-radius:8px;background:var(--mist);border:2px solid transparent;text-align:center}
+.step .n{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.step .t{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)}
+.step.current{background:var(--copper-lt);border-color:var(--copper)}
+.step.current .t{color:var(--copper-ink)}
+.step.done{background:var(--good-lt)}
+.step.done .t{color:var(--good)}
+.step.locked{opacity:.45}
+
+main{display:grid;grid-template-columns:minmax(420px,1fr) 320px;gap:18px;padding:6px 28px 32px}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card-title{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* CPU / RAM diagram */
+.diagram{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.cpu-box{border:2px solid var(--ink);border-radius:10px;padding:12px;background:var(--panel)}
+:root[data-theme="dark"] .cpu-box,:root:not([data-theme="light"]) .cpu-box{border-color:var(--line)}
+.cpu-label{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
+.regs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.reg{background:var(--reg-bg);border-radius:8px;padding:8px 4px;text-align:center;border:2px solid transparent;transition:transform .15s}
+.reg .rl{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--reg-dim)}
+.reg .rv{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--reg-fg);min-height:1.3em;word-break:break-word}
+.reg.active{border-color:var(--copper);transform:translateY(-2px)}
+.reg.active .rl{color:var(--copper)}
+.reg.empty .rv{color:var(--reg-dim)}
+
+.bus-row{display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0;min-height:28px}
+.bus-pill{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--mist);color:var(--muted);border:1.5px solid var(--line)}
+.bus-pill.active{background:var(--copper);color:#fff;border-color:var(--copper)}
+.bus-arrow{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.bus-arrow.active{color:var(--copper);font-weight:700}
+
+.ram-box{border-radius:10px;padding:12px;background:var(--mist)}
+.ram-label{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
+.ram-cells{display:flex;gap:6px;flex-wrap:wrap}
+.cell{font-family:var(--mono);font-size:11px;background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:5px 8px;text-align:center;min-width:56px}
+.cell .a{color:var(--muted);font-size:9.5px}
+.cell .v{color:var(--text);font-weight:600}
+.cell.active{border-color:var(--copper);background:var(--copper-lt)}
+.cell.active .a,.cell.active .v{color:var(--copper-ink)}
+.gap{align-self:center;color:var(--muted);font-family:var(--mono);padding:0 2px}
+
+.action{font-size:13.5px;color:var(--text);background:var(--mist);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.action b{color:var(--ink)}
+
+/* question */
+.q-title{font-size:15px;font-weight:600;color:var(--ink);margin:0 0 10px}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.opt{text-align:left;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);font-size:13.5px}
+.opt:hover{border-color:var(--copper)}
+.opt.picked{border-color:var(--focus);background:var(--blue-lt,#DCE8F7)}
+.opt.correct{border-color:var(--good);background:var(--good-lt);color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-lt);color:var(--bad)}
+.opt:disabled{cursor:default}
+.feedback{font-size:13.5px;padding:10px 12px;border-radius:8px;margin-bottom:12px}
+.feedback.good{background:var(--good-lt);color:var(--good)}
+.feedback.bad{background:var(--bad-lt);color:var(--bad)}
+.qactions{display:flex;gap:10px}
+.btn{padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--mist);color:var(--ink);font-weight:600}
+.btn.primary{background:var(--copper);border-color:var(--copper);color:#fff}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+
+/* sidebar */
+.side label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink)}
+.side input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;margin-bottom:14px}
+.progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.progress-list li{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:6px 8px;border-radius:6px;background:var(--mist)}
+.progress-list li.now{background:var(--copper-lt);color:var(--copper-ink)}
+.progress-list li.ok{background:var(--good-lt);color:var(--good)}
+.progress-list li.retry{background:var(--bad-lt);color:var(--bad)}
+.mark{width:16px;text-align:center}
+.completion{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.completion h3{margin:0 0 8px;font-size:14px;color:var(--ink)}
+.completion .big{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--ink)}
+.scenario-pill{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--slate);color:#fff;margin-bottom:10px}
+.note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <span class="eyebrow">AS Unit 1 · Topic 1 · Lesson 02</span>
+  <h1>Fetch-execute register tracker</h1>
+  <p class="brief" id="brief">Step through one instruction cycle. Answer the question at each stage before moving on — the diagram updates as you go.</p>
+</header>
+
+<div class="stepper" id="stepper"></div>
+
+<main>
+  <section aria-labelledby="diagram-h">
+    <h2 class="card-title" id="diagram-h">The CPU right now</h2>
+    <div class="diagram">
+      <div class="cpu-box">
+        <div class="cpu-label">CPU</div>
+        <div class="regs" id="regs"></div>
+      </div>
+      <div class="bus-row" id="busRow"></div>
+      <div class="ram-box">
+        <div class="ram-label">MAIN MEMORY (RAM)</div>
+        <div class="ram-cells" id="ram"></div>
+      </div>
+    </div>
+
+    <div class="action" id="action"></div>
+
+    <div id="qBlock">
+      <p class="q-title" id="qTitle"></p>
+      <div class="opts" id="opts"></div>
+      <div class="feedback hidden" id="feedback"></div>
+      <div class="qactions">
+        <button class="btn primary" id="checkBtn" disabled>Check</button>
+        <button class="btn hidden" id="continueBtn">Continue</button>
+      </div>
+    </div>
+
+    <div id="doneBlock" class="hidden">
+      <p class="q-title">Cycle complete.</p>
+      <p style="color:var(--muted);font-size:13.5px" id="doneText"></p>
+      <button class="btn primary" id="nextScenarioBtn"></button>
+    </div>
+  </section>
+
+  <section class="side" aria-labelledby="side-h">
+    <h2 class="card-title" id="side-h">Your progress</h2>
+    <span class="scenario-pill" id="scenarioPill"></span>
+    <label for="pname">Name (optional)</label>
+    <input id="pname" placeholder="e.g. Priya &amp; Sam" autocomplete="off">
+    <ul class="progress-list" id="progress"></ul>
+    <div class="completion hidden" id="completion">
+      <h3>Attempt summary</h3>
+      <div class="big" id="scoreBig">–</div>
+      <div style="font-size:12px;color:var(--muted)">stages correct first try, out of 6</div>
+    </div>
+    <p class="note">MAR always holds an <b>address</b>. MDR always holds the <b>data</b> found there — even when that data is an instruction.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const R0 = { PC:null, MAR:null, MDR:null, CIR:null, ACC:0 };
+
+  // ---- Scenario 1: LDA 12 (load) ----
+  const lda = {
+    key: "lda",
+    label: "Part 1 · LDA — Load",
+    brief: "Part 1: the CPU fetches and runs <b>LDA 12</b> — “load the accumulator with whatever is stored at address 12”. Step through it one stage at a time.",
+    ram: { 4:"…", 5:"LDA 12", 6:"STA 20", 12:7, 20:0 },
+    ramGroups: [[4,5,6],[12],[20]],
+    regsStart: { PC:5, MAR:"–", MDR:"–", CIR:"–", ACC:0 },
+    stages: [
+      { code:"PC → MAR", active:["PC","MAR"], bus:null,
+        action:"PC currently holds <b>5</b> — the address of the next instruction. That address is copied into MAR.",
+        regs:{ PC:5, MAR:5, MDR:"–", CIR:"–", ACC:0 }, ramActive:[5],
+        q:"What does MAR hold now?", opts:["5","LDA 12","7","Nothing yet"], correct:0,
+        explain:"MAR now holds 5 — the address the CPU is about to look up. MAR holds addresses, never data." },
+      { code:"MAR → RAM", active:["MAR"], bus:"address",
+        action:"MAR sends address <b>5</b> out on the address bus to memory. PC also increments now, to <b>6</b> — ready for the <em>next</em> fetch, even though this instruction hasn't run yet.",
+        regs:{ PC:6, MAR:5, MDR:"–", CIR:"–", ACC:0 }, ramActive:[5],
+        q:"Which bus just carried MAR's value to memory?", opts:["Data bus","Address bus","Control bus"], correct:1,
+        explain:"The address bus carries locations, not values — and it only ever travels from the CPU to memory." },
+      { code:"RAM → MDR", active:["MDR"], bus:"data-in",
+        action:"Memory address 5 contains <b>“LDA 12”</b>. That content is copied back along the data bus into MDR.",
+        regs:{ PC:6, MAR:5, MDR:"LDA 12", CIR:"–", ACC:0 }, ramActive:[5],
+        q:"What does MDR contain now?", opts:["The address 5","The instruction “LDA 12”","The value 7","The address 12"], correct:1,
+        explain:"MDR holds whatever data was found at the address — here that data happens to be an instruction, not a number." },
+      { code:"MDR → CIR", active:["CIR"], bus:null,
+        action:"The instruction moves from MDR into CIR, ready to be decoded.",
+        regs:{ PC:6, MAR:5, MDR:"LDA 12", CIR:"LDA 12", ACC:0 }, ramActive:[],
+        q:"Which register now holds the instruction waiting to be decoded?", opts:["MAR","MDR","CIR","ACC"], correct:2,
+        explain:"CIR — the Current Instruction Register. MDR's copy is still there too, but CIR is what the Control Unit decodes." },
+      { code:"Decode", active:["CIR"], bus:null,
+        action:"The Control Unit splits CIR into opcode <b>LDA</b> (“load the accumulator”) and operand <b>12</b>.",
+        regs:{ PC:6, MAR:5, MDR:"LDA 12", CIR:"LDA 12", ACC:0 }, ramActive:[],
+        q:"What does the operand 12 represent?", opts:["The value being loaded","The address to load data FROM","The next instruction's address","The result of the calculation"], correct:1,
+        explain:"12 is an address, not a value — it tells the CU where to fetch the actual data from next." },
+      { code:"Execute", active:["MAR","MDR","ACC"], bus:"data-in",
+        action:"To execute LDA, the CU sends address <b>12</b> out (MAR = 12), memory returns its contents to MDR, and that value is copied into ACC.",
+        regs:{ PC:6, MAR:12, MDR:7, CIR:"LDA 12", ACC:7 }, ramActive:[12],
+        q:"After execution, what does ACC contain?", opts:["12","7","5","6"], correct:1,
+        explain:"ACC = 7 — the value stored at address 12. PC is already 6, pointing at the next instruction, ready for the cycle to repeat." },
+    ],
+  };
+
+  // ---- Scenario 2 (extension): STA 20 (store) — reverses MDR's direction ----
+  const sta = {
+    key: "sta",
+    label: "Part 2 · STA — Store (extension)",
+    brief: "Part 2 (extension): PC now points at <b>STA 20</b> — “store whatever is in the accumulator at address 20”. ACC still holds 7 from Part 1. Watch what happens to MDR this time.",
+    ram: { 4:"…", 5:"LDA 12", 6:"STA 20", 12:7, 20:0 },
+    ramGroups: [[4,5,6],[12],[20]],
+    regsStart: { PC:6, MAR:"–", MDR:"–", CIR:"–", ACC:7 },
+    stages: [
+      { code:"PC → MAR", active:["PC","MAR"], bus:null,
+        action:"PC holds <b>6</b>. That address is copied into MAR, same as any fetch.",
+        regs:{ PC:6, MAR:6, MDR:"–", CIR:"–", ACC:7 }, ramActive:[6],
+        q:"What does MAR hold now?", opts:["6","STA 20","20","7"], correct:0,
+        explain:"MAR = 6 — the address of the instruction we're about to fetch. Same rule as always: MAR holds addresses." },
+      { code:"MAR → RAM", active:["MAR"], bus:"address",
+        action:"MAR sends address <b>6</b> out on the address bus. PC increments to <b>7</b>, ready for whatever comes after this instruction.",
+        regs:{ PC:7, MAR:6, MDR:"–", CIR:"–", ACC:7 }, ramActive:[6],
+        q:"At this point, has the STA instruction finished running yet?", opts:["Yes — PC has already moved on","No — it's only just been fetched, not decoded or executed yet"], correct:1,
+        explain:"PC incrementing only means the CPU knows where to fetch next — it says nothing about whether the CURRENT instruction has been decoded or executed yet. Those steps are still to come." },
+      { code:"RAM → MDR", active:["MDR"], bus:"data-in",
+        action:"Memory address 6 contains <b>“STA 20”</b>, copied into MDR.",
+        regs:{ PC:7, MAR:6, MDR:"STA 20", CIR:"–", ACC:7 }, ramActive:[6],
+        q:"What does MDR contain now?", opts:["The value 7","The instruction “STA 20”","The address 20","Nothing — STA doesn't use MDR here"], correct:1,
+        explain:"Still fetching an instruction at this stage, so MDR behaves exactly as it did for LDA — it holds what was found at the fetched address." },
+      { code:"MDR → CIR", active:["CIR"], bus:null,
+        action:"The instruction moves into CIR for decoding.",
+        regs:{ PC:7, MAR:6, MDR:"STA 20", CIR:"STA 20", ACC:7 }, ramActive:[],
+        q:"Which register now holds “STA 20”, ready to decode?", opts:["MDR only","CIR", "MAR", "ACC"], correct:1,
+        explain:"CIR, exactly as with LDA — fetching and decoding work the same way whatever the instruction turns out to be." },
+      { code:"Decode", active:["CIR"], bus:null,
+        action:"The CU decodes opcode <b>STA</b> (“store the accumulator”) and operand <b>20</b> — this time, 20 is where data will be WRITTEN TO, not read from.",
+        regs:{ PC:7, MAR:6, MDR:"STA 20", CIR:"STA 20", ACC:7 }, ramActive:[],
+        q:"What does the operand 20 represent here?", opts:["The address to write ACC's value TO","The address to read a value FROM","The value being stored", "The next instruction"], correct:0,
+        explain:"For STA, the operand is a destination, not a source — the opposite role to LDA's operand. This is why decoding the opcode matters: the same-shaped operand means something different." },
+      { code:"Execute", active:["MAR","MDR"], bus:"data-out",
+        action:"To execute STA, the CU sets MAR = 20 and copies ACC's value into MDR. This time MDR's value travels OUT to memory, in the opposite direction to a fetch.",
+        regs:{ PC:7, MAR:20, MDR:7, CIR:"STA 20", ACC:7 }, ramActive:[20], ramWrite:{20:7},
+        q:"Which way does the data bus carry data during this step?", opts:["RAM → CPU, as usual", "CPU → RAM — the reverse of a normal fetch", "It isn't used for this step", "Only the control bus is used"], correct:1,
+        explain:"The data bus is bidirectional. A fetch reads FROM memory into the CPU; storing writes the other way, CPU to memory. Address 20 in RAM now holds 7." },
+    ],
+  };
+
+  const SCENARIOS = { lda, sta };
+  let scenario = SCENARIOS.lda;
+  let stageIdx = 0;
+  let regs = { ...scenario.regsStart };
+  let attempts = []; // per-stage: {picked, correct, firstTry}
+  let picked = null;
+  let answered = false;
+  let ramState = { ...scenario.ram };
+
+  const el = id => document.getElementById(id);
+
+  function renderStepper() {
+    const c = el("stepper"); c.innerHTML = "";
+    scenario.stages.forEach((st, i) => {
+      const d = document.createElement("div");
+      d.className = "step " + (i === stageIdx ? "current" : i < stageIdx ? "done" : "locked");
+      d.innerHTML = `<div class="n">${i + 1}</div><div class="t">${st.code}</div>`;
+      c.appendChild(d);
+    });
+  }
+
+  function renderRegs() {
+    const c = el("regs"); c.innerHTML = "";
+    const active = scenario.stages[stageIdx].active;
+    ["PC", "MAR", "MDR", "CIR", "ACC"].forEach(k => {
+      const v = regs[k];
+      const d = document.createElement("div");
+      d.className = "reg" + (active.includes(k) ? " active" : "") + ((v === "–" || v === null) ? " empty" : "");
+      d.innerHTML = `<div class="rl">${k}</div><div class="rv">${v === null ? "–" : v}</div>`;
+      c.appendChild(d);
+    });
+  }
+
+  function renderBus() {
+    const bus = scenario.stages[stageIdx].bus;
+    const c = el("busRow");
+    const label = bus === "address" ? "ADDRESS BUS" : bus === "data-in" ? "DATA BUS" : bus === "data-out" ? "DATA BUS" : "";
+    const dir = bus === "data-out" ? "CPU → RAM" : bus ? "→ RAM" : "";
+    c.innerHTML = bus
+      ? `<span class="bus-pill active">${label}</span><span class="bus-arrow active">${bus === "data-out" ? "↓ writing" : "↕ " + dir}</span>`
+      : `<span class="bus-pill">idle</span>`;
+  }
+
+  function renderRam() {
+    const c = el("ram"); c.innerHTML = "";
+    const active = scenario.stages[stageIdx].ramActive || [];
+    scenario.ramGroups.forEach((group, gi) => {
+      group.forEach(addr => {
+        const cell = document.createElement("div");
+        cell.className = "cell" + (active.includes(addr) ? " active" : "");
+        cell.innerHTML = `<div class="a">${addr}</div><div class="v">${ramState[addr]}</div>`;
+        c.appendChild(cell);
+      });
+      if (gi < scenario.ramGroups.length - 1) {
+        const gap = document.createElement("div");
+        gap.className = "gap"; gap.textContent = "···";
+        c.appendChild(gap);
+      }
+    });
+  }
+
+  function renderAction() {
+    el("action").innerHTML = scenario.stages[stageIdx].action;
+  }
+
+  function renderQuestion() {
+    const st = scenario.stages[stageIdx];
+    el("qTitle").textContent = st.q;
+    const optsC = el("opts"); optsC.innerHTML = "";
+    picked = null; answered = false;
+    el("checkBtn").disabled = true;
+    el("checkBtn").classList.remove("hidden");
+    el("continueBtn").classList.add("hidden");
+    el("feedback").classList.add("hidden");
+    st.opts.forEach((text, i) => {
+      const b = document.createElement("button");
+      b.className = "opt"; b.type = "button"; b.textContent = text;
+      b.addEventListener("click", () => {
+        if (answered) return;
+        picked = i;
+        [...optsC.children].forEach(x => x.classList.remove("picked"));
+        b.classList.add("picked");
+        el("checkBtn").disabled = false;
+      });
+      optsC.appendChild(b);
+    });
+  }
+
+  function renderProgress() {
+    const c = el("progress"); c.innerHTML = "";
+    scenario.stages.forEach((st, i) => {
+      const li = document.createElement("li");
+      const a = attempts[i];
+      let cls = "", mark = "·";
+      if (i === stageIdx && !a) { cls = "now"; mark = "→"; }
+      else if (a) { cls = a.firstTry ? "ok" : "retry"; mark = a.firstTry ? "✓" : "↺"; }
+      li.className = cls;
+      li.innerHTML = `<span class="mark">${mark}</span> ${i + 1}. ${st.code}`;
+      c.appendChild(li);
+    });
+  }
+
+  function startScenario(key) {
+    scenario = SCENARIOS[key];
+    stageIdx = 0; attempts = [];
+    regs = { ...scenario.regsStart };
+    ramState = { ...scenario.ram };
+    el("brief").innerHTML = scenario.brief;
+    el("scenarioPill").textContent = scenario.label;
+    el("qBlock").classList.remove("hidden");
+    el("doneBlock").classList.add("hidden");
+    el("completion").classList.add("hidden");
+    renderAll();
+  }
+
+  function renderAll() {
+    renderStepper(); renderRegs(); renderBus(); renderRam(); renderAction(); renderQuestion(); renderProgress();
+  }
+
+  el("checkBtn").addEventListener("click", () => {
+    if (picked === null || answered) return;
+    answered = true;
+    const st = scenario.stages[stageIdx];
+    const correct = picked === st.correct;
+    attempts[stageIdx] = attempts[stageIdx] || { firstTry: correct };
+    if (attempts[stageIdx].firstTry === undefined) attempts[stageIdx].firstTry = correct;
+    [...el("opts").children].forEach((b, i) => {
+      b.disabled = true;
+      if (i === st.correct) b.classList.add("correct");
+      else if (i === picked && !correct) b.classList.add("wrong");
+    });
+    const fb = el("feedback");
+    fb.className = "feedback " + (correct ? "good" : "bad");
+    fb.textContent = (correct ? "Correct. " : "Not quite. ") + st.explain;
+    fb.classList.remove("hidden");
+    el("checkBtn").classList.add("hidden");
+    if (correct) {
+      el("continueBtn").textContent = stageIdx < scenario.stages.length - 1 ? "Continue" : "See summary";
+      el("continueBtn").classList.remove("hidden");
+      // apply this stage's register/RAM changes now that it's confirmed understood
+      regs = { ...st.regs };
+      if (st.ramWrite) Object.assign(ramState, st.ramWrite);
+    } else {
+      // let them retry: re-enable options after a short pause
+      setTimeout(() => {
+        answered = false;
+        [...el("opts").children].forEach(b => { b.disabled = false; b.classList.remove("wrong", "correct", "picked"); });
+        picked = null;
+        el("checkBtn").classList.remove("hidden");
+        el("checkBtn").disabled = true;
+        fb.classList.add("hidden");
+      }, 2200);
+    }
+    renderProgress();
+  });
+
+  el("continueBtn").addEventListener("click", () => {
+    renderRegs(); renderRam(); // reflect the confirmed stage before advancing
+    if (stageIdx < scenario.stages.length - 1) {
+      stageIdx++;
+      renderAll();
+    } else {
+      finishScenario();
+    }
+  });
+
+  function finishScenario() {
+    el("qBlock").classList.add("hidden");
+    el("doneBlock").classList.remove("hidden");
+    el("completion").classList.remove("hidden");
+    const firstTry = attempts.filter(a => a && a.firstTry).length;
+    el("scoreBig").textContent = firstTry + " / 6";
+    if (scenario.key === "lda") {
+      el("doneText").innerHTML = `ACC now holds <b>7</b> and PC is already at <b>6</b>, pointing at the next instruction — <b>STA 20</b>.`;
+      el("nextScenarioBtn").textContent = "Try Part 2 — STA (store)";
+      el("nextScenarioBtn").onclick = () => startScenario("sta");
+    } else {
+      el("doneText").innerHTML = `Address 20 in memory now holds <b>7</b> — written there from the accumulator. Notice MDR carried data OUT this time, not in.`;
+      el("nextScenarioBtn").textContent = "Restart from Part 1";
+      el("nextScenarioBtn").onclick = () => startScenario("lda");
+    }
+    renderStepper();
+  }
+
+  startScenario("lda");
+})();
+</script>
