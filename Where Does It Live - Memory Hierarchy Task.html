@@ -1,0 +1,319 @@
+<title>Where Does It Live</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F7F8FA; --panel:#FFFFFF; --mist:#EEF2F5; --line:#C9D3DC;
+  --ink:#16202B; --text:#1F2933; --muted:#5C6B7A;
+  --copper:#D9822B; --copper-lt:#F6E3CF; --copper-ink:#7A4512;
+  --good:#3C8D5A; --good-lt:#DDEFE3; --bad:#B3412F; --bad-lt:#F4DCD7;
+  --slot:#E4E9EE; --focus:#2F6DB5; --card-bg:#16202B; --card-fg:#FFFFFF;
+  --sans:"IBM Plex Sans",system-ui,Segoe UI,Arial,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101820; --panel:#16202B; --mist:#1E2A37; --line:#33424F;
+    --ink:#F3F6F8; --text:#E4EAF0; --muted:#9AA8B5;
+    --copper:#E39A4C; --copper-lt:#3D2A17; --copper-ink:#F6D3AD;
+    --good:#5CB07A; --good-lt:#1C3A28; --bad:#E06A56; --bad-lt:#44201A;
+    --slot:#22303D; --focus:#7FB0F0; --card-bg:#2B3A4A; --card-fg:#F3F6F8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101820; --panel:#16202B; --mist:#1E2A37; --line:#33424F;
+  --ink:#F3F6F8; --text:#E4EAF0; --muted:#9AA8B5;
+  --copper:#E39A4C; --copper-lt:#3D2A17; --copper-ink:#F6D3AD;
+  --good:#5CB07A; --good-lt:#1C3A28; --bad:#E06A56; --bad-lt:#44201A;
+  --slot:#22303D; --focus:#7FB0F0; --card-bg:#2B3A4A; --card-fg:#F3F6F8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+header{padding:22px 28px 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--copper)}
+h1{margin:0;font-size:28px;font-weight:700;color:var(--ink);text-wrap:balance}
+.brief{flex-basis:100%;margin:0;max-width:68ch;color:var(--muted)}
+
+main{display:grid;grid-template-columns:230px minmax(360px,1fr) 300px;gap:18px;padding:10px 28px 32px}
+@media (max-width:980px){main{grid-template-columns:1fr 1fr}.group{grid-column:1/-1}}
+@media (max-width:640px){main{grid-template-columns:1fr}}
+
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+section h2{margin:0 0 10px;font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* cards */
+.tray{display:flex;flex-direction:column;gap:8px;min-height:120px}
+.card{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:8px;
+  background:var(--card-bg);color:var(--card-fg);font-weight:600;border:2px solid transparent;cursor:grab;user-select:none;text-align:left;width:100%}
+.card.selected{border-color:var(--copper);box-shadow:0 0 0 3px var(--copper-lt)}
+.card.dragging{opacity:.5}
+.card .vol{display:none}
+.slot .card{cursor:grab}
+.slot .card .vol{display:inline-flex;gap:4px}
+.vol button{font-family:var(--mono);font-size:11px;padding:3px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:transparent;color:inherit}
+.vol button[aria-pressed="true"]{background:var(--copper);border-color:var(--copper);color:#fff}
+.card.mark-good{border-color:var(--good)}
+.card.mark-bad{border-color:var(--bad)}
+.card .tick{font-family:var(--mono);font-size:13px;display:none}
+.reveal .card .tick{display:inline}
+
+/* ladder */
+.ladder{display:flex;flex-direction:column;gap:6px;align-items:center}
+.tier{display:grid;grid-template-columns:38px 1fr;align-items:center;gap:10px;width:100%}
+.tier-no{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.slot{min-height:48px;border:2px dashed var(--line);border-radius:8px;background:var(--slot);display:flex;align-items:center;padding:4px;transition:width .2s}
+.slot.over{border-color:var(--copper);background:var(--copper-lt)}
+.slot:empty::after{content:attr(data-hint);font-family:var(--mono);font-size:11px;color:var(--muted);padding-left:8px}
+.axis{display:flex;justify-content:space-between;width:100%;font-family:var(--mono);font-size:11px;color:var(--muted);padding:0 0 4px 48px}
+.bay{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.bay .tier{grid-template-columns:1fr}
+.bay h3{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--ink)}
+.bay p{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.answer{display:none;font-family:var(--mono);font-size:11px;color:var(--copper-ink);background:var(--copper-lt);padding:2px 8px;border-radius:999px;margin-left:8px;white-space:nowrap}
+.reveal .answer{display:inline-block}
+
+/* group panel */
+.group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink)}
+.group input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;margin-bottom:14px}
+.actions{display:flex;flex-direction:column;gap:8px}
+.btn{padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--mist);color:var(--ink);font-weight:600}
+.btn.primary{background:var(--copper);border-color:var(--copper);color:#fff}
+.btn.primary:disabled{opacity:.5;cursor:not-allowed}
+.btn.warn{background:transparent;color:var(--muted)}
+.btn.warn.armed{border-color:var(--bad);color:var(--bad)}
+.scores{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.score{padding:12px;border-radius:8px;background:var(--mist)}
+.score .n{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.score .l{font-size:12px;color:var(--muted)}
+.status{margin-top:12px;font-size:13px;color:var(--muted);min-height:2.6em}
+.summary{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px}
+.summary h3{margin:0 0 6px;font-size:13px;color:var(--ink)}
+.summary ol{margin:0;padding-left:18px;font-family:var(--mono);font-size:12px;line-height:1.7}
+.summary li span{color:var(--muted)}
+.hidden{display:none}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <span class="eyebrow">AS Unit 1 · Topic 1 · Lesson 01</span>
+  <h1>Where does it live?</h1>
+  <p class="brief">Drag each of the nine into the ladder — fastest and smallest at the top, slowest and largest at the bottom. One card doesn't belong on the ladder at all. Then tag every placed card volatile or non-volatile. Keyboard: pick a card, then pick a slot.</p>
+</header>
+
+<main>
+  <section aria-labelledby="tray-h">
+    <h2 id="tray-h">Cards to place</h2>
+    <div class="tray" id="tray"></div>
+  </section>
+
+  <section aria-labelledby="ladder-h">
+    <h2 id="ladder-h">The memory ladder</h2>
+    <div class="axis"><span>↑ fastest · smallest · costliest per byte</span></div>
+    <div class="ladder" id="ladder"></div>
+    <div class="axis"><span>↓ slowest · largest · cheapest per byte</span></div>
+    <div class="bay">
+      <h3>Off the ladder <span class="answer" id="bay-answer"></span></h3>
+      <p>One of these isn't ranked by speed and size at all — it has a different job.</p>
+      <div class="tier"><div class="slot" data-slot="bay" data-hint="drop it here"></div></div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="group-h">
+    <h2 id="group-h">Your group</h2>
+    <label for="gname">Group name</label>
+    <input id="gname" placeholder="e.g. Team Cache" autocomplete="off">
+    <div class="actions">
+      <button class="btn primary" id="check" disabled>Check our answers</button>
+      <button class="btn" id="reset">Start again</button>
+      <button class="btn warn" id="reveal">Teacher: reveal answers</button>
+    </div>
+    <div class="scores">
+      <div class="score"><div class="n" id="s-place">–</div><div class="l">of 9 in the right place</div></div>
+      <div class="score"><div class="n" id="s-vol">–</div><div class="l">of 8 volatility tags right</div></div>
+    </div>
+    <div class="status" id="status">Place all nine cards to unlock Check. Checking tells you how many are right — not which ones. Argue it out.</div>
+    <div class="summary hidden" id="summary"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  // Correct ladder, top → bottom. Virtual memory sits between RAM and disk functionally.
+  const LADDER = ["Registers","L1 cache","L2 cache","L3 cache","RAM","Virtual memory","SSD","HDD"];
+  const BAY = "ROM";
+  const VOLATILE = { "Registers":true,"L1 cache":true,"L2 cache":true,"L3 cache":true,"RAM":true,"ROM":false,"SSD":false,"HDD":false };
+  // Virtual memory is on disk (non-volatile media) but used as working memory — not scored, discussed.
+  const CARDS = ["HDD","RAM","L2 cache","ROM","Registers","Virtual memory","SSD","L1 cache","L3 cache"];
+  const HINTS = ["fastest","","","","","","","slowest"];
+
+  const tray = document.getElementById("tray");
+  const ladder = document.getElementById("ladder");
+  const state = { placed:{}, vol:{}, selected:null, attempts:0, revealed:false };
+
+  // build ladder
+  LADDER.forEach((_,i) => {
+    const t = document.createElement("div"); t.className = "tier";
+    t.innerHTML = `<div class="tier-no">${i+1}</div><div class="slot" data-slot="${i}" data-hint="${HINTS[i]}"></div>`;
+    ladder.appendChild(t);
+  });
+
+  function makeCard(name){
+    const c = document.createElement("div");
+    c.className = "card"; c.draggable = true; c.dataset.name = name; c.tabIndex = 0;
+    c.setAttribute("role","button"); c.setAttribute("aria-label", name + " — pick, then choose a slot");
+    c.innerHTML = `<span>${name} <span class="tick"></span></span>
+      <span class="vol" role="group" aria-label="volatility">
+        <button type="button" data-v="v" aria-pressed="false">volatile</button>
+        <button type="button" data-v="n" aria-pressed="false">non-volatile</button>
+      </span>`;
+    c.addEventListener("dragstart", e => { state.selected = name; c.classList.add("dragging"); e.dataTransfer.setData("text/plain", name); });
+    c.addEventListener("dragend", () => c.classList.remove("dragging"));
+    c.addEventListener("click", e => {
+      if (e.target.closest(".vol")) return;
+      select(name);
+    });
+    c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(name); } });
+    c.querySelectorAll(".vol button").forEach(b => b.addEventListener("click", () => {
+      if (state.revealed) return;
+      state.vol[name] = b.dataset.v;
+      c.querySelectorAll(".vol button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      refresh();
+    }));
+    return c;
+  }
+
+  function select(name){
+    if (state.revealed) return;
+    state.selected = state.selected === name ? null : name;
+    document.querySelectorAll(".card").forEach(c => c.classList.toggle("selected", c.dataset.name === state.selected));
+    setStatus(state.selected ? `${state.selected} picked — now choose a slot (or click the tray to put it back).` : "");
+  }
+
+  function place(name, slotKey){
+    const card = document.querySelector(`.card[data-name="${CSS.escape(name)}"]`);
+    if (!card) return;
+    if (slotKey === "tray") { delete state.placed[name]; delete state.vol[name]; card.querySelectorAll(".vol button").forEach(x => x.setAttribute("aria-pressed","false")); tray.appendChild(card); }
+    else {
+      const slot = document.querySelector(`.slot[data-slot="${slotKey}"]`);
+      const occupant = slot.querySelector(".card");
+      if (occupant && occupant !== card) {
+        // swap: occupant goes where the incoming card was
+        const from = state.placed[name];
+        if (from === undefined) tray.appendChild(occupant), delete state.placed[occupant.dataset.name];
+        else document.querySelector(`.slot[data-slot="${from}"]`).appendChild(occupant), state.placed[occupant.dataset.name] = from;
+      }
+      slot.appendChild(card); state.placed[name] = slotKey;
+    }
+    state.selected = null;
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
+    const n = Object.keys(state.placed).length;
+    if (n < CARDS.length) setStatus(`${n} of 9 placed. ${CARDS.length - n} to go.`);
+    refresh();
+  }
+
+  // drop targets
+  document.querySelectorAll(".slot").forEach(s => {
+    s.addEventListener("dragover", e => { e.preventDefault(); s.classList.add("over"); });
+    s.addEventListener("dragleave", () => s.classList.remove("over"));
+    s.addEventListener("drop", e => { e.preventDefault(); s.classList.remove("over"); const n = e.dataTransfer.getData("text/plain") || state.selected; if (n && !state.revealed) place(n, s.dataset.slot); });
+    s.addEventListener("click", e => { if (state.selected && !e.target.closest(".card")) place(state.selected, s.dataset.slot); });
+    s.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && state.selected) { e.preventDefault(); place(state.selected, s.dataset.slot); } });
+    s.tabIndex = 0; s.setAttribute("role","button"); s.setAttribute("aria-label", s.dataset.slot === "bay" ? "off-the-ladder bay" : "ladder position " + (Number(s.dataset.slot)+1));
+  });
+  tray.addEventListener("dragover", e => e.preventDefault());
+  tray.addEventListener("drop", e => { e.preventDefault(); const n = e.dataTransfer.getData("text/plain") || state.selected; if (n && !state.revealed) place(n, "tray"); });
+  tray.addEventListener("click", e => { if (state.selected && !e.target.closest(".card")) place(state.selected, "tray"); });
+
+  function setStatus(t){ if (t) document.getElementById("status").textContent = t; }
+
+  function refresh(){
+    const all = Object.keys(state.placed).length === CARDS.length;
+    document.getElementById("check").disabled = !all || state.revealed;
+    if (all && !state.revealed) setStatus("All nine placed. Tag each one volatile or non-volatile, then Check.");
+  }
+
+  function score(){
+    let p = 0, v = 0;
+    CARDS.forEach(n => {
+      const at = state.placed[n];
+      const want = n === BAY ? "bay" : String(LADDER.indexOf(n));
+      if (at === want) p++;
+      if (n in VOLATILE && state.vol[n]) { if ((state.vol[n] === "v") === VOLATILE[n]) v++; }
+    });
+    return { p, v };
+  }
+
+  document.getElementById("check").addEventListener("click", () => {
+    state.attempts++;
+    const { p, v } = score();
+    document.getElementById("s-place").textContent = p;
+    document.getElementById("s-vol").textContent = v;
+    const untagged = CARDS.filter(n => n in VOLATILE && !state.vol[n]).length;
+    setStatus(`Attempt ${state.attempts}: ${p}/9 placed correctly, ${v}/8 volatility tags right${untagged ? ` (${untagged} still untagged)` : ""}. ${p === 9 && v === 8 ? "All correct — write your reasoning for ROM and virtual memory ready for the debrief." : "Which ones are you least sure about? Move them and check again."}`);
+    renderSummary(p, v);
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    state.placed = {}; state.vol = {}; state.selected = null; state.attempts = 0; state.revealed = false;
+    document.body.classList.remove("reveal");
+    document.querySelectorAll(".card").forEach(c => c.remove());
+    CARDS.forEach(n => tray.appendChild(makeCard(n)));
+    document.getElementById("s-place").textContent = "–"; document.getElementById("s-vol").textContent = "–";
+    document.getElementById("summary").classList.add("hidden");
+    const r = document.getElementById("reveal"); r.classList.remove("armed"); r.textContent = "Teacher: reveal answers";
+    document.getElementById("bay-answer").textContent = "";
+    setStatus("Place all nine cards to unlock Check. Checking tells you how many are right — not which ones. Argue it out.");
+    refresh();
+  });
+
+  // Teacher reveal: armed on first click, fires on second, so a stray click never spoils the debrief.
+  const revealBtn = document.getElementById("reveal");
+  let armTimer;
+  revealBtn.addEventListener("click", () => {
+    if (state.revealed) return;
+    if (!revealBtn.classList.contains("armed")) {
+      revealBtn.classList.add("armed"); revealBtn.textContent = "Click again to reveal (for the debrief)";
+      armTimer = setTimeout(() => { revealBtn.classList.remove("armed"); revealBtn.textContent = "Teacher: reveal answers"; }, 4000);
+      return;
+    }
+    clearTimeout(armTimer);
+    state.revealed = true; document.body.classList.add("reveal");
+    revealBtn.textContent = "Answers shown"; revealBtn.classList.remove("armed");
+    document.getElementById("check").disabled = true;
+    CARDS.forEach(n => {
+      const c = document.querySelector(`.card[data-name="${CSS.escape(n)}"]`);
+      const want = n === BAY ? "bay" : String(LADDER.indexOf(n));
+      const okPlace = state.placed[n] === want;
+      const okVol = !(n in VOLATILE) || (state.vol[n] && (state.vol[n] === "v") === VOLATILE[n]);
+      c.classList.add(okPlace && okVol ? "mark-good" : "mark-bad");
+      const wantLabel = n === BAY ? "off ladder" : "#" + (LADDER.indexOf(n)+1);
+      const volLabel = n in VOLATILE ? (VOLATILE[n] ? "volatile" : "non-volatile") : "discuss";
+      c.querySelector(".tick").textContent = `${okPlace ? "✓" : "✗ → " + wantLabel} · ${volLabel}`;
+    });
+    document.getElementById("bay-answer").textContent = "ROM — firmware, read at boot";
+    const { p, v } = score();
+    document.getElementById("s-place").textContent = p; document.getElementById("s-vol").textContent = v;
+    setStatus("Answers shown. Virtual memory lives on disk (non-volatile media) but is used as if it were RAM — that's the discussion, not a mark.");
+    renderSummary(p, v);
+  });
+
+  function renderSummary(p, v){
+    const box = document.getElementById("summary");
+    const g = document.getElementById("gname").value.trim() || "Unnamed group";
+    const rows = [];
+    LADDER.forEach((_, i) => {
+      const n = Object.keys(state.placed).find(k => state.placed[k] === String(i)) || "—";
+      const tag = state.vol[n] ? (state.vol[n] === "v" ? "V" : "NV") : "";
+      rows.push(`<li>${n} <span>${tag}</span></li>`);
+    });
+    const bay = Object.keys(state.placed).find(k => state.placed[k] === "bay") || "—";
+    box.innerHTML = `<h3>${g} — attempt ${state.attempts}${state.revealed ? " (revealed)" : ""}: ${p}/9 placed · ${v}/8 tagged</h3>
+      <ol>${rows.join("")}</ol><div style="margin-top:6px;font-family:var(--mono);font-size:12px">Off ladder: ${bay}</div>`;
+    box.classList.remove("hidden");
+  }
+
+  document.getElementById("reset").click();
+})();
+</script>
