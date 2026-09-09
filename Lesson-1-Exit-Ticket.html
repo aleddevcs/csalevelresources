@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 1 Exit Ticket</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:2rem 1rem 4rem;
+    display:flex;
+    justify-content:center;
+  }
+  .instructions{
+    max-width:640px;
+    margin:0 auto 1.2rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.9rem;
+  }
+  .wrap{
+    max-width:640px;
+    width:100%;
+  }
+  .ticket{
+    background:var(--white);
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    overflow:hidden;
+    border:1px solid #E1E8ED;
+  }
+  .ticket-head{
+    background:var(--dark);
+    color:var(--white);
+    padding:1.6rem 1.8rem;
+  }
+  .ticket-head .eyebrow{
+    font-size:0.75rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.3rem;
+  }
+  .ticket-head h1{
+    margin:0;
+    font-size:1.5rem;
+  }
+  .ticket-head p{
+    margin:0.4rem 0 0;
+    color:#CADCFC;
+    font-size:0.9rem;
+  }
+  .name-row{
+    background:var(--light);
+    padding:1rem 1.8rem;
+    border-bottom:1px solid #E1E8ED;
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+  }
+  .name-row label{
+    font-weight:bold;
+    font-size:0.9rem;
+    color:var(--dark);
+    white-space:nowrap;
+  }
+  .name-row input{
+    flex:1;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.5rem 0.7rem;
+    font-size:0.95rem;
+    font-family:Calibri, Arial, sans-serif;
+  }
+  .q-list{
+    padding:1.5rem 1.8rem 1.8rem;
+  }
+  .q{
+    margin-bottom:1.4rem;
+  }
+  .q:last-child{
+    margin-bottom:0;
+  }
+  .q-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:var(--second);
+    color:white;
+    font-size:0.8rem;
+    font-weight:bold;
+    margin-right:0.5rem;
+  }
+  .q-text{
+    font-weight:bold;
+    font-size:0.98rem;
+    color:var(--dark);
+  }
+  .q-sub{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0.2rem 0 0.5rem 1.9rem;
+  }
+  .code-snippet{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#CADCFC;
+    padding:0.6rem 0.9rem;
+    border-radius:8px;
+    margin:0.5rem 0 0.6rem 1.9rem;
+    font-size:0.85rem;
+    line-height:1.6;
+    display:inline-block;
+  }
+  .options{
+    margin-left:1.9rem;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.5rem;
+  }
+  .opt{
+    border:1px solid #D8E2E8;
+    background:var(--white);
+    border-radius:8px;
+    padding:0.4rem 0.9rem;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family: "Courier New", monospace;
+  }
+  .opt.selected{
+    background:var(--second);
+    border-color:var(--second);
+    color:white;
+  }
+  .q input[type=text], .q textarea{
+    width:calc(100% - 1.9rem);
+    margin-left:1.9rem;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.55rem 0.7rem;
+    font-family:Calibri, Arial, sans-serif;
+    font-size:0.92rem;
+  }
+  .q textarea{
+    min-height:55px;
+    resize:vertical;
+  }
+  .footer-note{
+    background:#FBF0E7;
+    border-top:1px solid #F0D9C4;
+    padding:1rem 1.8rem;
+    font-size:0.85rem;
+    color:#8A4A1E;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .footer-note .dot{
+    width:22px;
+    height:22px;
+    background:var(--amber);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.75rem;
+    flex-shrink:0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="instructions">Fill this in on screen, then take a screenshot of the whole ticket and post it to our Microsoft Whiteboard board.</p>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <p class="eyebrow">Access to HE · Applied Computing</p>
+      <h1>Lesson 1 exit ticket</h1>
+      <p>Getting started with Python — variables and data types</p>
+    </div>
+
+    <div class="name-row">
+      <label for="learner-name">Name</label>
+      <input type="text" id="learner-name" placeholder="Type your name">
+    </div>
+
+    <div class="q-list">
+
+      <div class="q">
+        <span class="q-num">1</span><span class="q-text">Name one thing you learned about programming languages today.</span>
+        <textarea placeholder="Type your answer here..."></textarea>
+      </div>
+
+      <div class="q">
+        <span class="q-num">2</span><span class="q-text">What data type is 3.5 in Python?</span>
+        <div class="options" data-answer="float">
+          <div class="opt" data-value="int">int</div>
+          <div class="opt" data-value="float">float</div>
+          <div class="opt" data-value="str">str</div>
+          <div class="opt" data-value="bool">bool</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <span class="q-num">3</span><span class="q-text">What will this code print?</span>
+        <div class="code-snippet">score = 10<br>print(score)<br>print(type(score))</div>
+        <input type="text" placeholder="Type what it prints">
+      </div>
+
+      <div class="q">
+        <span class="q-num">4</span><span class="q-text">In your own words — why does Python need data types?</span>
+        <p class="q-sub">Think back to Task 2 and "42" + 8</p>
+        <textarea placeholder="Type your answer here..."></textarea>
+      </div>
+
+      <div class="q">
+        <span class="q-num">5</span><span class="q-text">In your own words, what is a variable?</span>
+        <textarea placeholder="Type your answer here..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="footer-note">
+      <span class="dot">i</span>
+      <span>Done? Screenshot this whole card and post it to the Whiteboard board.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.options').forEach(group => {
+    group.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        group.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+      });
+    });
+  });
+</script>
+</body>
+</html>
