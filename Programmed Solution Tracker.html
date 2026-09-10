@@ -1,0 +1,607 @@
+<title>Programmed Solution Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --focus: #2b6f8f;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec;
+      --ink-soft: #c3ceCC;
+      --muted: #93a3a1;
+      --faint: #66787a;
+      --surface: #10181a;
+      --surface-raised: #172224;
+      --surface-sunken: #0c1314;
+      --border: #263335;
+      --accent: #e0a24a;
+      --accent-ink: #ffe4b8;
+      --accent-soft: #362a17;
+      --good: #49b98a;
+      --good-soft: #163627;
+      --good-ink: #0c1314;
+      --focus: #6cb6d8;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec;
+    --ink-soft: #c3ceCC;
+    --muted: #93a3a1;
+    --faint: #66787a;
+    --surface: #10181a;
+    --surface-raised: #172224;
+    --surface-sunken: #0c1314;
+    --border: #263335;
+    --accent: #e0a24a;
+    --accent-ink: #ffe4b8;
+    --accent-soft: #362a17;
+    --good: #49b98a;
+    --good-soft: #163627;
+    --good-ink: #0c1314;
+    --focus: #6cb6d8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--sans); text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  .mono { font-family: var(--mono); }
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding: 14px clamp(16px, 3vw, 32px);
+    background: var(--surface-raised);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand-name { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .topbar-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .who {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+    background: var(--surface-sunken); border: 1px solid var(--border);
+    padding: 6px 8px 6px 12px; border-radius: 999px;
+  }
+  .who b { color: var(--ink); font-weight: 600; }
+  .link-btn {
+    background: none; border: none; color: var(--focus); font-size: 13px;
+    padding: 2px 4px; text-decoration: underline; text-underline-offset: 2px;
+  }
+  .icon-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-sunken); border: 1px solid var(--border);
+    color: var(--ink-soft); font-size: 13px; font-weight: 500;
+    padding: 7px 12px; border-radius: 8px;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ---------- layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 288px 1fr;
+    gap: 0;
+    max-width: 1180px;
+    margin: 0 auto;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- sidebar ---------- */
+  .sidebar {
+    position: sticky; top: 57px;
+    padding: 20px 16px 32px;
+    display: flex; flex-direction: column; gap: 18px;
+    max-height: calc(100vh - 57px);
+    overflow-y: auto;
+  }
+  @media (max-width: 860px) {
+    .sidebar { position: static; max-height: none; padding: 16px; }
+  }
+
+  .overall {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .overall-top { display: flex; align-items: baseline; justify-content: space-between; }
+  .overall-num { font-family: var(--mono); font-size: 30px; font-weight: 600; line-height: 1; }
+  .overall-label { font-size: 12px; color: var(--muted); max-width: 8em; text-align: right; line-height: 1.3; }
+  .segbar { display: flex; gap: 2px; height: 8px; margin-top: 12px; border-radius: 4px; overflow: hidden; background: var(--surface-sunken); }
+  .segbar > i { display: block; background: var(--border); }
+  .segbar > i.filled { background: var(--good); }
+  .overall-note { margin-top: 10px; font-size: 11.5px; color: var(--faint); line-height: 1.4; }
+
+  .navlist { display: flex; flex-direction: column; gap: 4px; }
+  .navitem {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; text-align: left;
+    background: none; border: 1px solid transparent; border-radius: 10px;
+    padding: 9px 10px;
+    color: var(--ink-soft);
+  }
+  .navitem:hover { background: var(--surface-sunken); }
+  .navitem[aria-current="true"] {
+    background: var(--surface-raised); border-color: var(--border); box-shadow: var(--shadow);
+    color: var(--ink);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--faint); }
+  .dot.progress { background: var(--accent); }
+  .dot.done { background: var(--good); }
+  .navitem-body { flex: 1; min-width: 0; }
+  .navitem-name { display: block; font-size: 13.5px; font-weight: 600; }
+  .navitem-meta { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 2px; }
+  .navitem-pct { font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; }
+
+  @media (max-width: 860px) {
+    .navlist { flex-direction: row; overflow-x: auto; gap: 8px; padding-bottom: 4px; }
+    .navitem { flex-direction: column; align-items: flex-start; min-width: 148px; }
+    .navitem-pct { align-self: flex-end; margin-top: -18px; }
+  }
+
+  /* ---------- main ---------- */
+  main {
+    padding: 20px clamp(16px, 3vw, 32px) 64px;
+    min-width: 0;
+  }
+  .section-head { margin-bottom: 18px; }
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .section-eyebrow .sep { color: var(--faint); }
+  .section-title { font-size: 26px; font-weight: 700; margin-top: 6px; letter-spacing: -0.01em; }
+
+  .band {
+    margin-top: 14px;
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .band b { color: var(--accent-ink); font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: 0.02em; }
+
+  .testing-note {
+    margin-top: 10px; font-size: 12.5px; color: var(--muted);
+  }
+
+  .items { margin-top: 22px; display: flex; flex-direction: column; }
+  .item {
+    display: flex; gap: 14px;
+    padding: 16px 4px;
+    border-top: 1px solid var(--border);
+  }
+  .item:last-child { padding-bottom: 4px; }
+
+  .check {
+    flex: none; width: 24px; height: 24px; margin-top: 2px;
+    border-radius: 7px; border: 1.5px solid var(--faint);
+    background: var(--surface-raised);
+    display: flex; align-items: center; justify-content: center;
+    color: transparent;
+  }
+  .check svg { width: 15px; height: 15px; }
+  .item.done .check { background: var(--good); border-color: var(--good); color: var(--good-ink); }
+
+  .item-body { flex: 1; min-width: 0; }
+  .item-title-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .item-num { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .item-title { font-size: 15px; font-weight: 600; }
+  .item.done .item-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); text-decoration-thickness: 1px; }
+  .item-sub { font-family: var(--mono); font-size: 10.5px; color: var(--accent-ink); background: var(--accent-soft); padding: 1px 7px; border-radius: 999px; }
+  .item-guide { margin-top: 6px; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); max-width: 66ch; }
+  .item.done .item-guide { color: var(--faint); }
+  .item-row-btn { all: unset; display: flex; gap: 14px; width: 100%; cursor: pointer; }
+
+  .empty-name {
+    display: flex; align-items: center; justify-content: center; min-height: 70vh; padding: 20px;
+  }
+  .name-card {
+    max-width: 380px; width: 100%;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px; box-shadow: var(--shadow);
+  }
+  .name-card h1 { font-size: 20px; margin-bottom: 6px; }
+  .name-card p { font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+  .name-card input {
+    width: 100%; font-family: var(--sans); font-size: 15px;
+    padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--ink); margin-bottom: 12px;
+  }
+  .name-card input:focus-visible { border-color: var(--focus); }
+  .name-card button.primary {
+    width: 100%; background: var(--accent); color: #fff; border: none;
+    font-size: 14.5px; font-weight: 600; padding: 11px; border-radius: 8px;
+  }
+  .name-card .fineprint { margin-top: 14px; font-size: 11.5px; color: var(--faint); }
+
+  [hidden] { display: none !important; }
+  #file-input { display: none; }
+</style>
+
+<div id="gate" class="empty-name" hidden>
+  <div class="name-card">
+    <h1>Who's checking in?</h1>
+    <p>Enter the name you use for coursework tracking. Your progress is saved in this browser — on a shared college PC, use <b>Export</b> at the end of each lesson and <b>Import</b> next time on a different machine.</p>
+    <input id="name-input" type="text" placeholder="e.g. Jordan Ellis" autocomplete="off" />
+    <button class="primary" id="name-go">Start tracking</button>
+    <p class="fineprint">Nothing is sent anywhere — your progress lives only in this browser until you export it.</p>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-name">Programmed Solution Tracker</span>
+      <span class="brand-tag">Unit 5 NEA</span>
+    </div>
+    <div class="topbar-tools">
+      <span class="who">Working as <b id="who-name"></b><button class="link-btn" id="switch-btn">switch</button></span>
+      <button class="icon-btn" id="export-btn" title="Save your progress as a file">Export</button>
+      <button class="icon-btn" id="import-btn" title="Load a previously exported progress file">Import</button>
+      <input type="file" id="file-input" accept="application/json" />
+    </div>
+  </div>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="NEA sections"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SECTIONS = [
+    {
+      id: "discussion", name: "Discussion", marks: 5, handIn: "Fri 11.09.26",
+      band: "Band 3 (4–5 marks): a substantial problem giving full scope · broad aims in technical vocabulary · limitations described in technical detail · feedback fully considered and used to refine your understanding.",
+      items: [
+        { t: "Background", g: "Give a general overview of who or what this is for: the organisation, its location, the service it provides. Then go a level deeper — who exactly are the stakeholders, and what specifically do they do day to day? Name real roles, not just “staff”." },
+        { t: "The current system", g: "Describe how things are done right now, in bullet points. Then split that into two honest lists: what actually works about it, and what doesn't. Be specific — “it's slow” isn't technical detail; “staff cross-check three separate spreadsheets to confirm a booking” is." },
+        { t: "The proposed system", g: "In a few sentences: who will use it, and what will it do in general terms? Then name what it won't do — what are you leaving out, and why? This is your limitations paragraph (see the “Need inspiration?” slide from Lesson 1 if you're stuck). Finish with your objectives as a bullet list — each one checkable as done or not done." },
+        { t: "Feedback", g: "Show this section to a teacher and at least one peer before you finalise it. Log what they actually said — not “they liked it” but the specific suggestion — and say what you did with it: used it, adapted it, or explain why you didn't. “Used to refine understanding” is worth real marks on its own." }
+      ]
+    },
+    {
+      id: "investigation", name: "Investigation", marks: 10, handIn: "Fri 16.10.26",
+      band: "Band 3 (8–10 marks): full range of methods · thorough current-system analysis · all stakeholders & requirements identified · limitations fully considered · working specification · methods justified · objectives with measurable success criteria.",
+      items: [
+        { t: "Introduction", g: "Set out your investigation plan before you carry it out: which methods you'll use (interview, questionnaire, observation, desk research), why each earns its place, and the general advantages/disadvantages of each. This is your justification, not your results." },
+        { t: "Interview", g: "State who you're interviewing and what you want to find out. List your actual questions and answers. Then summarise: what did you learn, and how does it feed into your design?" },
+        { t: "Questionnaire", g: "Same structure as the interview: who, what you wanted to find out, the questions and results, then a summary of what it tells you for the design." },
+        { t: "Observation", g: "What did you watch happen, and what were you looking for? Summarise what you noticed and how it shapes your design — this often catches things nobody mentions in an interview." },
+        { t: "Desk research", g: "List existing software that does something similar. What features does it have? What's good, what's weak, and which features do you want to borrow? Keep this — you'll need the same comparison again for your Evaluation." },
+        { t: "Stakeholders", g: "List everyone with a stake in the system — who inputs data, who uses the output, who maintains it, not just “users”. For each, describe what they specifically need." },
+        { t: "Inputs", g: "List every piece of data the current system takes in, with a short description of each." },
+        { t: "Processes", g: "List what the current system actually does with that data — calculations, sorting, checking, storing." },
+        { t: "Outputs", g: "List what the current system produces — reports, confirmations, printouts, on-screen results." },
+        { t: "DFD diagram", g: "Draw a Data Flow Diagram of the current system (draw.io works well). Check before you submit: every process has at least one input and one output; every data store has a flow in and a flow out; stored data only changes via a process; nothing dangles unconnected." },
+        { t: "Limitations of the current system", g: "Pull this together from what your research actually showed. Each limitation should trace back to something you found in an interview, questionnaire, observation or your research — not an assumption." },
+        { t: "Specification", g: "Purpose: 2–3 sentences on what your solution is for. Coverage: a short descriptive paragraph. Practical objectives: specific, testable, feature-level goals (“users can register with an email and password”). General objectives: the bigger-picture purpose. Then work through the performance, security and quality checklists — even a couple of lines under each shows you've thought about them." },
+        { t: "Technical justification", g: "Name the actual tools and language you'll build with, and justify each choice with a technical reason — not just “I know it already”." },
+        { t: "Aims and objectives", g: "Your final, tidied list — specific enough that each one is checkable. E.g. for a login: takes username/password, connects to the database, checks credentials server-side, shows the right message for success/wrong password/unknown user, and has a separate admin login path." }
+      ]
+    },
+    {
+      id: "design", name: "Design", marks: 15, handIn: "Fri 27.11.26",
+      band: "Band 3 (11–15 marks): sub-problems broken down and justified · inputs/outputs fully designed · files/data structures/access methods fully described · validation fully described · pseudocode detailed enough for a competent third party to implement.",
+      items: [
+        { t: "Introduction", g: "One paragraph naming everything this section covers: interface designs, input/output/process design, file and data structure design, validation, and how the data and processes relate." },
+        { t: "Justification of problem decomposition", g: "Explain how you split the system into modules, and justify each one — why does it exist as its own module rather than being folded into another? Link this back to your Investigation objectives." },
+        { t: "Forms / user interface designs", g: "Start with the general rules: layout, colour scheme, navigation pattern. Then for every screen: a wireframe (a real design artefact — sketched or in Figma/Balsamiq, dated, and NOT a screenshot of something you've already built), who can access it, what the user can do, its inputs (fields + data types), what it processes, what it outputs, and its validation. Give fields sensible names now (txtName, btnSubmit) — it saves time later." },
+        { t: "Pseudocode", g: "Write pseudocode for every key process, in a consistent convention. Detailed enough that someone else could code it from your pseudocode alone — including validation, data access and error handling, not just the happy path." },
+        { t: "Navigation diagram", g: "One diagram showing how a user moves between every screen — every major journey through your system, start to finish." },
+        { t: "Entity relationship diagram", g: "Show every entity (table) and the relationships between them. Keep relationships to one-to-many." },
+        { t: "Data structure table", g: "One table per database table: field name, data type, field length, validation rule, description, an example value, and which field(s) are the key. Use real, correct data types (INT, VARCHAR(n), DATE, DECIMAL) — evidence you understand the database, not just that you can make one work." },
+        { t: "Process design (top-down)", g: "A diagram breaking the system into subroutines/modules — screens as rectangles, processes as circles — showing how they connect. This should visibly match the decomposition you justified above." },
+        { t: "Data flow design", g: "Level 1+ DFDs for your key subsystems (e.g. login, booking, admin), using correct symbols for processes, data stores, external entities and data flows." }
+      ]
+    },
+    {
+      id: "prototype", name: "Prototype", marks: 10, handIn: "Fri 08.01.27",
+      band: "Band 3 (8–10 marks): choice of included/excluded areas justified · comprehensive screens and outputs · functioning system with realistic data · evaluation justifying good features · shortcomings with specific improvements.",
+      items: [
+        { t: "Introduction", g: "One paragraph on what this stage is for: building a working slice of your system to prove the design works, and to get feedback before you commit to the full build." },
+        { t: "Justify the scope", g: "Bullet-point what you're including in the prototype, with a reason for each — and bullet-point what you're leaving out, with a reason. “No time” isn't a reason; “not core to the main objectives” is." },
+        { t: "Prototype evidence", g: "Screenshots showing every area you listed above actually working, using realistic data — a sensible number of records plus the edge cases from your test-data brief (out of stock, long text, boundary values), not three rows of “test test test”." },
+        { t: "Evaluation & improvements", g: "Evaluate what you built: what works well and why (be specific). Then name the shortcomings honestly, with a specific, actionable suggestion for each — this feeds straight into your refinement stage." }
+      ]
+    },
+    {
+      id: "refinement", name: "Post-Prototype Refinement", marks: 5, handIn: "Fri 22.01.27",
+      band: "Band 3 (4–5 marks): feedback fully described with implications explained · inputs/outputs/files/processes re-considered and refined · refined routines in a recognised convention · discounted suggestions justified.",
+      items: [
+        { t: "Introduction", g: "One paragraph on what this stage is for: taking real feedback on your prototype and using it to improve your design before the full build." },
+        { t: "Feedback", g: "Get feedback from a competent third party (teacher, peer, or a real stakeholder) — a short questionnaire works well. Then go through it systematically: what does it mean for your inputs/outputs, your files or data structures, any new relationships, any new processing routines?" },
+        { t: "Feedback designs", g: "For every change above, show the actual redesign — new wireframes, updated data structures, flow diagrams, pseudocode, ER diagrams, validation, navigation or top-down diagrams. If you decided NOT to act on a suggestion, say so and justify why — that's worth marks too." }
+      ]
+    },
+    {
+      id: "software_development", name: "Software Development", marks: 25, handIn: "Fri 19.03.27",
+      band: "Band 4 (19–25 marks): revised design fully accounted for · meets almost all objectives · language fully exploited · well-structured data model (better: 3NF) · modular, local-variable-led · fully annotated code · complex user-defined routines — better candidates use recursive algorithms · effective validation/exception handling.",
+      items: [
+        { t: "Entity relationship diagrams", g: "Your final ER diagram(s), reflecting the database you actually built — not the original design, if it changed during development." },
+        { t: "Final data dictionary", g: "One row per field, across every table: variable name, primary/foreign key, local/global, data type, description. The single reference a “competent third party” would use to understand your data." },
+        { t: "SQL schema", g: "The actual CREATE TABLE statements for your database, copied straight from your SQL environment — hard evidence your data model works, not just a diagram of intentions." },
+        { t: "Annotated code", g: "Print screens of your code with comments explaining what each routine does and why — good enough that someone else could maintain it. ★ Make sure at least one routine is a hand-coded algorithm you wrote yourself (a recursive routine, a custom sort, a custom search) — not just an SQL query doing the work. This was the single biggest gap that cost marks last year: a system built entirely on SQL queries and CRUD forms caps out well below full marks, however clean the code is." },
+        { t: "User documentation", g: "Show every function of your program from a user's point of view — what it does and how to use it, not how it's coded." }
+      ]
+    },
+    {
+      id: "testing", name: "Testing", marks: 15, handIn: "Fri 16.04.27",
+      band: "Developmental Testing — Band 3 (4–5): comprehensive evidence at every development stage, every problem justified and evidenced with its fix. Final Testing — Band 3 (8–10): comprehensive test plan across the whole system, a wide range of methods, typical/extreme/invalid data, detailed commentaries with specific refinement suggestions.",
+      items: [
+        { t: "Developmental testing log", sub: "5 marks · ongoing", g: "Don't leave this to the end — as you build, screenshot problems as they happen and write a line on what went wrong and what you changed to fix it. By final testing you should have a running log covering every development stage, not a reconstructed memory of it." },
+        { t: "Test plan", sub: "part of 10", g: "Before you test, plan it: a table of test number, the data you'll use, the type of test (typical / extreme / invalid), and the expected result. Cover every area of the system, not just the parts you're proud of." },
+        { t: "Test results", sub: "part of 10", g: "For every test: its number, a screenshot of the actual result, a commentary explaining what happened (not just “passed”), and any changes made as a result. Detailed, specific commentary with a real refinement suggestion is what separates the top of this band from the middle." }
+      ]
+    },
+    {
+      id: "evaluation", name: "Evaluation", marks: 15, handIn: "Fri 23.04.27 — FULL SUBMISSION",
+      band: "Band 3 (11–15 marks): detailed evaluation of tools/techniques, justified · compared against similar commercial systems · good features and shortcomings with significant potential improvements · own strengths/weaknesses evaluated · specific future changes described · well-structured, accurate, error-free.",
+      items: [
+        { t: "Introduction", g: "Set out what this section covers: your testing process, tool use, the finished solution vs commercial systems, future improvements, your own strengths and weaknesses, and a conclusion." },
+        { t: "Evaluation of developmental testing", g: "Did testing as you built actually help? Did catching a mistake in one area change your approach elsewhere? Be honest about what it didn't catch too." },
+        { t: "Evaluation of testing", g: "Did you test every part of your system, genuinely comprehensively — typical, extreme AND invalid data for every input? What might a real user hit that you didn't think to test?" },
+        { t: "User testing", g: "Get a real user (or a good stand-in) to try your finished system and tell you what they think — a short questionnaire works well. Report what they said, including anything they'd change." },
+        { t: "Evaluation of tool use", g: "List every tool/language/library you used. For each: strengths, weaknesses, and was there good support/documentation when you got stuck?" },
+        { t: "Evaluation of the solution", g: "Go back to your Investigation success criteria and check them off, honestly. For every technical claim, finish the sentence: “I implemented X, which means [stakeholder] can now ___ instead of ___.” That's what turns a description into an evaluation." },
+        { t: "Comparison with commercial systems", g: "Name real, similar commercial software. Where is yours genuinely better — and just as important, where is theirs better than yours? A comparison with no disadvantages for your system reads as unconvincing, not modest." },
+        { t: "Future improvements", g: "What would you add or change if you kept working on this — new features, more efficient algorithms, a better interface?" },
+        { t: "Your own strengths & weaknesses", g: "Be specific: programming experience, time management, your approach (bottom-up vs top-down), how you used design tools. Not “I need to manage time better” — what specifically went wrong, and where?" },
+        { t: "Changes for next time", g: "Given those weaknesses, what would you actually do differently on your next project? Tie this to a real moment in this one, not a generic resolution." },
+        { t: "Conclusion", g: "Your honest final verdict. Are you happy with it? What's it missing? Specific beats vague — “overall I think it went well” says nothing." }
+      ]
+    }
+  ];
+
+  var TOTAL_MARKS = SECTIONS.reduce(function (s, sec) { return s + sec.marks; }, 0);
+
+  var state = { name: null, checked: {} };
+  var activeSection = SECTIONS[0].id;
+
+  function storageKey(name) { return "unit5nea:" + name.trim().toLowerCase().replace(/\s+/g, "-"); }
+
+  function loadForName(name) {
+    try {
+      var raw = localStorage.getItem(storageKey(name));
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+  function persist() {
+    try {
+      localStorage.setItem(storageKey(state.name), JSON.stringify(state.checked));
+      localStorage.setItem("unit5nea:last-name", state.name);
+    } catch (e) {}
+  }
+
+  function sectionStats(sec) {
+    var done = 0;
+    sec.items.forEach(function (it, i) { if (state.checked[sec.id + ":" + i]) done++; });
+    return { done: done, total: sec.items.length, pct: sec.items.length ? Math.round((done / sec.items.length) * 100) : 0 };
+  }
+  function overallPct() {
+    var earned = 0;
+    SECTIONS.forEach(function (sec) {
+      var st = sectionStats(sec);
+      earned += sec.marks * (st.total ? st.done / st.total : 0);
+    });
+    return Math.round((earned / TOTAL_MARKS) * 100);
+  }
+
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+
+  function renderSidebar() {
+    var sb = document.getElementById("sidebar");
+    var op = overallPct();
+    var segs = SECTIONS.map(function (sec) {
+      var st = sectionStats(sec);
+      return '<i class="' + (st.pct === 100 ? "filled" : "") + '" style="flex:' + sec.marks + '" title="' + esc(sec.name) + " " + st.pct + '%"></i>';
+    }).join("");
+    var nav = SECTIONS.map(function (sec) {
+      var st = sectionStats(sec);
+      var dotClass = st.pct === 100 ? "done" : (st.pct > 0 ? "progress" : "");
+      return (
+        '<button class="navitem" aria-current="' + (sec.id === activeSection) + '" data-sec="' + sec.id + '">' +
+          '<span class="dot ' + dotClass + '"></span>' +
+          '<span class="navitem-body">' +
+            '<span class="navitem-name">' + esc(sec.name) + "</span>" +
+            '<span class="navitem-meta">' + sec.marks + " marks &middot; due " + esc(sec.handIn) + "</span>" +
+          "</span>" +
+          '<span class="navitem-pct">' + st.pct + "%</span>" +
+        "</button>"
+      );
+    }).join("");
+    sb.innerHTML =
+      '<div class="overall">' +
+        '<div class="overall-top"><span class="overall-num">' + op + '%</span><span class="overall-label">of 100 marks&rsquo; worth of evidence covered</span></div>' +
+        '<div class="segbar">' + segs + "</div>" +
+        '<p class="overall-note">Weighted by each section&rsquo;s marks. Ticking a box means you&rsquo;ve produced it — not that it&rsquo;s full marks.</p>' +
+      "</div>" +
+      '<div class="navlist">' + nav + "</div>";
+
+    sb.querySelectorAll(".navitem").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activeSection = btn.getAttribute("data-sec");
+        renderAll();
+        document.getElementById("main").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+
+  function renderMain() {
+    var sec = SECTIONS.filter(function (s) { return s.id === activeSection; })[0];
+    var st = sectionStats(sec);
+    var items = sec.items.map(function (it, i) {
+      var key = sec.id + ":" + i;
+      var done = !!state.checked[key];
+      return (
+        '<div class="item' + (done ? " done" : "") + '">' +
+          '<button class="item-row-btn" data-key="' + key + '" aria-pressed="' + done + '">' +
+            '<span class="check" aria-hidden="true">' +
+              (done ? '<svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l3.8 3.8L16 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : "") +
+            "</span>" +
+            '<span class="item-body">' +
+              '<span class="item-title-row">' +
+                '<span class="item-num">' + String(i + 1).padStart(2, "0") + "</span>" +
+                '<span class="item-title">' + esc(it.t) + "</span>" +
+                (it.sub ? '<span class="item-sub">' + esc(it.sub) + "</span>" : "") +
+              "</span>" +
+              '<p class="item-guide">' + esc(it.g) + "</p>" +
+            "</span>" +
+          "</button>" +
+        "</div>"
+      );
+    }).join("");
+
+    document.getElementById("main").innerHTML =
+      '<div class="section-head">' +
+        '<div class="section-eyebrow">' +
+          "<span>" + esc(sec.marks) + " marks</span><span class=\"sep\">&middot;</span>" +
+          "<span>" + st.done + " / " + st.total + " logged</span><span class=\"sep\">&middot;</span>" +
+          "<span>hand-in " + esc(sec.handIn) + "</span>" +
+        "</div>" +
+        '<h2 class="section-title">' + esc(sec.name) + "</h2>" +
+        '<div class="band"><b>Top band</b><br>' + esc(sec.band) + "</div>" +
+        (sec.id === "testing" ? '<p class="testing-note">Developmental Testing (5 marks) and Final Testing (10 marks) are shown together — they’re both part of your Unit 5 evidence, marked separately.</p>' : "") +
+      "</div>" +
+      '<div class="items">' + items + "</div>";
+
+    document.getElementById("main").querySelectorAll(".item-row-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var key = btn.getAttribute("data-key");
+        state.checked[key] = !state.checked[key];
+        persist();
+        renderAll();
+      });
+    });
+  }
+
+  function renderAll() { renderSidebar(); renderMain(); }
+
+  function startApp(name) {
+    state.name = name;
+    state.checked = loadForName(name);
+    document.getElementById("gate").hidden = true;
+    document.getElementById("app").hidden = false;
+    document.getElementById("who-name").textContent = name;
+    renderAll();
+  }
+
+  function showGate(prefill) {
+    document.getElementById("app").hidden = true;
+    document.getElementById("gate").hidden = false;
+    var input = document.getElementById("name-input");
+    input.value = prefill || "";
+    setTimeout(function () { input.focus(); }, 0);
+  }
+
+  document.getElementById("name-go").addEventListener("click", function () {
+    var v = document.getElementById("name-input").value.trim();
+    if (!v) return;
+    startApp(v);
+  });
+  document.getElementById("name-input").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("name-go").click();
+  });
+  document.getElementById("switch-btn").addEventListener("click", function () {
+    showGate(state.name);
+  });
+
+  document.getElementById("export-btn").addEventListener("click", async function () {
+    var payload = { app: "unit5-nea-tracker", version: 1, name: state.name, checked: state.checked, exportedAt: new Date().toISOString() };
+    var json = JSON.stringify(payload, null, 2);
+    var fname = "nea-progress-" + state.name.trim().toLowerCase().replace(/\s+/g, "-") + ".json";
+    try {
+      var downloads = window.claude && (await window.claude.use("downloads"));
+      if (downloads) {
+        await downloads.save({ filename: fname, data: json });
+        return;
+      }
+    } catch (e) {}
+    try {
+      var blob = new Blob([json], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Couldn't download automatically. Here's your export data — copy and save it as " + fname + ":\n\n" + json);
+    }
+  });
+
+  document.getElementById("import-btn").addEventListener("click", function () {
+    document.getElementById("file-input").click();
+  });
+  document.getElementById("file-input").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || typeof data.checked !== "object") throw new Error("bad file");
+        var name = data.name || state.name || "Student";
+        state.name = name;
+        state.checked = data.checked;
+        persist();
+        document.getElementById("who-name").textContent = name;
+        document.getElementById("app").hidden = false;
+        document.getElementById("gate").hidden = true;
+        renderAll();
+      } catch (err) {
+        alert("That doesn’t look like a progress file exported from this tracker.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  var last = null;
+  try { last = localStorage.getItem("unit5nea:last-name"); } catch (e) {}
+  if (last) { startApp(last); } else { showGate(); }
+})();
+</script>
