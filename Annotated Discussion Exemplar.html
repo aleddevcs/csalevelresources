@@ -1,0 +1,218 @@
+<title>Annotated Discussion Exemplar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --focus: #2b6f8f;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec;
+      --ink-soft: #c3cecc;
+      --muted: #93a3a1;
+      --faint: #66787a;
+      --surface: #10181a;
+      --surface-raised: #172224;
+      --surface-sunken: #0c1314;
+      --border: #263335;
+      --accent: #e0a24a;
+      --accent-ink: #ffe4b8;
+      --accent-soft: #362a17;
+      --good: #49b98a;
+      --good-soft: #163627;
+      --good-ink: #0c1314;
+      --focus: #6cb6d8;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec;
+    --ink-soft: #c3cecc;
+    --muted: #93a3a1;
+    --faint: #66787a;
+    --surface: #10181a;
+    --surface-raised: #172224;
+    --surface-sunken: #0c1314;
+    --border: #263335;
+    --accent: #e0a24a;
+    --accent-ink: #ffe4b8;
+    --accent-soft: #362a17;
+    --good: #49b98a;
+    --good-soft: #163627;
+    --good-ink: #0c1314;
+    --focus: #6cb6d8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; padding-block: 40px; }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 30px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15.5px; line-height: 1.6; max-width: 68ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 13px; line-height: 1.55; max-width: 68ch; margin: 0 0 28px; }
+
+  .legend {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 32px; font-size: 13px; color: var(--muted); box-shadow: var(--shadow);
+  }
+  .legend b { color: var(--ink); }
+  .legend .hl-demo {
+    background: var(--accent-soft); border-bottom: 2px solid var(--accent); padding: 1px 4px; border-radius: 2px;
+    font-family: var(--sans); color: var(--ink);
+  }
+  .legend .hl-demo sup { font-family: var(--mono); font-weight: 700; color: var(--accent-ink); margin-left: 2px; }
+
+  .band-strip {
+    background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 40px;
+  }
+  .band-strip .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin-bottom: 4px; }
+  .band-strip p { margin: 0; color: var(--ink); font-size: 14.5px; line-height: 1.55; }
+
+  section.block { margin-bottom: 48px; }
+  .block-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .block-num { font-family: var(--mono); font-size: 13px; color: var(--faint); }
+  .block-head h2 { font-size: 20px; margin: 0; }
+  .block-sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 16px; }
+
+  .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+
+  .extract {
+    background: var(--surface-raised); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 4px 10px 10px 4px; padding: 20px 22px; box-shadow: var(--shadow);
+    font-size: 15px; line-height: 1.75; color: var(--ink);
+  }
+  .extract p { margin: 0 0 14px; }
+  .extract p:last-child { margin-bottom: 0; }
+  .extract ol { margin: 10px 0 0; padding-left: 22px; }
+  .extract li { margin-bottom: 6px; }
+  .extract mark {
+    background: var(--accent-soft); color: var(--ink); border-bottom: 2px solid var(--accent);
+    padding: 0.5px 3px; border-radius: 2px; font-family: var(--sans);
+  }
+  .extract mark sup { font-family: var(--mono); font-weight: 700; color: var(--accent-ink); margin-left: 2px; }
+
+  .annotations { display: flex; flex-direction: column; gap: 10px; }
+  .ann-card {
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft);
+  }
+  .ann-card .n {
+    display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--accent); color: var(--good-ink); font-family: var(--mono);
+    font-size: 11px; font-weight: 700; margin-right: 8px; flex: none; vertical-align: -4px;
+  }
+
+  footer.page-foot {
+    margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+
+<div class="wrap">
+  <span class="eyebrow">Unit 5 NEA · Discussion · Modelled exemplar</span>
+  <h1>What a Band 3 Discussion actually looks like</h1>
+  <p class="lede">A modelled extract, written to demonstrate the four things the Discussion band descriptor is looking for — with each part annotated against the exact bullet it's evidencing.</p>
+  <p class="disclaimer">This is a composite example written for teaching, not a real student's submission. The "library" scenario is the same one used in the Lesson 1 slides, so you can follow the same thread across both.</p>
+
+  <div class="legend">
+    <span class="hl-demo">highlighted text<sup>N</sup></span>
+    <span>marks a phrase that's doing specific work — read the matching numbered note alongside it.</span>
+  </div>
+
+  <div class="band-strip">
+    <div class="label">Discussion — Band 3 (4–5 marks)</div>
+    <p>A substantial problem giving full scope · broad aims in technical vocabulary · limitations described in technical detail · feedback fully considered and used to refine your understanding.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="block-num">01</span><h2>Background</h2></div>
+    <p class="block-sub">evidences → "a substantial problem giving full scope"</p>
+    <div class="grid">
+      <div class="extract">
+        <p>College Library operates mainly as a physical, walk-in service. Students and staff must visit the Learning Resource Centre in person to check whether an item is available, to borrow it, or to return it. The library serves roughly <mark>600 students and 40 staff across three campuses<sup>1</sup></mark>, and day-to-day running is the responsibility of <mark>the Librarian and two library assistants<sup>2</sup></mark>, who also handle enquiries, shelving and stock ordering from the same desk.</p>
+      </div>
+      <div class="annotations">
+        <div class="ann-card"><span class="n">1</span>Real numbers, not "lots of students." Scale like this is what makes a problem <em>substantial</em> — not just calling it that.</div>
+        <div class="ann-card"><span class="n">2</span>Named roles, not "staff." The examiner needs to see exactly who is affected and who currently does the work.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="block-num">02</span><h2>The current system</h2></div>
+    <p class="block-sub">evidences → "limitations described in technical detail"</p>
+    <div class="grid">
+      <div class="extract">
+        <p>This creates several limitations. There is <mark>no searchable online catalogue<sup>3</sup></mark>, so a student cannot check whether a book is on the shelf, or which campus holds it, before travelling there. Overdue reminders are generated <mark>manually: a library assistant cross-checks a paper ledger against return dates once a week, by hand — a process that currently takes around three hours and is often delayed when staffing is tight<sup>4</sup></mark>. Loans, renewals and reservations can <mark>only be processed in person at the desk<sup>5</sup></mark>, so a student based at a different campus from where a book is held has no way to reserve it remotely.</p>
+      </div>
+      <div class="annotations">
+        <div class="ann-card"><span class="n">3</span>A technical fact about the system, not an opinion — that's the line between a limitation and a complaint.</div>
+        <div class="ann-card"><span class="n">4</span>The hardest-working sentence in the whole extract: a named process, a frequency, a duration. "It's slow" scores nothing here — "three hours, once a week, by hand" is technical detail.</div>
+        <div class="ann-card"><span class="n">5</span>Every limitation is tied to a consequence for a specific kind of user, not left as a standalone fact.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="block-num">03</span><h2>The proposed system</h2></div>
+    <p class="block-sub">evidences → "broad aims in technical vocabulary" (and a full-scope judgement)</p>
+    <div class="grid">
+      <div class="extract">
+        <p>The proposed system will provide a <mark>searchable online catalogue accessible from any campus<sup>6</sup></mark>, allow students to <mark>reserve and renew items remotely<sup>6</sup></mark>, and <mark>automatically generate overdue notifications by email<sup>6</sup></mark> rather than by hand. It will <mark>not replace in-person borrowing<sup>7</sup></mark> — the physical collection stays as it is — and it will <mark>not manage inter-library loans with other institutions<sup>7</sup></mark>, which is out of scope for the time available.</p>
+        <p>Objectives:</p>
+        <ol>
+          <li>Students can search real-time item availability across all three campuses.</li>
+          <li>A reservation request is logged and confirmed within one working day.</li>
+          <li><mark>Overdue notices are generated automatically, without staff intervention<sup>8</sup></mark>.</li>
+        </ol>
+      </div>
+      <div class="annotations">
+        <div class="ann-card"><span class="n">6</span>"Searchable," "remotely," "automatically generate" — precise technical vocabulary, not vague ambition like "make it easier to use."</div>
+        <div class="ann-card"><span class="n">7</span>Stating what the system will <em>not</em> do is a full-scope judgement — it shows you drew the boundary deliberately, not that you ran out of ideas.</div>
+        <div class="ann-card"><span class="n">8</span>Each objective is measurable. "Within one working day" can be tested and marked met or not met — "improve the library" can't be.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="block-num">04</span><h2>Feedback</h2></div>
+    <p class="block-sub">evidences → "feedback fully considered and used to refine your understanding"</p>
+    <div class="grid">
+      <div class="extract">
+        <p>I discussed this proposal with the Librarian, who confirmed the three-hour weekly reminder process was accurate, but pointed out that <mark>some older students without regular email access still rely on posted letters<sup>9</sup></mark>. As a result, I revised Objective 3 to <mark>offer both an email notice and an opt-in printed letter<sup>10</sup></mark>, rather than assuming email would reach every student. A peer reviewer also asked how reservations would be prioritised if two students requested the same item at once; I addressed this by <mark>adding a first-come, first-served rule<sup>10</sup></mark> to the specification.</p>
+      </div>
+      <div class="annotations">
+        <div class="ann-card"><span class="n">9</span>Feedback is attributed to a named person, and stated as a specific point — not "they said it was good."</div>
+        <div class="ann-card"><span class="n">10</span>The pattern to copy: <b>who</b> said it → <b>what</b> they said → <b>what changed</b> because of it. That third step is what "used to refine your understanding" means — a comment you didn't act on isn't evidence.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">Unit 5 NEA · Discussion (5 marks) · use alongside the Programmed Solution Tracker</footer>
+</div>

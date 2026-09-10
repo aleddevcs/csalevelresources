@@ -1,0 +1,451 @@
+<title>Peer Feedback Log</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --no: #6b7c82;
+    --no-soft: #e6eceb;
+    --focus: #2b6f8f;
+    --danger: #b3392f;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413; --no: #93a3a1; --no-soft: #1c2628;
+      --focus: #6cb6d8; --danger: #e28277;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413; --no: #93a3a1; --no-soft: #1c2628;
+    --focus: #6cb6d8; --danger: #e28277;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  button, input, textarea { font-family: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* ---- name gate ---- */
+  #gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  #gate.hidden-gate { display: none; }
+  .gate-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 32px; max-width: 420px; width: 100%;
+  }
+  .gate-card h1 { font-size: 21px; margin: 0 0 8px; }
+  .gate-card p { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 0 0 18px; }
+  .gate-card input[type="text"] {
+    width: 100%; padding: 11px 13px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--surface); font-size: 15px; margin-bottom: 14px;
+  }
+  .gate-card button.primary {
+    width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--accent);
+    color: var(--good-ink); font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .gate-card button.primary:hover { filter: brightness(1.05); }
+  .fineprint { font-size: 12.5px; color: var(--faint); margin-top: 14px; margin-bottom: 0; }
+
+  /* ---- app shell ---- */
+  #app.hidden-app { display: none; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+  }
+  .whoami { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); background: var(--surface-sunken); padding: 6px 12px; border-radius: 20px; }
+  .whoami b { color: var(--ink); }
+  .whoami a { color: var(--focus); text-decoration: none; font-size: 12.5px; cursor: pointer; }
+  .topbtns { display: flex; gap: 8px; }
+  .btn {
+    padding: 8px 14px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .btn:hover { background: var(--surface-sunken); }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  .intro { margin-bottom: 24px; }
+  .intro h2 { font-size: 19px; margin: 0 0 6px; }
+  .intro p { color: var(--ink-soft); font-size: 14px; line-height: 1.55; margin: 0; max-width: 62ch; }
+
+  .stat-row { display: flex; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+  .stat-tile {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; box-shadow: var(--shadow); min-width: 140px;
+  }
+  .stat-tile .num { font-family: var(--mono); font-size: 22px; font-weight: 600; }
+  .stat-tile .lbl { font-size: 12px; color: var(--muted); }
+
+  details.prompts {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 28px; box-shadow: var(--shadow);
+  }
+  details.prompts summary {
+    cursor: pointer; padding: 13px 16px; font-weight: 600; font-size: 14px; list-style: none;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  details.prompts summary::-webkit-details-marker { display: none; }
+  details.prompts summary::after { content: "+"; font-family: var(--mono); color: var(--muted); font-size: 18px; }
+  details.prompts[open] summary::after { content: "–"; }
+  .prompts-body { padding: 0 16px 16px; }
+  .prompts-body p.hint { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+  .prompts-body ul { margin: 0; padding-left: 18px; }
+  .prompts-body li { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); }
+  .prompts-body li em { color: var(--ink); font-style: normal; font-family: var(--mono); font-size: 12.5px; background: var(--surface-sunken); padding: 1px 5px; border-radius: 3px; }
+
+  form.entry {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 32px;
+  }
+  form.entry h3 { font-size: 15px; margin: 0 0 16px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
+  .field input[type="text"], .field input[type="date"], .field textarea {
+    width: 100%; padding: 10px 12px; border-radius: 7px; border: 1.5px solid var(--border);
+    background: var(--surface); font-size: 14px; resize: vertical;
+  }
+  .field textarea { min-height: 64px; line-height: 1.5; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+
+  .decision-set { display: flex; gap: 8px; flex-wrap: wrap; }
+  .decision-opt { position: relative; }
+  .decision-opt input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+  .decision-opt span {
+    display: inline-block; padding: 8px 14px; border-radius: 7px; border: 1.5px solid var(--border);
+    font-size: 13.5px; font-weight: 500; color: var(--muted); background: var(--surface);
+  }
+  .decision-opt input:checked + span { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+  .decision-opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .submit-row { display: flex; justify-content: flex-end; margin-top: 6px; }
+  button.primary {
+    padding: 11px 20px; border-radius: 8px; border: none; background: var(--accent);
+    color: var(--good-ink); font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button.primary:hover { filter: brightness(1.05); }
+
+  .log-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .log-head h3 { font-size: 15px; margin: 0; }
+  .log-head span { font-size: 12.5px; color: var(--faint); font-family: var(--mono); }
+
+  .empty-log {
+    text-align: center; padding: 36px 20px; color: var(--faint); font-size: 13.5px;
+    border: 1.5px dashed var(--border); border-radius: 10px;
+  }
+
+  .entry-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow);
+  }
+  .entry-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .entry-who { display: flex; align-items: center; gap: 10px; }
+  .entry-who b { font-size: 14.5px; }
+  .entry-date { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .badge { font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.02em; }
+  .badge.used { background: var(--good-soft); color: var(--good); }
+  .badge.adapted { background: var(--warn-soft); color: var(--warn); }
+  .badge.not-used { background: var(--no-soft); color: var(--no); }
+  .entry-body p { margin: 0 0 8px; font-size: 14px; line-height: 1.55; }
+  .entry-body .field-lbl { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); display: block; margin-bottom: 2px; }
+  .entry-actions { text-align: right; margin-top: 8px; }
+  .link-btn { background: none; border: none; color: var(--faint); font-size: 12px; cursor: pointer; padding: 2px 4px; }
+  .link-btn:hover { color: var(--danger); }
+</style>
+
+<div id="gate">
+  <div class="gate-card">
+    <h1>Whose Discussion is this feedback for?</h1>
+    <p>Enter the name of the student whose project is being reviewed. Feedback logged here counts toward the Discussion "Feedback" checklist item.</p>
+    <input id="name-input" type="text" placeholder="e.g. Jordan Ellis" autocomplete="off" />
+    <button class="primary" id="gate-submit">Open log</button>
+    <p class="fineprint">Saved in this browser only. On a shared college PC, use Export at the end of the lesson and Import next time on a different machine.</p>
+  </div>
+</div>
+
+<div id="app" class="hidden-app">
+  <div class="topbar">
+    <div class="brand"><b>Peer Feedback Log</b><span class="tag">Discussion · Unit 5 NEA</span></div>
+    <div class="topbtns">
+      <div class="whoami">For <b id="whoami-name">—</b> · <a id="switch-btn">switch</a></div>
+      <button class="btn" id="export-btn">Export</button>
+      <button class="btn" id="import-btn">Import</button>
+      <input type="file" id="file-input" accept="application/json" hidden />
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="intro">
+      <h2>Log every piece of feedback you act on</h2>
+      <p>Band 3 needs feedback that's "fully considered and used to refine your understanding." A comment you didn't act on still counts — as long as you explain why you left it out.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-tile"><div class="num" id="stat-total">0</div><div class="lbl">entries logged</div></div>
+      <div class="stat-tile"><div class="num" id="stat-used">0</div><div class="lbl">used or adapted</div></div>
+    </div>
+
+    <details class="prompts">
+      <summary>Giving feedback? Prompts to make it specific</summary>
+      <div class="prompts-body">
+        <p class="hint">Vague feedback ("looks good") isn't useful to log. Try finishing one of these instead:</p>
+        <ul>
+          <li><em>"A function this system doesn't have yet that could help is…"</em> — suggest something concrete, e.g. a search filter, a confirmation email, an admin report.</li>
+          <li><em>"Something about the scope that's still unclear is…"</em> — point at a sentence that could mean two different things.</li>
+          <li><em>"A limitation I don't think has been mentioned is…"</em> — what might still go wrong or be left out?</li>
+          <li><em>"The part I'd build first is… because…"</em> — help them think about priority, not just a wish-list.</li>
+        </ul>
+      </div>
+    </details>
+
+    <form class="entry" id="entry-form">
+      <h3>Add a piece of feedback</h3>
+      <div class="row2">
+        <div class="field">
+          <label for="f-peer">Who gave this feedback?</label>
+          <input type="text" id="f-peer" placeholder="Peer or teacher's name" required />
+        </div>
+        <div class="field">
+          <label for="f-date">Date</label>
+          <input type="date" id="f-date" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-said">What did they actually say?</label>
+        <textarea id="f-said" placeholder="e.g. &quot;Add a search and filter option so users can find items faster.&quot;" required></textarea>
+      </div>
+      <div class="field">
+        <label>Did you use it?</label>
+        <div class="decision-set">
+          <label class="decision-opt"><input type="radio" name="decision" value="used" checked /><span>Used it</span></label>
+          <label class="decision-opt"><input type="radio" name="decision" value="adapted" /><span>Adapted it</span></label>
+          <label class="decision-opt"><input type="radio" name="decision" value="not-used" /><span>Didn't use it</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-why">Why — what did you change (or why didn't you)?</label>
+        <textarea id="f-why" placeholder="e.g. &quot;Yes — it makes it faster for users to find what they need, so I added it to Objective 2.&quot;" required></textarea>
+      </div>
+      <div class="submit-row"><button type="submit" class="primary">Add to log</button></div>
+    </form>
+
+    <div class="log-head"><h3>Feedback log</h3><span id="log-count"></span></div>
+    <div id="log-list"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = { name: null, entries: [] };
+
+  function slug(s) { return s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "student"; }
+  function storageKey(name) { return "unit5feedback:" + slug(name); }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fmtDate(iso) {
+    if (!iso) return "";
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(storageKey(state.name), JSON.stringify({ name: state.name, entries: state.entries }));
+      localStorage.setItem("unit5feedback:last-name", state.name);
+    } catch (e) {}
+  }
+  function loadForName(name) {
+    try {
+      var raw = localStorage.getItem(storageKey(name));
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && Array.isArray(data.entries)) return data.entries;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  var decisionLabel = { used: "Used it", adapted: "Adapted it", "not-used": "Didn't use it" };
+  var decisionClass = { used: "used", adapted: "adapted", "not-used": "not-used" };
+
+  function render() {
+    document.getElementById("whoami-name").textContent = state.name;
+    document.getElementById("stat-total").textContent = state.entries.length;
+    document.getElementById("stat-used").textContent = state.entries.filter(function (e) { return e.decision !== "not-used"; }).length;
+    document.getElementById("log-count").textContent = state.entries.length + (state.entries.length === 1 ? " entry" : " entries");
+
+    var list = document.getElementById("log-list");
+    if (!state.entries.length) {
+      list.innerHTML = '<div class="empty-log">No feedback logged yet — add the first piece above.</div>';
+      return;
+    }
+    var sorted = state.entries.slice().sort(function (a, b) { return (b.date || "").localeCompare(a.date || "") || b.id - a.id; });
+    list.innerHTML = sorted.map(function (e) {
+      return (
+        '<div class="entry-card" data-id="' + e.id + '">' +
+          '<div class="entry-top">' +
+            '<div class="entry-who"><b>' + esc(e.peer) + '</b><span class="entry-date">' + esc(fmtDate(e.date)) + '</span></div>' +
+            '<span class="badge ' + decisionClass[e.decision] + '">' + decisionLabel[e.decision] + "</span>" +
+          "</div>" +
+          '<div class="entry-body">' +
+            '<span class="field-lbl">Said</span><p>' + esc(e.said) + "</p>" +
+            '<span class="field-lbl">Why / what changed</span><p>' + esc(e.why) + "</p>" +
+          "</div>" +
+          '<div class="entry-actions"><button class="link-btn" data-del="' + e.id + '">Remove</button></div>' +
+        "</div>"
+      );
+    }).join("");
+
+    list.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = Number(btn.getAttribute("data-del"));
+        state.entries = state.entries.filter(function (e) { return e.id !== id; });
+        persist();
+        render();
+      });
+    });
+  }
+
+  function startApp(name) {
+    state.name = name;
+    state.entries = loadForName(name);
+    document.getElementById("gate").classList.add("hidden-gate");
+    document.getElementById("app").classList.remove("hidden-app");
+    document.getElementById("f-date").value = new Date().toISOString().slice(0, 10);
+    render();
+  }
+
+  function showGate(prefill) {
+    document.getElementById("app").classList.add("hidden-app");
+    document.getElementById("gate").classList.remove("hidden-gate");
+    var input = document.getElementById("name-input");
+    input.value = prefill || "";
+    input.focus();
+  }
+
+  function submitGate() {
+    var name = document.getElementById("name-input").value.trim();
+    if (!name) return;
+    startApp(name);
+  }
+  document.getElementById("gate-submit").addEventListener("click", submitGate);
+  document.getElementById("name-input").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") submitGate();
+  });
+  document.getElementById("switch-btn").addEventListener("click", function () { showGate(state.name); });
+
+  document.getElementById("entry-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var peer = document.getElementById("f-peer").value.trim();
+    var date = document.getElementById("f-date").value || new Date().toISOString().slice(0, 10);
+    var said = document.getElementById("f-said").value.trim();
+    var why = document.getElementById("f-why").value.trim();
+    var decision = document.querySelector('input[name="decision"]:checked').value;
+    if (!peer || !said || !why) return;
+
+    state.entries.push({ id: Date.now(), peer: peer, date: date, said: said, why: why, decision: decision });
+    persist();
+    render();
+
+    ev.target.reset();
+    document.getElementById("f-date").value = new Date().toISOString().slice(0, 10);
+    document.querySelector('input[name="decision"][value="used"]').checked = true;
+    document.getElementById("f-peer").focus();
+  });
+
+  document.getElementById("export-btn").addEventListener("click", async function () {
+    if (!state.entries.length) { alert("Nothing to export yet — log a piece of feedback first."); return; }
+    var payload = { app: "unit5-feedback-log", version: 1, name: state.name, entries: state.entries, exportedAt: new Date().toISOString() };
+    var json = JSON.stringify(payload, null, 2);
+    var fname = "feedback-log-" + slug(state.name) + ".json";
+    try {
+      var downloads = window.claude && (await window.claude.use("downloads"));
+      if (downloads) {
+        await downloads.save({ filename: fname, data: json });
+        return;
+      }
+    } catch (e) {}
+    try {
+      var blob = new Blob([json], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Couldn't download automatically. Here's your export data — copy and save it as " + fname + ":\n\n" + json);
+    }
+  });
+
+  document.getElementById("import-btn").addEventListener("click", function () {
+    document.getElementById("file-input").click();
+  });
+  document.getElementById("file-input").addEventListener("change", function (ev) {
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.entries)) throw new Error("bad file");
+        if (data.name) state.name = data.name;
+        state.entries = data.entries;
+        persist();
+        if (document.getElementById("app").classList.contains("hidden-app")) startApp(state.name);
+        else render();
+      } catch (e) {
+        alert("That file doesn't look like a feedback log export.");
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = "";
+  });
+
+  var lastName = null;
+  try { lastName = localStorage.getItem("unit5feedback:last-name"); } catch (e) {}
+  if (lastName) startApp(lastName);
+  else showGate();
+})();
+</script>

@@ -1,0 +1,408 @@
+<title>Discussion Evidence Hunt</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  .controlbtns { display: flex; gap: 8px; }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--good-ink); font-weight: 600; }
+  button.btn.primary:hover { filter: brightness(1.05); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 28px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 68ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 12.5px; line-height: 1.55; max-width: 68ch; margin: 0 0 28px; }
+
+  .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  @media (max-width: 700px) { .prompt-grid { grid-template-columns: 1fr; } }
+  .prompt-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .prompt-card .ph { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .prompt-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-soft); width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .prompt-card .plabel { font-size: 13.5px; font-weight: 600; }
+  .prompt-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  section.block { margin-bottom: 40px; }
+  .block-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .block-num { font-family: var(--mono); font-size: 13px; color: var(--faint); }
+  .block-head h2 { font-size: 19px; margin: 0; }
+  .block-sub { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0 0 14px; }
+
+  .extract {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px; box-shadow: var(--shadow); font-size: 15px; line-height: 1.8; color: var(--ink);
+  }
+  .extract p { margin: 0 0 14px; }
+  .extract p:last-child { margin-bottom: 0; }
+
+  .cand {
+    cursor: pointer; border-bottom: 1.5px dotted var(--border); border-radius: 2px; padding: 0 1px;
+    transition: background-color 0.1s ease;
+  }
+  .cand:hover { background: var(--surface-sunken); }
+  .cand.picked { background: var(--surface-sunken); border-bottom: 2px dotted var(--muted); }
+  .cand.correct { background: var(--accent-soft); border-bottom: 2px solid var(--accent); }
+  .cand.correct.hit { box-shadow: inset 0 -3px 0 0 var(--good); }
+  .cand.correct::after {
+    content: attr(data-badge); font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    color: var(--good-ink); background: var(--accent); border-radius: 50%; display: inline-flex;
+    align-items: center; justify-content: center; width: 15px; height: 15px; margin-left: 3px; vertical-align: 3px;
+  }
+  .cand.miss { background: var(--warn-soft); border-bottom: 2px dashed var(--warn); }
+  body.revealed .cand { cursor: default; }
+  body.revealed .cand:hover { background: inherit; }
+  body.revealed .cand.picked:not(.correct):not(.miss) { background: transparent; border-bottom: 1.5px dotted var(--border); }
+
+  .annotations { display: none; flex-direction: column; gap: 8px; margin-top: 14px; }
+  body.revealed .annotations { display: flex; }
+  .ann-card {
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .ann-card .ahead { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .ann-card .n {
+    display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--accent); color: var(--good-ink); font-family: var(--mono);
+    font-size: 10px; font-weight: 700; flex: none;
+  }
+  .ann-card .pill {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--accent-ink); background: var(--accent-soft); padding: 2px 7px; border-radius: 10px;
+  }
+
+  .legend {
+    display: none; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 28px; font-size: 12.5px; color: var(--muted);
+  }
+  body.revealed .legend { display: flex; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .sw-correct { background: var(--accent-soft); border: 2px solid var(--accent); }
+  .sw-hit { background: var(--accent-soft); border: 2px solid var(--accent); box-shadow: inset 0 -3px 0 0 var(--good); }
+  .sw-miss { background: var(--warn-soft); border: 2px dashed var(--warn); }
+
+  .score-panel {
+    display: none; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 32px;
+  }
+  body.revealed .score-panel { display: block; }
+  .score-panel .big { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--accent-ink); }
+  .score-panel p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
+
+  footer.page-foot {
+    margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+
+<div class="topbar">
+  <div class="brand"><b>Discussion Evidence Hunt</b><span class="tag">Unit 5 NEA · Discussion</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line" id="stat-line">Click any phrase you think is strong evidence. <b id="pick-count">0</b> selected so far.</div>
+  <div class="controlbtns">
+    <button class="btn" id="reset-btn" hidden>Reset</button>
+    <button class="btn primary" id="reveal-btn">Reveal model answer</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Modelled Discussion · full extract</span>
+  <h1>Read it. Click the strong points. Then reveal.</h1>
+  <p class="lede">Below is a full modelled Discussion write-up. Read each section against its prompt, and click any phrase you think is doing real work — evidence a moderator would credit. Some phrases you can click are decoys: they sound relevant but don't actually hit the mark. When you're ready, hit "Reveal model answer" to see what the model highlighted and why.</p>
+  <p class="disclaimer">A composite example written for teaching, not a real student's submission — same "library" scenario as the Lesson 1 slides and the Annotated Discussion Exemplar.</p>
+
+  <div class="prompt-grid" id="prompt-grid"></div>
+
+  <div class="legend">
+    <span class="chip"><span class="swatch sw-correct"></span>Strong point (model answer)</span>
+    <span class="chip"><span class="swatch sw-hit"></span>Strong point — you found it</span>
+    <span class="chip"><span class="swatch sw-miss"></span>Decoy you picked — not quite</span>
+  </div>
+
+  <div class="score-panel" id="score-panel"></div>
+
+  <div id="sections"></div>
+
+  <footer class="page-foot">Unit 5 NEA · Discussion (5 marks) · part of the Programmed Solution Tracker resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var PROMPTS = [
+    { id: 1, label: "Full scope", text: "Real scale or a named stakeholder — not just “lots of people.”" },
+    { id: 2, label: "Technical detail", text: "A limitation stated as a specific fact — a process, a frequency, a duration — not a vague complaint." },
+    { id: 3, label: "Technical vocabulary & scope", text: "A proposed aim in precise, testable language — or a place the writer deliberately rules something out." },
+    { id: 4, label: "Feedback used", text: "A specific person’s comment that led to a specific, named change." }
+  ];
+
+  var SECTIONS = [
+    {
+      id: "background", num: "01", title: "Background", promptId: 1,
+      paras: [
+        'Ysgol Cwm Coleg — a fictional sixth-form college used for this example — runs a single Learning Resource Centre shared across three campuses: Cwm Bran, Glenview and Pontfaen. The Library operates mainly as a physical, walk-in service: students and staff must visit in person to check whether an item is available, to borrow it, or to return it. The library serves <c id="s1">roughly 600 students and 40 staff across the three sites</c>, and day-to-day running is the responsibility of <c id="s2">the Librarian and two library assistants</c>, who also handle enquiries, shelving and stock ordering from the same desk.',
+        'Around <c id="s3">150 items are borrowed each week during term time, rising to over 300 in the weeks before coursework deadlines and exams</c>. Students studying at Glenview or Pontfaen, which do not hold their own physical stock, must specifically travel to Cwm Bran to collect a reserved item — a journey that can take <c id="s4">up to 25 minutes by college minibus</c>. The Librarian has confirmed that <c id="s5">misplaced items are a regular problem</c>, costing staff several hours a term trying to track them down.'
+      ]
+    },
+    {
+      id: "current", num: "02", title: "The current system", promptId: 2,
+      paras: [
+        'This creates several limitations. There is <c id="s6">no searchable online catalogue</c>, so a student cannot check whether a book is on the shelf, or which campus holds it, before travelling there. Overdue reminders are generated <c id="s7">manually: a library assistant cross-checks a paper ledger against return dates once a week, by hand — a process that currently takes around three hours and is often delayed when staffing is tight</c>.',
+        'Loans, renewals and reservations can <c id="s8">only be processed in person at the desk</c>, so a student based at a different campus from where a book is held has no way to reserve it remotely. There is also <c id="s9">no good way of knowing what’s popular</c>: requests for in-demand textbooks are currently tracked only by memory, which makes it <c id="s10">difficult for the Librarian to decide which extra copies to order each September</c>.'
+      ]
+    },
+    {
+      id: "proposed", num: "03", title: "The proposed system", promptId: 3,
+      paras: [
+        'The proposed system will provide a <c id="s11">searchable online catalogue accessible from any campus</c>, allow students to <c id="s12">reserve and renew items remotely</c>, and <c id="s13">automatically generate overdue notifications by email</c> rather than by hand. It will also <c id="s14">log which items are reserved most often each term</c>, giving the Librarian usable data for ordering decisions.',
+        'It will <c id="s15">not replace in-person borrowing</c> — the physical collection stays as it is — and it will <c id="s16">not manage inter-library loans with other institutions</c>, which is out of scope for the time available. It will also <c id="s17">keep things simple for the Librarian</c>: it will not include a self-service payment system for lost or damaged items — <c id="s18">fines will continue to be handled in person, since introducing online payment raises data protection and compliance issues beyond the scope of this project</c>.',
+        'Objectives: (1) students can search real-time item availability across all three campuses; (2) a reservation request is logged and confirmed within one working day; (3) <c id="s19">overdue notices are generated automatically, without staff intervention, with a printed-letter option for students without regular email access</c>; (4) the Librarian can view a simple report of the ten most-reserved items each half-term.'
+      ]
+    },
+    {
+      id: "feedback", num: "04", title: "Feedback", promptId: 4,
+      paras: [
+        'I discussed this proposal with the Librarian, who confirmed the three-hour weekly reminder process was accurate, but pointed out that <c id="s20">some older students without regular email access still rely on posted letters</c>. As a result, I <c id="s21">revised Objective 3 to offer both an email notice and an opt-in printed letter</c>, rather than assuming email would reach every student.',
+        'A peer reviewer asked how reservations would be prioritised if two students requested the same item at once; I addressed this by <c id="s22">adding a first-come, first-served rule</c> to the specification. I also <c id="s23">got some useful comments from a student who uses the library a lot</c>; she pointed out that the 25-minute minibus journey meant a same-day collection deadline would be unrealistic for her, so I <c id="s24">changed the reservation confirmation window from same-day to one working day</c>, which is now reflected in Objective 2.'
+      ]
+    }
+  ];
+
+  var ANSWERS = {
+    s1: { note: "Real scale — not “lots of students.” This is what makes a problem substantial, not just an assertion that it is." },
+    s2: { note: "Named roles, not “staff.” The examiner needs to see exactly who is affected and who currently does the work." },
+    s3: { note: "A usage figure with a seasonal pattern — the kind of quantified detail that shows you’ve actually investigated the problem, not guessed at it." },
+    s4: { note: "A specific, named consequence for a specific group of students — this is what “full scope” looks like in practice." },
+    s6: { note: "A technical fact about the system, not an opinion — that’s the line between a limitation and a complaint." },
+    s7: { note: "The hardest-working sentence in the whole extract: a named process, a frequency, a duration. “It’s slow” scores nothing — “three hours, once a week, by hand” is technical detail." },
+    s8: { note: "Every limitation is tied to a consequence for a specific kind of user, not left as a standalone fact." },
+    s10: { note: "Ties the limitation to a real operational decision it affects — shows you understand the consequence, not just the symptom." },
+    s13: { note: "Precise technical vocabulary — “searchable”, “remotely”, “automatically generate” — not vague ambition like “make it easier to use.”" },
+    s14: { note: "Directly answers the limitation raised earlier (no usage data) — a strong proposed system explicitly closes the gaps identified in the current one." },
+    s16: { note: "Stating what the system will NOT do is a full-scope judgement — it shows the boundary was drawn deliberately, not that ideas ran out." },
+    s18: { note: "Justifies the scope decision with a real technical reason (data protection, compliance) rather than just “no time” — that depth of justification is what separates full scope from a shrug." },
+    s19: { note: "Measurable and testable — “without staff intervention” can be checked as true or false. Compare that to “make notices better”, which can’t be tested at all." },
+    s20: { note: "Feedback attributed to a named person, stated as a specific point — not “they said it was good.”" },
+    s21: { note: "The pattern to copy: who said it → what they said → what changed because of it. That last step is what makes feedback evidence, not just a comment." },
+    s22: { note: "A specific rule added directly in response to a specific question — small but concrete evidence of feedback shaping the specification." },
+    s24: { note: "Feedback from a genuine future user, not just a teacher or peer, tied directly to a measurable change in an objective — exactly what “used to refine your understanding” means." }
+  };
+
+  var mode = "task";
+  var picked = new Set();
+  var idToSection = {};
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function renderPrompts() {
+    document.getElementById("prompt-grid").innerHTML = PROMPTS.map(function (p) {
+      return (
+        '<div class="prompt-card">' +
+          '<div class="ph"><span class="prompt-num">' + p.id + '</span><span class="plabel">' + esc(p.label) + "</span></div>" +
+          "<p>" + esc(p.text) + "</p>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function renderSections() {
+    idToSection = {};
+    var html = SECTIONS.map(function (sec) {
+      var prompt = PROMPTS[sec.promptId - 1];
+      var parasHtml = sec.paras.map(function (p) {
+        var converted = p.replace(/<c id="([^"]+)">/g, function (m, id) {
+          idToSection[id] = sec.id;
+          return '<span class="cand" tabindex="0" role="button" data-id="' + id + '">';
+        }).replace(/<\/c>/g, "</span>");
+        return "<p>" + converted + "</p>";
+      }).join("");
+      return (
+        '<section class="block" data-sec="' + sec.id + '">' +
+          '<div class="block-head"><span class="block-num">' + sec.num + '</span><h2>' + esc(sec.title) + "</h2></div>" +
+          '<p class="block-sub">Prompt ' + prompt.id + " · " + esc(prompt.label) + "</p>" +
+          '<div class="extract">' + parasHtml + "</div>" +
+          '<div class="annotations" data-sec="' + sec.id + '"></div>' +
+        "</section>"
+      );
+    }).join("");
+    document.getElementById("sections").innerHTML = html;
+  }
+
+  function updateStatLine() {
+    document.getElementById("pick-count").textContent = picked.size;
+  }
+
+  function togglePick(el) {
+    var id = el.getAttribute("data-id");
+    if (picked.has(id)) { picked.delete(id); el.classList.remove("picked"); }
+    else { picked.add(id); el.classList.add("picked"); }
+    updateStatLine();
+  }
+
+  document.getElementById("sections").addEventListener("click", function (ev) {
+    if (mode !== "task") return;
+    var el = ev.target.closest(".cand");
+    if (el) togglePick(el);
+  });
+  document.getElementById("sections").addEventListener("keydown", function (ev) {
+    if (mode !== "task") return;
+    if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList && ev.target.classList.contains("cand")) {
+      ev.preventDefault();
+      togglePick(ev.target);
+    }
+  });
+
+  function renderAnnotations(badgeById) {
+    SECTIONS.forEach(function (sec) {
+      var ids = Object.keys(ANSWERS).filter(function (id) { return idToSection[id] === sec.id; });
+      ids.sort(function (a, b) { return badgeById[a] - badgeById[b]; });
+      var promptLabel = PROMPTS[sec.promptId - 1].label;
+      var html = ids.map(function (id) {
+        return (
+          '<div class="ann-card">' +
+            '<div class="ahead"><span class="n">' + badgeById[id] + '</span><span class="pill">' + esc(promptLabel) + "</span></div>" +
+            "<p style=\"margin:0\">" + ANSWERS[id].note + "</p>" +
+          "</div>"
+        );
+      }).join("");
+      var target = document.querySelector('.annotations[data-sec="' + sec.id + '"]');
+      if (target) target.innerHTML = html;
+    });
+  }
+
+  function renderScore() {
+    var totalCorrect = Object.keys(ANSWERS).length;
+    var hit = 0, miss = 0;
+    picked.forEach(function (id) {
+      if (ANSWERS[id]) hit++; else miss++;
+    });
+    var panel = document.getElementById("score-panel");
+    panel.innerHTML =
+      '<span class="big">' + hit + " / " + totalCorrect + "</span>" +
+      "<p>strong points found" + (miss ? " — plus " + miss + (miss === 1 ? " decoy" : " decoys") + " picked along the way. That's fine: spotting why a decoy falls short is half the exercise." : ". No decoys picked — nice reading.") + "</p>";
+  }
+
+  document.getElementById("reveal-btn").addEventListener("click", function () {
+    mode = "revealed";
+    document.body.classList.add("revealed");
+    var badge = 1;
+    var badgeById = {};
+    document.querySelectorAll(".cand").forEach(function (el) {
+      var id = el.getAttribute("data-id");
+      if (ANSWERS[id]) {
+        badgeById[id] = badge++;
+        el.classList.add("correct");
+        el.setAttribute("data-badge", badgeById[id]);
+        if (picked.has(id)) el.classList.add("hit");
+      } else if (picked.has(id)) {
+        el.classList.add("miss");
+      }
+    });
+    renderAnnotations(badgeById);
+    renderScore();
+    document.getElementById("reveal-btn").hidden = true;
+    document.getElementById("reset-btn").hidden = false;
+    document.getElementById("stat-line").textContent = "Model answer revealed — compare your picks against the highlighted phrases below.";
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    mode = "task";
+    picked = new Set();
+    document.body.classList.remove("revealed");
+    renderSections();
+    document.getElementById("stat-line").innerHTML = 'Click any phrase you think is strong evidence. <b id="pick-count">0</b> selected so far.';
+    document.getElementById("reveal-btn").hidden = false;
+    document.getElementById("reset-btn").hidden = true;
+  });
+
+  renderPrompts();
+  renderSections();
+})();
+</script>
