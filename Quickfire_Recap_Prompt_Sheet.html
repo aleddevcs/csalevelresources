@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick-Fire Python Recap — Live-Coding Prompt Sheet</title>
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --code-comment:#7C8FAE;
+    --code-string:#8FD6C6;
+    --code-kw:#E8A659;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  .layout{
+    display:flex;
+    min-height:100vh;
+    align-items:flex-start;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    width:250px;
+    flex-shrink:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .eyebrow{
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .sidebar h1{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  .sidebar .meta{
+    font-size:13px;
+    color:#A9B7D1;
+    margin-bottom:28px;
+  }
+  .navlist{list-style:none;margin:0;padding:0;}
+  .navlist li{margin-bottom:4px;}
+  .navlist a{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    text-decoration:none;
+    color:#D7DFEC;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14.5px;
+    font-weight:600;
+    transition:background .15s ease;
+  }
+  .navlist a:hover{background:rgba(255,255,255,.08);}
+  .navlist .time{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--orange);
+    background:rgba(224,123,38,.15);
+    padding:2px 7px;
+    border-radius:20px;
+  }
+  .sidebar .pacing{
+    margin-top:32px;
+    padding:14px 14px;
+    background:rgba(46,158,158,.15);
+    border-radius:10px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#CDE9E7;
+  }
+  .sidebar .pacing strong{color:#fff;display:block;margin-bottom:4px;font-size:13px;}
+
+  /* ---------- Main ---------- */
+  main{padding:40px 48px 80px;max-width:880px;flex:1;min-width:0;}
+  .page-head{margin-bottom:36px;}
+  .page-head .kicker{
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  .page-head h2{
+    font-family:Cambria, Georgia, serif;
+    font-size:30px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .page-head p{
+    font-size:15px;
+    color:var(--muted);
+    max-width:640px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  section.block{margin-bottom:52px;scroll-margin-top:24px;}
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:2px solid #E4E8EE;
+    padding-bottom:10px;
+    margin-bottom:22px;
+  }
+  .block-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:23px;
+    margin:0;
+    color:var(--navy);
+  }
+  .block-head .duration{
+    font-size:13px;
+    font-weight:700;
+    color:var(--orange);
+    background:var(--orange-light);
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  .beat{
+    background:var(--card);
+    border:1px solid #E7EAF0;
+    border-radius:12px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .beat + .beat{margin-top:18px;}
+  .beat-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--teal);
+    margin:0 0 8px;
+  }
+  .prompt{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .prompt strong{color:var(--navy);}
+
+  pre.code{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:9px;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.6;
+    overflow-x:auto;
+    margin:0 0 14px;
+  }
+  pre.code .kw{color:var(--code-kw);}
+  pre.code .str{color:var(--code-string);}
+  pre.code .cm{color:var(--code-comment);font-style:italic;}
+
+  .output{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--teal-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#1B4B4B;
+  }
+  .output .tag{
+    font-weight:700;
+    color:var(--teal);
+    white-space:nowrap;
+    margin-right:8px;
+  }
+  .output code{
+    font-family:Consolas, "Courier New", monospace;
+    background:rgba(255,255,255,.6);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  .discuss{
+    background:var(--orange-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#7A4415;
+  }
+  .discuss .tag{font-weight:700;color:var(--orange);margin-right:6px;}
+
+  footer.note{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid #E4E8EE;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  @media print{
+    .sidebar{position:static;height:auto;}
+    .layout{display:block;}
+    main{padding:0 20px;}
+  }
+
+  @media (max-width:760px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{position:static;height:auto;}
+    main{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <p class="eyebrow">AS UNIT 2 &mdash; LESSON 1</p>
+    <h1>Quick-Fire Recap<br>Prompt Sheet</h1>
+    <p class="meta">Live-coding reference &middot; 10&ndash;25 min block</p>
+
+    <ul class="navlist">
+      <li><a href="#variables"><span>Variables &amp; Types</span><span class="time">~3 min</span></a></li>
+      <li><a href="#io"><span>Input / Output</span><span class="time">~3 min</span></a></li>
+      <li><a href="#selection"><span>Selection</span><span class="time">~4 min</span></a></li>
+      <li><a href="#iteration"><span>Iteration</span><span class="time">~4 min</span></a></li>
+    </ul>
+
+    <div class="pacing">
+      <strong>Pacing reminder</strong>
+      Check the Forms diagnostic results before you start. Spend longest on whatever came back weakest &mdash; skip or speed-run anything the class already has solid.
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-head">
+      <p class="kicker">Teacher reference &mdash; not for students</p>
+      <h2>Quick-Fire Python Recap</h2>
+      <p>Short, live-coded beats to reactivate fluency fast. Each beat has a prompt to say out loud, code to type together, and the output to check for. This isn't a re-teach &mdash; keep energy high and move on as soon as the class has it.</p>
+    </div>
+
+    <section class="block" id="variables">
+      <div class="block-head">
+        <h3>Variables &amp; Data Types</h3>
+        <span class="duration">~3 minutes</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; DECLARE &amp; IDENTIFY</p>
+        <p class="prompt"><strong>Say:</strong> "Let's declare a few variables together &mdash; call out the data type before I check it."</p>
+        <pre class="code"><span class="cm"># live-code together</span>
+name = <span class="str">"Aled"</span>
+age = 30
+pi = 3.14
+is_teacher = <span class="kw">True</span>
+
+print(type(name), type(age), type(pi), type(is_teacher))</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>&lt;class 'str'&gt; &lt;class 'int'&gt; &lt;class 'float'&gt; &lt;class 'bool'&gt;</code></span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; THE TYPE TRAP</p>
+        <p class="prompt"><strong>Cold-call:</strong> "What happens if I add a string and an int?"</p>
+        <pre class="code">score = <span class="str">"10"</span>
+print(score + 5)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>TypeError</code> &mdash; then fix live: <code>int(score) + 5</code></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="io">
+      <div class="block-head">
+        <h3>Input / Output</h3>
+        <span class="duration">~3 minutes</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; INPUT IS ALWAYS A STRING</p>
+        <p class="prompt"><strong>Say:</strong> "input() always returns a string &mdash; even if you type a number. Let's prove it."</p>
+        <pre class="code">age = input(<span class="str">"Enter your age: "</span>)
+print(type(age))</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>&lt;class 'str'&gt;</code> &mdash; even after typing e.g. <code>17</code></span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; CONVERT TO DO MATHS</p>
+        <p class="prompt"><strong>Say:</strong> "So if we want to do maths with it, we have to convert it first."</p>
+        <pre class="code">age = <span class="kw">int</span>(input(<span class="str">"Enter your age: "</span>))
+print(age + 1)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Their age + 1, as a whole number</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="selection">
+      <div class="block-head">
+        <h3>Selection</h3>
+        <span class="duration">~4 minutes</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; IF / ELIF / ELSE</p>
+        <p class="prompt"><strong>Say:</strong> "Let's build a simple grade checker &mdash; call out what each branch should do before I type it."</p>
+        <pre class="code">mark = <span class="kw">int</span>(input(<span class="str">"Enter mark: "</span>))
+
+<span class="kw">if</span> mark &gt;= 80:
+    print(<span class="str">"Distinction"</span>)
+<span class="kw">elif</span> mark &gt;= 50:
+    print(<span class="str">"Pass"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"Fail"</span>)</pre>
+        <div class="output">
+          <span class="tag">Test with:</span>
+          <span><code>90</code> &rarr; Distinction, <code>60</code> &rarr; Pass, <code>30</code> &rarr; Fail</span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; TRACE THE BOUNDARY</p>
+        <div class="discuss">
+          <span class="tag">Discuss:</span>
+          No new code &mdash; ask: "What happens if mark is exactly 50? Trace it through the conditions together."
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="iteration">
+      <div class="block-head">
+        <h3>Iteration</h3>
+        <span class="duration">~4 minutes</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; FOR &mdash; KNOWN REPEATS</p>
+        <p class="prompt"><strong>Say:</strong> "for loops are for when we know exactly how many times to repeat."</p>
+        <pre class="code"><span class="kw">for</span> i <span class="kw">in</span> range(5):
+    print(i)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>0 1 2 3 4</code>, each on its own line</span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; WHILE &mdash; UNKNOWN REPEATS</p>
+        <p class="prompt"><strong>Say:</strong> "while loops are for when we don't know how many times &mdash; but that means <em>we</em> have to give it a way to stop. This is exactly the pattern our Section B menu will use later."</p>
+        <pre class="code">option = <span class="str">""</span>
+<span class="kw">while</span> option != <span class="str">"q"</span>:
+    option = input(<span class="str">"Press q to quit: "</span>)
+print(<span class="str">"Done"</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Keeps asking until the user types <code>q</code>, then prints <code>Done</code></span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="note">
+      AS Unit 2 &mdash; Lesson 1 &middot; Quick-Fire Python Recap &middot; pairs with the Lesson 1 PowerPoint and diagnostic quiz.
+    </footer>
+  </main>
+
+</div>
+</body>
+</html>

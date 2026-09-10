@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick-Fire Python Recap — Student Reference</title>
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --code-comment:#7C8FAE;
+    --code-string:#8FD6C6;
+    --code-kw:#E8A659;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  .layout{
+    display:flex;
+    min-height:100vh;
+    align-items:flex-start;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    width:250px;
+    flex-shrink:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .eyebrow{
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .sidebar h1{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  .sidebar .meta{
+    font-size:13px;
+    color:#A9B7D1;
+    margin-bottom:28px;
+  }
+  .navlist{list-style:none;margin:0;padding:0;}
+  .navlist li{margin-bottom:4px;}
+  .navlist a{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    text-decoration:none;
+    color:#D7DFEC;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14.5px;
+    font-weight:600;
+    transition:background .15s ease;
+  }
+  .navlist a:hover{background:rgba(255,255,255,.08);}
+  .navlist .time{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--orange);
+    background:rgba(224,123,38,.15);
+    padding:2px 7px;
+    border-radius:20px;
+  }
+  .sidebar .pacing{
+    margin-top:32px;
+    padding:14px 14px;
+    background:rgba(46,158,158,.15);
+    border-radius:10px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#CDE9E7;
+  }
+  .sidebar .pacing strong{color:#fff;display:block;margin-bottom:4px;font-size:13px;}
+
+  /* ---------- Main ---------- */
+  main{padding:40px 48px 80px;max-width:880px;flex:1;min-width:0;}
+  .page-head{margin-bottom:36px;}
+  .page-head .kicker{
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  .page-head h2{
+    font-family:Cambria, Georgia, serif;
+    font-size:30px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .page-head p{
+    font-size:15px;
+    color:var(--muted);
+    max-width:640px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  section.block{margin-bottom:52px;scroll-margin-top:24px;}
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:2px solid #E4E8EE;
+    padding-bottom:10px;
+    margin-bottom:22px;
+  }
+  .block-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:23px;
+    margin:0;
+    color:var(--navy);
+  }
+  .block-head .duration{
+    font-size:13px;
+    font-weight:700;
+    color:var(--orange);
+    background:var(--orange-light);
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  .beat{
+    background:var(--card);
+    border:1px solid #E7EAF0;
+    border-radius:12px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .beat + .beat{margin-top:18px;}
+  .beat-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--teal);
+    margin:0 0 8px;
+  }
+  .prompt{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .prompt strong{color:var(--navy);}
+
+  pre.code{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:9px;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.6;
+    overflow-x:auto;
+    margin:0 0 14px;
+  }
+  pre.code .kw{color:var(--code-kw);}
+  pre.code .str{color:var(--code-string);}
+  pre.code .cm{color:var(--code-comment);font-style:italic;}
+
+  .output{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--teal-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#1B4B4B;
+  }
+  .output .tag{
+    font-weight:700;
+    color:var(--teal);
+    white-space:nowrap;
+    margin-right:8px;
+  }
+  .output code{
+    font-family:Consolas, "Courier New", monospace;
+    background:rgba(255,255,255,.6);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  .discuss{
+    background:var(--orange-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#7A4415;
+  }
+  .discuss .tag{font-weight:700;color:var(--orange);margin-right:6px;}
+
+  footer.note{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid #E4E8EE;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  @media print{
+    .sidebar{position:static;height:auto;}
+    .layout{display:block;}
+    main{padding:0 20px;}
+  }
+
+  @media (max-width:760px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{position:static;height:auto;}
+    main{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <p class="eyebrow">AS UNIT 2 &mdash; LESSON 1</p>
+    <h1>Quick-Fire Recap<br>Student Reference</h1>
+    <p class="meta">Python basics &middot; use alongside the lesson or anytime</p>
+
+    <ul class="navlist">
+      <li><a href="#variables"><span>Variables &amp; Types</span></a></li>
+      <li><a href="#io"><span>Input / Output</span></a></li>
+      <li><a href="#selection"><span>Selection</span></a></li>
+      <li><a href="#iteration"><span>Iteration</span></a></li>
+    </ul>
+
+    <div class="pacing">
+      <strong>How to use this</strong>
+      Try typing each example yourself before checking the expected output. If your result doesn't match, read the code again line by line before asking for help.
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-head">
+      <p class="kicker">Your reference &mdash; use it, don't just read it</p>
+      <h2>Quick-Fire Python Recap</h2>
+      <p>A quick refresher on the Python basics you'll need for Unit 2. Type each example yourself, check your output matches, and move on. If something doesn't click, that's exactly what today's lesson is for.</p>
+    </div>
+
+    <section class="block" id="variables">
+      <div class="block-head">
+        <h3>Variables &amp; Data Types</h3>
+        <span class="duration">2 examples</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; DECLARE &amp; IDENTIFY</p>
+        <p class="prompt">Every value in Python has a type. Python works this out automatically the moment you create a variable &mdash; try it and check each type.</p>
+        <pre class="code"><span class="cm"># live-code together</span>
+name = <span class="str">"Aled"</span>
+age = 30
+pi = 3.14
+is_teacher = <span class="kw">True</span>
+
+print(type(name), type(age), type(pi), type(is_teacher))</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>&lt;class 'str'&gt; &lt;class 'int'&gt; &lt;class 'float'&gt; &lt;class 'bool'&gt;</code></span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; THE TYPE TRAP</p>
+        <p class="prompt">Python won't automatically convert between types. Mixing text and numbers causes an error &mdash; run this and see what it says.</p>
+        <pre class="code">score = <span class="str">"10"</span>
+print(score + 5)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>TypeError</code> &mdash; then fix live: <code>int(score) + 5</code></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="io">
+      <div class="block-head">
+        <h3>Input / Output</h3>
+        <span class="duration">2 examples</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; INPUT IS ALWAYS A STRING</p>
+        <p class="prompt"><code>input()</code> always gives you back a string &mdash; even if the user types a number. Try it and check the type.</p>
+        <pre class="code">age = input(<span class="str">"Enter your age: "</span>)
+print(type(age))</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>&lt;class 'str'&gt;</code> &mdash; even after typing e.g. <code>17</code></span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; CONVERT TO DO MATHS</p>
+        <p class="prompt">To do maths with an input, you have to convert it first &mdash; usually with <code>int()</code> or <code>float()</code>.</p>
+        <pre class="code">age = <span class="kw">int</span>(input(<span class="str">"Enter your age: "</span>))
+print(age + 1)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Their age + 1, as a whole number</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="selection">
+      <div class="block-head">
+        <h3>Selection</h3>
+        <span class="duration">2 examples</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; IF / ELIF / ELSE</p>
+        <p class="prompt"><code>if</code> / <code>elif</code> / <code>else</code> lets your program choose between outcomes based on a condition. Try all three test values below.</p>
+        <pre class="code">mark = <span class="kw">int</span>(input(<span class="str">"Enter mark: "</span>))
+
+<span class="kw">if</span> mark &gt;= 80:
+    print(<span class="str">"Distinction"</span>)
+<span class="kw">elif</span> mark &gt;= 50:
+    print(<span class="str">"Pass"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"Fail"</span>)</pre>
+        <div class="output">
+          <span class="tag">Test with:</span>
+          <span><code>90</code> &rarr; Distinction, <code>60</code> &rarr; Pass, <code>30</code> &rarr; Fail</span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; TRACE THE BOUNDARY</p>
+        <div class="discuss">
+          <span class="tag">Think:</span>
+          What happens if <code>mark</code> is exactly <code>50</code>? Trace it through the conditions yourself &mdash; which branch does it take, and why?
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="iteration">
+      <div class="block-head">
+        <h3>Iteration</h3>
+        <span class="duration">2 examples</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; FOR &mdash; KNOWN REPEATS</p>
+        <p class="prompt"><code>for</code> loops are for when you know exactly how many times to repeat.</p>
+        <pre class="code"><span class="kw">for</span> i <span class="kw">in</span> range(5):
+    print(i)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span><code>0 1 2 3 4</code>, each on its own line</span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; WHILE &mdash; UNKNOWN REPEATS</p>
+        <p class="prompt"><code>while</code> loops are for when you don't know how many times &mdash; but that means <em>you</em> have to give it a way to stop. This is exactly the pattern you'll use to build the Section B menu later in this unit.</p>
+        <pre class="code">option = <span class="str">""</span>
+<span class="kw">while</span> option != <span class="str">"q"</span>:
+    option = input(<span class="str">"Press q to quit: "</span>)
+print(<span class="str">"Done"</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Keeps asking until the user types <code>q</code>, then prints <code>Done</code></span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="note">
+      AS Unit 2 &mdash; Lesson 1 &middot; Quick-Fire Python Recap (Student Reference) &middot; ask if anything doesn't match what you expected.
+    </footer>
+  </main>
+
+</div>
+</body>
+</html>
