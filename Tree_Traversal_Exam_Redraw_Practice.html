@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Tree Traversal &amp; Exam Redraw Practice</title>
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --navy-dark:#121D33;
+    --amber:#D9A441;
+    --amber-light:#F3DDAE;
+    --offwhite:#F5F6F8;
+    --white:#FFFFFF;
+    --ink:#1F2733;
+    --muted:#5B6472;
+    --line:#E1E4EA;
+    --blue-light:#CADCFC;
+    --green:#3E8E5A;
+    --green-light:#DCEFE1;
+    --danger:#B23A3A;
+    --head-font:Cambria, Georgia, 'Times New Roman', serif;
+    --body-font:Calibri, 'Segoe UI', Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:var(--body-font); color:var(--ink); background:transparent;}
+  .app{max-width:1220px; margin:0 auto;}
+
+  header.top{
+    background:var(--navy);
+    border-radius:14px;
+    padding:22px 28px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute; right:-40px; top:-40px;
+    width:160px; height:160px; border-radius:50%;
+    background:rgba(217,164,65,0.12);
+  }
+  header.top .eyebrow{color:var(--amber); font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin:0 0 6px 0;}
+  header.top h1{font-family:var(--head-font); color:var(--white); font-size:25px; margin:0 0 6px 0;}
+  header.top p{color:var(--amber-light); font-size:14px; margin:0; font-style:italic; max-width:820px;}
+
+  .tabs{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .tab-btn{
+    flex:1; min-width:180px;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--white);
+    color:var(--navy);
+    font-family:var(--body-font);
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+    text-align:left;
+  }
+  .tab-btn .sub{display:block; font-weight:400; font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .tab-btn.active{background:var(--navy); border-color:var(--navy); color:var(--amber);}
+  .tab-btn.active .sub{color:var(--amber-light);}
+
+  .layout{display:grid; grid-template-columns:300px 1fr; gap:18px; align-items:start;}
+  @media (max-width: 900px){ .layout{grid-template-columns:1fr;} }
+
+  .card{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px;}
+  .card h2{font-family:var(--head-font); font-size:15px; color:var(--navy); margin:0 0 10px 0;}
+
+  .task-list{margin:0; padding-left:20px; font-size:13px; line-height:1.65; color:var(--ink);}
+  .task-list li{margin-bottom:6px;}
+  .task-list li::marker{color:var(--amber); font-weight:700;}
+
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:5px;}
+  .field input[type="text"]{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:var(--body-font); font-size:14px; background:var(--offwhite); color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--amber); outline-offset:1px;}
+
+  .btn{display:inline-block; width:100%; padding:10px 12px; border-radius:8px; border:none;
+       font-family:var(--body-font); font-weight:700; font-size:13.5px; cursor:pointer; margin-top:4px;}
+  .btn-primary{background:var(--amber); color:var(--navy-dark);}
+  .btn-primary:hover{background:#c9943a;}
+  .btn-secondary{background:var(--offwhite); color:var(--navy); border:1px solid var(--line);}
+  .btn-secondary:hover{background:#eceef2;}
+  .btn:disabled{opacity:0.5; cursor:not-allowed;}
+  .btn-row{display:flex; gap:8px;}
+  .btn-row .btn{margin-top:8px;}
+  .msg{font-size:12.5px; color:var(--danger); min-height:16px; margin-top:6px;}
+  .msg.good{color:var(--green);}
+
+  .seg{display:flex; border:1px solid var(--navy); border-radius:8px; overflow:hidden; margin-bottom:10px;}
+  .seg button{flex:1; border:none; background:var(--white); color:var(--navy); font-family:var(--body-font);
+              font-size:12px; font-weight:700; padding:8px 4px; cursor:pointer;}
+  .seg button.active{background:var(--navy); color:var(--amber);}
+
+  .rule-box{background:var(--offwhite); border:1px dashed var(--line); border-radius:8px; padding:9px 10px; font-size:12px; color:var(--muted); margin-bottom:12px;}
+
+  .progress-line{font-size:13px; color:var(--navy); font-weight:700; margin:8px 0;}
+
+  .table-panel{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:22px 24px; min-height:340px;}
+  .table-panel h2{font-family:var(--head-font); font-size:17px; color:var(--navy); margin:0 0 4px 0;}
+  .table-panel .subtle{font-size:12.5px; color:var(--muted); margin:0 0 16px 0;}
+
+  .tree-stage{overflow-x:auto; padding-bottom:6px;}
+  .tree-stage-inner{position:relative; margin:0 auto;}
+  .empty-msg{color:var(--muted); font-style:italic; font-size:14px; padding:30px 0; text-align:center;}
+
+  .tnode{
+    position:absolute;
+    width:48px; height:48px;
+    border-radius:50%;
+    background:var(--blue-light);
+    border:2px solid var(--navy);
+    color:var(--navy-dark);
+    font-weight:700;
+    font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+    transform:translate(-50%,-50%);
+    transition:background 0.2s, border-color 0.2s;
+  }
+  .tnode.root-node{background:var(--navy); color:var(--amber); border-color:var(--navy);}
+  .tnode.clickable{cursor:pointer;}
+  .tnode.correct{background:var(--green-light); border-color:var(--green); color:var(--navy-dark);}
+  .tnode.wrong-flash{background:#F7D9D9; border-color:var(--danger);}
+  .tnode.active-highlight{background:var(--amber); border-color:var(--navy);}
+  .tnode .badge{
+    position:absolute; top:-9px; right:-9px;
+    width:19px; height:19px; border-radius:50%;
+    background:var(--navy); color:var(--amber);
+    font-size:10.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    border:1.5px solid var(--white);
+  }
+  .ghost-slot{
+    position:absolute;
+    width:34px; height:34px;
+    border-radius:50%;
+    background:rgba(217,164,65,0.12);
+    border:2px dashed var(--amber);
+    transform:translate(-50%,-50%);
+    cursor:pointer;
+  }
+  .ghost-slot:hover{background:rgba(217,164,65,0.28);}
+  .ghost-slot.wrong-flash{background:rgba(178,58,58,0.25); border-color:var(--danger);}
+  .ghost-slot.hint-pulse{background:rgba(217,164,65,0.55);}
+
+  .revealed-line{
+    background:var(--offwhite);
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:13px;
+    color:var(--navy);
+    margin-top:10px;
+    min-height:18px;
+  }
+
+  .crossoff-panel{background:var(--navy); border-radius:10px; padding:14px 16px; margin-top:10px;}
+  .crossoff-current{color:var(--amber-light); font-size:12.5px; font-weight:700; margin-bottom:10px;}
+  .crossoff-letters{display:flex; gap:8px; margin-bottom:10px;}
+  .crossoff-letter-btn{
+    flex:1; padding:10px 0; border-radius:8px; border:2px solid var(--amber);
+    background:transparent; color:var(--amber-light); font-family:var(--body-font);
+    font-weight:700; font-size:16px; cursor:pointer;
+  }
+  .crossoff-letter-btn:hover{background:rgba(217,164,65,0.15);}
+  .crossoff-letter-btn.done{
+    border-color:#5B6472; color:#5B6472; text-decoration:line-through;
+    cursor:not-allowed; background:transparent;
+  }
+  .crossoff-letter-btn.wrong-flash{
+    background:rgba(178,58,58,0.35); border-color:#B23A3A; color:#FFFFFF;
+  }
+  .crossoff-path{color:var(--offwhite); font-size:12px; line-height:1.6;}
+  .crossoff-path b{color:var(--amber);}
+
+  .exam-box{background:var(--navy); border-radius:12px; padding:18px 22px; margin-top:18px;}
+  .exam-box h2{font-family:var(--head-font); color:var(--amber); font-size:16px; margin:0 0 4px 0;}
+  .exam-box .qtext{color:var(--white); font-size:13.5px; line-height:1.6; margin:8px 0;}
+  .exam-box .qtext b{color:var(--amber-light);}
+  .exam-box .part{color:var(--offwhite); font-size:13.5px; margin:4px 0; padding-left:14px;}
+  .exam-box .marks{color:var(--amber); font-weight:700;}
+  .exam-box .selfcheck{background:var(--navy-dark); border-radius:8px; padding:10px 14px; margin-top:12px; color:var(--amber-light); font-size:12.5px; font-style:italic;}
+
+  .log-panel{background:var(--navy); border-radius:12px; padding:18px 20px; margin-top:18px;}
+  .log-panel h2{font-family:var(--head-font); color:var(--amber); font-size:16px; margin:0 0 10px 0;}
+  .log-list{list-style:none; margin:0; padding:0; max-height:220px; overflow-y:auto;}
+  .log-list li{background:var(--navy-dark); color:var(--offwhite); border-radius:8px; padding:9px 12px; font-size:12.5px; margin-bottom:7px; line-height:1.5;}
+  .log-list li b{color:var(--amber);}
+  .log-list li.good{border-left:3px solid var(--green);}
+  .log-list li.bad{border-left:3px solid var(--danger);}
+  .log-empty{color:var(--amber-light); font-size:13px; font-style:italic;}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .sidebar-panel{display:none;}
+  .sidebar-panel.active{display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <p class="eyebrow">Unit 3 &middot; 1.1.4 &middot; Interactive</p>
+    <h1>Binary Tree Traversal &amp; Exam Redraw Practice</h1>
+    <p>Build a binary search tree, practise reading it three ways (in-order, pre-order, post-order), then test yourself with the same insertion challenge examiners ask.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="build" type="button">1. Build &amp; Explore<span class="sub">Insert values, watch the BST rule applied</span></button>
+    <button class="tab-btn" data-tab="traverse" type="button">2. Traversal Practice<span class="sub">Click nodes in the correct order</span></button>
+    <button class="tab-btn" data-tab="exam" type="button">3. Exam Redraw Challenge<span class="sub">Insert into the exam-style tree</span></button>
+    <button class="tab-btn" data-tab="delete" type="button">4. Deleting a Node<span class="sub">Identify the case, then delete</span></button>
+  </div>
+
+  <div class="layout">
+    <aside>
+
+      <div class="sidebar-panel active" data-panel="build">
+        <div class="card">
+          <h2>Your task</h2>
+          <ol class="task-list">
+            <li>Insert values one at a time and watch the BST rule applied: <b>&le; goes left, &gt; goes right</b>.</li>
+            <li>Read the step log for each insertion &mdash; it shows every comparison, just as you'd explain in an exam answer.</li>
+            <li>Click <b>Load exam tree</b> to see the exact tree used in the exam question on tab 3.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h2>Insert a value</h2>
+          <div class="rule-box">Rule: if the new value is &le; the current node, go left. If greater, go right. Repeat until an empty spot is found.</div>
+          <div class="field">
+            <label for="buildValueInput">Value</label>
+            <input type="text" id="buildValueInput" placeholder="e.g. F" maxlength="10">
+          </div>
+          <button class="btn btn-primary" id="buildInsertBtn" type="button">Insert into tree</button>
+          <div class="msg" id="buildMsg"></div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" id="buildExampleBtn" type="button">Load exam tree</button>
+            <button class="btn btn-secondary" id="buildResetBtn" type="button">Reset tree</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-panel" data-panel="traverse">
+        <div class="card">
+          <h2>Your task</h2>
+          <ol class="task-list" id="traverseTaskList">
+            <li>Build or load a tree on tab 1 first.</li>
+            <li>Choose a traversal type below, then click <b>Start practice</b>.</li>
+            <li>Click the nodes on the tree in the order you think that traversal visits them.</li>
+            <li>Use <b>Reveal order</b> if you want to see it demonstrated first.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h2>Practice mode</h2>
+          <div class="seg" id="modeSeg">
+            <button data-m="click" class="active" type="button">Click Order</button>
+            <button data-m="crossoff" type="button">V/L/R Walkthrough</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Traversal type</h2>
+          <div class="seg" id="traversalSeg">
+            <button data-t="inorder" class="active" type="button">In-order</button>
+            <button data-t="preorder" type="button">Pre-order</button>
+            <button data-t="postorder" type="button">Post-order</button>
+          </div>
+          <div class="rule-box" id="traversalRule">In-order: Left &rarr; Root &rarr; Right. Used to read a BST in sorted order / to search it.</div>
+
+          <div id="clickModeControls">
+            <div class="progress-line" id="progressLine"></div>
+            <button class="btn btn-primary" id="startPracticeBtn" type="button">Start practice</button>
+            <div class="btn-row">
+              <button class="btn btn-secondary" id="revealBtn" type="button">Reveal order</button>
+              <button class="btn btn-secondary" id="resetPracticeBtn" type="button">Reset</button>
+            </div>
+            <div class="msg" id="practiceMsg"></div>
+          </div>
+
+          <div id="crossoffModeControls" style="display:none;">
+            <div class="rule-box">Write the letters above every node. Click a letter to cross it off &mdash; V logs the node, L/R step into that child (if there is one) and open a fresh set of letters there.</div>
+            <button class="btn btn-primary" id="startCrossoffBtn" type="button">Start walkthrough</button>
+            <div class="crossoff-panel" id="crossoffPanel" style="display:none;">
+              <div class="crossoff-current" id="crossoffCurrent">Current node: &mdash;</div>
+              <div class="crossoff-letters" id="crossoffLetters"></div>
+              <div class="crossoff-path" id="crossoffPath"></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-secondary" id="resetCrossoffBtn" type="button">Reset</button>
+            </div>
+            <div class="msg" id="crossoffMsg"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-panel" data-panel="exam">
+        <div class="card">
+          <h2>Your task</h2>
+          <ol class="task-list">
+            <li>The tree here always matches the exam-style question below.</li>
+            <li>Click the dashed slot where the given value should be inserted.</li>
+            <li>Use <b>Hint</b> if you're stuck &mdash; it won't give the answer away completely.</li>
+            <li>Once correct, click <b>Next challenge</b> to try another value.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h2>Current challenge</h2>
+          <div class="rule-box" id="examPrompt">Loading challenge&hellip;</div>
+          <button class="btn btn-secondary" id="hintBtn" type="button">Hint</button>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="nextChallengeBtn" type="button" disabled>Next challenge</button>
+            <button class="btn btn-secondary" id="examResetBtn" type="button">Reset challenges</button>
+          </div>
+          <div class="msg" id="examMsg"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-panel" data-panel="delete">
+        <div class="card">
+          <h2>Your task</h2>
+          <ol class="task-list">
+            <li>Click any node on the tree to select it for deletion.</li>
+            <li>Identify which case applies: <b>leaf</b>, <b>one child</b>, or <b>two children</b>.</li>
+            <li>Once you choose correctly, the deletion is carried out and explained.</li>
+            <li>Keep going &mdash; the tree gets smaller as you delete more nodes.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h2>The three cases</h2>
+          <div class="rule-box"><b>Leaf:</b> remove it &mdash; no children to reconnect.<br><b>One child:</b> the parent points directly at the child.<br><b>Two children:</b> replace with the in-order successor, then delete the successor.</div>
+          <div class="rule-box" id="deletePrompt">Click a node on the tree to begin.</div>
+          <div class="seg" id="deleteCaseSeg" style="display:none;">
+            <button data-c="leaf" type="button">Leaf</button>
+            <button data-c="one" type="button">One child</button>
+            <button data-c="two" type="button">Two children</button>
+          </div>
+          <div class="msg" id="deleteMsg"></div>
+          <button class="btn btn-secondary" id="deleteResetBtn" type="button">Reset tree</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <main>
+      <div class="tab-panel active" data-tabpanel="build">
+        <div class="table-panel">
+          <h2>Your tree</h2>
+          <p class="subtle">Nodes are laid out left-to-right in sorted (in-order) position, just like a textbook diagram.</p>
+          <div class="tree-stage" id="stageBuild"></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-tabpanel="traverse">
+        <div class="table-panel">
+          <h2>Traversal practice</h2>
+          <p class="subtle">Click the nodes in the order the selected traversal would visit them.</p>
+          <div class="tree-stage" id="stageTraverse"></div>
+          <div class="revealed-line" id="revealedLine">Sequence will appear here.</div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-tabpanel="exam">
+        <div class="table-panel">
+          <h2>Exam-style tree</h2>
+          <p class="subtle">Click the dashed slot where the challenge value belongs.</p>
+          <div class="tree-stage" id="stageExam"></div>
+        </div>
+        <div class="exam-box">
+          <h2>Exam-style question</h2>
+          <p class="qtext">A binary search tree is built by inserting the following values, in order: <b>F, B, G, A, D, I, C, E, H</b></p>
+          <p class="part">(a) Draw the resulting tree, showing the position of each value. <span class="marks">[4]</span></p>
+          <p class="part">(b) A new value, 'L', is now inserted. State where it would be added and explain how you know. <span class="marks">[2]</span></p>
+          <div class="selfcheck">This tool uses that exact tree, and your first challenge is inserting 'L'. Practise here, then write your final answer on paper.</div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-tabpanel="delete">
+        <div class="table-panel">
+          <h2>Deletion practice</h2>
+          <p class="subtle">Click a node, identify its case, then confirm to delete it.</p>
+          <div class="tree-stage" id="stageDelete"></div>
+        </div>
+      </div>
+
+      <div class="log-panel">
+        <h2>Step log</h2>
+        <ul class="log-list" id="logList"></ul>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ---------- Shared BST logic ----------
+
+  function forEachEl(list, fn){
+    for (var i = 0; i < list.length; i++){ fn(list[i], i); }
+  }
+
+  var nextId = 1;
+
+  function compareValues(a, b){
+    var na = parseFloat(a), nb = parseFloat(b);
+    var aIsNum = a.trim() !== '' && !isNaN(na) && isFinite(na);
+    var bIsNum = b.trim() !== '' && !isNaN(nb) && isFinite(nb);
+    if (aIsNum && bIsNum) return na - nb;
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+  }
+
+  function insertBSTWithPath(root, value){
+    var newNode = { id: nextId++, value: value, left: null, right: null };
+    var path = [];
+    if (!root) return { root: newNode, path: path, isRoot: true, newId: newNode.id };
+    var cur = root;
+    while (true){
+      var c = compareValues(value, cur.value);
+      if (c <= 0){
+        path.push({ node: cur, dir: 'left' });
+        if (!cur.left){ cur.left = newNode; break; }
+        cur = cur.left;
+      } else {
+        path.push({ node: cur, dir: 'right' });
+        if (!cur.right){ cur.right = newNode; break; }
+        cur = cur.right;
+      }
+    }
+    return { root: root, path: path, isRoot: false, newId: newNode.id };
+  }
+
+  function simulateInsert(root, value){
+    var cur = root;
+    while (cur){
+      var c = compareValues(value, cur.value);
+      if (c <= 0){
+        if (!cur.left) return { parentId: cur.id, dir: 'left' };
+        cur = cur.left;
+      } else {
+        if (!cur.right) return { parentId: cur.id, dir: 'right' };
+        cur = cur.right;
+      }
+    }
+    return null;
+  }
+
+  function findNodeById(root, id){
+    if (!root) return null;
+    if (root.id === id) return root;
+    return findNodeById(root.left, id) || findNodeById(root.right, id);
+  }
+
+  function collectValues(root, out){
+    if (!root) return;
+    out.push(root.value);
+    collectValues(root.left, out);
+    collectValues(root.right, out);
+  }
+
+  function inorderIds(node, out){ if(!node) return; inorderIds(node.left,out); out.push(node.id); inorderIds(node.right,out); }
+  function preorderIds(node, out){ if(!node) return; out.push(node.id); preorderIds(node.left,out); preorderIds(node.right,out); }
+  function postorderIds(node, out){ if(!node) return; postorderIds(node.left,out); postorderIds(node.right,out); out.push(node.id); }
+
+  function nodeCase(node){
+    if (!node.left && !node.right) return 'leaf';
+    if (node.left && node.right) return 'two';
+    return 'one';
+  }
+  function caseLabel(c){
+    if (c === 'leaf') return 'Leaf node';
+    if (c === 'one') return 'One child';
+    return 'Two children';
+  }
+
+  // Deletes the node with the given id from the tree rooted at `node`, mutating in place
+  // where possible and returning the (possibly new) subtree root. Writes what happened into `info`.
+  function deleteById(node, id, info){
+    if (!node) return null;
+    if (node.id === id){
+      if (!node.left && !node.right){
+        info.type = 'leaf';
+        info.removedValue = node.value;
+        return null;
+      }
+      if (node.left && !node.right){
+        info.type = 'one';
+        info.removedValue = node.value;
+        info.childValue = node.left.value;
+        return node.left;
+      }
+      if (!node.left && node.right){
+        info.type = 'one';
+        info.removedValue = node.value;
+        info.childValue = node.right.value;
+        return node.right;
+      }
+      // two children — find the in-order successor (leftmost node of the right subtree)
+      info.type = 'two';
+      info.removedValue = node.value;
+      var succParent = node, succ = node.right;
+      while (succ.left){ succParent = succ; succ = succ.left; }
+      info.successorValue = succ.value;
+      if (succParent === node){ node.right = succ.right; }
+      else { succParent.left = succ.right; }
+      node.value = succ.value;
+      return node;
+    }
+    node.left = deleteById(node.left, id, info);
+    node.right = deleteById(node.right, id, info);
+    return node;
+  }
+
+  function layoutTree(root, opts){
+    opts = opts || {};
+    var stepX = opts.stepX || 72, stepY = opts.stepY || 92, padX = opts.padX || 40, padY = opts.padY || 36;
+    var idx = 0, maxDepth = 0, nodes = [];
+    function visit(node, depth, parent, side){
+      if (!node) return;
+      visit(node.left, depth+1, node, 'left');
+      node._layout = { xIndex: idx++, depth: depth, parentId: parent?parent.id:null, side: side };
+      nodes.push(node);
+      maxDepth = Math.max(maxDepth, depth);
+      visit(node.right, depth+1, node, 'right');
+    }
+    visit(root, 0, null, null);
+    var count = idx;
+    nodes.forEach(function(n){ n._layout.x = padX + n._layout.xIndex * stepX; n._layout.y = padY + n._layout.depth * stepY; });
+    var width = padX*2 + Math.max(count-1,0)*stepX;
+    var height = padY*2 + maxDepth*stepY + 24;
+    return { nodes: nodes, width: Math.max(width, 340), height: Math.max(height, 220), count: count, stepX:stepX, stepY:stepY };
+  }
+
+  function svgLine(svg, x1,y1,x2,y2, dashed){
+    var NS='http://www.w3.org/2000/svg';
+    var line=document.createElementNS(NS,'line');
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+    line.setAttribute('stroke', dashed ? '#D9A441' : '#1B2A4A');
+    line.setAttribute('stroke-width', dashed ? '1.6' : '2');
+    if (dashed) line.setAttribute('stroke-dasharray','4,3');
+    svg.appendChild(line);
+  }
+
+  // Renders a tree into containerEl. Returns { ghosts } so callers can wire clicks.
+  function renderTreeInto(containerEl, root, options){
+    options = options || {};
+    containerEl.innerHTML = '';
+    if (!root){
+      var empty = document.createElement('div');
+      empty.className = 'empty-msg';
+      empty.textContent = options.emptyText || 'No tree yet. Insert a value or load an example.';
+      containerEl.appendChild(empty);
+      return { ghosts: [] };
+    }
+    var layout = layoutTree(root);
+    var stage = document.createElement('div');
+    stage.className = 'tree-stage-inner';
+    stage.style.width = layout.width + 'px';
+    stage.style.height = layout.height + 'px';
+
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS,'svg');
+    svg.setAttribute('width', layout.width);
+    svg.setAttribute('height', layout.height);
+    svg.style.position = 'absolute'; svg.style.left = '0'; svg.style.top = '0';
+    stage.appendChild(svg);
+
+    layout.nodes.forEach(function(n){
+      if (n.left) svgLine(svg, n._layout.x, n._layout.y, n.left._layout.x, n.left._layout.y, false);
+      if (n.right) svgLine(svg, n._layout.x, n._layout.y, n.right._layout.x, n.right._layout.y, false);
+    });
+
+    var ghosts = [];
+    if (options.showGhosts){
+      layout.nodes.forEach(function(n){
+        var offsetX = Math.max(20, 34 - n._layout.depth*5);
+        var gy = n._layout.y + layout.stepY*0.55;
+        if (!n.left){
+          var gx = n._layout.x - offsetX;
+          svgLine(svg, n._layout.x, n._layout.y, gx, gy, true);
+          ghosts.push({ key: n.id+'-left', x:gx, y:gy, parentId:n.id, dir:'left', parentValue:n.value });
+        }
+        if (!n.right){
+          var gx2 = n._layout.x + offsetX;
+          svgLine(svg, n._layout.x, n._layout.y, gx2, gy, true);
+          ghosts.push({ key: n.id+'-right', x:gx2, y:gy, parentId:n.id, dir:'right', parentValue:n.value });
+        }
+      });
+    }
+
+    layout.nodes.forEach(function(n){
+      var div = document.createElement('div');
+      div.className = 'tnode' + (n._layout.depth === 0 ? ' root-node' : '');
+      div.style.left = n._layout.x + 'px';
+      div.style.top = n._layout.y + 'px';
+      div.textContent = n.value;
+      div.dataset.id = n.id;
+
+      if (options.correctIds && options.correctIds.has(n.id)) div.classList.add('correct');
+      if (options.activeHighlightId === n.id) div.classList.add('active-highlight');
+      if (options.wrongFlashId === n.id) div.classList.add('wrong-flash');
+
+      if (options.badgeMap && options.badgeMap.has(n.id)){
+        var badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = options.badgeMap.get(n.id);
+        div.appendChild(badge);
+      }
+
+      if (options.interactiveNodes){
+        div.classList.add('clickable');
+        div.addEventListener('click', function(){ options.onNodeClick(n); });
+      }
+      stage.appendChild(div);
+    });
+
+    ghosts.forEach(function(g){
+      var gd = document.createElement('div');
+      gd.className = 'ghost-slot';
+      gd.style.left = g.x + 'px';
+      gd.style.top = g.y + 'px';
+      gd.dataset.key = g.key;
+      if (options.wrongGhostKey === g.key) gd.classList.add('wrong-flash');
+      if (options.hintGhostKey === g.key) gd.classList.add('hint-pulse');
+      gd.addEventListener('click', function(){ options.onGhostClick(g); });
+      stage.appendChild(gd);
+    });
+
+    containerEl.appendChild(stage);
+    return { ghosts: ghosts };
+  }
+
+  // ---------- Shared log ----------
+
+  var logEl = document.getElementById('logList');
+  function resetLog(){
+    logEl.innerHTML = '';
+    var li = document.createElement('li');
+    li.className = 'log-empty';
+    li.textContent = 'Actions across all three tabs will appear here.';
+    logEl.appendChild(li);
+  }
+  function addLog(kind, html){
+    var emptyEl = logEl.querySelector('.log-empty');
+    if (emptyEl) emptyEl.remove();
+    var li = document.createElement('li');
+    li.className = kind;
+    li.innerHTML = html;
+    logEl.appendChild(li);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  resetLog();
+
+  function pathToHtml(pathResult, value){
+    if (pathResult.isRoot) return 'Tree was empty \u2192 <b>' + value + '</b> becomes the root.';
+    var parts = pathResult.path.map(function(step){
+      var symbol = compareValues(value, step.node.value) <= 0 ? '\u2264' : '>';
+      return 'Compare ' + value + ' with ' + step.node.value + ': ' + value + ' ' + symbol + ' ' + step.node.value + ' \u2192 go ' + step.dir;
+    });
+    var last = pathResult.path[pathResult.path.length-1];
+    parts.push(last.node.value + '\u2019s ' + last.dir + ' child is empty \u2192 insert ' + value + ' here');
+    return parts.join('. ') + '.';
+  }
+
+  // ========================================================
+  // TAB 1: BUILD & EXPLORE
+  // ========================================================
+
+  var buildRoot = null;
+
+  var elB = {
+    input: document.getElementById('buildValueInput'),
+    insertBtn: document.getElementById('buildInsertBtn'),
+    msg: document.getElementById('buildMsg'),
+    exampleBtn: document.getElementById('buildExampleBtn'),
+    resetBtn: document.getElementById('buildResetBtn'),
+    stage: document.getElementById('stageBuild')
+  };
+
+  function renderBuild(){
+    renderTreeInto(elB.stage, buildRoot, { emptyText: 'No tree yet. Insert a value or load the exam tree.' });
+  }
+
+  function buildInsert(rawValue, silent){
+    var v = rawValue.trim();
+    if (v === '') { elB.msg.textContent = 'Type a value first.'; return; }
+    var existing = [];
+    collectValues(buildRoot, existing);
+    if (existing.some(function(x){ return x.toLowerCase() === v.toLowerCase(); })){
+      elB.msg.textContent = 'That value is already in the tree.';
+      return;
+    }
+    elB.msg.textContent = '';
+    var result = insertBSTWithPath(buildRoot, v);
+    buildRoot = result.root;
+    if (!silent) addLog('good', '<b>Build:</b> ' + pathToHtml(result, v));
+    renderBuild();
+  }
+
+  elB.insertBtn.addEventListener('click', function(){
+    buildInsert(elB.input.value);
+    elB.input.value = '';
+    elB.input.focus();
+  });
+  elB.input.addEventListener('keydown', function(ev){ if (ev.key === 'Enter') elB.insertBtn.click(); });
+
+  elB.exampleBtn.addEventListener('click', function(){
+    buildRoot = null;
+    ['F','B','G','A','D','I','C','E','H'].forEach(function(v){ buildInsert(v, true); });
+    addLog('good', '<b>Loaded exam tree:</b> F, B, G, A, D, I, C, E, H inserted in that order.');
+    renderBuild();
+  });
+
+  elB.resetBtn.addEventListener('click', function(){
+    buildRoot = null;
+    elB.msg.textContent = '';
+    renderBuild();
+  });
+
+  renderBuild();
+
+  // ========================================================
+  // TAB 2: TRAVERSAL PRACTICE
+  // ========================================================
+
+  var practice = { type: 'inorder', active: false, expected: [], pos: 0, badgeMap: new Map(), wrongId: null, locked: false };
+
+  var elT = {
+    seg: document.getElementById('traversalSeg'),
+    rule: document.getElementById('traversalRule'),
+    progress: document.getElementById('progressLine'),
+    startBtn: document.getElementById('startPracticeBtn'),
+    revealBtn: document.getElementById('revealBtn'),
+    resetBtn: document.getElementById('resetPracticeBtn'),
+    msg: document.getElementById('practiceMsg'),
+    stage: document.getElementById('stageTraverse'),
+    revealedLine: document.getElementById('revealedLine')
+  };
+
+  var ruleText = {
+    inorder: 'In-order: Left \u2192 Root \u2192 Right. Used to read a BST in sorted order / to search it.',
+    preorder: 'Pre-order: Root \u2192 Left \u2192 Right. Useful for creating a copy of the tree.',
+    postorder: 'Post-order: Left \u2192 Right \u2192 Root. Used to delete items in the tree.'
+  };
+
+  function traversalIdsFor(type, root){
+    var out = [];
+    if (type === 'inorder') inorderIds(root, out);
+    else if (type === 'preorder') preorderIds(root, out);
+    else postorderIds(root, out);
+    return out;
+  }
+
+  function renderTraverse(){
+    var opts = {
+      emptyText: 'No tree yet. Go to tab 1 and build or load one first.',
+      interactiveNodes: practice.active && !practice.locked,
+      badgeMap: practice.badgeMap,
+      wrongFlashId: practice.wrongId,
+      onNodeClick: onPracticeNodeClick
+    };
+    renderTreeInto(elT.stage, buildRoot, opts);
+  }
+
+  function onPracticeNodeClick(node){
+    if (!practice.active || practice.locked) return;
+    var expectedId = practice.expected[practice.pos];
+    if (node.id === expectedId){
+      practice.badgeMap.set(node.id, practice.pos+1);
+      practice.pos++;
+      practice.wrongId = null;
+      elT.msg.className = 'msg good';
+      if (practice.pos === practice.expected.length){
+        practice.locked = true;
+        var values = [];
+        collectValues(buildRoot, values); // unused, just to keep pattern
+        var seqVals = practice.expected.map(function(id){ return findNodeById(buildRoot, id).value; });
+        elT.msg.textContent = 'Correct! Full sequence: ' + seqVals.join(', ');
+        addLog('good', '<b>Traversal practice (' + practice.type + '):</b> completed correctly \u2014 ' + seqVals.join(', ') + '.');
+      } else {
+        elT.msg.textContent = 'Correct so far \u2014 keep going.';
+      }
+      elT.progress.textContent = practice.pos + ' of ' + practice.expected.length + ' correct';
+    } else {
+      practice.wrongId = node.id;
+      elT.msg.className = 'msg';
+      elT.msg.textContent = 'Not quite \u2014 check the ' + practice.type + ' rule above and try again.';
+      setTimeout(function(){ practice.wrongId = null; renderTraverse(); }, 550);
+    }
+    renderTraverse();
+  }
+
+  forEachEl(elT.seg.querySelectorAll('button'), function(btn){
+    btn.addEventListener('click', function(){
+      forEachEl(elT.seg.querySelectorAll('button'), function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      practice.type = btn.dataset.t;
+      elT.rule.textContent = ruleText[practice.type];
+      resetClickState();
+      resetCrossoff();
+      if (mode === 'click') renderTraverse(); else renderCrossoffTree();
+    });
+  });
+
+  elT.startBtn.addEventListener('click', function(){
+    if (!buildRoot){ elT.msg.className='msg'; elT.msg.textContent = 'Build or load a tree on tab 1 first.'; return; }
+    practice.expected = traversalIdsFor(practice.type, buildRoot);
+    practice.pos = 0;
+    practice.badgeMap = new Map();
+    practice.wrongId = null;
+    practice.active = true;
+    practice.locked = false;
+    elT.msg.className = 'msg';
+    elT.msg.textContent = 'Click the nodes in ' + practice.type + ' order, starting from the first.';
+    elT.progress.textContent = '0 of ' + practice.expected.length + ' correct';
+    elT.revealedLine.textContent = 'Sequence will appear here.';
+    renderTraverse();
+  });
+
+  elT.resetBtn.addEventListener('click', function(){
+    practice.active = false; practice.locked = false; practice.badgeMap = new Map(); practice.pos = 0; practice.wrongId = null;
+    elT.msg.textContent = '';
+    elT.progress.textContent = '';
+    elT.revealedLine.textContent = 'Sequence will appear here.';
+    renderTraverse();
+  });
+
+  elT.revealBtn.addEventListener('click', function(){
+    if (!buildRoot){ elT.msg.className='msg'; elT.msg.textContent = 'Build or load a tree on tab 1 first.'; return; }
+    var revealType = practice.type; // capture now — practice.type may change before this animation finishes
+    var revealRoot = buildRoot;     // capture the tree too, in case it's reset mid-animation
+    practice.active = false; practice.locked = true; practice.badgeMap = new Map(); practice.wrongId = null;
+    var seq = traversalIdsFor(revealType, revealRoot);
+    var vals = seq.map(function(id){ return findNodeById(revealRoot, id).value; });
+    elT.msg.textContent = '';
+    var shown = [];
+    var i = 0;
+    function step(){
+      if (buildRoot !== revealRoot) return; // tree changed mid-animation — abandon safely
+      if (i > 0) practice.badgeMap.set(seq[i-1], i);
+      if (i < seq.length){
+        shown.push(vals[i]);
+        elT.revealedLine.textContent = 'Sequence so far: ' + shown.join(', ');
+        renderTreeInto(elT.stage, buildRoot, { activeHighlightId: seq[i], badgeMap: practice.badgeMap });
+        i++;
+        setTimeout(step, 650);
+      } else {
+        elT.revealedLine.textContent = revealType + ' order: ' + vals.join(', ');
+        addLog('good', '<b>Revealed (' + revealType + '):</b> ' + vals.join(', ') + '.');
+        practice.locked = false;
+        renderTraverse();
+      }
+    }
+    step();
+  });
+
+  renderTraverse();
+
+  // ---------- Mode toggle (Click Order vs V/L/R Walkthrough) ----------
+
+  var mode = 'click';
+  var elMode = {
+    seg: document.getElementById('modeSeg'),
+    clickControls: document.getElementById('clickModeControls'),
+    crossoffControls: document.getElementById('crossoffModeControls')
+  };
+
+  function resetClickState(){
+    practice.active = false; practice.locked = false; practice.badgeMap = new Map(); practice.pos = 0; practice.wrongId = null;
+    elT.progress.textContent = '';
+    elT.msg.textContent = '';
+    elT.revealedLine.textContent = 'Sequence will appear here.';
+  }
+
+  forEachEl(elMode.seg.querySelectorAll('button'), function(btn){
+    btn.addEventListener('click', function(){
+      forEachEl(elMode.seg.querySelectorAll('button'), function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      mode = btn.dataset.m;
+      elMode.clickControls.style.display = (mode === 'click') ? '' : 'none';
+      elMode.crossoffControls.style.display = (mode === 'crossoff') ? '' : 'none';
+      resetClickState();
+      resetCrossoff();
+      if (mode === 'click') renderTraverse(); else renderCrossoffTree();
+    });
+  });
+
+  // ---------- V/L/R Walkthrough (cross-off method) ----------
+
+  var LETTER_ORDERS = {
+    inorder: ['L','V','R'],
+    preorder: ['V','L','R'],
+    postorder: ['L','R','V']
+  };
+
+  var crossoff = { stack: [], sequence: [], badgeMap: new Map(), finished: false, wrongIndex: null };
+
+  var elC = {
+    startBtn: document.getElementById('startCrossoffBtn'),
+    resetBtn: document.getElementById('resetCrossoffBtn'),
+    panel: document.getElementById('crossoffPanel'),
+    current: document.getElementById('crossoffCurrent'),
+    letters: document.getElementById('crossoffLetters'),
+    path: document.getElementById('crossoffPath'),
+    msg: document.getElementById('crossoffMsg')
+  };
+
+  function resetCrossoff(){
+    crossoff = { stack: [], sequence: [], badgeMap: new Map(), finished: false, wrongIndex: null };
+    elC.panel.style.display = 'none';
+    elC.msg.textContent = '';
+    elT.revealedLine.textContent = 'Sequence will appear here.';
+  }
+
+  function renderCrossoffTree(){
+    var activeId = crossoff.stack.length ? crossoff.stack[crossoff.stack.length - 1].node.id : null;
+    renderTreeInto(elT.stage, buildRoot, {
+      emptyText: 'No tree yet. Go to tab 1 and build or load one first.',
+      badgeMap: crossoff.badgeMap,
+      activeHighlightId: activeId
+    });
+  }
+
+  function pathBreadcrumb(){
+    if (!crossoff.stack.length) return '';
+    var parts = crossoff.stack.map(function(f){
+      var remaining = f.letters.filter(function(l, i){ return !f.done[i]; });
+      return f.node.value + (remaining.length ? ' (' + remaining.join(',') + ' left)' : '');
+    });
+    return '<b>Path:</b> ' + parts.join(' &rarr; ');
+  }
+
+  function renderCrossoffPanel(){
+    if (!crossoff.stack.length){
+      elC.panel.style.display = 'none';
+      elC.letters.innerHTML = '';
+      return;
+    }
+    elC.panel.style.display = '';
+    var frame = crossoff.stack[crossoff.stack.length - 1];
+    elC.current.textContent = 'Current node: ' + frame.node.value;
+    elC.letters.innerHTML = '';
+    frame.letters.forEach(function(letter, i){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'crossoff-letter-btn' + (frame.done[i] ? ' done' : '') + (crossoff.wrongIndex === i ? ' wrong-flash' : '');
+      b.textContent = letter;
+      if (!frame.done[i]){
+        b.addEventListener('click', function(){ onCrossoffLetterClick(i); });
+      }
+      elC.letters.appendChild(b);
+    });
+    elC.path.innerHTML = pathBreadcrumb();
+    var seqVals = crossoff.sequence.map(function(id){ return findNodeById(buildRoot, id).value; });
+    elT.revealedLine.textContent = seqVals.length ? ('Sequence so far: ' + seqVals.join(', ')) : 'Sequence will appear here.';
+  }
+
+  function onCrossoffLetterClick(i){
+    if (!crossoff.stack.length) return; // walkthrough already finished — ignore stray clicks
+    var frame = crossoff.stack[crossoff.stack.length - 1];
+    if (frame.done[i]) return;
+
+    var expectedIndex = frame.done.indexOf(false);
+    if (i !== expectedIndex){
+      crossoff.wrongIndex = i;
+      elC.msg.className = 'msg';
+      elC.msg.textContent = 'Not quite \u2014 ' + frame.letters[expectedIndex] + ' is next, not ' + frame.letters[i] + '. Cross letters off left to right.';
+      renderCrossoffPanel();
+      setTimeout(function(){ crossoff.wrongIndex = null; renderCrossoffPanel(); }, 700);
+      return;
+    }
+
+    frame.done[i] = true;
+    crossoff.wrongIndex = null;
+    var letter = frame.letters[i];
+    elC.msg.className = 'msg good';
+
+    if (letter === 'V'){
+      crossoff.sequence.push(frame.node.id);
+      crossoff.badgeMap.set(frame.node.id, crossoff.sequence.length);
+      elC.msg.textContent = 'Logged ' + frame.node.value + '.';
+    } else {
+      var child = (letter === 'L') ? frame.node.left : frame.node.right;
+      if (child){
+        crossoff.stack.push({ node: child, letters: LETTER_ORDERS[practice.type], done: [false, false, false] });
+        elC.msg.textContent = 'Moved to ' + frame.node.value + '\u2019s ' + (letter === 'L' ? 'left' : 'right') + ' child (' + child.value + ').';
+      } else {
+        elC.msg.textContent = frame.node.value + ' has no ' + (letter === 'L' ? 'left' : 'right') + ' child \u2014 nothing to cross off there, carry on.';
+      }
+    }
+
+    // pop any fully-resolved frames, walking back up the tree
+    while (crossoff.stack.length){
+      var top = crossoff.stack[crossoff.stack.length - 1];
+      if (top.done.every(function(d){ return d; })) crossoff.stack.pop();
+      else break;
+    }
+
+    if (!crossoff.stack.length){
+      crossoff.finished = true;
+      var seqVals = crossoff.sequence.map(function(id){ return findNodeById(buildRoot, id).value; });
+      elC.msg.textContent = 'Finished! Full sequence: ' + seqVals.join(', ');
+      addLog('good', '<b>V/L/R walkthrough (' + practice.type + '):</b> ' + seqVals.join(', ') + '.');
+    }
+
+    renderCrossoffTree();
+    renderCrossoffPanel();
+  }
+
+  elC.startBtn.addEventListener('click', function(){
+    if (!buildRoot){ elC.msg.className = 'msg'; elC.msg.textContent = 'Build or load a tree on tab 1 first.'; return; }
+    crossoff = {
+      stack: [{ node: buildRoot, letters: LETTER_ORDERS[practice.type], done: [false, false, false] }],
+      sequence: [], badgeMap: new Map(), finished: false, wrongIndex: null
+    };
+    elC.msg.className = 'msg';
+    elC.msg.textContent = 'Click a letter to cross it off, starting at the root.';
+    renderCrossoffTree();
+    renderCrossoffPanel();
+  });
+
+  elC.resetBtn.addEventListener('click', function(){
+    resetCrossoff();
+    renderCrossoffTree();
+  });
+
+  // ========================================================
+  // TAB 3: EXAM REDRAW CHALLENGE
+  // ========================================================
+
+  var CHALLENGE_POOL = ['L','J','K','M','N','O','P','Q'];
+
+  var exam = { root: null, target: null, correctKey: null, usedIdx: 0, solvedCount: 0, hintKey: null, wrongGhostKey: null };
+
+  var elE = {
+    prompt: document.getElementById('examPrompt'),
+    hintBtn: document.getElementById('hintBtn'),
+    nextBtn: document.getElementById('nextChallengeBtn'),
+    resetBtn: document.getElementById('examResetBtn'),
+    msg: document.getElementById('examMsg'),
+    stage: document.getElementById('stageExam')
+  };
+
+  function loadExamPreset(){
+    exam.root = null;
+    ['F','B','G','A','D','I','C','E','H'].forEach(function(v){
+      var r = insertBSTWithPath(exam.root, v);
+      exam.root = r.root;
+    });
+    exam.usedIdx = 0;
+    exam.solvedCount = 0;
+    pickChallenge();
+  }
+
+  function pickChallenge(){
+    if (exam.usedIdx >= CHALLENGE_POOL.length){
+      exam.target = null;
+      elE.prompt.textContent = 'All challenges complete \u2014 well done! Click "Reset challenges" to go again.';
+      elE.nextBtn.disabled = true;
+      elE.hintBtn.disabled = true;
+      renderExam();
+      return;
+    }
+    exam.target = CHALLENGE_POOL[exam.usedIdx];
+    var sim = simulateInsert(exam.root, exam.target);
+    exam.correctKey = sim.parentId + '-' + sim.dir;
+    exam.hintKey = null;
+    exam.wrongGhostKey = null;
+    elE.prompt.innerHTML = 'Insert <b>\u2018' + exam.target + '\u2019</b> \u2014 click the dashed slot where it belongs.';
+    elE.msg.className = 'msg';
+    elE.msg.textContent = '';
+    elE.nextBtn.disabled = true;
+    elE.hintBtn.disabled = false;
+    renderExam();
+  }
+
+  function renderExam(){
+    renderTreeInto(elE.stage, exam.root, {
+      showGhosts: !!exam.target,
+      wrongGhostKey: exam.wrongGhostKey,
+      hintGhostKey: exam.hintKey,
+      onGhostClick: onExamGhostClick
+    });
+  }
+
+  function onExamGhostClick(g){
+    if (!exam.target) return;
+    var key = g.parentId + '-' + g.dir;
+    if (key === exam.correctKey){
+      var result = insertBSTWithPath(exam.root, exam.target);
+      exam.root = result.root;
+      exam.solvedCount++;
+      elE.msg.className = 'msg good';
+      elE.msg.textContent = 'Correct! ' + exam.target + ' is inserted.';
+      addLog('good', '<b>Exam challenge:</b> ' + pathToHtml(result, exam.target));
+      exam.target = null;
+      elE.nextBtn.disabled = false;
+      elE.hintBtn.disabled = true;
+      renderTreeInto(elE.stage, exam.root, { activeHighlightId: result.newId });
+    } else {
+      exam.wrongGhostKey = key;
+      elE.msg.className = 'msg';
+      elE.msg.textContent = 'Not quite \u2014 compare ' + exam.target + ' with ' + g.parentValue + ': is ' + exam.target + ' smaller or larger?';
+      addLog('bad', '<b>Exam challenge:</b> tried an incorrect slot near ' + g.parentValue + ' for ' + exam.target + '.');
+      renderExam();
+      setTimeout(function(){ exam.wrongGhostKey = null; renderExam(); }, 700);
+    }
+  }
+
+  elE.hintBtn.addEventListener('click', function(){
+    if (!exam.target) return;
+    var pulses = 0;
+    var iv = setInterval(function(){
+      exam.hintKey = (exam.hintKey === exam.correctKey) ? null : exam.correctKey;
+      renderExam();
+      pulses++;
+      if (pulses >= 5){ clearInterval(iv); exam.hintKey = null; renderExam(); }
+    }, 300);
+  });
+
+  elE.nextBtn.addEventListener('click', function(){
+    exam.usedIdx++;
+    pickChallenge();
+  });
+
+  elE.resetBtn.addEventListener('click', function(){
+    elE.hintBtn.disabled = false;
+    loadExamPreset();
+    addLog('good', '<b>Exam challenge:</b> reset to the exam tree (F, B, G, A, D, I, C, E, H).');
+  });
+
+  loadExamPreset();
+
+  // ========================================================
+  // TAB 4: DELETING A NODE
+  // ========================================================
+
+  var del = { root: null, selectedId: null, correctCase: null };
+
+  var elD = {
+    prompt: document.getElementById('deletePrompt'),
+    caseSeg: document.getElementById('deleteCaseSeg'),
+    msg: document.getElementById('deleteMsg'),
+    resetBtn: document.getElementById('deleteResetBtn'),
+    stage: document.getElementById('stageDelete')
+  };
+
+  function loadDeletePreset(){
+    del.root = null;
+    ['F','B','G','A','D','I','C','E','H'].forEach(function(v){
+      var r = insertBSTWithPath(del.root, v);
+      del.root = r.root;
+    });
+    del.selectedId = null;
+    del.correctCase = null;
+    elD.prompt.textContent = 'Click a node on the tree to begin.';
+    elD.caseSeg.style.display = 'none';
+    elD.msg.textContent = '';
+    renderDelete();
+  }
+
+  function renderDelete(){
+    renderTreeInto(elD.stage, del.root, {
+      emptyText: 'Every node has been deleted. Click "Reset tree" to start again.',
+      interactiveNodes: true,
+      activeHighlightId: del.selectedId,
+      onNodeClick: onDeleteNodeClick
+    });
+  }
+
+  function onDeleteNodeClick(node){
+    del.selectedId = node.id;
+    del.correctCase = nodeCase(node);
+    elD.prompt.innerHTML = 'You selected <b>' + node.value + '</b>. Which case applies?';
+    elD.caseSeg.style.display = '';
+    elD.msg.className = 'msg';
+    elD.msg.textContent = '';
+    renderDelete();
+  }
+
+  forEachEl(elD.caseSeg.querySelectorAll('button'), function(btn){
+    btn.addEventListener('click', function(){
+      if (del.selectedId === null) return;
+      var chosen = btn.dataset.c;
+      var node = findNodeById(del.root, del.selectedId);
+      if (chosen === del.correctCase){
+        var info = {};
+        del.root = deleteById(del.root, del.selectedId, info);
+        elD.msg.className = 'msg good';
+        var explain = '';
+        if (info.type === 'leaf'){
+          explain = info.removedValue + ' had no children, so it is simply removed.';
+        } else if (info.type === 'one'){
+          explain = info.removedValue + ' had one child (' + info.childValue + '). Its parent now points directly at ' + info.childValue + ', skipping ' + info.removedValue + '.';
+        } else {
+          explain = info.removedValue + ' had two children. Its in-order successor (' + info.successorValue + ') replaces it, then ' + info.successorValue + ' is removed from its old position.';
+        }
+        elD.msg.textContent = 'Correct \u2014 ' + caseLabel(chosen).toLowerCase() + '. ' + explain;
+        addLog('good', '<b>Deletion:</b> ' + explain);
+        del.selectedId = null;
+        del.correctCase = null;
+        elD.prompt.textContent = 'Click another node to continue, or reset the tree.';
+        elD.caseSeg.style.display = 'none';
+        renderDelete();
+      } else {
+        elD.msg.className = 'msg';
+        var childCount = (node.left ? 1 : 0) + (node.right ? 1 : 0);
+        elD.msg.textContent = 'Not quite \u2014 look at ' + node.value + '\u2019s children again. It has ' + childCount + '.';
+        addLog('bad', '<b>Deletion:</b> tried "' + caseLabel(chosen).toLowerCase() + '" for ' + node.value + ' \u2014 not correct.');
+      }
+    });
+  });
+
+  elD.resetBtn.addEventListener('click', function(){
+    loadDeletePreset();
+    addLog('good', '<b>Deletion:</b> tree reset to F, B, G, A, D, I, C, E, H.');
+  });
+
+  loadDeletePreset();
+
+  // ========================================================
+  // TAB SWITCHING
+  // ========================================================
+
+  forEachEl(document.querySelectorAll('.tab-btn'), function(btn){
+    btn.addEventListener('click', function(){
+      var tab = btn.dataset.tab;
+      forEachEl(document.querySelectorAll('.tab-btn'), function(b){ b.classList.toggle('active', b === btn); });
+      forEachEl(document.querySelectorAll('.sidebar-panel'), function(p){ p.classList.toggle('active', p.dataset.panel === tab); });
+      forEachEl(document.querySelectorAll('.tab-panel'), function(p){ p.classList.toggle('active', p.dataset.tabpanel === tab); });
+      if (tab === 'traverse') { if (mode === 'click') renderTraverse(); else renderCrossoffTree(); }
+      if (tab === 'build') renderBuild();
+      if (tab === 'exam') renderExam();
+      if (tab === 'delete') renderDelete();
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
