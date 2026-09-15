@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 3 Starter — Quick Retrieval</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --white:#FFFFFF;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  main{
+    max-width:780px;
+    margin:-1.2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    margin-bottom:1.6rem;
+    padding:1.5rem 1.6rem;
+  }
+  .intro{
+    display:flex;
+    align-items:flex-start;
+    gap:0.9rem;
+  }
+  .intro .dot{
+    width:36px;
+    height:36px;
+    background:var(--second);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:1.1rem;
+    flex-shrink:0;
+  }
+  .intro p{
+    margin:0;
+    font-size:0.98rem;
+    line-height:1.5;
+  }
+  .section-title{
+    font-size:1.1rem;
+    font-weight:bold;
+    color:var(--dark);
+    margin:0 0 1rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .section-title .num{
+    background:var(--primary);
+    color:white;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  .q{
+    margin-bottom:1.3rem;
+  }
+  .q:last-child{
+    margin-bottom:0;
+  }
+  .q .prompt{
+    font-size:0.98rem;
+    margin-bottom:0.6rem;
+  }
+  .row{
+    display:flex;
+    gap:0.6rem;
+    align-items:center;
+  }
+  .row input[type=text]{
+    flex:1;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.5rem 0.7rem;
+    font-family:"Courier New", monospace;
+    font-size:0.95rem;
+  }
+  .row button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .row button:hover{
+    background:var(--primary);
+  }
+  .answer{
+    display:none;
+    margin-top:0.6rem;
+    padding:0.7rem 0.9rem;
+    border-radius:8px;
+    font-size:0.9rem;
+    background:var(--greenbg);
+    color:var(--green);
+  }
+  .answer.show{
+    display:block;
+  }
+  .today-card{
+    background:var(--primary);
+    color:white;
+  }
+  .today-card .section-title{
+    color:white;
+  }
+  .today-card .section-title .num{
+    background:white;
+    color:var(--primary);
+  }
+  .today-card ul{
+    margin:0;
+    padding-left:1.2rem;
+    font-size:0.95rem;
+    line-height:1.9;
+  }
+  footer{
+    max-width:780px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 3 starter</h1>
+  <p>Quick retrieval — Lessons 1 &amp; 2</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="intro">
+      <span class="dot">?</span>
+      <p>Fast recall before we start today's new content. Type your answer to each question, then click <b>Check</b> to reveal it. Don't overthink these — quick and confident is the goal.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title"><span class="num">1</span>Quick-fire retrieval</p>
+
+    <div class="q">
+      <div class="prompt">What naming convention do we use for constants?</div>
+      <div class="row">
+        <input type="text" id="p1" placeholder="Type your answer">
+        <button onclick="reveal('a1')">Check</button>
+      </div>
+      <div class="answer" id="a1">ALL_CAPS — e.g. PI, MAX_SCORE. Python doesn't enforce it; it's a convention.</div>
+    </div>
+
+    <div class="q">
+      <div class="prompt">What type does input() always return, no matter what's typed?</div>
+      <div class="row">
+        <input type="text" id="p2" placeholder="Type your answer">
+        <button onclick="reveal('a2')">Check</button>
+      </div>
+      <div class="answer" id="a2">A string (str) — even if the user types digits, you need to convert it yourself.</div>
+    </div>
+
+    <div class="q">
+      <div class="prompt">What does int(3.9) return?</div>
+      <div class="row">
+        <input type="text" id="p3" placeholder="Type your answer">
+        <button onclick="reveal('a3')">Check</button>
+      </div>
+      <div class="answer" id="a3">3 — int() truncates, it does not round.</div>
+    </div>
+
+    <div class="q">
+      <div class="prompt">What's the difference between int("42") and int("hello")?</div>
+      <div class="row">
+        <input type="text" id="p4" placeholder="Type your answer">
+        <button onclick="reveal('a4')">Check</button>
+      </div>
+      <div class="answer" id="a4">int("42") works and returns 42. int("hello") raises a ValueError — not all text can become a number.</div>
+    </div>
+  </div>
+
+  <div class="card today-card">
+    <p class="section-title"><span class="num">→</span>Today we're building on this</p>
+    <ul>
+      <li>Functions — writing and calling your own reusable blocks of code</li>
+      <li>Scope — what happens to a variable created inside a function</li>
+      <li>A first look at if / elif / else — enough to build a simple menu</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>Lesson 3 · Imperative Programming · Access to HE Applied Computing</footer>
+
+<script>
+  function reveal(answerId){
+    document.getElementById(answerId).classList.add('show');
+  }
+</script>
+
+</body>
+</html>
