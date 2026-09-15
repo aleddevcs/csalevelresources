@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truth Tables: Operators, Building &amp; Reverse-Engineering</title>
+<style>
+  :root {
+    --navy: #1E2761;
+    --navy-dark: #141B45;
+    --amber: #E8A33D;
+    --amber-dark: #B9782A;
+    --white: #FFFFFF;
+    --offwhite: #F6F7FB;
+    --ink: #1E2761;
+    --muted: #5B6180;
+    --border: #D8DCEC;
+    --good: #1E7A3D;
+    --good-bg: #E8F5EC;
+    --bad: #B3261E;
+    --bad-bg: #FCE9E8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Calibri, Candara, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--white);
+  }
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 28px 32px 22px;
+  }
+  header .kicker {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  header h1 {
+    font-family: Cambria, Georgia, serif;
+    font-size: 28px;
+    margin: 0 0 4px;
+  }
+  header p {
+    margin: 0;
+    color: #CADCFC;
+    font-size: 15px;
+  }
+  nav.tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--navy-dark);
+    padding: 0 28px;
+  }
+  nav.tabs button {
+    background: transparent;
+    border: none;
+    color: #B9C2E8;
+    font-family: Calibri, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 14px 18px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  nav.tabs button.active {
+    color: var(--white);
+    border-bottom-color: var(--amber);
+  }
+  nav.tabs button:hover:not(.active) { color: var(--white); }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 30px 28px 60px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  h2.section-title {
+    font-family: Cambria, Georgia, serif;
+    color: var(--navy);
+    font-size: 24px;
+    margin: 0 0 6px;
+  }
+  p.section-sub { color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  /* Tab 1: operators */
+  .op-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 20px; }
+  .op-card {
+    border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; background: var(--offwhite);
+  }
+  .op-card h3 { font-family: Cambria, serif; color: var(--navy); margin: 0 0 4px; font-size: 18px; }
+  .op-card .op-desc { color: var(--muted); font-size: 13px; margin: 0 0 12px; min-height: 34px; }
+  table.tt { border-collapse: collapse; width: 100%; }
+  table.tt th, table.tt td { border: 1px solid var(--border); text-align: center; padding: 6px 8px; font-size: 14px; }
+  table.tt th { background: var(--navy); color: var(--white); }
+  table.tt td.result { font-weight: bold; }
+  table.tt td.editable { cursor: pointer; font-weight: bold; color: var(--navy); background: var(--white); user-select: none; }
+  table.tt td.editable:hover { background: #FCEFD9; }
+  table.tt td.correct { background: var(--good-bg); color: var(--good); }
+  table.tt td.incorrect { background: var(--bad-bg); color: var(--bad); }
+
+  .btn-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .action-btn {
+    background: var(--navy); color: var(--white); border: none; padding: 10px 18px;
+    border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; font-family: Calibri, sans-serif;
+  }
+  .action-btn.secondary { background: var(--white); color: var(--navy); border: 2px solid var(--navy); }
+  .action-btn:hover { opacity: 0.9; }
+  .action-btn:disabled { opacity: 0.45; cursor: default; }
+  #opFeedback, #buildFeedback { font-size: 14px; margin-top: 8px; min-height: 20px; font-weight: bold; }
+  #opFeedback.good, #buildFeedback.good { color: var(--good); }
+  #opFeedback.bad, #buildFeedback.bad { color: var(--bad); }
+
+  /* Tab 2: build a table */
+  .expr-picker { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .expr-btn {
+    border: 2px solid var(--navy); background: var(--white); color: var(--navy);
+    padding: 9px 16px; border-radius: 8px; font-family: Cambria, serif; font-size: 15px;
+    cursor: pointer; font-weight: bold;
+  }
+  .expr-btn.active { background: var(--navy); color: var(--white); }
+
+  .chip-bank { margin-bottom: 18px; }
+  .chip-bank-label { font-size: 13px; font-weight: bold; color: var(--muted); margin-bottom: 8px; }
+  .chip { 
+    display: inline-block; border: 2px dashed var(--amber-dark); background: #FFF8EC; color: var(--amber-dark);
+    padding: 7px 14px; border-radius: 20px; font-family: Cambria, serif; font-size: 15px; font-weight: bold;
+    cursor: pointer; margin: 0 8px 8px 0;
+  }
+  .chip:hover:not(:disabled) { background: #FCEFD9; }
+  .chip:disabled { opacity: 0.35; cursor: default; border-style: solid; }
+
+  table.build { border-collapse: collapse; margin-bottom: 18px; }
+  table.build th, table.build td { border: 1px solid var(--border); text-align: center; padding: 8px 14px; font-size: 15px; min-width: 46px; }
+  table.build th { background: var(--navy); color: var(--white); position: relative; }
+  table.build th .col-remove {
+    position: absolute; top: 1px; right: 3px; font-size: 11px; color: #B9C2E8; cursor: pointer; font-weight: bold;
+  }
+  table.build th .col-remove:hover { color: var(--white); }
+  table.build td.input-cell { background: var(--offwhite); color: var(--muted); font-weight: bold; }
+  table.build td.editable { cursor: pointer; font-weight: bold; color: var(--navy); user-select: none; }
+  table.build td.editable:hover { background: #FCEFD9; }
+  table.build td.correct { background: var(--good-bg); color: var(--good); }
+  table.build td.incorrect { background: var(--bad-bg); color: var(--bad); }
+  table.build th.extra-col { background: #7A5322; }
+
+  .reveal-box, .status-box {
+    background: var(--offwhite); border-radius: 10px; padding: 14px 18px; margin-top: 12px;
+    font-size: 14px; color: var(--muted); display: none; line-height: 1.7;
+  }
+  .reveal-box.show, .status-box.show { display: block; }
+  .status-box .missing { color: var(--bad); font-weight: bold; }
+  .status-box .extra { color: var(--amber-dark); font-weight: bold; }
+  .status-box .allgood { color: var(--good); font-weight: bold; }
+
+  /* Tab 3: quiz */
+  .quiz-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .score-pill {
+    background: var(--navy); color: var(--white); padding: 6px 16px; border-radius: 999px;
+    font-size: 14px; font-weight: bold;
+  }
+  .quiz-layout { display: flex; gap: 30px; flex-wrap: wrap; }
+  .quiz-table-wrap { flex: 0 0 auto; }
+  .quiz-options { flex: 1 1 320px; display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    text-align: left; border: 2px solid var(--border); background: var(--white); color: var(--ink);
+    padding: 12px 14px; border-radius: 8px; cursor: pointer; font-size: 15px; font-family: Cambria, serif;
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--navy); }
+  .opt-btn.correct { border-color: var(--good); background: var(--good-bg); color: var(--good); }
+  .opt-btn.incorrect { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+  .opt-btn:disabled { cursor: default; }
+  #quizExplain {
+    background: var(--offwhite); border-radius: 10px; padding: 14px 18px; margin-top: 16px;
+    font-size: 14px; color: var(--ink); display: none; line-height: 1.6;
+  }
+  #quizExplain.show { display: block; }
+  #quizExplain .explain-title { color: var(--amber-dark); font-weight: bold; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  #quizNext { display: none; }
+  #quizDone { display: none; text-align: center; padding: 40px 0; }
+  #quizDone h3 { font-family: Cambria, serif; color: var(--navy); font-size: 26px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Unit 3 &middot; Topic 2 &middot; Logical Operations</div>
+  <h1>Truth Tables: Operators, Building &amp; Reverse-Engineering</h1>
+  <p>Fill in the operators from memory, work out which columns a compound expression needs, then reverse-engineer an expression from a table.</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="operators">1. Fill In the Operators</button>
+  <button class="tab-btn" data-tab="build">2. Build a Truth Table</button>
+  <button class="tab-btn" data-tab="quiz">3. Expression from a Table</button>
+</nav>
+
+<main>
+
+  <!-- TAB 1: OPERATORS -->
+  <section id="panel-operators" class="panel active">
+    <h2 class="section-title">Fill in the operators</h2>
+    <p class="section-sub">Click a cell in the result column to cycle it between 0 and 1. Fill in all five tables, then check your answers.</p>
+
+    <div class="op-grid" id="opGrid"></div>
+
+    <div class="btn-row">
+      <button class="action-btn" id="checkOpsBtn">Check my answers</button>
+      <button class="action-btn secondary" id="resetOpsBtn">Reset</button>
+    </div>
+    <div id="opFeedback"></div>
+  </section>
+
+  <!-- TAB 2: BUILD A TABLE -->
+  <section id="panel-build" class="panel">
+    <h2 class="section-title">Build a truth table</h2>
+    <p class="section-sub">Pick an expression. Work out which columns you'll need to build it up, add them from the bank below in the order you'd write them on paper, then fill in the values.</p>
+
+    <div class="expr-picker" id="exprPicker"></div>
+
+    <div class="chip-bank">
+      <div class="chip-bank-label">Which columns do you need? Click to add them to your table:</div>
+      <div id="chipBank"></div>
+    </div>
+
+    <div id="buildTableWrap"></div>
+    <div class="btn-row">
+      <button class="action-btn" id="checkBuildBtn">Check my table</button>
+      <button class="action-btn secondary" id="revealBuildBtn">Show worked solution</button>
+      <button class="action-btn secondary" id="resetBuildBtn">Reset</button>
+    </div>
+    <div id="buildFeedback"></div>
+    <div class="status-box" id="buildStatus"></div>
+    <div class="reveal-box" id="buildReveal"></div>
+  </section>
+
+  <!-- TAB 3: QUIZ -->
+  <section id="panel-quiz" class="panel">
+    <h2 class="section-title">Expression from a table</h2>
+    <p class="section-sub">Find the rows where the output is 1, then pick the expression that matches. Self-marking &mdash; work through all five.</p>
+
+    <div class="quiz-top">
+      <div id="quizProgress" style="font-size:14px; color: var(--muted); font-weight:bold;">Question 1 of 5</div>
+      <div class="score-pill" id="scorePill">Score: 0 / 0</div>
+    </div>
+
+    <div id="quizBody" class="quiz-layout"></div>
+    <div id="quizExplain"></div>
+    <div class="btn-row">
+      <button class="action-btn" id="quizNext">Next question</button>
+    </div>
+
+    <div id="quizDone">
+      <h3 id="quizDoneScore"></h3>
+      <p style="color: var(--muted);">Nice work &mdash; the step is always the same: find the 1-rows, AND the literals (NOT on any 0), OR the terms.</p>
+      <button class="action-btn" id="quizRestart">Restart quiz</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ---------------- Shared helpers (ES5 for maximum browser compatibility) ---------------- */
+function notLetter(letter) {
+  return letter === 'A' ? '\u0100' : letter + '\u0304'; // combining macron for B̄, C̄
+}
+function lit(letter, bit) { return bit === '1' ? letter : notLetter(letter); }
+function pad2(str, len) {
+  var s = str;
+  while (s.length < len) { s = '0' + s; }
+  return s;
+}
+function bnum(v) { return v === '1' ? 1 : 0; }
+function ANDv(x, y) { return (bnum(x) && bnum(y)) ? '1' : '0'; }
+function ORv(x, y) { return (bnum(x) || bnum(y)) ? '1' : '0'; }
+function NOTv(x) { return bnum(x) ? '0' : '1'; }
+function rowsForVars(vars) {
+  var rows = [];
+  var n = vars.length;
+  var total = Math.pow(2, n);
+  for (var i = 0; i < total; i++) {
+    var bits = pad2(i.toString(2), n).split('');
+    var row = {};
+    for (var idx = 0; idx < vars.length; idx++) { row[vars[idx]] = bits[idx]; }
+    rows.push(row);
+  }
+  return rows;
+}
+
+/* ---------------- Tab navigation ---------------- */
+(function() {
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < tabBtns.length; i++) {
+    tabBtns[i].addEventListener('click', function() {
+      var btn = this;
+      var allBtns = document.querySelectorAll('.tab-btn');
+      for (var j = 0; j < allBtns.length; j++) { allBtns[j].classList.remove('active'); }
+      var allPanels = document.querySelectorAll('.panel');
+      for (var k = 0; k < allPanels.length; k++) { allPanels[k].classList.remove('active'); }
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
+    });
+  }
+})();
+
+/* ================= TAB 1: FILL IN THE OPERATORS ================= */
+var operators = [
+  { name: 'AND', symbolHtml: 'A &middot; B', type: 'two',
+    rows: [['0','0','0'],['0','1','0'],['1','0','0'],['1','1','1']],
+    desc: 'Output is 1 only when both inputs are 1.' },
+  { name: 'OR', symbolHtml: 'A + B', type: 'two',
+    rows: [['0','0','0'],['0','1','1'],['1','0','1'],['1','1','1']],
+    desc: 'Output is 1 if at least one input is 1.' },
+  { name: 'NOT', symbolHtml: '\u0100', type: 'one',
+    rows: [['0','1'],['1','0']],
+    desc: 'Flips a single input. Depends on A only.' },
+  { name: 'NAND', symbolHtml: 'A &uarr; B', type: 'two',
+    rows: [['0','0','1'],['0','1','1'],['1','0','1'],['1','1','0']],
+    desc: '\u201cNOT AND\u201d \u2014 output is 0 only when both inputs are 1.' },
+  { name: 'NOR', symbolHtml: 'A &darr; B', type: 'two',
+    rows: [['0','0','1'],['0','1','0'],['1','0','0'],['1','1','0']],
+    desc: '\u201cNOT OR\u201d \u2014 output is 1 only when both inputs are 0.' }
+];
+
+var opStudentValues = {}; // opStudentValues[opName] = array of values per row
+
+function resetOps() {
+  opStudentValues = {};
+  for (var o = 0; o < operators.length; o++) {
+    var op = operators[o];
+    var vals = [];
+    for (var r = 0; r < op.rows.length; r++) { vals.push('0'); }
+    opStudentValues[op.name] = vals;
+  }
+  document.getElementById('opFeedback').textContent = '';
+  document.getElementById('opFeedback').className = '';
+  renderOperators();
+}
+
+function renderOperators(markResult) {
+  var grid = document.getElementById('opGrid');
+  grid.innerHTML = '';
+  for (var o = 0; o < operators.length; o++) {
+    var op = operators[o];
+    var card = document.createElement('div');
+    card.className = 'op-card';
+    var headerHtml = op.type === 'two'
+      ? ('<th>A</th><th>B</th><th>' + op.symbolHtml + '</th>')
+      : ('<th>A</th><th>' + op.symbolHtml + '</th>');
+    var rowsHtml = '';
+    for (var ri = 0; ri < op.rows.length; ri++) {
+      var r = op.rows[ri];
+      var studentVal = opStudentValues[op.name][ri];
+      var cls = 'editable';
+      if (markResult) {
+        var correctVal = op.type === 'two' ? r[2] : r[1];
+        cls += (studentVal === correctVal) ? ' correct' : ' incorrect';
+      }
+      if (op.type === 'two') {
+        rowsHtml += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td class="' + cls + '" data-op="' + op.name + '" data-row="' + ri + '">' + studentVal + '</td></tr>';
+      } else {
+        rowsHtml += '<tr><td>' + r[0] + '</td><td class="' + cls + '" data-op="' + op.name + '" data-row="' + ri + '">' + studentVal + '</td></tr>';
+      }
+    }
+    card.innerHTML =
+      '<h3>' + op.name + ' &mdash; ' + op.symbolHtml + '</h3>' +
+      '<p class="op-desc">' + op.desc + '</p>' +
+      '<table class="tt"><thead><tr>' + headerHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table>';
+    grid.appendChild(card);
+  }
+
+  var cells = grid.querySelectorAll('td.editable');
+  for (var ci = 0; ci < cells.length; ci++) {
+    cells[ci].addEventListener('click', function() {
+      var opName = this.getAttribute('data-op');
+      var rowIdx = this.getAttribute('data-row');
+      var cur = opStudentValues[opName][rowIdx];
+      var next = cur === '0' ? '1' : '0';
+      opStudentValues[opName][rowIdx] = next;
+      this.textContent = next;
+      this.classList.remove('correct', 'incorrect');
+    });
+  }
+}
+
+document.getElementById('checkOpsBtn').addEventListener('click', function() {
+  renderOperators(true);
+  var total = 0, right = 0;
+  for (var o = 0; o < operators.length; o++) {
+    var op = operators[o];
+    for (var ri = 0; ri < op.rows.length; ri++) {
+      total++;
+      var correctVal = op.type === 'two' ? op.rows[ri][2] : op.rows[ri][1];
+      if (opStudentValues[op.name][ri] === correctVal) right++;
+    }
+  }
+  var fb = document.getElementById('opFeedback');
+  fb.textContent = right + ' / ' + total + ' correct.';
+  fb.className = right === total ? 'good' : 'bad';
+});
+document.getElementById('resetOpsBtn').addEventListener('click', resetOps);
+resetOps();
+
+/* ================= TAB 2: BUILD A TABLE ================= */
+var exercises = [
+  {
+    id: 'e1', label: 'A + B\u0304',
+    vars: ['A','B'],
+    required: [
+      { key: 'notB', label: 'B\u0304', compute: function(row) { return NOTv(row.B); } },
+      { key: 'final', label: 'A + B\u0304', compute: function(row, vals) { return ORv(row.A, vals.notB); } }
+    ],
+    distractors: [
+      { key: 'notA', label: '\u0100' },
+      { key: 'andAB', label: 'A\u00b7B' }
+    ]
+  },
+  {
+    id: 'e2', label: '\u0100 \u00b7 B + A',
+    vars: ['A','B'],
+    required: [
+      { key: 'notA', label: '\u0100', compute: function(row) { return NOTv(row.A); } },
+      { key: 'andTerm', label: '\u0100\u00b7B', compute: function(row, vals) { return ANDv(vals.notA, row.B); } },
+      { key: 'final', label: '\u0100\u00b7B + A', compute: function(row, vals) { return ORv(vals.andTerm, row.A); } }
+    ],
+    distractors: [
+      { key: 'notB', label: 'B\u0304' },
+      { key: 'andAB', label: 'A\u00b7B' }
+    ]
+  },
+  {
+    id: 'e3', label: 'A \u00b7 (B + C)',
+    vars: ['A','B','C'],
+    required: [
+      { key: 'orTerm', label: 'B + C', compute: function(row) { return ORv(row.B, row.C); } },
+      { key: 'final', label: 'A\u00b7(B + C)', compute: function(row, vals) { return ANDv(row.A, vals.orTerm); } }
+    ],
+    distractors: [
+      { key: 'notA', label: '\u0100' },
+      { key: 'notB', label: 'B\u0304' },
+      { key: 'notC', label: 'C\u0304' }
+    ]
+  },
+  {
+    id: 'e4', label: '\u0100 \u00b7 B + C',
+    vars: ['A','B','C'],
+    required: [
+      { key: 'notA', label: '\u0100', compute: function(row) { return NOTv(row.A); } },
+      { key: 'andTerm', label: '\u0100\u00b7B', compute: function(row, vals) { return ANDv(vals.notA, row.B); } },
+      { key: 'final', label: '\u0100\u00b7B + C', compute: function(row, vals) { return ORv(vals.andTerm, row.C); } }
+    ],
+    distractors: [
+      { key: 'notB', label: 'B\u0304' },
+      { key: 'notC', label: 'C\u0304' },
+      { key: 'andAB', label: 'A\u00b7B' }
+    ]
+  }
+];
+
+var currentExercise = exercises[0];
+var addedColumns = [];      // ordered list of column defs currently in the table (required or distractor)
+var buildStudentValues = []; // per row, per column key -> value
+
+function computeCorrectValues(exercise) {
+  var rows = rowsForVars(exercise.vars);
+  var result = [];
+  for (var i = 0; i < rows.length; i++) {
+    var vals = {};
+    for (var c = 0; c < exercise.required.length; c++) {
+      var col = exercise.required[c];
+      vals[col.key] = col.compute(rows[i], vals);
+    }
+    result.push(vals);
+  }
+  return result;
+}
+
+function shuffleArr(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+function renderExprPicker() {
+  var picker = document.getElementById('exprPicker');
+  picker.innerHTML = '';
+  for (var i = 0; i < exercises.length; i++) {
+    var ex = exercises[i];
+    var btn = document.createElement('button');
+    btn.className = 'expr-btn' + (ex.id === currentExercise.id ? ' active' : '');
+    btn.textContent = ex.label;
+    (function(exCopy) {
+      btn.addEventListener('click', function() {
+        currentExercise = exCopy;
+        resetBuild();
+        renderExprPicker();
+      });
+    })(ex);
+    picker.appendChild(btn);
+  }
+}
+
+function renderChipBank() {
+  var bank = document.getElementById('chipBank');
+  bank.innerHTML = '';
+  var allChips = shuffleArr(currentExercise.required.concat(currentExercise.distractors));
+  for (var i = 0; i < allChips.length; i++) {
+    var chipDef = allChips[i];
+    var chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = chipDef.label;
+    chip.setAttribute('data-key', chipDef.key);
+    var isAdded = false;
+    for (var a = 0; a < addedColumns.length; a++) { if (addedColumns[a].key === chipDef.key) isAdded = true; }
+    chip.disabled = isAdded;
+    (function(def) {
+      chip.addEventListener('click', function() {
+        addColumn(def);
+      });
+    })(chipDef);
+    bank.appendChild(chip);
+  }
+}
+
+function addColumn(def) {
+  addedColumns.push(def);
+  var rows = rowsForVars(currentExercise.vars);
+  for (var r = 0; r < rows.length; r++) { buildStudentValues[r][def.key] = '0'; }
+  renderChipBank();
+  renderBuildTable();
+}
+
+function removeColumn(key) {
+  var idx = -1;
+  for (var i = 0; i < addedColumns.length; i++) { if (addedColumns[i].key === key) idx = i; }
+  if (idx >= 0) addedColumns.splice(idx, 1);
+  for (var r = 0; r < buildStudentValues.length; r++) { delete buildStudentValues[r][key]; }
+  renderChipBank();
+  renderBuildTable();
+}
+
+function resetBuild() {
+  var rows = rowsForVars(currentExercise.vars);
+  addedColumns = [];
+  buildStudentValues = [];
+  for (var i = 0; i < rows.length; i++) { buildStudentValues.push({}); }
+  document.getElementById('buildFeedback').textContent = '';
+  document.getElementById('buildFeedback').className = '';
+  document.getElementById('buildReveal').classList.remove('show');
+  document.getElementById('buildStatus').classList.remove('show');
+  renderChipBank();
+  renderBuildTable();
+}
+
+function renderBuildTable(markResult) {
+  var rows = rowsForVars(currentExercise.vars);
+  var wrap = document.getElementById('buildTableWrap');
+
+  if (addedColumns.length === 0) {
+    wrap.innerHTML = '<p style="color: var(--muted); font-size: 14px;">No columns added yet &mdash; pick from the bank above, starting with the inputs\u2019 first derived column.</p>' +
+      buildInputOnlyPreview(rows);
+    return;
+  }
+
+  var correctVals = markResult ? computeCorrectValues(currentExercise) : null;
+
+  var html = '<table class="build"><thead><tr>';
+  for (var v = 0; v < currentExercise.vars.length; v++) { html += '<th>' + currentExercise.vars[v] + '</th>'; }
+  for (var c = 0; c < addedColumns.length; c++) {
+    var isRequired = !!addedColumns[c].compute;
+    html += '<th class="' + (isRequired ? '' : 'extra-col') + '">' + addedColumns[c].label +
+      '<span class="col-remove" data-remove="' + addedColumns[c].key + '">&times;</span></th>';
+  }
+  html += '</tr></thead><tbody>';
+
+  for (var ri = 0; ri < rows.length; ri++) {
+    var row = rows[ri];
+    html += '<tr>';
+    for (var vi = 0; vi < currentExercise.vars.length; vi++) {
+      html += '<td class="input-cell">' + row[currentExercise.vars[vi]] + '</td>';
+    }
+    for (var ci = 0; ci < addedColumns.length; ci++) {
+      var colDef = addedColumns[ci];
+      var val = buildStudentValues[ri][colDef.key];
+      var cls = 'editable';
+      if (markResult && colDef.compute) {
+        var correct = correctVals[ri][colDef.key];
+        cls += (val === correct) ? ' correct' : ' incorrect';
+      } else if (markResult && !colDef.compute) {
+        cls += ' incorrect';
+      }
+      html += '<td class="' + cls + '" data-row="' + ri + '" data-col="' + colDef.key + '">' + val + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+
+  var cells = wrap.querySelectorAll('td.editable');
+  for (var ei = 0; ei < cells.length; ei++) {
+    cells[ei].addEventListener('click', function() {
+      var r = this.getAttribute('data-row'), c2 = this.getAttribute('data-col');
+      buildStudentValues[r][c2] = buildStudentValues[r][c2] === '0' ? '1' : '0';
+      this.textContent = buildStudentValues[r][c2];
+      this.classList.remove('correct', 'incorrect');
+    });
+  }
+  var removers = wrap.querySelectorAll('.col-remove');
+  for (var rmi = 0; rmi < removers.length; rmi++) {
+    removers[rmi].addEventListener('click', function(e) {
+      e.stopPropagation();
+      removeColumn(this.getAttribute('data-remove'));
+    });
+  }
+}
+
+function buildInputOnlyPreview(rows) {
+  var html = '<table class="build"><thead><tr>';
+  for (var v = 0; v < currentExercise.vars.length; v++) { html += '<th>' + currentExercise.vars[v] + '</th>'; }
+  html += '</tr></thead><tbody>';
+  for (var ri = 0; ri < rows.length; ri++) {
+    html += '<tr>';
+    for (var vi = 0; vi < currentExercise.vars.length; vi++) {
+      html += '<td class="input-cell">' + rows[ri][currentExercise.vars[vi]] + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+document.getElementById('checkBuildBtn').addEventListener('click', function() {
+  renderBuildTable(true);
+
+  var requiredKeys = [];
+  for (var i = 0; i < currentExercise.required.length; i++) { requiredKeys.push(currentExercise.required[i].key); }
+  var addedKeys = [];
+  for (var j = 0; j < addedColumns.length; j++) { addedKeys.push(addedColumns[j].key); }
+
+  var missing = [];
+  for (var m = 0; m < currentExercise.required.length; m++) {
+    var found = false;
+    for (var n = 0; n < addedKeys.length; n++) { if (addedKeys[n] === currentExercise.required[m].key) found = true; }
+    if (!found) missing.push(currentExercise.required[m].label);
+  }
+  var extra = [];
+  for (var p = 0; p < addedColumns.length; p++) {
+    if (!addedColumns[p].compute) extra.push(addedColumns[p].label);
+  }
+
+  var correctVals = computeCorrectValues(currentExercise);
+  var totalCells = 0, rightCells = 0;
+  for (var ri = 0; ri < correctVals.length; ri++) {
+    for (var ci = 0; ci < addedColumns.length; ci++) {
+      var colDef = addedColumns[ci];
+      if (!colDef.compute) continue;
+      totalCells++;
+      if (buildStudentValues[ri][colDef.key] === correctVals[ri][colDef.key]) rightCells++;
+    }
+  }
+
+  var fb = document.getElementById('buildFeedback');
+  fb.textContent = rightCells + ' / ' + totalCells + ' cell values correct (for columns you\u2019ve added).';
+  fb.className = (rightCells === totalCells && missing.length === 0 && extra.length === 0) ? 'good' : 'bad';
+
+  var statusBox = document.getElementById('buildStatus');
+  var statusHtml = '';
+  if (missing.length === 0 && extra.length === 0) {
+    statusHtml = '<span class="allgood">You\u2019ve added exactly the right columns.</span>';
+  } else {
+    if (missing.length > 0) statusHtml += '<span class="missing">Missing column(s):</span> ' + missing.join(', ') + '<br>';
+    if (extra.length > 0) statusHtml += '<span class="extra">Not needed for this expression:</span> ' + extra.join(', ');
+  }
+  statusBox.innerHTML = statusHtml;
+  statusBox.classList.add('show');
+});
+
+document.getElementById('revealBuildBtn').addEventListener('click', function() {
+  var box = document.getElementById('buildReveal');
+  var correctVals = computeCorrectValues(currentExercise);
+  var rows = rowsForVars(currentExercise.vars);
+  var colLabels = [];
+  for (var c = 0; c < currentExercise.required.length; c++) { colLabels.push(currentExercise.required[c].label); }
+  var text = '<strong>Columns needed, in order:</strong> ' + colLabels.join(' \u2192 ') + '<br><br>';
+  text += '<strong>Worked solution for ' + currentExercise.label + ':</strong><br>';
+  for (var ri = 0; ri < rows.length; ri++) {
+    var varsStr = [];
+    for (var vi = 0; vi < currentExercise.vars.length; vi++) {
+      varsStr.push(currentExercise.vars[vi] + '=' + rows[ri][currentExercise.vars[vi]]);
+    }
+    var colsStr = [];
+    for (var ci = 0; ci < currentExercise.required.length; ci++) {
+      var col = currentExercise.required[ci];
+      colsStr.push(col.label + '=' + correctVals[ri][col.key]);
+    }
+    text += varsStr.join(', ') + ' &rarr; ' + colsStr.join(', ') + '<br>';
+  }
+  box.innerHTML = text;
+  box.classList.add('show');
+});
+
+document.getElementById('resetBuildBtn').addEventListener('click', resetBuild);
+
+renderExprPicker();
+resetBuild();
+
+/* ================= TAB 3: QUIZ (unchanged) ================= */
+function sopFromRows(trueRows) {
+  var terms = [];
+  for (var i = 0; i < trueRows.length; i++) {
+    var r = trueRows[i];
+    terms.push(lit('A', r[0]) + '\u00b7' + lit('B', r[1]) + '\u00b7' + lit('C', r[2]));
+  }
+  return terms.join(' + ');
+}
+function allRows3() {
+  var rows = [];
+  for (var a = 0; a < 2; a++) {
+    for (var b = 0; b < 2; b++) {
+      for (var c = 0; c < 2; c++) { rows.push([String(a), String(b), String(c)]); }
+    }
+  }
+  return rows;
+}
+function rowKey(r) { return r.join(''); }
+function rowInList(list, r) {
+  for (var i = 0; i < list.length; i++) { if (list[i] === rowKey(r)) return true; }
+  return false;
+}
+
+function buildQuizQuestion(trueRows) {
+  var correct = sopFromRows(trueRows);
+  var all = allRows3();
+  var trueKeys = [];
+  for (var i = 0; i < trueRows.length; i++) { trueKeys.push(rowKey(trueRows[i])); }
+  var falseRows = [];
+  for (var j = 0; j < all.length; j++) { if (!rowInList(trueKeys, all[j])) falseRows.push(all[j]); }
+
+  var d1Rows = trueRows.slice();
+  d1Rows[0] = [d1Rows[0][0] === '0' ? '1' : '0', d1Rows[0][1], d1Rows[0][2]];
+  var d1 = sopFromRows(d1Rows);
+
+  var d2 = sopFromRows(trueRows.slice(0, trueRows.length - 1));
+
+  var d3Rows = trueRows.slice(0, trueRows.length - 1).concat([falseRows[0]]);
+  var d3 = sopFromRows(d3Rows);
+
+  var options = shuffleArr([correct, d1, d2, d3]);
+  return { trueRows: trueRows, correct: correct, options: options };
+}
+
+var quizBanks = [
+  [['0','0','1'],['0','1','0'],['0','1','1'],['1','0','1']],
+  [['0','0','0'],['0','1','1'],['1','0','0'],['1','1','1']],
+  [['0','1','0'],['0','1','1'],['1','1','0'],['1','1','1']],
+  [['1','0','0'],['1','0','1'],['1','1','0'],['1','1','1']],
+  [['0','0','1'],['0','1','0'],['1','0','0'],['1','1','1']]
+];
+function buildAllQuizQuestions() {
+  var qs = [];
+  for (var i = 0; i < quizBanks.length; i++) { qs.push(buildQuizQuestion(quizBanks[i])); }
+  return qs;
+}
+var quizQuestions = buildAllQuizQuestions();
+var quizIndex = 0;
+var quizScore = 0;
+var quizAnswered = false;
+
+function renderQuizQuestion() {
+  quizAnswered = false;
+  var q = quizQuestions[quizIndex];
+  document.getElementById('quizProgress').textContent = 'Question ' + (quizIndex + 1) + ' of ' + quizQuestions.length;
+  document.getElementById('scorePill').textContent = 'Score: ' + quizScore + ' / ' + quizIndex;
+  document.getElementById('quizExplain').classList.remove('show');
+  document.getElementById('quizNext').style.display = 'none';
+
+  var rows = allRows3();
+  var trueKeys = [];
+  for (var i = 0; i < q.trueRows.length; i++) { trueKeys.push(rowKey(q.trueRows[i])); }
+  var tableHtml = '<table class="tt"><thead><tr><th>A</th><th>B</th><th>C</th><th>p</th></tr></thead><tbody>';
+  for (var r = 0; r < rows.length; r++) {
+    var isTrue = rowInList(trueKeys, rows[r]);
+    tableHtml += '<tr><td>' + rows[r][0] + '</td><td>' + rows[r][1] + '</td><td>' + rows[r][2] + '</td><td class="result">' + (isTrue ? '1' : '0') + '</td></tr>';
+  }
+  tableHtml += '</tbody></table>';
+
+  var optsHtml = '';
+  for (var oi = 0; oi < q.options.length; oi++) {
+    optsHtml += '<button class="opt-btn" data-opt="' + oi + '">' + q.options[oi] + '</button>';
+  }
+
+  document.getElementById('quizBody').innerHTML =
+    '<div class="quiz-table-wrap">' + tableHtml + '</div>' +
+    '<div class="quiz-options">' + optsHtml + '</div>';
+
+  var optBtns = document.querySelectorAll('.opt-btn');
+  for (var bi = 0; bi < optBtns.length; bi++) {
+    optBtns[bi].addEventListener('click', function() {
+      if (quizAnswered) return;
+      quizAnswered = true;
+      var chosenIdx = parseInt(this.getAttribute('data-opt'), 10);
+      var chosen = q.options[chosenIdx];
+      var isCorrect = chosen === q.correct;
+      if (isCorrect) quizScore++;
+
+      var allOptBtns = document.querySelectorAll('.opt-btn');
+      for (var x = 0; x < allOptBtns.length; x++) {
+        allOptBtns[x].disabled = true;
+        var xIdx = parseInt(allOptBtns[x].getAttribute('data-opt'), 10);
+        if (xIdx === chosenIdx) {
+          allOptBtns[x].classList.add(isCorrect ? 'correct' : 'incorrect');
+        } else if (q.options[xIdx] === q.correct) {
+          allOptBtns[x].classList.add('correct');
+        }
+      }
+
+      var rowsList = [];
+      for (var ti = 0; ti < q.trueRows.length; ti++) { rowsList.push('(' + q.trueRows[ti].join(',') + ')'); }
+      var explain = document.getElementById('quizExplain');
+      explain.innerHTML =
+        '<div class="explain-title">Exam-answer reasoning</div>' +
+        'Rows where p = 1: ' + rowsList.join(', ') + '.<br>' +
+        'Each becomes an AND term \u2014 NOT on any input that\u2019s 0 in that row.<br>' +
+        'OR the terms together: <strong>p = ' + q.correct + '</strong>';
+      explain.classList.add('show');
+      document.getElementById('scorePill').textContent = 'Score: ' + quizScore + ' / ' + (quizIndex + 1);
+
+      if (quizIndex < quizQuestions.length - 1) {
+        document.getElementById('quizNext').style.display = 'inline-block';
+      } else {
+        setTimeout(showQuizDone, 400);
+      }
+    });
+  }
+}
+
+function showQuizDone() {
+  document.getElementById('quizBody').style.display = 'none';
+  document.getElementById('quizExplain').classList.remove('show');
+  document.getElementById('quizNext').style.display = 'none';
+  document.getElementById('quizProgress').textContent = 'Complete';
+  document.getElementById('quizDone').style.display = 'block';
+  document.getElementById('quizDoneScore').textContent = quizScore + ' / ' + quizQuestions.length;
+}
+
+document.getElementById('quizNext').addEventListener('click', function() {
+  quizIndex++;
+  renderQuizQuestion();
+});
+
+document.getElementById('quizRestart').addEventListener('click', function() {
+  quizQuestions = buildAllQuizQuestions();
+  quizIndex = 0;
+  quizScore = 0;
+  document.getElementById('quizBody').style.display = 'flex';
+  document.getElementById('quizDone').style.display = 'none';
+  renderQuizQuestion();
+});
+
+renderQuizQuestion();
+</script>
+
+</body>
+</html>
