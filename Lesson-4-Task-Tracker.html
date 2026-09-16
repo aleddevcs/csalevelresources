@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 4 Task Tracker — Consolidation Programme</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  .progress-wrap{
+    max-width:900px;
+    margin:-1.5rem auto 0;
+    padding:0 1.5rem;
+  }
+  .progress-card{
+    background:var(--white);
+    border-radius:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    padding:1.1rem 1.4rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  .progress-bar-track{
+    flex:1;
+    height:12px;
+    background:#E3EAEF;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--second);
+    transition:width 0.3s ease;
+  }
+  .progress-label{
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--dark);
+    white-space:nowrap;
+  }
+  main{
+    max-width:900px;
+    margin:2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .recall-note{
+    background:#EAF3F0;
+    border:1px solid #BFE0D4;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#0B5B3C;
+    margin-bottom:1.6rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .recall-note .dot{
+    width:20px;
+    height:20px;
+    background:var(--second);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.7rem;
+    flex-shrink:0;
+  }
+  .task-card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    margin-bottom:1.8rem;
+    overflow:hidden;
+    transition:border-color 0.3s ease;
+  }
+  .task-card.complete{
+    border-color:var(--second);
+  }
+  .task-head{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    padding:1.2rem 1.4rem;
+    border-bottom:1px solid #EEF2F5;
+  }
+  .task-badge{
+    background:var(--primary);
+    color:var(--white);
+    font-size:0.75rem;
+    font-weight:bold;
+    letter-spacing:1px;
+    padding:0.35rem 0.7rem;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-badge{
+    background:var(--second);
+  }
+  .task-head h2{
+    margin:0;
+    font-size:1.3rem;
+    color:var(--dark);
+    flex:1;
+  }
+  .task-check-pill{
+    font-size:0.8rem;
+    color:var(--second);
+    font-weight:bold;
+    display:none;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-check-pill{
+    display:inline;
+  }
+  .task-body{
+    padding:1.3rem 1.4rem 1.5rem;
+  }
+  .filename-note{
+    background:var(--light);
+    border-radius:8px;
+    padding:0.7rem 1rem;
+    font-family: "Courier New", monospace;
+    font-size:0.95rem;
+    color:var(--primary);
+    margin-bottom:1.1rem;
+    display:inline-block;
+  }
+  .exemplar-block{
+    background:var(--dark);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+    margin-bottom:1.3rem;
+  }
+  .exemplar-block .label{
+    color:#8FD9C4;
+    font-size:0.82rem;
+    font-weight:bold;
+    margin-bottom:0.6rem;
+  }
+  .exemplar-block pre{
+    margin:0;
+    font-family:"Courier New", monospace;
+    font-size:0.85rem;
+    line-height:1.7;
+    color:#CADCFC;
+    white-space:pre-wrap;
+  }
+  .exemplar-block .kw{ color:#6FCF97; }
+  .exemplar-block .st{ color:#6FCF97; }
+  .exemplar-block .vr{ color:#F9E795; }
+  .exemplar-block .cm{ color:#5B6B75; }
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .steps li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.7rem;
+    padding:0.55rem 0;
+    border-bottom:1px dashed #EEF2F5;
+  }
+  .steps li:last-child{
+    border-bottom:none;
+  }
+  .steps input[type=checkbox]{
+    width:20px;
+    height:20px;
+    margin-top:0.1rem;
+    accent-color:var(--second);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .steps label{
+    font-size:1rem;
+    line-height:1.4;
+    cursor:pointer;
+  }
+  .steps li.checked label{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .code{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#CADCFC;
+    padding:0.15rem 0.4rem;
+    border-radius:4px;
+    font-size:0.92rem;
+  }
+  .extension-block{
+    margin-top:1.3rem;
+  }
+  .extension{
+    background:var(--amberbg);
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .extension-head{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-weight:bold;
+    color:#8A4A1E;
+    margin-bottom:0.6rem;
+    font-size:0.95rem;
+  }
+  .extension-head .dot{
+    width:22px;
+    height:22px;
+    background:var(--amber);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.8rem;
+    flex-shrink:0;
+  }
+  .ext-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .ext-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.6rem;
+    padding:0.4rem 0;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .ext-list li input[type=checkbox]{
+    width:18px;
+    height:18px;
+    margin-top:0.15rem;
+    accent-color:var(--amber);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .ext-list li.checked{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .still-going{
+    margin-top:0.9rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .still-going .extension-head{
+    color:#8FD9C4;
+  }
+  .still-going .extension-head .dot{
+    background:var(--second);
+  }
+  .still-going p{
+    margin:0;
+    font-size:0.9rem;
+    color:#CADCFC;
+    line-height:1.5;
+  }
+  footer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 4 task tracker</h1>
+  <p>Consolidation programme — everything from Lessons 1–3, in one file</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="progress-label" id="progressLabel">0 / 9 steps</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<main>
+
+  <div class="recall-note">
+    <span class="dot">i</span>
+    <span>This brings together everything so far: variables, all five data types, constants, type conversion, input(), a function, and scope.</span>
+  </div>
+
+  <!-- TASK -->
+  <section class="task-card" id="task1">
+    <div class="task-head">
+      <span class="task-badge">Task</span>
+      <h2>Your consolidation programme</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="filename-note">New file: lesson4_consolidation.py</div>
+
+      <div class="exemplar-block">
+        <div class="label">TEACHER'S EXEMPLAR — for reference, don't copy it directly</div>
+        <pre><span class="cm"># Weather station reading</span>
+
+<span class="vr">LOCATION</span> = <span class="st">"Cardiff"</span>          <span class="cm"># constant</span>
+<span class="vr">FREEZING_POINT_C</span> = <span class="st">0</span>          <span class="cm"># constant</span>
+<span class="vr">STATION_CODE</span> = <span class="st">"W"</span>            <span class="cm"># constant — a character code</span>
+
+<span class="vr">temperature_input</span> = input(<span class="st">"Enter today's temperature (C): "</span>)
+<span class="vr">temperature</span> = float(<span class="vr">temperature_input</span>)
+
+<span class="vr">rainfall_mm</span> = <span class="st">4.2</span>
+<span class="vr">is_raining</span> = <span class="st">True</span>
+
+<span class="kw">def</span> show_reading():
+    <span class="vr">local_note</span> = <span class="st">"Reading recorded"</span>     <span class="cm"># local variable</span>
+    print(<span class="vr">local_note</span>)
+    print(<span class="st">"Station:"</span>, <span class="vr">STATION_CODE</span>)
+    print(<span class="st">"Temperature:"</span>, <span class="vr">temperature</span>)
+
+show_reading()</pre>
+      </div>
+
+      <p style="font-weight:bold; margin-bottom:0.6rem;">Choose your own scenario (a vehicle, a recipe, a library book, a pet — your choice) and build something similar. Requirements:</p>
+
+      <ul class="steps" data-task="task1">
+        <li><input type="checkbox" id="t1-1"><label for="t1-1">Choose your scenario and create the new file</label></li>
+        <li><input type="checkbox" id="t1-2"><label for="t1-2">At least two constants, one of which is a single-character code</label></li>
+        <li><input type="checkbox" id="t1-3"><label for="t1-3">One variable of each of the five data types — int, float, str, bool, and a Character used meaningfully</label></li>
+        <li><input type="checkbox" id="t1-4"><label for="t1-4">At least one <span class="code">input()</span>, converted to the correct type</label></li>
+        <li><input type="checkbox" id="t1-5"><label for="t1-5">A function (no parameters) containing at least one local variable, called once</label></li>
+        <li><input type="checkbox" id="t1-6"><label for="t1-6">Comments throughout explaining what the program does</label></li>
+        <li><input type="checkbox" id="t1-7"><label for="t1-7">Run it — everything working?</label></li>
+        <li><input type="checkbox" id="t1-8"><label for="t1-8">Keep this file open — you'll pull examples from it for the worksheet</label></li>
+        <li><input type="checkbox" id="t1-9"><label for="t1-9">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="t1-e1"><label for="t1-e1">Add a second function, also with its own local variable. In a comment, explain how its scope differs from the first function's</label></li>
+            <li><input type="checkbox" id="t1-e2"><label for="t1-e2">Add an <span class="code">if</span> statement (from Lesson 3) that checks one of your values and prints an extra message</label></li>
+          </ul>
+        </div>
+        <div class="still-going">
+          <div class="extension-head"><span class="dot">↑</span> Still going?</div>
+          <p>Go through your Report Scaffold Worksheet's eight rows. Next to each one, add a comment in your code marking exactly which line answers it. This is the fastest way to check your program actually gives you everything the report needs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Lesson 4 · Imperative Programming · Access to HE Applied Computing
+</footer>
+
+<script>
+  const stepBoxes = Array.from(document.querySelectorAll('.steps input[type=checkbox]'));
+  const extBoxes = Array.from(document.querySelectorAll('.ext-list input[type=checkbox]'));
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+
+  function updateProgress(){
+    const total = stepBoxes.length;
+    const checked = stepBoxes.filter(b => b.checked).length;
+    const pct = total ? Math.round((checked/total)*100) : 0;
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = checked + ' / ' + total + ' steps';
+
+    const card = document.getElementById('task1');
+    card.classList.toggle('complete', checked === total);
+  }
+
+  stepBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+      updateProgress();
+    });
+  });
+
+  extBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+    });
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
