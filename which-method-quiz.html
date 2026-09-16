@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which Method? Quiz</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --cat-input: #2b6f8f;
+    --cat-input-soft: #e1ecf1;
+    --cat-process: #b8791f;
+    --cat-process-soft: #f3e4cc;
+    --cat-output: #0e7c86;
+    --cat-output-soft: #d7eeee;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --cat-input: #6cb6d8; --cat-input-soft: #16262c;
+      --cat-process: #e0a24a; --cat-process-soft: #362a17;
+      --cat-output: #5cc9d1; --cat-output-soft: #103033;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --cat-input: #6cb6d8; --cat-input-soft: #16262c;
+    --cat-process: #e0a24a; --cat-process-soft: #362a17;
+    --cat-output: #5cc9d1; --cat-output-soft: #103033;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 66ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 12.5px; line-height: 1.55; max-width: 66ch; margin: 0 0 26px; }
+
+  .key { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; font-size: 12.5px; color: var(--muted); }
+  .key .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .key .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot.interview { background: var(--cat-input); }
+  .dot.questionnaire { background: var(--cat-output); }
+  .dot.observation { background: var(--cat-process); }
+
+  .qcard {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 22px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .qhead { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+  .qnum {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-soft); width: 24px; height: 24px; border-radius: 50%; flex: none;
+    display: inline-flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .qgoal { font-size: 15.5px; line-height: 1.55; color: var(--ink); }
+  .qgoal em { font-style: italic; color: var(--ink-soft); }
+
+  .choices { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.choice {
+    flex: 1 1 150px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--surface-sunken); color: var(--ink); font-size: 13.5px; font-weight: 600;
+    cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  button.choice:hover:not(:disabled) { filter: brightness(0.97); border-color: var(--faint); }
+  button.choice:disabled { cursor: default; }
+  button.choice .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+  .qcard.answered .choice { opacity: 0.55; }
+  .qcard.answered .choice.chosen { opacity: 1; }
+  .qcard.answered .choice.chosen.right { background: var(--good-soft); border-color: var(--good); color: var(--good); opacity: 1; }
+  .qcard.answered .choice.chosen.wrong { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); opacity: 1; }
+  .qcard.answered .choice.correct-reveal { background: var(--good-soft); border-color: var(--good); color: var(--good); opacity: 1; }
+
+  .why {
+    display: none; margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+    background: var(--surface-sunken); border: 1px solid var(--border);
+    font-size: 13.5px; line-height: 1.55; color: var(--ink-soft);
+  }
+  .qcard.answered .why { display: block; }
+  .why b { color: var(--ink); }
+
+  .score-panel {
+    background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .score-panel .big { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--accent-ink); }
+  .score-panel span.msg { font-size: 13px; color: var(--ink); }
+
+  footer.page-foot {
+    margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>Which Method?</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line">Read each research goal, then pick the method that fits it best. <b id="answered-count">0</b> of <b id="total-count">9</b> answered.</div>
+  <button class="btn" id="reset-btn">Reset</button>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Quick practice · choosing a method</span>
+  <h1>Which method would you actually use?</h1>
+  <p class="lede">Nine research goals from around Ysgol Cwm Coleg's library. For each one, pick Interview, Questionnaire, or Observation — whichever would actually get you the answer, not just any method that could technically apply. Click a choice to see if you're right and why.</p>
+  <p class="disclaimer">Same fictional library scenario as the other Investigation resources. More than one method could always tell you <em>something</em> — this is about which one fits the goal best.</p>
+
+  <div class="key">
+    <span class="chip"><span class="dot interview"></span>Interview</span>
+    <span class="chip"><span class="dot questionnaire"></span>Questionnaire</span>
+    <span class="chip"><span class="dot observation"></span>Observation</span>
+  </div>
+
+  <div class="score-panel">
+    <span class="big" id="score-big">0 / 9</span>
+    <span class="msg" id="score-msg">correct so far</span>
+  </div>
+
+  <div id="quiz"></div>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · part of the Investigation Lesson 1 resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var METHODS = [
+    { id: "interview", label: "Interview" },
+    { id: "questionnaire", label: "Questionnaire" },
+    { id: "observation", label: "Observation" }
+  ];
+
+  var QUESTIONS = [
+    {
+      goal: "Find out exactly how long it takes a library assistant to process a single book return, step by step.",
+      correct: "observation",
+      why: "Timing a real process needs you to <b>watch it happen</b> — self-reported estimates of “how long something takes” are notoriously inaccurate."
+    },
+    {
+      goal: "Get a read from all 600 students on how satisfied they are with the current library catalogue.",
+      correct: "questionnaire",
+      why: "You need <b>scale</b> — reaching hundreds of people quickly, with answers you can compare and count, is exactly what a questionnaire is for."
+    },
+    {
+      goal: "Understand why the Head Librarian thinks the reservation system doesn't work well, in her own words.",
+      correct: "interview",
+      why: "This is one specific person's reasoning — you need to ask <b>follow-up questions</b> to get the depth an interview allows."
+    },
+    {
+      goal: "Check whether library assistants actually follow the official overdue-chasing procedure, or have quietly developed their own shortcuts.",
+      correct: "observation",
+      why: "What people say they do and what they actually do can differ — observation shows you the <b>real process</b>, not the described one."
+    },
+    {
+      goal: "Find out roughly how many students would use a library app if the college built one.",
+      correct: "questionnaire",
+      why: "A quick, quantifiable read on demand across a large group — you don't need depth here, you need <b>numbers</b>."
+    },
+    {
+      goal: "Explore, in depth, a library assistant's frustrations with the current paper-based stock-check process.",
+      correct: "interview",
+      why: "This is about someone's detailed experience and reasoning — an interview lets you <b>probe further</b> than a fixed set of questions could."
+    },
+    {
+      goal: "Find out how many times a week the library's shared printer jams, and roughly how long each jam takes to fix.",
+      correct: "observation",
+      why: "Frequency and duration are best <b>measured directly, over time</b>, rather than estimated from memory."
+    },
+    {
+      goal: "Get feedback from all 12 library and admin staff on a shortlist of 3 possible new systems, ranked by preference.",
+      correct: "questionnaire",
+      why: "Every staff member needs a say, and you want directly comparable rankings — a questionnaire reaches <b>everyone</b> and standardises the answers."
+    },
+    {
+      goal: "Understand, from the Librarian's perspective, why an earlier attempt to introduce self-service checkout machines was abandoned.",
+      correct: "interview",
+      why: "This is a specific past event that only she can explain in detail — you need the <b>story behind the decision</b>, not a checkbox."
+    }
+  ];
+
+  var answers = {};
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function methodLabel(id) {
+    var m = METHODS.filter(function (x) { return x.id === id; })[0];
+    return m ? m.label : id;
+  }
+
+  function render() {
+    var html = QUESTIONS.map(function (q, i) {
+      var choicesHtml = METHODS.map(function (m) {
+        return (
+          '<button class="choice" data-method="' + m.id + '" data-idx="' + i + '">' +
+            '<span class="dot ' + m.id + '"></span>' + m.label +
+          "</button>"
+        );
+      }).join("");
+      return (
+        '<div class="qcard" data-idx="' + i + '">' +
+          '<div class="qhead"><span class="qnum">' + (i + 1) + '</span><span class="qgoal">“' + esc(q.goal) + '”</span></div>' +
+          '<div class="choices">' + choicesHtml + "</div>" +
+          '<div class="why"></div>' +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById("quiz").innerHTML = html;
+    document.getElementById("total-count").textContent = QUESTIONS.length;
+  }
+
+  function updateScore() {
+    var answeredIds = Object.keys(answers);
+    var correct = answeredIds.filter(function (i) { return answers[i] === QUESTIONS[i].correct; }).length;
+    document.getElementById("answered-count").textContent = answeredIds.length;
+    document.getElementById("score-big").textContent = correct + " / " + QUESTIONS.length;
+    var msg = "correct so far";
+    if (answeredIds.length === QUESTIONS.length) {
+      msg = correct === QUESTIONS.length ? "— all correct. Nice reading of what each method is actually for." : "— that's every question answered. Check the explanations on any you got wrong before you move on.";
+    }
+    document.getElementById("score-msg").textContent = msg;
+  }
+
+  document.getElementById("quiz").addEventListener("click", function (ev) {
+    var btn = ev.target.closest(".choice");
+    if (!btn) return;
+    var idx = Number(btn.getAttribute("data-idx"));
+    if (answers.hasOwnProperty(idx)) return;
+    var chosen = btn.getAttribute("data-method");
+    answers[idx] = chosen;
+    var card = btn.closest(".qcard");
+    card.classList.add("answered");
+    var isRight = chosen === QUESTIONS[idx].correct;
+    card.querySelectorAll(".choice").forEach(function (b) {
+      b.disabled = true;
+      if (b.getAttribute("data-method") === chosen) {
+        b.classList.add("chosen", isRight ? "right" : "wrong");
+      } else if (!isRight && b.getAttribute("data-method") === QUESTIONS[idx].correct) {
+        b.classList.add("correct-reveal");
+      }
+    });
+    var whyEl = card.querySelector(".why");
+    whyEl.innerHTML = (isRight ? "Correct — " : "Not quite. The best fit here is <b>" + methodLabel(QUESTIONS[idx].correct) + "</b>. ") + QUESTIONS[idx].why;
+    updateScore();
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    answers = {};
+    render();
+    updateScore();
+  });
+
+  render();
+  updateScore();
+})();
+</script>
+</body>
+</html>

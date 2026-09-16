@@ -1,0 +1,544 @@
+<title>Investigation Question Bank</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --interview: #2b6f8f;
+    --interview-soft: #dbeaf1;
+    --interview-ink: #17495f;
+    --quest: #6a4c93;
+    --quest-soft: #e9e0f4;
+    --quest-ink: #452f66;
+    --focus: #2b6f8f;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --interview: #6cb6d8; --interview-soft: #17303c; --interview-ink: #bfe3f4;
+      --quest: #b79eea; --quest-soft: #2c2340; --quest-ink: #e3d6fb;
+      --focus: #6cb6d8;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --interview: #6cb6d8; --interview-soft: #17303c; --interview-ink: #bfe3f4;
+    --quest: #b79eea; --quest-soft: #2c2340; --quest-ink: #e3d6fb;
+    --focus: #6cb6d8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  button, input, textarea, select { font-family: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  #gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  #gate.hidden-gate { display: none; }
+  .gate-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 32px; max-width: 420px; width: 100%;
+  }
+  .gate-card h1 { font-size: 21px; margin: 0 0 8px; }
+  .gate-card p { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 0 0 18px; }
+  .gate-card input[type="text"] {
+    width: 100%; padding: 11px 13px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--surface); font-size: 15px; margin-bottom: 14px;
+  }
+  .gate-card button.primary {
+    width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--accent);
+    color: var(--good-ink); font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .fineprint { font-size: 12.5px; color: var(--faint); margin-top: 14px; margin-bottom: 0; }
+
+  #app.hidden-app { display: none; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .brand { flex-wrap: wrap; row-gap: 6px; }
+  .whoami { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); background: var(--surface-sunken); padding: 6px 12px; border-radius: 20px; }
+  .whoami b { color: var(--ink); }
+  .whoami a { color: var(--focus); text-decoration: none; font-size: 12.5px; cursor: pointer; }
+  .topbtns { display: flex; gap: 8px; }
+  .btn {
+    padding: 8px 14px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .btn:hover { background: var(--surface-sunken); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 68ch; margin: 0 0 32px; }
+
+  h2.sec-title { font-size: 18px; margin: 0 0 4px; }
+  p.sec-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; max-width: 68ch; }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 36px; }
+  @media (max-width: 760px) { .cat-grid { grid-template-columns: 1fr; } }
+  .cat-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .cat-card .chead { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .cat-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-soft); width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .cat-card h3 { font-size: 14.5px; margin: 0; }
+  .cat-why { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.5; }
+  .ex-group { margin-bottom: 10px; }
+  .ex-group:last-child { margin-bottom: 0; }
+  .ex-label {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 700; margin-bottom: 5px; display: inline-block;
+  }
+  .ex-label.interview { color: var(--interview-ink); }
+  .ex-label.quest { color: var(--quest-ink); }
+  .ex-group ul { margin: 0; padding-left: 16px; }
+  .ex-group li { font-size: 13px; line-height: 1.55; color: var(--ink); margin-bottom: 3px; }
+
+  .pair-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+  .pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: var(--surface-raised);
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow);
+  }
+  @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
+  .pair .weak, .pair .strong { font-size: 13.5px; line-height: 1.5; padding-left: 10px; border-left: 3px solid; }
+  .pair .weak { border-color: var(--faint); color: var(--muted); }
+  .pair .strong { border-color: var(--good); color: var(--ink); }
+  .pair .tag2 { display: block; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 3px; }
+  .pair .weak .tag2 { color: var(--faint); }
+  .pair .strong .tag2 { color: var(--good); }
+
+  .method-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab-btn {
+    padding: 9px 18px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface-raised);
+    color: var(--muted); font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+  .tab-btn[aria-selected="true"].interview-tab { border-color: var(--interview); background: var(--interview-soft); color: var(--interview-ink); }
+  .tab-btn[aria-selected="true"].quest-tab { border-color: var(--quest); background: var(--quest-soft); color: var(--quest-ink); }
+
+  .stat-row { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-tile {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; box-shadow: var(--shadow); min-width: 130px;
+  }
+  .stat-tile .num { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+  .stat-tile .lbl { font-size: 11.5px; color: var(--muted); }
+
+  form.entry {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; box-shadow: var(--shadow); margin-bottom: 28px;
+  }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
+  .field select, .field textarea {
+    width: 100%; padding: 10px 12px; border-radius: 7px; border: 1.5px solid var(--border);
+    background: var(--surface); font-size: 14px; resize: vertical;
+  }
+  .field textarea { min-height: 56px; line-height: 1.5; }
+  .submit-row { display: flex; justify-content: flex-end; }
+  button.primary {
+    padding: 10px 18px; border-radius: 8px; border: none; background: var(--accent);
+    color: var(--good-ink); font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+
+  .log-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .log-head h3 { font-size: 15px; margin: 0; }
+  .empty-log { text-align: center; padding: 30px 20px; color: var(--faint); font-size: 13.5px; border: 1.5px dashed var(--border); border-radius: 10px; }
+
+  .q-card {
+    display: flex; align-items: flex-start; gap: 12px; background: var(--surface-raised); border: 1px solid var(--border);
+    border-radius: 10px; padding: 13px 16px; margin-bottom: 10px; box-shadow: var(--shadow);
+  }
+  .q-card .qtext { flex: 1; font-size: 14px; line-height: 1.5; }
+  .q-card .pillrow { display: flex; gap: 6px; margin-top: 6px; }
+  .pill { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+  .pill.interview { background: var(--interview-soft); color: var(--interview-ink); }
+  .pill.quest { background: var(--quest-soft); color: var(--quest-ink); }
+  .pill.cat { background: var(--surface-sunken); color: var(--muted); }
+  .link-btn { background: none; border: none; color: var(--faint); font-size: 12px; cursor: pointer; padding: 2px 4px; flex: none; }
+  .link-btn:hover { color: #b3392f; }
+
+  footer.page-foot { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--faint); text-align: center; }
+</style>
+
+<div id="gate">
+  <div class="gate-card">
+    <h1>Whose questions are these?</h1>
+    <p>Enter your name to start drafting your interview and questionnaire questions for your own project.</p>
+    <input id="name-input" type="text" placeholder="e.g. Jordan Ellis" autocomplete="off" />
+    <button class="primary" id="gate-submit">Start drafting</button>
+    <p class="fineprint">Saved in this browser only. On a shared college PC, use Export at the end of the lesson and Import next time on a different machine.</p>
+  </div>
+</div>
+
+<div id="app" class="hidden-app">
+  <div class="topbar">
+    <div class="brand"><b>Investigation Question Bank</b><span class="tag">Investigation · Unit 5 NEA</span></div>
+    <div class="topbtns">
+      <div class="whoami">For <b id="whoami-name">—</b> · <a id="switch-btn">switch</a></div>
+      <button class="btn" id="export-btn">Export</button>
+      <button class="btn" id="import-btn">Import</button>
+      <input type="file" id="file-input" accept="application/json" hidden />
+    </div>
+  </div>
+
+  <div class="wrap">
+    <span class="eyebrow">Interview &amp; questionnaire prep</span>
+    <h1>Ask the questions that actually earn marks</h1>
+    <p class="lede">Four things your investigation needs to find out, examples of strong questions for each, and a place to draft your own. Have your interview and questionnaire questions finalised by next lesson — that's what we're chasing.</p>
+
+    <h2 class="sec-title">The four things to find out</h2>
+    <p class="sec-sub">Every interview and questionnaire should get at some of these. Interview questions can be open — let people explain. Questionnaire questions should be closed or scaled, so you can compare answers across everyone.</p>
+    <div class="cat-grid" id="cat-grid"></div>
+
+    <h2 class="sec-title">Weak vs strong</h2>
+    <p class="sec-sub">The difference is almost always specificity — a weak question invites a one-word answer or a yes.</p>
+    <div class="pair-grid" id="pair-grid"></div>
+
+    <h2 class="sec-title">Draft your own</h2>
+    <p class="sec-sub">Pick a method, pick which of the four things it's aimed at, and write the actual question you'll ask.</p>
+
+    <div class="stat-row">
+      <div class="stat-tile"><div class="num" id="stat-interview">0</div><div class="lbl">interview questions</div></div>
+      <div class="stat-tile"><div class="num" id="stat-quest">0</div><div class="lbl">questionnaire questions</div></div>
+      <div class="stat-tile"><div class="num" id="stat-cats">0 / 4</div><div class="lbl">areas covered</div></div>
+    </div>
+
+    <form class="entry" id="entry-form">
+      <div class="method-tabs">
+        <button type="button" class="tab-btn interview-tab" id="tab-interview" aria-selected="true">Interview question</button>
+        <button type="button" class="tab-btn quest-tab" id="tab-quest" aria-selected="false">Questionnaire question</button>
+      </div>
+      <div class="field">
+        <label for="f-cat">Which of the four things is this aimed at?</label>
+        <select id="f-cat"></select>
+      </div>
+      <div class="field">
+        <label for="f-text" id="f-text-label">Your question</label>
+        <textarea id="f-text" placeholder="e.g. Can you walk me through what happens, step by step, when a book comes back overdue?" required></textarea>
+      </div>
+      <div class="submit-row"><button type="submit" class="primary">Add question</button></div>
+    </form>
+
+    <div class="log-head"><h3>Your drafted questions</h3></div>
+    <div id="q-list"></div>
+
+    <footer class="page-foot">Unit 5 NEA · Investigation (10 marks) · part of the Programmed Solution Tracker resource set</footer>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CATEGORIES = [
+    {
+      id: "process", label: "How the process works now",
+      why: "Feeds your Inputs / Processes / Outputs analysis directly — you can't map a process you haven't had explained to you step by step.",
+      interview: [
+        "Can you walk me through exactly what happens, step by step, when a book comes back overdue?",
+        "What information do you need on hand before you can do that?",
+        "What do you produce or record once it's done — a form, an updated file, anything?"
+      ],
+      quest: [
+        "Which of these steps have you personally had to do? (tick all that apply)",
+        "How long does this usually take? (under 5 min / 5–15 min / over 15 min)"
+      ]
+    },
+    {
+      id: "scale", label: "Scale and frequency",
+      why: "This is where “full scope” comes from — a number is worth more than an impression.",
+      interview: [
+        "Roughly how many people or items does this affect in a typical week?",
+        "How often does this happen — daily, weekly, only at certain times of year?"
+      ],
+      quest: [
+        "How often do you use this? (daily / weekly / monthly / rarely)",
+        "On a scale of 1–5, how big a part of your week is this task?"
+      ]
+    },
+    {
+      id: "limitations", label: "What goes wrong",
+      why: "This is your evidence for the Limitations section — vague complaints don't count, specific breakdowns do.",
+      interview: [
+        "What's the most frustrating part of doing this?",
+        "Can you think of a time this went wrong? What happened?",
+        "What takes longer than it should?"
+      ],
+      quest: [
+        "What's the single biggest problem with the current system? (short answer)",
+        "On a scale of 1–5, how easy is this currently?"
+      ]
+    },
+    {
+      id: "requirements", label: "What people actually want",
+      why: "This is where stakeholder requirements come from — don't skip straight to your own ideas.",
+      interview: [
+        "If you could change one thing about this, what would it be?",
+        "Is there anything about the current way of doing this you'd want to keep?",
+        "Are there any rules the new system would need to follow?"
+      ],
+      quest: [
+        "Which of these features would be most useful to you? (tick up to 3)",
+        "Would you prefer [option A] or [option B]?"
+      ]
+    }
+  ];
+
+  var PAIRS = [
+    { weak: "Do you like the current system?", strong: "What's the one thing about the current system you'd change first, and why?" },
+    { weak: "Is the current system slow?", strong: "How long does it usually take to process a return, from start to finish?" },
+    { weak: "Would a new system be good?", strong: "Which of these three features would actually save you time day-to-day?" }
+  ];
+
+  var state = { name: null, questions: [] };
+  var activeMethod = "interview";
+
+  function slug(s) { return s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "student"; }
+  function storageKey(name) { return "unit5qbank:" + slug(name); }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function renderCategories() {
+    document.getElementById("cat-grid").innerHTML = CATEGORIES.map(function (c, i) {
+      return (
+        '<div class="cat-card">' +
+          '<div class="chead"><span class="cat-num">' + (i + 1) + '</span><h3>' + esc(c.label) + "</h3></div>" +
+          '<p class="cat-why">' + esc(c.why) + "</p>" +
+          '<div class="ex-group"><span class="ex-label interview">Interview</span><ul>' +
+            c.interview.map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("") +
+          "</ul></div>" +
+          '<div class="ex-group"><span class="ex-label quest">Questionnaire</span><ul>' +
+            c.quest.map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("") +
+          "</ul></div>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function renderPairs() {
+    document.getElementById("pair-grid").innerHTML = PAIRS.map(function (p) {
+      return (
+        '<div class="pair">' +
+          '<div class="weak"><span class="tag2">Weak</span>' + esc(p.weak) + "</div>" +
+          '<div class="strong"><span class="tag2">Strong</span>' + esc(p.strong) + "</div>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function renderCatOptions() {
+    document.getElementById("f-cat").innerHTML = CATEGORIES.map(function (c) {
+      return '<option value="' + c.id + '">' + esc(c.label) + "</option>";
+    }).join("");
+  }
+
+  function catLabel(id) {
+    var c = CATEGORIES.filter(function (x) { return x.id === id; })[0];
+    return c ? c.label : id;
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(storageKey(state.name), JSON.stringify({ name: state.name, questions: state.questions }));
+      localStorage.setItem("unit5qbank:last-name", state.name);
+    } catch (e) {}
+  }
+  function loadForName(name) {
+    try {
+      var raw = localStorage.getItem(storageKey(name));
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && Array.isArray(data.questions)) return data.questions;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  function setActiveMethod(m) {
+    activeMethod = m;
+    document.getElementById("tab-interview").setAttribute("aria-selected", String(m === "interview"));
+    document.getElementById("tab-quest").setAttribute("aria-selected", String(m === "quest"));
+    document.getElementById("f-text-label").textContent = m === "interview" ? "Your interview question" : "Your questionnaire question";
+    document.getElementById("f-text").placeholder = m === "interview"
+      ? "e.g. Can you walk me through what happens, step by step, when a book comes back overdue?"
+      : "e.g. How often do you use this? (daily / weekly / monthly / rarely)";
+  }
+  document.getElementById("tab-interview").addEventListener("click", function () { setActiveMethod("interview"); });
+  document.getElementById("tab-quest").addEventListener("click", function () { setActiveMethod("quest"); });
+
+  function renderStats() {
+    var interviewCount = state.questions.filter(function (q) { return q.method === "interview"; }).length;
+    var questCount = state.questions.filter(function (q) { return q.method === "quest"; }).length;
+    var catsCovered = new Set(state.questions.map(function (q) { return q.cat; })).size;
+    document.getElementById("stat-interview").textContent = interviewCount;
+    document.getElementById("stat-quest").textContent = questCount;
+    document.getElementById("stat-cats").textContent = catsCovered + " / 4";
+  }
+
+  function renderQList() {
+    var list = document.getElementById("q-list");
+    if (!state.questions.length) {
+      list.innerHTML = '<div class="empty-log">No questions drafted yet — add your first one above.</div>';
+      return;
+    }
+    var sorted = state.questions.slice().sort(function (a, b) { return b.id - a.id; });
+    list.innerHTML = sorted.map(function (q) {
+      return (
+        '<div class="q-card" data-id="' + q.id + '">' +
+          '<div class="qtext">' + esc(q.text) +
+            '<div class="pillrow">' +
+              '<span class="pill ' + (q.method === "interview" ? "interview" : "quest") + '">' + (q.method === "interview" ? "Interview" : "Questionnaire") + "</span>" +
+              '<span class="pill cat">' + esc(catLabel(q.cat)) + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<button class="link-btn" data-del="' + q.id + '">Remove</button>' +
+        "</div>"
+      );
+    }).join("");
+    list.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = Number(btn.getAttribute("data-del"));
+        state.questions = state.questions.filter(function (q) { return q.id !== id; });
+        persist();
+        renderStats();
+        renderQList();
+      });
+    });
+  }
+
+  function startApp(name) {
+    state.name = name;
+    state.questions = loadForName(name);
+    document.getElementById("gate").classList.add("hidden-gate");
+    document.getElementById("app").classList.remove("hidden-app");
+    document.getElementById("whoami-name").textContent = name;
+    renderStats();
+    renderQList();
+  }
+  function showGate(prefill) {
+    document.getElementById("app").classList.add("hidden-app");
+    document.getElementById("gate").classList.remove("hidden-gate");
+    var input = document.getElementById("name-input");
+    input.value = prefill || "";
+    input.focus();
+  }
+  function submitGate() {
+    var name = document.getElementById("name-input").value.trim();
+    if (!name) return;
+    startApp(name);
+  }
+  document.getElementById("gate-submit").addEventListener("click", submitGate);
+  document.getElementById("name-input").addEventListener("keydown", function (ev) { if (ev.key === "Enter") submitGate(); });
+  document.getElementById("switch-btn").addEventListener("click", function () { showGate(state.name); });
+
+  document.getElementById("entry-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var text = document.getElementById("f-text").value.trim();
+    var cat = document.getElementById("f-cat").value;
+    if (!text) return;
+    state.questions.push({ id: Date.now(), method: activeMethod, cat: cat, text: text });
+    persist();
+    renderStats();
+    renderQList();
+    ev.target.reset();
+    document.getElementById("f-text").focus();
+  });
+
+  document.getElementById("export-btn").addEventListener("click", async function () {
+    if (!state.questions.length) { alert("Nothing to export yet — draft a question first."); return; }
+    var payload = { app: "unit5-question-bank", version: 1, name: state.name, questions: state.questions, exportedAt: new Date().toISOString() };
+    var json = JSON.stringify(payload, null, 2);
+    var fname = "investigation-questions-" + slug(state.name) + ".json";
+    try {
+      var downloads = window.claude && (await window.claude.use("downloads"));
+      if (downloads) { await downloads.save({ filename: fname, data: json }); return; }
+    } catch (e) {}
+    try {
+      var blob = new Blob([json], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Couldn't download automatically. Here's your export data — copy and save it as " + fname + ":\n\n" + json);
+    }
+  });
+
+  document.getElementById("import-btn").addEventListener("click", function () { document.getElementById("file-input").click(); });
+  document.getElementById("file-input").addEventListener("change", function (ev) {
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.questions)) throw new Error("bad file");
+        if (data.name) state.name = data.name;
+        state.questions = data.questions;
+        persist();
+        if (document.getElementById("app").classList.contains("hidden-app")) startApp(state.name);
+        else { renderStats(); renderQList(); }
+      } catch (e) {
+        alert("That file doesn't look like a question bank export.");
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = "";
+  });
+
+  renderCategories();
+  renderPairs();
+  renderCatOptions();
+  setActiveMethod("interview");
+
+  var lastName = null;
+  try { lastName = localStorage.getItem("unit5qbank:last-name"); } catch (e) {}
+  if (lastName) startApp(lastName);
+  else showGate();
+})();
+</script>

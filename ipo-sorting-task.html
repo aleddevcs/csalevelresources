@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigation IPO Sorting Task</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --cat-input: #2b6f8f;
+    --cat-input-soft: #e1ecf1;
+    --cat-process: #b8791f;
+    --cat-process-soft: #f3e4cc;
+    --cat-output: #0e7c86;
+    --cat-output-soft: #d7eeee;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --cat-input: #6cb6d8; --cat-input-soft: #16262c;
+      --cat-process: #e0a24a; --cat-process-soft: #362a17;
+      --cat-output: #5cc9d1; --cat-output-soft: #103033;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --cat-input: #6cb6d8; --cat-input-soft: #16262c;
+    --cat-process: #e0a24a; --cat-process-soft: #362a17;
+    --cat-output: #5cc9d1; --cat-output-soft: #103033;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  .controlbtns { display: flex; gap: 8px; }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--good-ink); font-weight: 600; }
+  button.btn.primary:hover { filter: brightness(1.05); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 70ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 12.5px; line-height: 1.55; max-width: 70ch; margin: 0 0 28px; }
+
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 760px) { .ref-grid { grid-template-columns: 1fr; } }
+  .ref-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .ref-card .rh { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .ref-chip {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%; color: var(--good-ink);
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .ref-chip.i { background: var(--cat-input); }
+  .ref-chip.p { background: var(--cat-process); }
+  .ref-chip.o { background: var(--cat-output); }
+  .ref-card .rlabel { font-size: 14.5px; font-weight: 600; }
+  .ref-card p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  .legend {
+    display: none; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 28px; font-size: 12.5px; color: var(--muted);
+  }
+  body.revealed .legend { display: flex; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .sw-correct { background: var(--cat-process-soft); border: 2px solid var(--good); }
+  .sw-wrong { background: var(--warn-soft); border: 2px dashed var(--warn); }
+  .sw-missed { background: transparent; border: 1.5px dashed var(--faint); }
+
+  .score-panel {
+    display: none; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 32px;
+  }
+  body.revealed .score-panel { display: block; }
+  .score-panel .big { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--accent-ink); }
+  .score-panel p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
+
+  section.block { margin-bottom: 28px; }
+  .extract {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px; box-shadow: var(--shadow); font-size: 15px; line-height: 1.85; color: var(--ink);
+  }
+  .extract p { margin: 0 0 14px; }
+  .extract p:last-child { margin-bottom: 0; }
+
+  .cand {
+    cursor: pointer; border-bottom: 1.5px dotted var(--border); border-radius: 2px; padding: 0 1px;
+    transition: background-color 0.1s ease;
+  }
+  .cand:hover { background: var(--surface-sunken); }
+  .cand.cat-input { background: var(--cat-input-soft); border-bottom: 2px solid var(--cat-input); }
+  .cand.cat-process { background: var(--cat-process-soft); border-bottom: 2px solid var(--cat-process); }
+  .cand.cat-output { background: var(--cat-output-soft); border-bottom: 2px solid var(--cat-output); }
+  .cand[data-badge]::after {
+    content: attr(data-badge); font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    width: 15px; height: 15px; margin-left: 3px; vertical-align: 3px;
+  }
+  .cand.cat-input[data-badge]::after { background: var(--cat-input); color: var(--good-ink); }
+  .cand.cat-process[data-badge]::after { background: var(--cat-process); color: var(--good-ink); }
+  .cand.cat-output[data-badge]::after { background: var(--cat-output); color: var(--good-ink); }
+
+  body.revealed .cand { cursor: default; }
+  body.revealed .cand:hover { background: inherit; }
+  .cand.correct { box-shadow: inset 0 -3px 0 0 var(--good); }
+  .cand.wrong { box-shadow: inset 0 -3px 0 0 var(--warn); }
+  .cand.wrong[data-badge]::after { background: var(--warn); }
+  .cand.missed { background: transparent; border-bottom: 1.5px dashed var(--faint); }
+  .cand.missed[data-badge]::after { background: transparent; border: 1.5px dashed var(--faint); color: var(--faint); }
+
+  .annotations { display: none; flex-direction: column; gap: 8px; margin-top: 14px; }
+  body.revealed .annotations { display: flex; }
+  .ann-card {
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .ann-card .ahead { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .ann-card .n {
+    display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+    border-radius: 50%; color: var(--good-ink); font-family: var(--mono);
+    font-size: 10px; font-weight: 700; flex: none;
+  }
+  .ann-card .n.input { background: var(--cat-input); }
+  .ann-card .n.process { background: var(--cat-process); }
+  .ann-card .n.output { background: var(--cat-output); }
+  .ann-card .pill {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--accent-ink); background: var(--accent-soft); padding: 2px 7px; border-radius: 10px;
+  }
+  .ann-card .pill.you-wrong { color: var(--warn); background: var(--warn-soft); }
+  .ann-card .pill.you-missed { color: var(--faint); background: var(--surface-raised); border: 1px solid var(--border); }
+
+  footer.page-foot {
+    margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>Investigation IPO Sorting Task</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line" id="stat-line">Click any phrase, then click again to cycle Input → Process → Output → clear. <b id="pick-count">0</b> sorted so far.</div>
+  <div class="controlbtns">
+    <button class="btn" id="reset-btn" hidden>Reset</button>
+    <button class="btn primary" id="reveal-btn">Reveal model answer</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Modelled Investigation · current-system analysis</span>
+  <h1>Sort each phrase: Input, Process, or Output?</h1>
+  <p class="lede">Below is a description of how Ysgol Cwm Coleg's library currently chases overdue books — entirely by hand. Click each highlighted phrase to cycle it through <b>Input → Process → Output → clear</b>. Not every highlighted phrase belongs in one of the three: some are decoys — real detail worth keeping for other parts of your Investigation, but not actually part of <em>this process's</em> data flow. When you're ready, hit "Reveal model answer".</p>
+  <p class="disclaimer">Same fictional library scenario as the Discussion resources and the Investigation Lesson 1 slides — this is the manual overdue-chasing process referenced there, written out in full for this task.</p>
+
+  <div class="ref-grid">
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip i">I</span><span class="rlabel">Input</span></div>
+      <p>Data or material that goes <em>into</em> the process from outside it.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip p">P</span><span class="rlabel">Process</span></div>
+      <p>A step that <em>does something</em> to the inputs — checks, transforms, calculates, looks up.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip o">O</span><span class="rlabel">Output</span></div>
+      <p>Something the process <em>produces</em> and sends elsewhere — a document, a record, a notice.</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="chip"><span class="swatch sw-correct"></span>Correctly sorted</span>
+    <span class="chip"><span class="swatch sw-wrong"></span>Sorted, but wrong category (or a decoy you sorted)</span>
+    <span class="chip"><span class="swatch sw-missed"></span>Left unsorted — should have been categorised</span>
+  </div>
+
+  <div class="score-panel" id="score-panel"></div>
+
+  <section class="block">
+    <div class="extract" id="extract"></div>
+    <div class="annotations" id="annotations"></div>
+  </section>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · part of the Investigation Lesson 1 resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STATES = ["", "input", "process", "output"];
+
+  var PARAS = [
+    'Once a week, a library assistant works through the current overdue-books process by hand. She starts with <c id="c1">the paper loan ledger, where every current loan is logged by hand with the borrower’s name and the date it’s due back</c>, and checks it against <c id="c2">today’s date, taken from the desk calendar</c>, to see which loans have passed their return date. <c id="c3">The library is shared across three campuses, serving around 600 students and 40 staff</c>.',
+    'For every loan that’s overdue, she <c id="c4">cross-references the borrower’s name against the college’s internal contacts list to find their form tutor</c>, then <c id="c5">hand-writes a reminder slip for each overdue borrower, noting the item title and how many days overdue it is</c>, and <c id="c6">double-checks each hand-written slip against the ledger entry to make sure the details match before it goes out</c>. <c id="c7">This cross-checking and writing currently takes around three hours each week</c>, and <c id="c11">whichever library assistant is on the desk that Friday afternoon runs the whole overdue-chasing round</c>.',
+    'Once the slips are written, <c id="c8">each reminder slip is placed in the relevant form tutor’s pigeonhole for hand-delivery to the student</c>, and <c id="c9">the Librarian also updates the paper ledger to mark which loans have already been chased this week</c>. If a book is more than four weeks overdue, <c id="c10">a follow-up letter is printed and posted home to the student’s parent or guardian</c>.'
+  ];
+
+  var ANSWERS = {
+    c1: { cat: "input", note: "Existing recorded data the process starts from — exactly what “input” means: something that goes into the process from outside it." },
+    c2: { cat: "input", note: "A second input. Process steps often need more than one thing to start — here, a comparison date, not just the ledger itself." },
+    c4: { cat: "process", note: "A step that looks something up and turns it into something else — a name becomes a tutor to notify. Processes DO something to the inputs." },
+    c5: { cat: "process", note: "The core transformation step: raw overdue-ledger data becomes a physical reminder slip." },
+    c6: { cat: "process", note: "A checking step is still a process — not every process step produces new data, some just verify it." },
+    c8: { cat: "output", note: "Something the process produces and hands off elsewhere — a completed reminder slip leaving the process." },
+    c9: { cat: "output", note: "An updated record is an output too, even though it stays inside the library — the ledger itself has changed as a result of the process." },
+    c10: { cat: "output", note: "A second, conditional output — not every run of the process produces this one, but past four weeks overdue, it does." }
+  };
+  var DECOY_NOTES = {
+    c3: "Useful scale for your Discussion write-up, but it’s context about the library, not something that goes in, happens, or comes out of THIS process.",
+    c7: "A timing fact about how long the process takes — useful for describing limitations, but not itself an input, process step, or output.",
+    c11: "Who’s on duty is a staffing fact, not data flowing through the process — it doesn’t change what goes in, what happens, or what comes out."
+  };
+
+  var LABEL = { input: "Input", process: "Process", output: "Output" };
+  var LETTER = { input: "I", process: "P", output: "O" };
+
+  var mode = "task";
+  var assigned = {};
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function renderExtract() {
+    var html = PARAS.map(function (p) {
+      var converted = p.replace(/<c id="([^"]+)">/g, function (m, id) {
+        return '<span class="cand" tabindex="0" role="button" data-id="' + id + '">';
+      }).replace(/<\/c>/g, "</span>");
+      return "<p>" + converted + "</p>";
+    }).join("");
+    document.getElementById("extract").innerHTML = html;
+  }
+
+  function sortedCount() {
+    return Object.keys(assigned).filter(function (id) { return assigned[id]; }).length;
+  }
+
+  function updateStatLine() {
+    document.getElementById("pick-count").textContent = sortedCount();
+  }
+
+  function applyCandVisual(el) {
+    var id = el.getAttribute("data-id");
+    var cat = assigned[id];
+    el.classList.remove("cat-input", "cat-process", "cat-output");
+    if (cat) {
+      el.classList.add("cat-" + cat);
+      el.setAttribute("data-badge", LETTER[cat]);
+    } else {
+      el.removeAttribute("data-badge");
+    }
+  }
+
+  function cycle(el) {
+    var id = el.getAttribute("data-id");
+    var cur = assigned[id] || "";
+    var idx = (STATES.indexOf(cur) + 1) % STATES.length;
+    var next = STATES[idx];
+    if (next) assigned[id] = next; else delete assigned[id];
+    applyCandVisual(el);
+    updateStatLine();
+  }
+
+  document.getElementById("extract").addEventListener("click", function (ev) {
+    if (mode !== "task") return;
+    var el = ev.target.closest(".cand");
+    if (el) cycle(el);
+  });
+  document.getElementById("extract").addEventListener("keydown", function (ev) {
+    if (mode !== "task") return;
+    if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList && ev.target.classList.contains("cand")) {
+      ev.preventDefault();
+      cycle(ev.target);
+    }
+  });
+
+  function renderAnnotations(badgeOrder) {
+    var html = badgeOrder.map(function (id) {
+      var ans = ANSWERS[id];
+      var studentCat = assigned[id];
+      var pillHtml;
+      if (!ans) {
+        pillHtml = studentCat
+          ? '<span class="pill you-wrong">You sorted this as ' + LABEL[studentCat] + '</span>'
+          : '<span class="pill">Decoy — correctly left unsorted</span>';
+        return (
+          '<div class="ann-card">' +
+            '<div class="ahead"><span class="n" style="background:var(--faint)">–</span><span class="pill" style="background:var(--surface-raised);border:1px solid var(--border);color:var(--muted)">Not I/P/O</span>' + (studentCat ? pillHtml : "") + '</div>' +
+            "<p style=\"margin:0\">" + DECOY_NOTES[id] + "</p>" +
+          "</div>"
+        );
+      }
+      var correct = studentCat === ans.cat;
+      if (correct) pillHtml = '<span class="pill">You got it</span>';
+      else if (studentCat) pillHtml = '<span class="pill you-wrong">You sorted this as ' + LABEL[studentCat] + '</span>';
+      else pillHtml = '<span class="pill you-missed">Left unsorted</span>';
+      return (
+        '<div class="ann-card">' +
+          '<div class="ahead"><span class="n ' + ans.cat + '">' + LETTER[ans.cat] + '</span><span class="pill">' + LABEL[ans.cat] + '</span>' + pillHtml + '</div>' +
+          "<p style=\"margin:0\">" + ans.note + "</p>" +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById("annotations").innerHTML = html;
+  }
+
+  function renderScore() {
+    var total = Object.keys(ANSWERS).length;
+    var correct = 0, wrongCat = 0, missed = 0, decoyFlagged = 0;
+    Object.keys(ANSWERS).forEach(function (id) {
+      var a = assigned[id];
+      if (a === ANSWERS[id].cat) correct++;
+      else if (a) wrongCat++;
+      else missed++;
+    });
+    Object.keys(DECOY_NOTES).forEach(function (id) {
+      if (assigned[id]) decoyFlagged++;
+    });
+    var panel = document.getElementById("score-panel");
+    var extra = [];
+    if (wrongCat) extra.push(wrongCat + " sorted into the wrong category");
+    if (missed) extra.push(missed + " left unsorted");
+    if (decoyFlagged) extra.push(decoyFlagged + " decoy" + (decoyFlagged === 1 ? "" : "s") + " sorted when it shouldn’t have been");
+    panel.innerHTML =
+      '<span class="big">' + correct + " / " + total + "</span>" +
+      "<p>correctly sorted" + (extra.length ? " — " + extra.join("; ") + "." : ". Every input, process and output correctly placed — and no decoys picked up along the way." ) + "</p>";
+  }
+
+  document.getElementById("reveal-btn").addEventListener("click", function () {
+    mode = "revealed";
+    document.body.classList.add("revealed");
+    var order = [];
+    document.querySelectorAll(".cand").forEach(function (el) {
+      var id = el.getAttribute("data-id");
+      order.push(id);
+      var ans = ANSWERS[id];
+      el.classList.remove("cat-input", "cat-process", "cat-output", "correct", "wrong", "missed");
+      if (ans) {
+        var studentCat = assigned[id];
+        if (studentCat === ans.cat) {
+          el.classList.add("cat-" + ans.cat, "correct");
+          el.setAttribute("data-badge", LETTER[ans.cat]);
+        } else if (studentCat) {
+          el.classList.add("cat-" + studentCat, "wrong");
+          el.setAttribute("data-badge", LETTER[studentCat]);
+        } else {
+          el.classList.add("missed");
+          el.setAttribute("data-badge", LETTER[ans.cat]);
+        }
+      } else if (assigned[id]) {
+        el.classList.add("cat-" + assigned[id], "wrong");
+        el.setAttribute("data-badge", LETTER[assigned[id]]);
+      } else {
+        el.removeAttribute("data-badge");
+      }
+    });
+    // order annotation cards: answerable items first (by paragraph order), then decoys
+    var ordered = order.filter(function (id) { return ANSWERS[id]; }).concat(order.filter(function (id) { return !ANSWERS[id]; }));
+    renderAnnotations(ordered);
+    renderScore();
+    document.getElementById("reveal-btn").hidden = true;
+    document.getElementById("reset-btn").hidden = false;
+    document.getElementById("stat-line").textContent = "Model answer revealed — compare your sorting against the notes below.";
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    mode = "task";
+    assigned = {};
+    document.body.classList.remove("revealed");
+    renderExtract();
+    document.getElementById("annotations").innerHTML = "";
+    document.getElementById("stat-line").innerHTML = 'Click any phrase, then click again to cycle Input → Process → Output → clear. <b id="pick-count">0</b> sorted so far.';
+    document.getElementById("reveal-btn").hidden = false;
+    document.getElementById("reset-btn").hidden = true;
+  });
+
+  renderExtract();
+})();
+</script>
+</body>
+</html>
