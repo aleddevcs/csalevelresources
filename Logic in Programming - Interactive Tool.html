@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logic in Programming: Masking, Clearing &amp; Encryption</title>
+<style>
+  :root {
+    --navy: #1E2761;
+    --navy-dark: #141B45;
+    --amber: #E8A33D;
+    --amber-dark: #B9782A;
+    --white: #FFFFFF;
+    --offwhite: #F6F7FB;
+    --ink: #1E2761;
+    --muted: #5B6180;
+    --border: #D8DCEC;
+    --good: #1E7A3D;
+    --good-bg: #E8F5EC;
+    --bad: #B3261E;
+    --bad-bg: #FCE9E8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Calibri, Candara, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--white);
+  }
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 28px 32px 22px;
+  }
+  header .kicker {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  header h1 {
+    font-family: Cambria, Georgia, serif;
+    font-size: 28px;
+    margin: 0 0 4px;
+  }
+  header p { margin: 0; color: #CADCFC; font-size: 15px; }
+
+  nav.tabs { display: flex; gap: 4px; background: var(--navy-dark); padding: 0 28px; flex-wrap: wrap; }
+  nav.tabs button {
+    background: transparent; border: none; color: #B9C2E8;
+    font-family: Calibri, sans-serif; font-size: 15px; font-weight: bold;
+    padding: 14px 18px; cursor: pointer; border-bottom: 3px solid transparent;
+  }
+  nav.tabs button.active { color: var(--white); border-bottom-color: var(--amber); }
+  nav.tabs button:hover:not(.active) { color: var(--white); }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 30px 28px 60px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  h2.section-title { font-family: Cambria, Georgia, serif; color: var(--navy); font-size: 24px; margin: 0 0 6px; }
+  p.section-sub { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+
+  .bit-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+  .bit-label { width: 128px; flex: 0 0 128px; font-size: 14px; font-weight: bold; color: var(--muted); }
+  .bit-cell-group { display: flex; gap: 5px; }
+  .bit-cell {
+    width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: Consolas, monospace; font-size: 18px; font-weight: bold; color: var(--navy);
+    background: var(--white);
+  }
+  .bit-cell.fixed { background: var(--offwhite); color: var(--muted); border-color: var(--offwhite); }
+  .bit-cell.editable { cursor: pointer; border-color: var(--navy); user-select: none; }
+  .bit-cell.editable:hover { background: #FCEFD9; }
+  .bit-cell.result { background: var(--offwhite); color: var(--amber-dark); border-color: var(--offwhite); }
+  .bit-cell.correct { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+  .bit-cell.incorrect { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+  .bit-cell.target { outline: 3px solid var(--amber); outline-offset: 2px; }
+  .op-label { font-size: 13px; font-weight: bold; font-style: italic; color: var(--amber-dark); margin-left: 6px; }
+
+  .bit-index-row { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+  .bit-index-group { display: flex; gap: 5px; }
+  .bit-index-cell { width: 40px; text-align: center; font-size: 11px; color: var(--muted); }
+
+  .btn-row { display: flex; gap: 10px; margin: 18px 0 10px; flex-wrap: wrap; }
+  .action-btn {
+    background: var(--navy); color: var(--white); border: none; padding: 10px 18px;
+    border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; font-family: Calibri, sans-serif;
+  }
+  .action-btn.secondary { background: var(--white); color: var(--navy); border: 2px solid var(--navy); }
+  .action-btn.amber { background: var(--amber); color: var(--navy-dark); }
+  .action-btn:hover { opacity: 0.9; }
+  .action-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .target-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .target-btn {
+    border: 2px solid var(--navy); background: var(--white); color: var(--navy);
+    padding: 8px 14px; border-radius: 8px; font-family: Calibri, sans-serif; font-size: 13px;
+    cursor: pointer; font-weight: bold;
+  }
+  .target-btn.active { background: var(--navy); color: var(--white); }
+
+  .method-picker { display: flex; gap: 10px; margin-bottom: 20px; }
+  .method-btn {
+    border: 2px solid var(--navy); background: var(--white); color: var(--navy);
+    padding: 10px 18px; border-radius: 8px; font-family: Cambria, serif; font-size: 15px;
+    cursor: pointer; font-weight: bold;
+  }
+  .method-btn.active { background: var(--navy); color: var(--white); }
+
+  .feedback { font-size: 14px; margin-top: 10px; min-height: 20px; font-weight: bold; }
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+
+  .step-log {
+    background: var(--offwhite); border-radius: 10px; padding: 16px 20px; margin-top: 16px;
+    font-size: 14px; color: var(--ink); display: none; line-height: 1.7;
+  }
+  .step-log.show { display: block; }
+  .step-log .log-title { color: var(--amber-dark); font-weight: bold; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+
+  .card { background: var(--offwhite); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Unit 3 &middot; Topic 2 &middot; Logical Operations</div>
+  <h1>Logic in Programming: Masking, Clearing &amp; Encryption</h1>
+  <p>Build the masks and keys yourself &mdash; AND to isolate a bit, AND or XOR to clear a register, XOR to encrypt and decrypt.</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="masking">1. Masking</button>
+  <button class="tab-btn" data-tab="clearing">2. Clearing Registers</button>
+  <button class="tab-btn" data-tab="encryption">3. Encryption &amp; Decryption</button>
+</nav>
+
+<main>
+
+  <!-- TAB 1: MASKING -->
+  <section id="panel-masking" class="panel active">
+    <h2 class="section-title">Find bits using a mask</h2>
+    <p class="section-sub">Pick one or more bits to investigate &mdash; using MSB/LSB naming &mdash; then build a mask that isolates exactly those bits: a 1 in each chosen position, 0 everywhere else.</p>
+
+    <div class="card">
+      <div class="target-picker" id="targetPicker"></div>
+
+      <div class="bit-index-row">
+        <div class="bit-label"></div>
+        <div class="bit-index-group" id="maskIndexRow"></div>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label">Original data</div>
+        <div class="bit-cell-group" id="maskDataRow"></div>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label">Your mask</div>
+        <div class="bit-cell-group" id="maskMaskRow"></div>
+        <span class="op-label">AND</span>
+      </div>
+      <div class="bit-row" id="maskResultWrap" style="display:none;">
+        <div class="bit-label">Result</div>
+        <div class="bit-cell-group" id="maskResultRow"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="action-btn" id="maskCheckBtn">Check my mask</button>
+      <button class="action-btn secondary" id="maskNewBtn">New data</button>
+      <button class="action-btn secondary" id="maskResetBtn">Reset mask</button>
+    </div>
+    <div class="feedback" id="maskFeedback"></div>
+    <div class="step-log" id="maskLog"></div>
+  </section>
+
+  <!-- TAB 2: CLEARING REGISTERS -->
+  <section id="panel-clearing" class="panel">
+    <h2 class="section-title">Clear a register</h2>
+    <p class="section-sub">Pick a method, then build the mask that clears the register &mdash; every bit should end up 0.</p>
+
+    <div class="method-picker" id="methodPicker"></div>
+
+    <div class="card">
+      <div class="bit-row">
+        <div class="bit-label">Original data</div>
+        <div class="bit-cell-group" id="clearDataRow"></div>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label" id="clearMaskLabel">Your mask</div>
+        <div class="bit-cell-group" id="clearMaskRow"></div>
+        <span class="op-label" id="clearOpLabel">AND</span>
+      </div>
+      <div class="bit-row" id="clearResultWrap" style="display:none;">
+        <div class="bit-label">Result</div>
+        <div class="bit-cell-group" id="clearResultRow"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="action-btn" id="clearCheckBtn">Check my mask</button>
+      <button class="action-btn secondary" id="clearNewBtn">New data</button>
+      <button class="action-btn secondary" id="clearResetBtn">Reset mask</button>
+    </div>
+    <div class="feedback" id="clearFeedback"></div>
+    <div class="step-log" id="clearLog"></div>
+  </section>
+
+  <!-- TAB 3: ENCRYPTION -->
+  <section id="panel-encryption" class="panel">
+    <h2 class="section-title">Encrypt, then decrypt</h2>
+    <p class="section-sub">Work out the ciphertext yourself using XOR, then use the same key to decrypt it back.</p>
+
+    <div class="card">
+      <div class="bit-row">
+        <div class="bit-label">Plaintext</div>
+        <div class="bit-cell-group" id="encDataRow"></div>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label">Key</div>
+        <div class="bit-cell-group" id="encKeyRow"></div>
+        <span class="op-label">XOR</span>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label">Your ciphertext</div>
+        <div class="bit-cell-group" id="encCipherRow"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn" id="encCheckBtn">Check my ciphertext</button>
+      <button class="action-btn secondary" id="encNewBtn">New data</button>
+      <button class="action-btn secondary" id="encResetBtn">Reset</button>
+    </div>
+    <div class="feedback" id="encFeedback"></div>
+
+    <div class="card" id="decCard" style="display:none;">
+      <div class="bit-row">
+        <div class="bit-label">Ciphertext</div>
+        <div class="bit-cell-group" id="decCipherRow"></div>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label">Key</div>
+        <div class="bit-cell-group" id="decKeyRow"></div>
+        <span class="op-label">XOR</span>
+      </div>
+      <div class="bit-row">
+        <div class="bit-label">Your decrypted data</div>
+        <div class="bit-cell-group" id="decOutRow"></div>
+      </div>
+    </div>
+    <div class="btn-row" id="decBtnRow" style="display:none;">
+      <button class="action-btn" id="decCheckBtn">Check my decryption</button>
+    </div>
+    <div class="feedback" id="decFeedback"></div>
+    <div class="step-log" id="encLog"></div>
+  </section>
+
+</main>
+
+<script>
+/* ---------------- Shared bit helpers (ES5) ---------------- */
+function randomBits(n) {
+  var arr = [];
+  for (var i = 0; i < n; i++) { arr.push(Math.random() < 0.5 ? '0' : '1'); }
+  return arr;
+}
+function zeros(n) {
+  var arr = [];
+  for (var i = 0; i < n; i++) { arr.push('0'); }
+  return arr;
+}
+function bitsToDisplay(arr) { return arr.join(' '); }
+function andBits(a, b) {
+  var out = [];
+  for (var i = 0; i < a.length; i++) { out.push((a[i] === '1' && b[i] === '1') ? '1' : '0'); }
+  return out;
+}
+function xorBits(a, b) {
+  var out = [];
+  for (var i = 0; i < a.length; i++) { out.push(a[i] === b[i] ? '0' : '1'); }
+  return out;
+}
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; i++) { if (a[i] !== b[i]) return false; }
+  return true;
+}
+function countMatches(a, b) {
+  var c = 0;
+  for (var i = 0; i < a.length; i++) { if (a[i] === b[i]) c++; }
+  return c;
+}
+
+/* ---------------- Tab navigation ---------------- */
+(function() {
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < tabBtns.length; i++) {
+    tabBtns[i].addEventListener('click', function() {
+      var btn = this;
+      var allBtns = document.querySelectorAll('.tab-btn');
+      for (var j = 0; j < allBtns.length; j++) { allBtns[j].classList.remove('active'); }
+      var allPanels = document.querySelectorAll('.panel');
+      for (var k = 0; k < allPanels.length; k++) { allPanels[k].classList.remove('active'); }
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
+    });
+  }
+})();
+
+/* Renders a row of fixed (non-editable) bit cells into container id */
+function renderFixedRow(containerId, bits, opts) {
+  opts = opts || {};
+  var el = document.getElementById(containerId);
+  el.innerHTML = '';
+  var targets = opts.targetIndexes || (opts.targetIndex !== undefined ? [opts.targetIndex] : []);
+  for (var i = 0; i < bits.length; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'bit-cell ' + (opts.cls || 'fixed');
+    cell.textContent = bits[i];
+    if (targets.indexOf(i) !== -1) cell.classList.add('target');
+    el.appendChild(cell);
+  }
+}
+/* Renders a row of editable bit cells; onToggle(index) called on click */
+function renderEditableRow(containerId, bits, onToggle) {
+  var el = document.getElementById(containerId);
+  el.innerHTML = '';
+  for (var i = 0; i < bits.length; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'bit-cell editable';
+    cell.textContent = bits[i];
+    cell.setAttribute('data-idx', i);
+    (function(idx) {
+      cell.addEventListener('click', function() { onToggle(idx); });
+    })(i);
+    el.appendChild(cell);
+  }
+}
+function markRow(containerId, studentBits, correctBits) {
+  var el = document.getElementById(containerId);
+  var cells = el.querySelectorAll('.bit-cell');
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].classList.remove('correct', 'incorrect');
+    cells[i].classList.add(studentBits[i] === correctBits[i] ? 'correct' : 'incorrect');
+  }
+}
+
+/* ================= TAB 1: MASKING ================= */
+var maskOriginal = randomBits(8);
+var BIT_LABELS = ['MSB','2nd MSB','3rd MSB','4th MSB','5th MSB','6th MSB','7th MSB','LSB'];
+var maskTargets = [2]; // 0-indexed array of selected bit positions; default 3rd MSB
+var maskStudent = zeros(8);
+
+function joinWithAnd(items) {
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return items[0] + ' and ' + items[1];
+  return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+}
+
+function toggleTarget(idx) {
+  var pos = maskTargets.indexOf(idx);
+  if (pos !== -1) {
+    if (maskTargets.length === 1) return; // keep at least one selected
+    maskTargets.splice(pos, 1);
+  } else {
+    maskTargets.push(idx);
+  }
+  maskTargets.sort(function(a, b) { return a - b; });
+  maskStudent = zeros(8);
+  document.getElementById('maskResultWrap').style.display = 'none';
+  document.getElementById('maskFeedback').textContent = '';
+  document.getElementById('maskFeedback').className = 'feedback';
+  document.getElementById('maskLog').classList.remove('show');
+  renderTargetPicker();
+  renderMaskingTab();
+}
+
+function renderTargetPicker() {
+  var picker = document.getElementById('targetPicker');
+  picker.innerHTML = '';
+  for (var i = 0; i < 8; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'target-btn' + (maskTargets.indexOf(i) !== -1 ? ' active' : '');
+    btn.textContent = BIT_LABELS[i];
+    (function(idx) {
+      btn.addEventListener('click', function() { toggleTarget(idx); });
+    })(i);
+    picker.appendChild(btn);
+  }
+}
+
+function renderMaskingTab() {
+  var idxRow = document.getElementById('maskIndexRow');
+  idxRow.innerHTML = '';
+  for (var i = 0; i < 8; i++) {
+    var d = document.createElement('div');
+    d.className = 'bit-index-cell';
+    d.textContent = (i + 1);
+    idxRow.appendChild(d);
+  }
+  renderFixedRow('maskDataRow', maskOriginal, { targetIndexes: maskTargets });
+  renderEditableRow('maskMaskRow', maskStudent, function(idx) {
+    maskStudent[idx] = maskStudent[idx] === '0' ? '1' : '0';
+    renderMaskingTab();
+  });
+  var maskCells = document.getElementById('maskMaskRow').children;
+  for (var t = 0; t < maskTargets.length; t++) {
+    if (maskCells[maskTargets[t]]) maskCells[maskTargets[t]].classList.add('target');
+  }
+}
+
+document.getElementById('maskCheckBtn').addEventListener('click', function() {
+  var expectedMask = zeros(8);
+  for (var t = 0; t < maskTargets.length; t++) { expectedMask[maskTargets[t]] = '1'; }
+  var result = andBits(maskOriginal, maskStudent);
+  document.getElementById('maskResultWrap').style.display = 'flex';
+  renderFixedRow('maskResultRow', result, { cls: 'result' });
+
+  var targetLabels = maskTargets.map(function(idx) { return BIT_LABELS[idx]; });
+  var labelPhrase = joinWithAnd(targetLabels);
+  var maskCorrect = arraysEqual(maskStudent, expectedMask);
+  var fb = document.getElementById('maskFeedback');
+  if (maskCorrect) {
+    fb.textContent = 'Correct \u2014 that mask isolates exactly the ' + labelPhrase + (maskTargets.length > 1 ? '.' : ' bit.');
+    fb.className = 'feedback good';
+  } else {
+    fb.textContent = 'Not quite \u2014 your mask should have a 1 in ' + (maskTargets.length > 1 ? 'each of these positions' : 'this position') + ' (' + labelPhrase + ') and 0 everywhere else.';
+    fb.className = 'feedback bad';
+  }
+
+  var log = document.getElementById('maskLog');
+  if (maskCorrect) {
+    var valuePhrases = maskTargets.map(function(idx) { return 'the ' + BIT_LABELS[idx] + ' is <strong>' + maskOriginal[idx] + '</strong>'; });
+    log.innerHTML =
+      '<div class="log-title">Exam-answer reasoning</div>' +
+      'Mask: ' + bitsToDisplay(maskStudent) + ' &mdash; a 1 in ' + (maskTargets.length > 1 ? 'each chosen position' : 'that position') + ' only.<br>' +
+      'AND with the original data: everywhere the mask is 0, the result is forced to 0.<br>' +
+      'Result: ' + bitsToDisplay(result) + ' &mdash; so ' + joinWithAnd(valuePhrases) + '.';
+  } else {
+    log.innerHTML =
+      '<div class="log-title">Exam-answer reasoning</div>' +
+      'Your mask: ' + bitsToDisplay(maskStudent) + ' &rarr; result: ' + bitsToDisplay(result) + '.<br>' +
+      'To isolate exactly the ' + labelPhrase + ', the mask needs a 1 in ' + (maskTargets.length > 1 ? 'those positions' : 'that position') + ' and 0 everywhere else \u2014 any other 1 in the mask lets that bit through too.';
+  }
+  log.classList.add('show');
+});
+
+document.getElementById('maskNewBtn').addEventListener('click', function() {
+  maskOriginal = randomBits(8);
+  maskStudent = zeros(8);
+  document.getElementById('maskResultWrap').style.display = 'none';
+  document.getElementById('maskFeedback').textContent = '';
+  document.getElementById('maskFeedback').className = 'feedback';
+  document.getElementById('maskLog').classList.remove('show');
+  renderMaskingTab();
+});
+document.getElementById('maskResetBtn').addEventListener('click', function() {
+  maskStudent = zeros(8);
+  document.getElementById('maskResultWrap').style.display = 'none';
+  document.getElementById('maskFeedback').textContent = '';
+  document.getElementById('maskFeedback').className = 'feedback';
+  document.getElementById('maskLog').classList.remove('show');
+  renderMaskingTab();
+});
+
+renderTargetPicker();
+renderMaskingTab();
+
+/* ================= TAB 2: CLEARING REGISTERS ================= */
+var clearOriginal = randomBits(8);
+var clearMethod = 'and'; // 'and' or 'xor'
+var clearStudent = zeros(8);
+
+function renderMethodPicker() {
+  var picker = document.getElementById('methodPicker');
+  picker.innerHTML = '';
+  var methods = [
+    { key: 'and', label: 'AND with zero' },
+    { key: 'xor', label: 'XOR with itself' }
+  ];
+  for (var i = 0; i < methods.length; i++) {
+    var m = methods[i];
+    var btn = document.createElement('button');
+    btn.className = 'method-btn' + (m.key === clearMethod ? ' active' : '');
+    btn.textContent = m.label;
+    (function(key) {
+      btn.addEventListener('click', function() {
+        clearMethod = key;
+        clearStudent = zeros(8);
+        document.getElementById('clearResultWrap').style.display = 'none';
+        document.getElementById('clearFeedback').textContent = '';
+        document.getElementById('clearFeedback').className = 'feedback';
+        document.getElementById('clearLog').classList.remove('show');
+        renderMethodPicker();
+        renderClearingTab();
+      });
+    })(m.key);
+    picker.appendChild(btn);
+  }
+}
+
+function renderClearingTab() {
+  document.getElementById('clearOpLabel').textContent = clearMethod === 'and' ? 'AND' : 'XOR';
+  document.getElementById('clearMaskLabel').textContent = clearMethod === 'and' ? 'Your mask (all zeros)' : 'Your mask (= original data)';
+  renderFixedRow('clearDataRow', clearOriginal, {});
+  renderEditableRow('clearMaskRow', clearStudent, function(idx) {
+    clearStudent[idx] = clearStudent[idx] === '0' ? '1' : '0';
+    renderClearingTab();
+  });
+}
+
+document.getElementById('clearCheckBtn').addEventListener('click', function() {
+  var expected = clearMethod === 'and' ? zeros(8) : clearOriginal.slice();
+  var result = clearMethod === 'and' ? andBits(clearOriginal, clearStudent) : xorBits(clearOriginal, clearStudent);
+  document.getElementById('clearResultWrap').style.display = 'flex';
+  renderFixedRow('clearResultRow', result, { cls: 'result' });
+
+  var maskCorrect = arraysEqual(clearStudent, expected);
+  var fb = document.getElementById('clearFeedback');
+  if (maskCorrect) {
+    fb.textContent = 'Correct \u2014 the register clears to all zeros.';
+    fb.className = 'feedback good';
+  } else {
+    fb.textContent = clearMethod === 'and'
+      ? 'Not quite \u2014 for the AND method your mask should be all zeros.'
+      : 'Not quite \u2014 for the XOR method your mask should exactly match the original data.';
+    fb.className = 'feedback bad';
+  }
+
+  var log = document.getElementById('clearLog');
+  if (clearMethod === 'and') {
+    log.innerHTML =
+      '<div class="log-title">Exam-answer reasoning</div>' +
+      'Mask: ' + bitsToDisplay(clearStudent) + '.<br>' +
+      'ANDing any bit with 0 always gives 0, regardless of the original value.<br>' +
+      'Result: ' + bitsToDisplay(result) + '.';
+  } else {
+    log.innerHTML =
+      '<div class="log-title">Exam-answer reasoning</div>' +
+      'Mask: ' + bitsToDisplay(clearStudent) + ' (the data itself).<br>' +
+      'XORing any bit with itself always gives 0, since the two bits always match.<br>' +
+      'Result: ' + bitsToDisplay(result) + '.';
+  }
+  log.classList.add('show');
+});
+
+document.getElementById('clearNewBtn').addEventListener('click', function() {
+  clearOriginal = randomBits(8);
+  clearStudent = zeros(8);
+  document.getElementById('clearResultWrap').style.display = 'none';
+  document.getElementById('clearFeedback').textContent = '';
+  document.getElementById('clearFeedback').className = 'feedback';
+  document.getElementById('clearLog').classList.remove('show');
+  renderClearingTab();
+});
+document.getElementById('clearResetBtn').addEventListener('click', function() {
+  clearStudent = zeros(8);
+  document.getElementById('clearResultWrap').style.display = 'none';
+  document.getElementById('clearFeedback').textContent = '';
+  document.getElementById('clearFeedback').className = 'feedback';
+  document.getElementById('clearLog').classList.remove('show');
+  renderClearingTab();
+});
+
+renderMethodPicker();
+renderClearingTab();
+
+/* ================= TAB 3: ENCRYPTION ================= */
+var encPlain = randomBits(8);
+var encKey = randomBits(8);
+var encStudentCipher = zeros(8);
+var encCorrectCipher = null;
+var decStudentOut = zeros(8);
+
+function renderEncryptTab() {
+  renderFixedRow('encDataRow', encPlain, {});
+  renderFixedRow('encKeyRow', encKey, {});
+  renderEditableRow('encCipherRow', encStudentCipher, function(idx) {
+    encStudentCipher[idx] = encStudentCipher[idx] === '0' ? '1' : '0';
+    renderEncryptTab();
+  });
+}
+
+document.getElementById('encCheckBtn').addEventListener('click', function() {
+  encCorrectCipher = xorBits(encPlain, encKey);
+  markRow('encCipherRow', encStudentCipher, encCorrectCipher);
+  var correct = arraysEqual(encStudentCipher, encCorrectCipher);
+  var fb = document.getElementById('encFeedback');
+  var n = countMatches(encStudentCipher, encCorrectCipher);
+  fb.textContent = n + ' / 8 bits correct.';
+  fb.className = 'feedback ' + (correct ? 'good' : 'bad');
+
+  var log = document.getElementById('encLog');
+  log.innerHTML =
+    '<div class="log-title">Exam-answer reasoning</div>' +
+    'Plaintext: ' + bitsToDisplay(encPlain) + '<br>' +
+    'Key: ' + bitsToDisplay(encKey) + '<br>' +
+    'XOR each pair of bits (differ \u2192 1, match \u2192 0): <strong>' + bitsToDisplay(encCorrectCipher) + '</strong>';
+  log.classList.add('show');
+
+  document.getElementById('decCard').style.display = 'block';
+  document.getElementById('decBtnRow').style.display = 'flex';
+  decStudentOut = zeros(8);
+  renderFixedRow('decCipherRow', encCorrectCipher, {});
+  renderFixedRow('decKeyRow', encKey, {});
+  renderEditableRow('decOutRow', decStudentOut, function(idx) {
+    decStudentOut[idx] = decStudentOut[idx] === '0' ? '1' : '0';
+    renderFixedRow('decCipherRow', encCorrectCipher, {});
+    renderFixedRow('decKeyRow', encKey, {});
+    var el = document.getElementById('decOutRow');
+    var cells = el.querySelectorAll('.bit-cell');
+    for (var i = 0; i < cells.length; i++) { cells[i].textContent = decStudentOut[i]; }
+  });
+  document.getElementById('decFeedback').textContent = '';
+  document.getElementById('decFeedback').className = 'feedback';
+});
+
+document.getElementById('decCheckBtn').addEventListener('click', function() {
+  markRow('decOutRow', decStudentOut, encPlain);
+  var correct = arraysEqual(decStudentOut, encPlain);
+  var fb = document.getElementById('decFeedback');
+  var n = countMatches(decStudentOut, encPlain);
+  fb.textContent = n + ' / 8 bits correct' + (correct ? ' \u2014 you\u2019ve recovered the original plaintext.' : '.');
+  fb.className = 'feedback ' + (correct ? 'good' : 'bad');
+});
+
+document.getElementById('encNewBtn').addEventListener('click', function() {
+  encPlain = randomBits(8);
+  encKey = randomBits(8);
+  encStudentCipher = zeros(8);
+  encCorrectCipher = null;
+  document.getElementById('encFeedback').textContent = '';
+  document.getElementById('encFeedback').className = 'feedback';
+  document.getElementById('encLog').classList.remove('show');
+  document.getElementById('decCard').style.display = 'none';
+  document.getElementById('decBtnRow').style.display = 'none';
+  document.getElementById('decFeedback').textContent = '';
+  renderEncryptTab();
+});
+document.getElementById('encResetBtn').addEventListener('click', function() {
+  encStudentCipher = zeros(8);
+  document.getElementById('encFeedback').textContent = '';
+  document.getElementById('encFeedback').className = 'feedback';
+  document.getElementById('encLog').classList.remove('show');
+  document.getElementById('decCard').style.display = 'none';
+  document.getElementById('decBtnRow').style.display = 'none';
+  document.getElementById('decFeedback').textContent = '';
+  renderEncryptTab();
+});
+
+renderEncryptTab();
+</script>
+
+</body>
+</html>
