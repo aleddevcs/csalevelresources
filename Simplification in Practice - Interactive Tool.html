@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simplification in Practice</title>
+<style>
+  :root {
+    --navy: #1E2761;
+    --navy-dark: #141B45;
+    --amber: #E8A33D;
+    --amber-dark: #B9782A;
+    --white: #FFFFFF;
+    --offwhite: #F6F7FB;
+    --ink: #1E2761;
+    --muted: #5B6180;
+    --border: #D8DCEC;
+    --good: #1E7A3D;
+    --good-bg: #E8F5EC;
+    --bad: #B3261E;
+    --bad-bg: #FCE9E8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Calibri, Candara, "Segoe UI", sans-serif; color: var(--ink); background: var(--white); }
+  header { background: var(--navy); color: var(--white); padding: 28px 32px 22px; }
+  header .kicker { font-size: 13px; font-weight: bold; letter-spacing: 1.5px; color: var(--amber); text-transform: uppercase; margin-bottom: 6px; }
+  header h1 { font-family: Cambria, Georgia, serif; font-size: 28px; margin: 0 0 4px; }
+  header p { margin: 0; color: #CADCFC; font-size: 15px; }
+
+  nav.tabs { display: flex; gap: 4px; background: var(--navy-dark); padding: 0 28px; flex-wrap: wrap; }
+  nav.tabs button {
+    background: transparent; border: none; color: #B9C2E8;
+    font-family: Calibri, sans-serif; font-size: 15px; font-weight: bold;
+    padding: 14px 18px; cursor: pointer; border-bottom: 3px solid transparent;
+  }
+  nav.tabs button.active { color: var(--white); border-bottom-color: var(--amber); }
+  nav.tabs button:hover:not(.active) { color: var(--white); }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 30px 28px 60px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  h2.section-title { font-family: Cambria, Georgia, serif; color: var(--navy); font-size: 24px; margin: 0 0 6px; }
+  p.section-sub { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+
+  .example-picker { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .example-btn {
+    border: 2px solid var(--navy); background: var(--white); color: var(--navy);
+    padding: 9px 16px; border-radius: 8px; font-family: Cambria, serif; font-size: 14px;
+    cursor: pointer; font-weight: bold;
+  }
+  .example-btn.active { background: var(--navy); color: var(--white); }
+
+  .mode-picker { display: flex; gap: 10px; margin-bottom: 20px; }
+  .mode-btn {
+    border: 2px solid var(--navy); background: var(--white); color: var(--navy);
+    padding: 10px 18px; border-radius: 8px; font-family: Cambria, serif; font-size: 15px;
+    cursor: pointer; font-weight: bold;
+  }
+  .mode-btn.active { background: var(--navy); color: var(--white); }
+
+  .step-card { background: var(--offwhite); border-radius: 12px; padding: 22px 26px; min-height: 90px; margin-bottom: 16px; }
+  .step-line { display: flex; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; }
+  .step-line:last-child { margin-bottom: 0; }
+  .step-expr { font-family: Consolas, monospace; font-size: 20px; font-weight: bold; color: var(--navy); margin-right: 20px; }
+  .step-law { font-size: 14px; font-style: italic; color: var(--amber-dark); }
+
+  .quiz-prompt { font-size: 14.5px; font-weight: bold; color: var(--navy); margin: 4px 0 10px; }
+  .choice-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  .choice-btn {
+    text-align: left; border: 2px solid var(--border); background: var(--white); color: var(--ink);
+    padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 17px; font-family: Consolas, monospace; font-weight: bold;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--navy); }
+  .choice-btn.correct { border-color: var(--good); background: var(--good-bg); color: var(--good); }
+  .choice-btn.incorrect { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+  .choice-btn:disabled { cursor: default; }
+
+  .btn-row { display: flex; gap: 10px; margin: 6px 0 10px; flex-wrap: wrap; align-items: center; }
+  .action-btn {
+    background: var(--navy); color: var(--white); border: none; padding: 10px 18px;
+    border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; font-family: Calibri, sans-serif;
+  }
+  .action-btn.secondary { background: var(--white); color: var(--navy); border: 2px solid var(--navy); }
+  .action-btn:hover { opacity: 0.9; }
+  .progress-tag { font-size: 13px; color: var(--muted); font-weight: bold; }
+
+  .feedback { font-size: 14px; margin: 6px 0; min-height: 20px; font-weight: bold; }
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+
+  .score-pill { background: var(--navy); color: var(--white); padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: bold; }
+  .complete-banner {
+    background: var(--good-bg); color: var(--good); border-radius: 10px; padding: 16px 20px;
+    font-weight: bold; margin-top: 10px; display: none;
+  }
+  .complete-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Unit 3 &middot; Topic 2 &middot; Logical Operations</div>
+  <h1>Simplification in Practice</h1>
+  <p>At each step, pick which line is the valid next move &mdash; you don't need to name the law, just spot the correct algebra.</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="absorption">1. Absorption Derivation</button>
+  <button class="tab-btn" data-tab="distfact">2. Distributive &amp; Factoring</button>
+  <button class="tab-btn" data-tab="walkthrough">3. Full Simplification Walkthrough</button>
+</nav>
+
+<main>
+
+  <!-- TAB 1: ABSORPTION -->
+  <section id="panel-absorption" class="panel active">
+    <h2 class="section-title">Proving absorption, properly</h2>
+    <p class="section-sub">Pick a derivation. At each step, choose which line correctly follows from the one before.</p>
+    <div class="example-picker" id="absPicker"></div>
+    <div class="btn-row" style="justify-content: space-between;">
+      <span class="progress-tag" id="absProgress"></span>
+      <span class="score-pill" id="absScore">First-try: 0 / 0</span>
+    </div>
+    <div class="step-card" id="absCard"></div>
+    <div id="absQuizArea"></div>
+    <div class="feedback" id="absFeedback"></div>
+    <div class="complete-banner" id="absComplete">Derivation complete.</div>
+    <div class="btn-row">
+      <button class="action-btn secondary" id="absResetBtn">Start over</button>
+    </div>
+  </section>
+
+  <!-- TAB 2: DISTRIBUTIVE & FACTORING -->
+  <section id="panel-distfact" class="panel">
+    <h2 class="section-title">Distributive law &amp; factoring</h2>
+    <p class="section-sub">Two directions of the same move. Choose the correct result each time.</p>
+    <div class="mode-picker" id="dfModePicker"></div>
+    <div class="example-picker" id="dfPicker"></div>
+    <div class="btn-row" style="justify-content: space-between;">
+      <span class="progress-tag" id="dfProgress"></span>
+      <span class="score-pill" id="dfScore">First-try: 0 / 0</span>
+    </div>
+    <div class="step-card" id="dfCard"></div>
+    <div id="dfQuizArea"></div>
+    <div class="feedback" id="dfFeedback"></div>
+    <div class="complete-banner" id="dfComplete">Correct result reached.</div>
+    <div class="btn-row">
+      <button class="action-btn secondary" id="dfResetBtn">Start over</button>
+    </div>
+  </section>
+
+  <!-- TAB 3: FULL WALKTHROUGH -->
+  <section id="panel-walkthrough" class="panel">
+    <h2 class="section-title">Full simplification walkthrough</h2>
+    <p class="section-sub">Real exam-style expressions. Choose the correct next line at every step.</p>
+    <div class="example-picker" id="wtPicker"></div>
+    <div class="btn-row" style="justify-content: space-between;">
+      <span class="progress-tag" id="wtProgress"></span>
+      <span class="score-pill" id="wtScore">First-try: 0 / 0</span>
+    </div>
+    <div class="step-card" id="wtCard"></div>
+    <div id="wtQuizArea"></div>
+    <div class="feedback" id="wtFeedback"></div>
+    <div class="complete-banner" id="wtComplete">Complete &mdash; fully simplified.</div>
+    <div class="btn-row">
+      <button class="action-btn secondary" id="wtResetBtn">Start over</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ---------------- Shared helpers (ES5) ---------------- */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* Renders steps[0..revealCount-1] into a step-card container.
+   Each step: { expr, law (optional caption text) } */
+function renderSteps(containerId, steps, revealCount) {
+  var el = document.getElementById(containerId);
+  var html = '';
+  for (var i = 0; i < revealCount; i++) {
+    var s = steps[i];
+    html += '<div class="step-line"><span class="step-expr">' + s.expr + '</span>';
+    if (s.law) { html += '<span class="step-law">' + s.law + '</span>'; }
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ---------------- Generic "choose the next line" engine ---------------- */
+/* els: {picker, card, quizArea, progress, score, complete, resetBtn}
+   examples: [{ title, steps: [{expr, law, wrong}] }]  -- steps[0] has no law/wrong (opening line) */
+function makeStepEngine(els, examples) {
+  var index = 0, revealed = 1, answered = false, firstTry = 0, attempted = 0;
+
+  function renderPicker() {
+    els.picker.innerHTML = '';
+    for (var i = 0; i < examples.length; i++) {
+      var btn = document.createElement('button');
+      btn.className = 'example-btn' + (i === index ? ' active' : '');
+      btn.textContent = examples[i].title;
+      (function(idx) {
+        btn.addEventListener('click', function() {
+          index = idx;
+          resetProgress();
+          renderPicker();
+          renderTab();
+        });
+      })(i);
+      els.picker.appendChild(btn);
+    }
+  }
+
+  function resetProgress() {
+    revealed = 1;
+    answered = false;
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+    els.complete.classList.remove('show');
+  }
+
+  function renderTab() {
+    var ex = examples[index];
+    renderSteps(els.card.id, ex.steps, revealed);
+    els.progress.textContent = 'Line ' + revealed + ' of ' + ex.steps.length;
+    els.score.textContent = 'First-try: ' + firstTry + ' / ' + attempted;
+    els.quizArea.innerHTML = '';
+
+    if (revealed >= ex.steps.length) {
+      els.complete.classList.add('show');
+      return;
+    }
+
+    var nextStep = ex.steps[revealed];
+    answered = false;
+    var options = shuffle([nextStep.expr, nextStep.wrong]);
+
+    var prompt = document.createElement('div');
+    prompt.className = 'quiz-prompt';
+    prompt.textContent = 'Which line correctly follows from the one above?';
+    els.quizArea.appendChild(prompt);
+
+    var row = document.createElement('div');
+    row.className = 'choice-row';
+    for (var i = 0; i < options.length; i++) {
+      var optText = options[i];
+      var btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = optText;
+      (function(text, btnRef) {
+        btnRef.addEventListener('click', function() { handleAnswer(text, btnRef); });
+      })(optText, btn);
+      row.appendChild(btn);
+    }
+    els.quizArea.appendChild(row);
+  }
+
+  function handleAnswer(chosen, btnEl) {
+    if (answered) return;
+    var ex = examples[index];
+    var nextStep = ex.steps[revealed];
+    var isFirstAttemptThisStep = btnEl.parentNode.getAttribute('data-attempted') !== '1';
+    var isCorrect = chosen === nextStep.expr;
+
+    if (isCorrect) {
+      answered = true;
+      if (isFirstAttemptThisStep) { firstTry++; attempted++; }
+      var allBtns = btnEl.parentNode.querySelectorAll('.choice-btn');
+      for (var i = 0; i < allBtns.length; i++) {
+        allBtns[i].disabled = true;
+        if (allBtns[i].textContent === chosen) allBtns[i].classList.add('correct');
+      }
+      els.feedback.textContent = 'Correct \u2014 revealing the next line.';
+      els.feedback.className = 'feedback good';
+      setTimeout(function() {
+        revealed++;
+        renderTab();
+      }, 700);
+    } else {
+      btnEl.classList.add('incorrect');
+      btnEl.disabled = true;
+      btnEl.parentNode.setAttribute('data-attempted', '1');
+      if (isFirstAttemptThisStep) { attempted++; }
+      els.feedback.textContent = 'Not quite \u2014 look again at the line above.';
+      els.feedback.className = 'feedback bad';
+    }
+  }
+
+  els.resetBtn.addEventListener('click', function() {
+    resetProgress();
+    renderTab();
+  });
+
+  renderPicker();
+  renderTab();
+}
+
+/* ================= TAB 1: ABSORPTION ================= */
+var absorptionExamples = [
+  { title: 'A + (A\u00b7B) = A',
+    steps: [
+      { expr: 'A + (A\u00b7B)' },
+      { expr: '= (A\u00b71) + (A\u00b7B)', law: 'Identity: A = A\u00b71', wrong: '= (A\u00b71) + (A\u00b71)' },
+      { expr: '= A\u00b7(1 + B)', law: 'Distributive: (A\u00b7X)+(A\u00b7Y) = A\u00b7(X+Y)', wrong: '= A + (1\u00b7B)' },
+      { expr: '= A\u00b71', law: 'Annulment: 1 + B = 1', wrong: '= A\u00b7(1 + B)' },
+      { expr: '= A', law: 'Identity: A\u00b71 = A', wrong: '= A\u00b71' },
+    ]
+  },
+  { title: 'A \u00b7 (A + B) = A',
+    steps: [
+      { expr: 'A \u00b7 (A + B)' },
+      { expr: '= (A + 0) \u00b7 (A + B)', law: 'Identity: A = A+0', wrong: '= (A + 0) \u00b7 (A + 0)' },
+      { expr: '= A + (0\u00b7B)', law: 'Distributive: (A+X)\u00b7(A+Y) = A+(X\u00b7Y)', wrong: '= A \u00b7 (0 + B)' },
+      { expr: '= A + 0', law: 'Annulment: 0\u00b7B = 0', wrong: '= A + (0\u00b7B)' },
+      { expr: '= A', law: 'Identity: A+0 = A', wrong: '= A + 0' },
+    ]
+  },
+  { title: 'A \u00b7 (A + B + C) = A',
+    steps: [
+      { expr: 'A \u00b7 (A + B + C)' },
+      { expr: '= A \u00b7 (A + (B + C))', law: 'Associative: grouping (B+C) as one block', wrong: '= A \u00b7 (A + B + C)' },
+      { expr: '= A', law: 'Same proof as before, with \u201cB\u201d replaced by \u201cB+C\u201d', wrong: '= A \u00b7 (A + (B + C))' },
+    ]
+  }
+];
+makeStepEngine({
+  picker: document.getElementById('absPicker'),
+  card: document.getElementById('absCard'),
+  quizArea: document.getElementById('absQuizArea'),
+  progress: document.getElementById('absProgress'),
+  score: document.getElementById('absScore'),
+  complete: document.getElementById('absComplete'),
+  resetBtn: document.getElementById('absResetBtn'),
+  feedback: document.getElementById('absFeedback')
+}, absorptionExamples);
+
+/* ================= TAB 2: DISTRIBUTIVE & FACTORING ================= */
+var dfModes = {
+  distribute: {
+    label: 'Distribute (expand brackets)',
+    examples: [
+      { title: 'A\u00b7(B+C\u0304)', steps: [
+        { expr: 'A \u00b7 (B + C\u0304)' },
+        { expr: '= A\u00b7B + A\u00b7C\u0304', law: 'Distributive: A\u00b7(X+Y) = A\u00b7X + A\u00b7Y', wrong: '= A\u00b7B + C\u0304' }
+      ]},
+      { title: '\u0100\u00b7(B+C)', steps: [
+        { expr: '\u0100 \u00b7 (B + C)' },
+        { expr: '= \u0100\u00b7B + \u0100\u00b7C', law: 'Distributive: A\u00b7(X+Y) = A\u00b7X + A\u00b7Y', wrong: '= \u0100\u00b7B + C' }
+      ]}
+    ]
+  },
+  factor: {
+    label: 'Factor (spot the common term)',
+    examples: [
+      { title: 'X\u00b7Y + X\u00b7Z', steps: [
+        { expr: 'X\u00b7Y + X\u00b7Z' },
+        { expr: '= X\u00b7(Y + Z)', law: 'Factoring \u2014 the reverse of distributive', wrong: '= X\u00b7Y\u00b7Z' }
+      ]},
+      { title: 'A\u00b7C + A\u00b7D', steps: [
+        { expr: 'A\u00b7C + A\u00b7D' },
+        { expr: '= A\u00b7(C + D)', law: 'Factoring \u2014 the reverse of distributive', wrong: '= A\u00b7C\u00b7D' }
+      ]}
+    ]
+  }
+};
+var dfEls = {
+  picker: document.getElementById('dfPicker'),
+  card: document.getElementById('dfCard'),
+  quizArea: document.getElementById('dfQuizArea'),
+  progress: document.getElementById('dfProgress'),
+  score: document.getElementById('dfScore'),
+  complete: document.getElementById('dfComplete'),
+  resetBtn: document.getElementById('dfResetBtn'),
+  feedback: document.getElementById('dfFeedback')
+};
+var dfMode = 'distribute';
+var dfEngine = null;
+function startDfEngine() {
+  dfEls.picker.innerHTML = '';
+  dfEls.card.innerHTML = '';
+  dfEls.quizArea.innerHTML = '';
+  dfEls.feedback.textContent = '';
+  dfEls.complete.classList.remove('show');
+  dfEngine = makeStepEngine(dfEls, dfModes[dfMode].examples);
+}
+function renderDfModePicker() {
+  var picker = document.getElementById('dfModePicker');
+  picker.innerHTML = '';
+  var keys = ['distribute', 'factor'];
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var btn = document.createElement('button');
+    btn.className = 'mode-btn' + (key === dfMode ? ' active' : '');
+    btn.textContent = dfModes[key].label;
+    (function(k) {
+      btn.addEventListener('click', function() {
+        dfMode = k;
+        renderDfModePicker();
+        startDfEngine();
+      });
+    })(key);
+    picker.appendChild(btn);
+  }
+}
+renderDfModePicker();
+startDfEngine();
+
+/* ================= TAB 3: FULL WALKTHROUGH ================= */
+var walkthroughExamples = [
+  { title: 'A\u00b7\u0100 + A\u00b7B + A\u00b7B\u0304 + B\u00b7B\u0304 (5 marks)',
+    steps: [
+      { expr: 'A\u00b7\u0100 + A\u00b7B + A\u00b7B\u0304 + B\u00b7B\u0304' },
+      { expr: '= A\u00b7B + A\u00b7B\u0304 + B\u00b7B\u0304', law: 'Complement: A\u00b7\u0100 = 0, drop the term', wrong: '= A\u00b7\u0100 + A\u00b7B + A\u00b7B\u0304' },
+      { expr: '= A\u00b7B + A\u00b7B\u0304', law: 'Complement: B\u00b7B\u0304 = 0, drop the term', wrong: '= A\u00b7B + B\u00b7B\u0304' },
+      { expr: '= A\u00b7(B + B\u0304)', law: 'Factoring', wrong: '= A\u00b7B + B\u0304' },
+      { expr: '= A\u00b71', law: 'Complement: B + B\u0304 = 1', wrong: '= A\u00b7(B + B\u0304)' },
+      { expr: '= A', law: 'Identity: A\u00b71 = A', wrong: '= A\u00b71' },
+    ]
+  },
+  { title: 'NOT(A\u00b7B) + A (3 steps)',
+    steps: [
+      { expr: 'NOT(A\u00b7B) + A' },
+      { expr: '= \u0100 + B\u0304 + A', law: "De Morgan's: NOT(A\u00b7B) = \u0100 + B\u0304", wrong: '= \u0100\u00b7B\u0304 + A' },
+      { expr: '= 1 + B\u0304', law: 'Complement: \u0100 + A = 1', wrong: '= \u0100 + B\u0304 + A' },
+      { expr: '= 1', law: 'Annulment: 1 + B\u0304 = 1', wrong: '= 1 + B\u0304' },
+    ]
+  },
+  { title: 'A \u00b7 NOT(A\u00b7B) \u2014 WJEC 2019 Q5(a)',
+    steps: [
+      { expr: 'A \u00b7 NOT(A\u00b7B)' },
+      { expr: '= A \u00b7 (\u0100 + B\u0304)', law: "De Morgan's: NOT(A\u00b7B) = \u0100 + B\u0304", wrong: '= A \u00b7 (\u0100\u00b7B\u0304)' },
+      { expr: '= A\u00b7\u0100 + A\u00b7B\u0304', law: 'Distributive', wrong: '= A \u00b7 (\u0100 + B\u0304)' },
+      { expr: '= 0 + A\u00b7B\u0304', law: 'Complement: A\u00b7\u0100 = 0', wrong: '= A\u00b7\u0100 + A\u00b7B\u0304' },
+      { expr: '= A\u00b7B\u0304', law: 'Identity: 0 + A\u00b7B\u0304 = A\u00b7B\u0304', wrong: '= 0 + A\u00b7B\u0304' },
+    ]
+  },
+  { title: 'A\u00b7B + A\u00b7(B+C) + B\u00b7(B+C) \u2014 WJEC 2019 Q5(b)',
+    steps: [
+      { expr: 'A\u00b7B + A\u00b7(B+C) + B\u00b7(B+C)' },
+      { expr: '= A\u00b7B + A\u00b7C + B\u00b7B + B\u00b7C', law: 'Distributive (expand both brackets)', wrong: '= A\u00b7B + A\u00b7(B+C) + B\u00b7B + B\u00b7C' },
+      { expr: '= A\u00b7B + A\u00b7C + B + B\u00b7C', law: 'Idempotent: B\u00b7B = B', wrong: '= A\u00b7B + A\u00b7C + B\u00b7B + B\u00b7C' },
+      { expr: '= A\u00b7B + A\u00b7C + B', law: 'Absorption: B + B\u00b7C = B', wrong: '= A\u00b7B + A\u00b7C + B + B\u00b7C' },
+      { expr: '= A\u00b7C + B', law: 'Absorption: A\u00b7B + B = B', wrong: '= A\u00b7B + A\u00b7C + B' },
+    ]
+  }
+];
+makeStepEngine({
+  picker: document.getElementById('wtPicker'),
+  card: document.getElementById('wtCard'),
+  quizArea: document.getElementById('wtQuizArea'),
+  progress: document.getElementById('wtProgress'),
+  score: document.getElementById('wtScore'),
+  complete: document.getElementById('wtComplete'),
+  resetBtn: document.getElementById('wtResetBtn'),
+  feedback: document.getElementById('wtFeedback')
+}, walkthroughExamples);
+
+/* ---------------- Tab navigation ---------------- */
+(function() {
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < tabBtns.length; i++) {
+    tabBtns[i].addEventListener('click', function() {
+      var btn = this;
+      var allBtns = document.querySelectorAll('.tab-btn');
+      for (var j = 0; j < allBtns.length; j++) { allBtns[j].classList.remove('active'); }
+      var allPanels = document.querySelectorAll('.panel');
+      for (var k = 0; k < allPanels.length; k++) { allPanels[k].classList.remove('active'); }
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
