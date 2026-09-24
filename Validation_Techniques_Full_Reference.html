@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validation Techniques — Full Reference</title>
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --code-comment:#7C8FAE;
+    --code-string:#8FD6C6;
+    --code-kw:#E8A659;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  .layout{
+    display:flex;
+    min-height:100vh;
+    align-items:flex-start;
+  }
+
+  .sidebar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    width:250px;
+    flex-shrink:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .eyebrow{
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .sidebar h1{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  .sidebar .meta{
+    font-size:13px;
+    color:#A9B7D1;
+    margin-bottom:28px;
+  }
+  .navlist{list-style:none;margin:0;padding:0;}
+  .navlist li{margin-bottom:4px;}
+  .navlist a{
+    display:block;
+    text-decoration:none;
+    color:#D7DFEC;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14.5px;
+    font-weight:600;
+    transition:background .15s ease;
+  }
+  .navlist a:hover{background:rgba(255,255,255,.08);}
+  .navlist .num{
+    display:inline-block;
+    width:20px;
+    color:var(--orange);
+    font-weight:800;
+  }
+  .sidebar .pacing{
+    margin-top:28px;
+    padding:14px 14px;
+    background:rgba(46,158,158,.15);
+    border-radius:10px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#CDE9E7;
+  }
+  .sidebar .pacing strong{color:#fff;display:block;margin-bottom:4px;font-size:13px;}
+
+  main{padding:40px 48px 80px;max-width:900px;flex:1;min-width:0;}
+  .page-head{margin-bottom:36px;}
+  .page-head .kicker{
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  .page-head h2{
+    font-family:Cambria, Georgia, serif;
+    font-size:30px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .page-head p{
+    font-size:15px;
+    color:var(--muted);
+    max-width:680px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  .summary-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:40px;
+    font-size:13.5px;
+  }
+  .summary-table th{
+    background:var(--navy);
+    color:#fff;
+    text-align:left;
+    padding:9px 12px;
+    font-size:12.5px;
+  }
+  .summary-table td{
+    padding:9px 12px;
+    border-bottom:1px solid #E4E8EE;
+    vertical-align:top;
+  }
+  .summary-table tr:nth-child(even) td{background:#F5F7FA;}
+  .summary-table code{
+    font-family:Consolas, "Courier New", monospace;
+    background:#EDF1F6;
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:12.5px;
+  }
+
+  section.block{margin-bottom:46px;scroll-margin-top:24px;}
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:2px solid #E4E8EE;
+    padding-bottom:10px;
+    margin-bottom:16px;
+  }
+  .block-head .n{
+    font-family:Cambria, Georgia, serif;
+    font-size:26px;
+    color:var(--orange);
+    font-weight:700;
+  }
+  .block-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:23px;
+    margin:0;
+    color:var(--navy);
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid #E7EAF0;
+    border-radius:12px;
+    padding:22px 24px;
+  }
+  .card p.what{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .card p.what strong{color:var(--navy);}
+
+  pre.code{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:9px;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.6;
+    overflow-x:auto;
+    margin:0 0 14px;
+  }
+  pre.code .kw{color:var(--code-kw);}
+  pre.code .str{color:var(--code-string);}
+  pre.code .cm{color:var(--code-comment);font-style:italic;}
+
+  .output{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--teal-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#1B4B4B;
+  }
+  .output .tag{
+    font-weight:700;
+    color:var(--teal);
+    white-space:nowrap;
+    margin-right:8px;
+  }
+  .output code{
+    font-family:Consolas, "Courier New", monospace;
+    background:rgba(255,255,255,.6);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  .examtip{
+    margin-top:14px;
+    background:var(--orange-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#7A4415;
+  }
+  .examtip .tag{font-weight:700;color:var(--orange);margin-right:6px;}
+
+  footer.note{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid #E4E8EE;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  @media (max-width:760px){
+    .layout{display:block;}
+    .sidebar{position:static;height:auto;width:auto;}
+    main{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <p class="eyebrow">AS UNIT 2 &mdash; SECTION B</p>
+    <h1>Validation Techniques<br>Full Reference</h1>
+    <p class="meta">All six WJEC checks &middot; Conwy Kayak Club examples</p>
+
+    <ul class="navlist">
+      <li><a href="#presence"><span class="num">1</span>Presence check</a></li>
+      <li><a href="#length"><span class="num">2</span>Length check</a></li>
+      <li><a href="#range"><span class="num">3</span>Range check</a></li>
+      <li><a href="#format"><span class="num">4</span>Format check</a></li>
+      <li><a href="#lookup"><span class="num">5</span>Lookup check</a></li>
+      <li><a href="#type"><span class="num">6</span>Type check</a></li>
+    </ul>
+
+    <div class="pacing">
+      <strong>Exam reminder</strong>
+      You don't need every check on every field. Most Section B tasks only need 3&ndash;4 validation methods, chosen sensibly &mdash; not all six, everywhere.
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-head">
+      <p class="kicker">Reference &mdash; use alongside Lessons 2 &amp; 3</p>
+      <h2>Validation Techniques</h2>
+      <p>Every WJEC Section B validation check, explained once and shown once, using the same Conwy Kayak Club fields throughout. Lesson 2 covered the presence check in depth; the rest build on exactly the same while-loop pattern.</p>
+    </div>
+
+    <table class="summary-table">
+      <tr><th>Check</th><th>Catches</th><th>Pattern</th></tr>
+      <tr><td>Presence</td><td>Nothing entered at all</td><td><code>while field == "":</code></td></tr>
+      <tr><td>Length</td><td>Answer too short / too long</td><td><code>while len(field) &lt; x:</code></td></tr>
+      <tr><td>Range</td><td>Number outside sensible limits</td><td><code>while num &lt; x or num &gt; y:</code></td></tr>
+      <tr><td>Format</td><td>Wrong shape or pattern</td><td><code>while field.count("/") != 2:</code></td></tr>
+      <tr><td>Lookup</td><td>Not one of the allowed options</td><td><code>while field not in valid_list:</code></td></tr>
+      <tr><td>Type</td><td>Not the kind of data expected</td><td><code>while not field.isdigit():</code></td></tr>
+    </table>
+
+    <section class="block" id="presence">
+      <div class="block-head">
+        <span class="n">1</span>
+        <h3>Presence Check</h3>
+      </div>
+      <div class="card">
+        <p class="what"><strong>Catches:</strong> the field being left completely blank &mdash; the user just pressed enter.</p>
+        <pre class="code">name = input(<span class="str">"Name: "</span>)
+
+<span class="kw">while</span> name == <span class="str">""</span>:
+    print(<span class="str">"Name cannot be blank"</span>)
+    name = input(<span class="str">"Name: "</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Pressing enter with nothing typed re-prompts; any text moves on</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="length">
+      <div class="block-head">
+        <span class="n">2</span>
+        <h3>Length Check</h3>
+      </div>
+      <div class="card">
+        <p class="what"><strong>Catches:</strong> an answer that's technically not blank, but too short (or too long) to be real.</p>
+        <pre class="code">kayak = input(<span class="str">"Kayak type: "</span>)
+
+<span class="kw">while</span> len(kayak) &lt; 3:
+    print(<span class="str">"Please enter a full kayak type"</span>)
+    kayak = input(<span class="str">"Kayak type: "</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Typing "k" re-prompts; typing "kayak" moves on</span>
+        </div>
+        <div class="examtip">
+          <span class="tag">Exam tip:</span>
+          You can check a maximum length the same way with <code>len(field) &gt; x</code> &mdash; useful if a data structure table gives a fixed field length.
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="range">
+      <div class="block-head">
+        <span class="n">3</span>
+        <h3>Range Check</h3>
+      </div>
+      <div class="card">
+        <p class="what"><strong>Catches:</strong> a number that's outside sensible real-world limits.</p>
+        <pre class="code">hours = <span class="kw">int</span>(input(<span class="str">"Hours hired: "</span>))
+
+<span class="kw">while</span> hours &lt; 1 <span class="kw">or</span> hours &gt; 8:
+    print(<span class="str">"Hours must be between 1 and 8"</span>)
+    hours = <span class="kw">int</span>(input(<span class="str">"Hours hired: "</span>))</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Typing 0 or 12 re-prompts; typing 1&ndash;8 moves on</span>
+        </div>
+        <div class="examtip">
+          <span class="tag">Exam tip:</span>
+          Range checks need a number type first &mdash; convert with <code>int()</code> or <code>float()</code> before comparing, or Python will error on text input.
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="format">
+      <div class="block-head">
+        <span class="n">4</span>
+        <h3>Format Check</h3>
+      </div>
+      <div class="card">
+        <p class="what"><strong>Catches:</strong> input that isn't in the right shape or pattern, even if it isn't blank, too short, or out of range.</p>
+        <pre class="code">date = input(<span class="str">"Hire date (dd/mm/yyyy): "</span>)
+
+<span class="kw">while</span> date.count(<span class="str">"/"</span>) != 2:
+    print(<span class="str">"Date must be in the format dd/mm/yyyy"</span>)
+    date = input(<span class="str">"Hire date (dd/mm/yyyy): "</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Typing "14092026" re-prompts; typing "14/09/2026" moves on</span>
+        </div>
+        <div class="examtip">
+          <span class="tag">Exam tip:</span>
+          This is a simplified format check &mdash; it confirms the right number of slashes, not that the date itself is real. That's normally enough for Section B marks.
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="lookup">
+      <div class="block-head">
+        <span class="n">5</span>
+        <h3>Lookup Check</h3>
+      </div>
+      <div class="card">
+        <p class="what"><strong>Catches:</strong> an answer that isn't one of a fixed, known list of valid options.</p>
+        <pre class="code">valid_kayaks = [<span class="str">"Single"</span>, <span class="str">"Double"</span>, <span class="str">"Touring"</span>]
+kayak = input(<span class="str">"Kayak type (Single, Double, Touring): "</span>)
+
+<span class="kw">while</span> kayak <span class="kw">not in</span> valid_kayaks:
+    print(<span class="str">"Please enter a valid kayak type"</span>)
+    kayak = input(<span class="str">"Kayak type (Single, Double, Touring): "</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Typing "Canoe" re-prompts; typing "Double" moves on</span>
+        </div>
+        <div class="examtip">
+          <span class="tag">Exam tip:</span>
+          Python is case-sensitive here &mdash; "double" won't match "Double" in the list. Mention this trade-off if you're asked to justify your choice.
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="type">
+      <div class="block-head">
+        <span class="n">6</span>
+        <h3>Type Check</h3>
+      </div>
+      <div class="card">
+        <p class="what"><strong>Catches:</strong> input that isn't the kind of data expected &mdash; e.g. letters typed where a whole number should be.</p>
+        <pre class="code">hours = input(<span class="str">"Hours hired: "</span>)
+
+<span class="kw">while not</span> hours.isdigit():
+    print(<span class="str">"Hours must be a whole number"</span>)
+    hours = input(<span class="str">"Hours hired: "</span>)
+
+hours = <span class="kw">int</span>(hours)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Typing "three" re-prompts; typing "3" moves on and converts cleanly</span>
+        </div>
+        <div class="examtip">
+          <span class="tag">Exam tip:</span>
+          Check the type <em>before</em> converting with <code>int()</code> &mdash; converting first crashes the program on non-numeric input rather than re-asking.
+        </div>
+      </div>
+    </section>
+
+    <footer class="note">
+      AS Unit 2 &mdash; Validation Techniques Full Reference &middot; builds on the Lesson 2 Sequence &amp; Validation sheet &middot; used across Lessons 2 and 3.
+    </footer>
+  </main>
+
+</div>
+</body>
+</html>
