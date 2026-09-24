@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rebuild the Menu Shell</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  #list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+
+  li.block{
+    background:var(--code-bg);
+    border-radius:10px;
+    padding:12px 12px 12px 8px;
+    display:flex;
+    align-items:stretch;
+    gap:10px;
+    box-shadow:var(--shadow);
+    border:2px solid transparent;
+    transition:border-color .15s ease, transform .12s ease;
+  }
+  li.block.dragging{opacity:.4;}
+  li.block.drag-over{border-color:var(--teal);}
+  li.block.correct{border-color:var(--good);}
+  li.block.incorrect{border-color:var(--bad);}
+
+  .handle{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#7C8FAE;
+    cursor:grab;
+    padding:0 4px;
+    user-select:none;
+    touch-action:none;
+    font-size:18px;
+    line-height:1;
+  }
+  .handle:active{cursor:grabbing;}
+
+  .code{
+    flex:1;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.55;
+    color:var(--code-text);
+    white-space:pre-wrap;
+    padding:2px 0;
+    overflow-x:auto;
+  }
+
+  .arrows{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    justify-content:center;
+  }
+  .arrows button{
+    padding:4px 8px;
+    font-size:12px;
+    background:#25304A;
+    color:#DCE6F2;
+    border:1px solid #34405E;
+  }
+  .arrows button:disabled{opacity:.3;cursor:not-allowed;}
+
+  .badge{
+    position:absolute;
+    top:-9px;
+    right:10px;
+    font-size:11px;
+    font-weight:800;
+    padding:2px 8px;
+    border-radius:20px;
+  }
+  li.block{position:relative;}
+  li.block.correct .badge{background:var(--good);color:#fff;}
+  li.block.incorrect .badge{background:var(--bad);color:#fff;}
+
+  .reflect{
+    margin-top:24px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:480px){
+    header h1{font-size:22px;}
+    .code{font-size:12.5px;}
+    .toolbar{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 2 STARTER</p>
+    <h1>Rebuild the Menu Shell</h1>
+    <p>Drag the pieces below into the order they belong in <code>menu()</code> &mdash; the function you built together last lesson. Not sure how to drag on your device? Use the &uarr;&darr; buttons on each piece instead.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="status" id="status">Drag the pieces into order, then check your work.</div>
+    <div class="btns">
+      <button class="btn-secondary" id="shuffleBtn">&#8635; Shuffle</button>
+      <button class="btn-primary" id="checkBtn">&#10003; Check my order</button>
+      <button class="btn-ghost" id="solutionBtn">Show solution</button>
+    </div>
+  </div>
+
+  <ul id="list"></ul>
+
+  <div class="reflect">
+    <p class="tag">BE READY TO EXPLAIN</p>
+    <p>Why does the <code>while</code> loop's condition have to go where it does? What would happen if the <code>input()</code> line came before the menu was printed?</p>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Lesson 2 &middot; pairs with the Lesson 2 slides and lesson plan</footer>
+</div>
+
+<script>
+  const BLOCKS = [
+    { id: "a", order: 0, code: 'def menu():' },
+    { id: "b", order: 1, code: '    option = ""' },
+    { id: "c", order: 2, code: '    while option != "3":' },
+    { id: "d", order: 3, code: '        print("--- Menu-Driven Program ---")\n        print("1. Add a record")\n        print("2. Retrieve a record")\n        print("3. Exit")' },
+    { id: "e", order: 4, code: '        option = input("Choose an option: ")' },
+    { id: "f", order: 5, code: '        if option == "1":\n            add_record()' },
+    { id: "g", order: 6, code: '        elif option == "2":\n            retrieve_record()' },
+    { id: "h", order: 7, code: '        elif option == "3":\n            print("Goodbye!")' },
+    { id: "i", order: 8, code: '        else:\n            print("Please choose 1, 2 or 3.")' },
+  ];
+
+  let current = shuffledCopy(BLOCKS);
+  let checked = false;
+
+  const listEl = document.getElementById("list");
+  const statusEl = document.getElementById("status");
+
+  function shuffledCopy(arr) {
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    // Guard against an accidental fully-correct shuffle
+    if (copy.every((b, i) => b.order === i)) return shuffledCopy(arr);
+    return copy;
+  }
+
+  function render() {
+    listEl.innerHTML = "";
+    current.forEach((block, index) => {
+      const li = document.createElement("li");
+      li.className = "block";
+      li.draggable = true;
+      li.dataset.id = block.id;
+
+      if (checked) {
+        li.classList.add(block.order === index ? "correct" : "incorrect");
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = block.order === index ? "correct" : "check this";
+        li.appendChild(badge);
+      }
+
+      const handle = document.createElement("div");
+      handle.className = "handle";
+      handle.setAttribute("aria-hidden", "true");
+      handle.textContent = "\u22EE\u22EE";
+      li.appendChild(handle);
+
+      const code = document.createElement("div");
+      code.className = "code";
+      code.textContent = block.code;
+      li.appendChild(code);
+
+      const arrows = document.createElement("div");
+      arrows.className = "arrows";
+      const up = document.createElement("button");
+      up.textContent = "\u2191";
+      up.disabled = index === 0;
+      up.addEventListener("click", () => move(index, index - 1));
+      const down = document.createElement("button");
+      down.textContent = "\u2193";
+      down.disabled = index === current.length - 1;
+      down.addEventListener("click", () => move(index, index + 1));
+      arrows.appendChild(up);
+      arrows.appendChild(down);
+      li.appendChild(arrows);
+
+      li.addEventListener("dragstart", () => {
+        li.classList.add("dragging");
+        li.dataset.dragging = "true";
+      });
+      li.addEventListener("dragend", () => {
+        li.classList.remove("dragging");
+        renderIfNeeded();
+      });
+      li.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        li.classList.add("drag-over");
+      });
+      li.addEventListener("dragleave", () => li.classList.remove("drag-over"));
+      li.addEventListener("drop", (e) => {
+        e.preventDefault();
+        li.classList.remove("drag-over");
+        const draggedEl = document.querySelector('li[data-dragging="true"]');
+        const draggedId = draggedEl ? draggedEl.dataset.id : null;
+        if (!draggedId || draggedId === block.id) return;
+        const fromIndex = current.findIndex((b) => b.id === draggedId);
+        const toIndex = current.findIndex((b) => b.id === block.id);
+        move(fromIndex, toIndex);
+        document.querySelectorAll("li.block").forEach((el) => (el.dataset.dragging = "false"));
+      });
+
+      listEl.appendChild(li);
+    });
+  }
+
+  function renderIfNeeded() {
+    // no-op hook kept for clarity after drag ends
+  }
+
+  function move(from, to) {
+    if (to < 0 || to >= current.length || from === to) return;
+    const [item] = current.splice(from, 1);
+    current.splice(to, 0, item);
+    checked = false;
+    render();
+    updateStatus();
+  }
+
+  function updateStatus() {
+    statusEl.innerHTML = "Drag the pieces into order, then check your work.";
+  }
+
+  document.getElementById("shuffleBtn").addEventListener("click", () => {
+    current = shuffledCopy(BLOCKS);
+    checked = false;
+    render();
+    updateStatus();
+  });
+
+  document.getElementById("checkBtn").addEventListener("click", () => {
+    checked = true;
+    render();
+    const correctCount = current.filter((b, i) => b.order === i).length;
+    if (correctCount === BLOCKS.length) {
+      statusEl.innerHTML = '<strong>All ' + BLOCKS.length + ' in the right place \u2014 nice work!</strong>';
+    } else {
+      statusEl.innerHTML = '<strong>' + correctCount + ' of ' + BLOCKS.length + '</strong> in the correct position \u2014 adjust the red ones and check again.';
+    }
+  });
+
+  document.getElementById("solutionBtn").addEventListener("click", () => {
+    current = BLOCKS.slice().sort((a, b) => a.order - b.order);
+    checked = true;
+    render();
+    statusEl.innerHTML = "This is the correct order \u2014 have a go from shuffled again to practise.";
+  });
+
+  render();
+</script>
+</body>
+</html>
