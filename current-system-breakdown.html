@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breaking Down the Current System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --cat-input: #2b6f8f;
+    --cat-input-soft: #e1ecf1;
+    --cat-process: #b8791f;
+    --cat-process-soft: #f3e4cc;
+    --cat-output: #0e7c86;
+    --cat-output-soft: #d7eeee;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --cat-input: #6cb6d8; --cat-input-soft: #16262c;
+      --cat-process: #e0a24a; --cat-process-soft: #362a17;
+      --cat-output: #5cc9d1; --cat-output-soft: #103033;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --cat-input: #6cb6d8; --cat-input-soft: #16262c;
+    --cat-process: #e0a24a; --cat-process-soft: #362a17;
+    --cat-output: #5cc9d1; --cat-output-soft: #103033;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  .controlbtns { display: flex; gap: 8px; }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--good-ink); font-weight: 600; }
+  button.btn.primary:hover { filter: brightness(1.05); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  h2.part-title { font-size: 19px; margin: 0 0 4px; letter-spacing: -0.005em; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 70ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 12.5px; line-height: 1.55; max-width: 70ch; margin: 0 0 20px; }
+
+  .watchout {
+    display: flex; gap: 12px; align-items: flex-start; background: var(--warn-soft);
+    border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--border)); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 28px;
+  }
+  .watchout .wchip {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--good-ink); background: var(--warn); border-radius: 5px; padding: 3px 8px; flex: none; margin-top: 1px;
+  }
+  .watchout p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
+
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  @media (max-width: 760px) { .ref-grid { grid-template-columns: 1fr; } }
+  .ref-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .ref-card .rh { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .ref-chip {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%; color: var(--good-ink);
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .ref-chip.i { background: var(--cat-input); }
+  .ref-chip.p { background: var(--cat-process); }
+  .ref-chip.o { background: var(--cat-output); }
+  .ref-card .rlabel { font-size: 14.5px; font-weight: 600; }
+  .ref-card p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  .legend {
+    display: none; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 28px; font-size: 12.5px; color: var(--muted);
+  }
+  body.revealed .legend { display: flex; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .sw-correct { background: var(--cat-process-soft); border: 2px solid var(--good); }
+  .sw-wrong { background: var(--warn-soft); border: 2px dashed var(--warn); }
+  .sw-missed { background: transparent; border: 1.5px dashed var(--faint); }
+
+  .score-panel {
+    display: none; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 32px;
+  }
+  body.revealed .score-panel { display: block; }
+  .score-panel .big { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--accent-ink); }
+  .score-panel p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
+  .score-panel .split { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-soft); font-family: var(--mono); }
+
+  section.part { margin-bottom: 36px; }
+  .part-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+  .part-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--good-ink);
+    background: var(--ink-soft); border-radius: 5px; padding: 3px 9px; flex: none;
+  }
+  .part-blurb { color: var(--muted); font-size: 13.5px; line-height: 1.55; max-width: 68ch; margin: 0 0 14px; }
+
+  .extract {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px; box-shadow: var(--shadow); font-size: 15px; line-height: 1.85; color: var(--ink);
+  }
+  .extract p { margin: 0 0 14px; }
+  .extract p:last-child { margin-bottom: 0; }
+
+  .cand {
+    cursor: pointer; border-bottom: 1.5px dotted var(--border); border-radius: 2px; padding: 0 1px;
+    transition: background-color 0.1s ease;
+  }
+  .cand:hover { background: var(--surface-sunken); }
+  .cand.cat-input { background: var(--cat-input-soft); border-bottom: 2px solid var(--cat-input); }
+  .cand.cat-process { background: var(--cat-process-soft); border-bottom: 2px solid var(--cat-process); }
+  .cand.cat-output { background: var(--cat-output-soft); border-bottom: 2px solid var(--cat-output); }
+  .cand[data-badge]::after {
+    content: attr(data-badge); font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    width: 15px; height: 15px; margin-left: 3px; vertical-align: 3px;
+  }
+  .cand.cat-input[data-badge]::after { background: var(--cat-input); color: var(--good-ink); }
+  .cand.cat-process[data-badge]::after { background: var(--cat-process); color: var(--good-ink); }
+  .cand.cat-output[data-badge]::after { background: var(--cat-output); color: var(--good-ink); }
+
+  body.revealed .cand { cursor: default; }
+  body.revealed .cand:hover { background: inherit; }
+  .cand.correct { box-shadow: inset 0 -3px 0 0 var(--good); }
+  .cand.wrong { box-shadow: inset 0 -3px 0 0 var(--warn); }
+  .cand.wrong[data-badge]::after { background: var(--warn); }
+  .cand.missed { background: transparent; border-bottom: 1.5px dashed var(--faint); }
+  .cand.missed[data-badge]::after { background: transparent; border: 1.5px dashed var(--faint); color: var(--faint); }
+
+  .annotations { display: none; flex-direction: column; gap: 8px; margin-top: 14px; }
+  body.revealed .annotations { display: flex; }
+  .ann-card {
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .ann-card .ahead { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .ann-card .n {
+    display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+    border-radius: 50%; color: var(--good-ink); font-family: var(--mono);
+    font-size: 10px; font-weight: 700; flex: none;
+  }
+  .ann-card .n.input { background: var(--cat-input); }
+  .ann-card .n.process { background: var(--cat-process); }
+  .ann-card .n.output { background: var(--cat-output); }
+  .ann-card .pill {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--accent-ink); background: var(--accent-soft); padding: 2px 7px; border-radius: 10px;
+  }
+  .ann-card .pill.you-wrong { color: var(--warn); background: var(--warn-soft); }
+  .ann-card .pill.you-missed { color: var(--faint); background: var(--surface-raised); border: 1px solid var(--border); }
+  .ann-card .pill.future { color: var(--warn); background: var(--warn-soft); }
+
+  footer.page-foot {
+    margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>Breaking Down the Current System</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line" id="stat-line">Click any phrase, then click again to cycle Input → Process → Output → clear. <b id="pick-count">0</b> sorted so far.</div>
+  <div class="controlbtns">
+    <button class="btn" id="reset-btn" hidden>Reset</button>
+    <button class="btn primary" id="reveal-btn">Reveal model answers</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Modelled Investigation · current-system analysis, part 2</span>
+  <h1>A system isn't one process — break it into parts</h1>
+  <p class="lede">Last lesson you IPO-mapped a single process: chasing overdue books. A real current system is usually made up of <b>several distinct parts</b>, each with its own inputs, processes and outputs. Below are two more parts of Ysgol Cwm Coleg's library system — <b>cataloguing new stock</b> and <b>registering a new member</b>. Sort each part separately, the same way as before: click a phrase to cycle it Input → Process → Output → clear.</p>
+  <p class="disclaimer">Same fictional library scenario as the rest of the Investigation resources. When you do this for your own system, split it into its own parts too — e.g. placing an order, processing a return, generating a report — and IPO-map each part on its own.</p>
+
+  <div class="watchout">
+    <span class="wchip">Watch for this</span>
+    <p>A few highlighted phrases describe what the library <em>wishes</em> it could do — not what it actually does right now. Those don't belong in a current-system IPO list at all, however tempting they look. Your Investigation records what <b>is</b> happening; ideas for the new system belong in Design.</p>
+  </div>
+
+  <div class="ref-grid">
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip i">I</span><span class="rlabel">Input</span></div>
+      <p>Data or material that goes <em>into</em> this part of the system from outside it.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip p">P</span><span class="rlabel">Process</span></div>
+      <p>A step that <em>does something</em> to the inputs — checks, transforms, calculates, creates.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip o">O</span><span class="rlabel">Output</span></div>
+      <p>Something this part <em>produces</em> and hands off — a record, a document, a finished item.</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="chip"><span class="swatch sw-correct"></span>Correctly sorted</span>
+    <span class="chip"><span class="swatch sw-wrong"></span>Sorted, but wrong category (or a decoy you sorted)</span>
+    <span class="chip"><span class="swatch sw-missed"></span>Left unsorted — should have been categorised</span>
+  </div>
+
+  <div class="score-panel" id="score-panel"></div>
+
+  <section class="part">
+    <div class="part-head"><span class="part-num">PART A</span><h2 class="part-title">Cataloguing new stock</h2></div>
+    <p class="part-blurb">How a new book gets from a delivery box onto the shelf and into the catalogue — before any student can borrow it.</p>
+    <div class="extract" id="extract-a"></div>
+    <div class="annotations" id="annotations-a"></div>
+  </section>
+
+  <section class="part">
+    <div class="part-head"><span class="part-num">PART B</span><h2 class="part-title">Registering a new member</h2></div>
+    <p class="part-blurb">A shorter part of the system — but still its own set of inputs, processes and outputs, separate from cataloguing.</p>
+    <div class="extract" id="extract-b"></div>
+    <div class="annotations" id="annotations-b"></div>
+  </section>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · part of the Investigation Lesson 2 resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STATES = ["", "input", "process", "output"];
+
+  var PART_A_PARAS = [
+    'When a delivery of new books arrives, the Librarian starts with <c id="a1">the delivery note, listing the titles, quantities and prices that were originally ordered</c>, and <c id="a2">checks it against the boxes of books that have actually arrived, to confirm nothing is missing or has been sent by mistake</c>. She then <c id="a3">hand-writes a new entry in the stock ledger for each book, giving it the next free reference number in the sequence</c>, and <c id="a4">prints a label carrying that reference number, ready to stick onto the book’s spine</c>.',
+    '<c id="a5">The newly labelled book is placed on the shelf, ready to be found and borrowed</c>, and <c id="a6">the same title, author and reference number are copied onto a subject index card kept at the enquiry desk, giving students a second way to find it by topic</c>. <c id="a7">It would save a lot of time if new deliveries could be scanned in with a barcode reader instead of being logged by hand</c> — <c id="a8">around 40 to 60 new titles currently arrive each term, spread across the three campuses</c>.'
+  ];
+
+  var PART_B_PARAS = [
+    'At the start of each term, <c id="b1">a list of new starters is emailed to the Librarian by the college’s central admissions team, showing each student’s name, form group and campus</c>. The Librarian <c id="b2">types each new starter’s details onto a blank paper membership card and files it alphabetically in the campus’s member card box</c>, then <c id="b3">peels a barcode sticker from a pre-printed sheet and attaches it to the student’s college ID card, linking that card to the new paper membership record</c>. <c id="b4">Ideally, membership records would be created automatically from the college’s central student database instead of being retyped by hand each term</c>, though <c id="b5">membership records currently have no expiry date, so leavers are never automatically removed from the card box</c>.'
+  ];
+
+  var ANSWERS = {
+    a1: { cat: "input", note: "A recorded document the process starts from, supplied from outside it — exactly what makes it an input." },
+    a2: { cat: "process", note: "This is the comparison step — checking the delivery against the order to confirm it’s correct. Same pattern as “checks it against today’s date” from the overdue-books process: the checking is the process, not the things being compared." },
+    a3: { cat: "process", note: "The core transformation step: order and delivery information becomes a brand new stock record." },
+    a4: { cat: "process", note: "Another creation step. A real, physical thing gets produced here — but it hasn’t left the process yet, so it’s still process, not output." },
+    a5: { cat: "output", note: "The finished, catalogued book is the process’s product, now handed off — onto the shelf and into circulation. That’s what makes it output, not process." },
+    a6: { cat: "output", note: "A second output from the same process — a new record created as a result, even though (like the ledger update in the overdue-books example) it stays inside the library rather than going to someone outside it." },
+    b1: { cat: "input", note: "The starting data this part of the system needs, supplied from outside it — a classic input." },
+    b2: { cat: "process", note: "The transformation step: a list of names becomes an individual, filed membership record." },
+    b3: { cat: "output", note: "The finished, linked membership record — the product of this process, now ready to be used at the enquiry desk. That makes it output, not process." }
+  };
+  var DECOY_NOTES = {
+    a7: "This describes what the NEW system should do, not what the current system does — it doesn’t belong in a current-system IPO list at all. Keep it for your Design section, not here.",
+    a8: "Useful scale for your write-up, but it’s context about the library, not something that goes in, happens during, or comes out of this process.",
+    b4: "Another “what the new system should do” wish, not what happens now — same trap as the barcode-reader idea in Part A. It doesn’t belong in a current-system IPO list.",
+    b5: "A real limitation worth flagging elsewhere in your Investigation, but it’s not an input, a process step, or an output of this process — it’s a gap in the process, which is a different section."
+  };
+  var FUTURE_IDS = { a7: true, b4: true };
+
+  var PART_A_IDS = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"];
+  var PART_B_IDS = ["b1", "b2", "b3", "b4", "b5"];
+
+  var LABEL = { input: "Input", process: "Process", output: "Output" };
+  var LETTER = { input: "I", process: "P", output: "O" };
+
+  var mode = "task";
+  var assigned = {};
+
+  function renderPart(containerId, paras) {
+    var html = paras.map(function (p) {
+      var converted = p.replace(/<c id="([^"]+)">/g, function (m, id) {
+        return '<span class="cand" tabindex="0" role="button" data-id="' + id + '">';
+      }).replace(/<\/c>/g, "</span>");
+      return "<p>" + converted + "</p>";
+    }).join("");
+    document.getElementById(containerId).innerHTML = html;
+  }
+
+  function sortedCount() {
+    return Object.keys(assigned).filter(function (id) { return assigned[id]; }).length;
+  }
+
+  function updateStatLine() {
+    document.getElementById("pick-count").textContent = sortedCount();
+  }
+
+  function applyCandVisual(el) {
+    var id = el.getAttribute("data-id");
+    var cat = assigned[id];
+    el.classList.remove("cat-input", "cat-process", "cat-output");
+    if (cat) {
+      el.classList.add("cat-" + cat);
+      el.setAttribute("data-badge", LETTER[cat]);
+    } else {
+      el.removeAttribute("data-badge");
+    }
+  }
+
+  function cycle(el) {
+    var id = el.getAttribute("data-id");
+    var cur = assigned[id] || "";
+    var idx = (STATES.indexOf(cur) + 1) % STATES.length;
+    var next = STATES[idx];
+    if (next) assigned[id] = next; else delete assigned[id];
+    applyCandVisual(el);
+    updateStatLine();
+  }
+
+  function wireUp(containerId) {
+    var el = document.getElementById(containerId);
+    el.addEventListener("click", function (ev) {
+      if (mode !== "task") return;
+      var t = ev.target.closest(".cand");
+      if (t) cycle(t);
+    });
+    el.addEventListener("keydown", function (ev) {
+      if (mode !== "task") return;
+      if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList && ev.target.classList.contains("cand")) {
+        ev.preventDefault();
+        cycle(ev.target);
+      }
+    });
+  }
+  wireUp("extract-a");
+  wireUp("extract-b");
+
+  function renderAnnotations(annId, idOrder) {
+    var html = idOrder.map(function (id) {
+      var ans = ANSWERS[id];
+      var studentCat = assigned[id];
+      var pillHtml;
+      if (!ans) {
+        var tag = FUTURE_IDS[id] ? "New-system idea, not current" : "Not I/P/O";
+        pillHtml = studentCat
+          ? '<span class="pill you-wrong">You sorted this as ' + LABEL[studentCat] + '</span>'
+          : '<span class="pill">Decoy — correctly left unsorted</span>';
+        return (
+          '<div class="ann-card">' +
+            '<div class="ahead"><span class="n" style="background:var(--faint)">–</span><span class="pill' + (FUTURE_IDS[id] ? ' future' : '') + '" style="' + (FUTURE_IDS[id] ? '' : 'background:var(--surface-raised);border:1px solid var(--border);color:var(--muted)') + '">' + tag + '</span>' + (studentCat ? pillHtml : "") + '</div>' +
+            "<p style=\"margin:0\">" + DECOY_NOTES[id] + "</p>" +
+          "</div>"
+        );
+      }
+      var correct = studentCat === ans.cat;
+      if (correct) pillHtml = '<span class="pill">You got it</span>';
+      else if (studentCat) pillHtml = '<span class="pill you-wrong">You sorted this as ' + LABEL[studentCat] + '</span>';
+      else pillHtml = '<span class="pill you-missed">Left unsorted</span>';
+      return (
+        '<div class="ann-card">' +
+          '<div class="ahead"><span class="n ' + ans.cat + '">' + LETTER[ans.cat] + '</span><span class="pill">' + LABEL[ans.cat] + '</span>' + pillHtml + '</div>' +
+          "<p style=\"margin:0\">" + ans.note + "</p>" +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById(annId).innerHTML = html;
+  }
+
+  function partTally(ids) {
+    var total = 0, correct = 0, wrongCat = 0, missed = 0, decoyFlagged = 0;
+    ids.forEach(function (id) {
+      var ans = ANSWERS[id];
+      if (ans) {
+        total++;
+        var a = assigned[id];
+        if (a === ans.cat) correct++;
+        else if (a) wrongCat++;
+        else missed++;
+      } else if (assigned[id]) {
+        decoyFlagged++;
+      }
+    });
+    return { total: total, correct: correct, wrongCat: wrongCat, missed: missed, decoyFlagged: decoyFlagged };
+  }
+
+  function renderScore() {
+    var tallyA = partTally(PART_A_IDS);
+    var tallyB = partTally(PART_B_IDS);
+    var total = tallyA.total + tallyB.total;
+    var correct = tallyA.correct + tallyB.correct;
+    var wrongCat = tallyA.wrongCat + tallyB.wrongCat;
+    var missed = tallyA.missed + tallyB.missed;
+    var decoyFlagged = tallyA.decoyFlagged + tallyB.decoyFlagged;
+    var panel = document.getElementById("score-panel");
+    var extra = [];
+    if (wrongCat) extra.push(wrongCat + " sorted into the wrong category");
+    if (missed) extra.push(missed + " left unsorted");
+    if (decoyFlagged) extra.push(decoyFlagged + " decoy" + (decoyFlagged === 1 ? "" : "s") + " sorted when it shouldn’t have been");
+    panel.innerHTML =
+      '<span class="big">' + correct + " / " + total + "</span>" +
+      "<p>correctly sorted across both parts" + (extra.length ? " — " + extra.join("; ") + "." : ". Every input, process and output correctly placed in both parts — and no decoys picked up along the way." ) + "</p>" +
+      '<p class="split">Part A: ' + tallyA.correct + "/" + tallyA.total + " · Part B: " + tallyB.correct + "/" + tallyB.total + "</p>";
+  }
+
+  function revealPart(extractId, ids) {
+    var container = document.getElementById(extractId);
+    container.querySelectorAll(".cand").forEach(function (el) {
+      var id = el.getAttribute("data-id");
+      var ans = ANSWERS[id];
+      el.classList.remove("cat-input", "cat-process", "cat-output", "correct", "wrong", "missed");
+      if (ans) {
+        var studentCat = assigned[id];
+        if (studentCat === ans.cat) {
+          el.classList.add("cat-" + ans.cat, "correct");
+          el.setAttribute("data-badge", LETTER[ans.cat]);
+        } else if (studentCat) {
+          el.classList.add("cat-" + studentCat, "wrong");
+          el.setAttribute("data-badge", LETTER[studentCat]);
+        } else {
+          el.classList.add("missed");
+          el.setAttribute("data-badge", LETTER[ans.cat]);
+        }
+      } else if (assigned[id]) {
+        el.classList.add("cat-" + assigned[id], "wrong");
+        el.setAttribute("data-badge", LETTER[assigned[id]]);
+      } else {
+        el.removeAttribute("data-badge");
+      }
+    });
+  }
+
+  document.getElementById("reveal-btn").addEventListener("click", function () {
+    mode = "revealed";
+    document.body.classList.add("revealed");
+    revealPart("extract-a", PART_A_IDS);
+    revealPart("extract-b", PART_B_IDS);
+    var orderedA = PART_A_IDS.filter(function (id) { return ANSWERS[id]; }).concat(PART_A_IDS.filter(function (id) { return !ANSWERS[id]; }));
+    var orderedB = PART_B_IDS.filter(function (id) { return ANSWERS[id]; }).concat(PART_B_IDS.filter(function (id) { return !ANSWERS[id]; }));
+    renderAnnotations("annotations-a", orderedA);
+    renderAnnotations("annotations-b", orderedB);
+    renderScore();
+    document.getElementById("reveal-btn").hidden = true;
+    document.getElementById("reset-btn").hidden = false;
+    document.getElementById("stat-line").textContent = "Model answers revealed — compare your sorting against the notes below each part.";
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    mode = "task";
+    assigned = {};
+    document.body.classList.remove("revealed");
+    renderPart("extract-a", PART_A_PARAS);
+    renderPart("extract-b", PART_B_PARAS);
+    document.getElementById("annotations-a").innerHTML = "";
+    document.getElementById("annotations-b").innerHTML = "";
+    document.getElementById("stat-line").innerHTML = 'Click any phrase, then click again to cycle Input → Process → Output → clear. <b id="pick-count">0</b> sorted so far.';
+    document.getElementById("reveal-btn").hidden = false;
+    document.getElementById("reset-btn").hidden = true;
+  });
+
+  renderPart("extract-a", PART_A_PARAS);
+  renderPart("extract-b", PART_B_PARAS);
+})();
+</script>
+</body>
+</html>

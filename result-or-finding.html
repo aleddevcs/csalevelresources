@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Result or Finding?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --accent: #b8791f;
+    --accent-ink: #7a4f12;
+    --accent-soft: #f3e4cc;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --result: #5b7679;
+    --result-soft: #e7ecec;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --result: #93a3a1; --result-soft: #202b2d;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --accent: #e0a24a; --accent-ink: #ffe4b8; --accent-soft: #362a17;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --result: #93a3a1; --result-soft: #202b2d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent-ink); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 26px 24px 60px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 12px;
+  }
+  h1 { font-size: 26px; margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; max-width: 76ch; margin: 0 0 20px; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; font-size: 12.5px; color: var(--muted); }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .sw-result { background: var(--result-soft); border: 1.5px solid var(--result); }
+  .sw-finding { background: var(--good-soft); border: 1.5px solid var(--good); }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
+  }
+  .card .stmt { font-size: 14.5px; line-height: 1.55; color: var(--ink); font-style: italic; }
+  .choices { display: flex; gap: 8px; }
+  .choice-btn {
+    flex: 1; padding: 9px 10px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink-soft); font-size: 12.5px; font-weight: 600;
+    cursor: pointer; font-family: var(--sans); text-align: center; line-height: 1.3;
+  }
+  .choice-btn:hover { background: var(--surface-sunken); }
+  .card.answered .choice-btn { cursor: default; }
+  .card.answered .choice-btn:hover { background: var(--surface); }
+  .choice-btn.picked.right { background: var(--good-soft); border-color: var(--good); color: var(--ink); }
+  .choice-btn.picked.wrong { background: var(--warn-soft); border-color: var(--warn); color: var(--ink); }
+  .choice-btn.correct-answer { box-shadow: inset 0 0 0 1.5px var(--good); }
+
+  .feedback { display: none; font-size: 12.5px; line-height: 1.5; padding: 9px 12px; border-radius: 7px; }
+  .card.answered .feedback { display: block; }
+  .feedback.right { background: var(--good-soft); color: var(--ink); }
+  .feedback.wrong { background: var(--warn-soft); color: var(--ink); }
+  .feedback b { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .done-banner {
+    display: none; margin-top: 20px; background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 14px 18px; font-size: 14px; color: var(--ink);
+  }
+  .done-banner.show { display: block; }
+  .done-banner b { color: var(--accent-ink); }
+
+  footer.page-foot {
+    margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>Result or Finding?</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line">Sort each one. <b id="score">0 / 6</b> so far.</div>
+  <button class="btn" id="reset-btn">Reset</button>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Starter · 5 minutes</span>
+  <h1>Is this a result, or a finding?</h1>
+  <p class="lede">Six things students said about the library's overdue-books process last lesson. Some are just a piece of data. Some go further — they say what the data shows and what it means for the system being built. Sort each one, then compare with your partner. We'll pin down exactly what separates them right after this.</p>
+
+  <div class="legend">
+    <span class="chip"><span class="swatch sw-result"></span>Just a result — states data, and stops there</span>
+    <span class="chip"><span class="swatch sw-finding"></span>A real finding — data, problem, and implication</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="done-banner" id="done-banner"><b>Nicely spotted.</b> Today's lesson is about turning every result on your list into a finding like the ones on the right — using a simple three-part sentence stem.</div>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · Lesson 2 starter, same library scenario as the rest of the set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ITEMS = [
+    {
+      stmt: "41% of students said they find out a book is overdue when they return to the desk.",
+      cat: "result",
+      why: "A number on its own — no problem named, no link to what the new system should do."
+    },
+    {
+      stmt: "Every overdue record lives only in the paper ledger — if it's lost or left at the wrong campus, that week's data is gone, so records need to be stored digitally.",
+      cat: "finding",
+      why: "States the fact, names the risk it creates, and says what the system needs to do about it."
+    },
+    {
+      stmt: "The overdue round takes up to three hours of staff time some Fridays.",
+      cat: "result",
+      why: "A timing fact — true and useful, but doesn't yet say what it means for the build."
+    },
+    {
+      stmt: "The library assistant said the round depends on one specific person being on the desk — if they're off, it's skipped, so the system needs to run automatically rather than rely on someone remembering.",
+      cat: "finding",
+      why: "The evidence, the problem it reveals, and the implication for the solution — all three."
+    },
+    {
+      stmt: "9% of students said they never find out about an overdue book until a letter is sent home.",
+      cat: "result",
+      why: "Another single data point — a good start, but it needs a “which means...” to become a finding."
+    },
+    {
+      stmt: "Membership records currently have no expiry date, so leavers are never removed from the card box.",
+      cat: "result",
+      why: "A true limitation, but it just describes what happens — it doesn't yet say what the new system should do differently."
+    }
+  ];
+
+  var LABEL = { result: "Just a result", finding: "A real finding" };
+  var answered = {};
+
+  function render() {
+    var grid = document.getElementById("grid");
+    grid.innerHTML = ITEMS.map(function (it, i) {
+      return (
+        '<div class="card" data-i="' + i + '">' +
+          '<div class="stmt">“' + it.stmt + '”</div>' +
+          '<div class="choices">' +
+            '<button class="choice-btn" data-cat="result" type="button">Just a result</button>' +
+            '<button class="choice-btn" data-cat="finding" type="button">A real finding</button>' +
+          '</div>' +
+          '<div class="feedback"></div>' +
+        '</div>'
+      );
+    }).join("");
+  }
+
+  function updateScore() {
+    var correct = 0;
+    Object.keys(answered).forEach(function (i) {
+      if (answered[i] === ITEMS[i].cat) correct++;
+    });
+    document.getElementById("score").textContent = correct + " / " + ITEMS.length;
+    if (Object.keys(answered).length === ITEMS.length) {
+      document.getElementById("done-banner").classList.add("show");
+    }
+  }
+
+  document.getElementById("grid").addEventListener("click", function (ev) {
+    var btn = ev.target.closest(".choice-btn");
+    if (!btn) return;
+    var card = btn.closest(".card");
+    var i = Number(card.getAttribute("data-i"));
+    if (answered[i] !== undefined) return;
+
+    var picked = btn.getAttribute("data-cat");
+    var it = ITEMS[i];
+    answered[i] = picked;
+    var right = picked === it.cat;
+
+    card.querySelectorAll(".choice-btn").forEach(function (b) {
+      var c = b.getAttribute("data-cat");
+      if (c === picked) b.classList.add("picked", right ? "right" : "wrong");
+      if (c === it.cat) b.classList.add("correct-answer");
+    });
+
+    var fb = card.querySelector(".feedback");
+    fb.className = "feedback " + (right ? "right" : "wrong");
+    fb.innerHTML = "<b>" + (right ? "Correct — " : "Not quite — ") + LABEL[it.cat] + ".</b> " + it.why;
+
+    card.classList.add("answered");
+    updateScore();
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    answered = {};
+    document.getElementById("done-banner").classList.remove("show");
+    render();
+    updateScore();
+  });
+
+  render();
+  updateScore();
+})();
+</script>
+</body>
+</html>
