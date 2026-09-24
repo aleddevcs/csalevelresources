@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build It: Conwy Kayak Club</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛶</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --gold-light:#FFF3CD;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --gold-light:#3A331C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --gold-light:#3A331C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 60px;}
+
+  .progress-bar-outer{
+    position:sticky;
+    top:env(safe-area-inset-top,0px);
+    z-index:20;
+    background:var(--paper);
+    padding:14px 0 10px;
+  }
+  .progress-track{
+    background:var(--card-border);
+    border-radius:20px;
+    height:14px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--teal), var(--orange));
+    border-radius:20px;
+    transition:width .35s ease;
+  }
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .progress-label strong{color:var(--navy);font-size:14px;}
+  :root[data-theme="dark"] .progress-label strong{color:#fff;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin:6px 0 22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .info-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .info-row .chip{
+    flex:1;
+    min-width:220px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13.5px;
+  }
+  .info-row .chip strong{display:block;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;}
+  :root[data-theme="dark"] .info-row .chip strong{color:var(--teal);}
+
+  .scenario{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14.5px;
+    line-height:1.55;
+    font-style:italic;
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  .note{font-size:13px;color:var(--muted);font-style:italic;margin:0 0 26px;}
+
+  section.part{margin-bottom:30px;}
+  .part-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .part-num{
+    width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;
+    flex-shrink:0;
+  }
+  .part-head h2{font-family:Cambria, Georgia, serif;font-size:21px;margin:0;color:var(--navy);}
+  :root[data-theme="dark"] .part-head h2{color:#fff;}
+
+  .part-desc{
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14.5px;
+    line-height:1.55;
+    margin-bottom:14px;
+  }
+  .part-desc p{margin:0 0 8px;}
+  .part-desc p:last-child{margin-bottom:0;}
+
+  ul.checklist{list-style:none;margin:0;padding:0;}
+  ul.checklist li{margin-bottom:8px;}
+  ul.checklist label{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:9px;
+    padding:12px 14px;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  ul.checklist label:hover{border-color:var(--teal);}
+  ul.checklist input[type="checkbox"]{
+    width:19px;height:19px;
+    flex-shrink:0;
+    margin-top:1px;
+    accent-color:var(--teal);
+    cursor:pointer;
+  }
+  ul.checklist li.checked label{
+    background:var(--teal-light);
+    border-color:var(--teal);
+  }
+  ul.checklist li.checked span.text{
+    text-decoration:line-through;
+    color:var(--muted);
+  }
+
+  .callout{
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14px;
+    line-height:1.55;
+    margin-top:14px;
+  }
+  .callout strong.title{display:block;color:var(--navy);font-size:14.5px;margin-bottom:5px;}
+  :root[data-theme="dark"] .callout strong.title{color:#fff;}
+  .callout.gold{background:var(--gold-light);}
+  .callout.teal{background:var(--teal-light);}
+
+  .celebrate{
+    display:none;
+    background:linear-gradient(135deg, var(--navy-deep), var(--navy));
+    color:#fff;
+    border-radius:14px;
+    padding:20px 22px;
+    text-align:center;
+    margin:26px 0;
+  }
+  .celebrate.show{display:block;}
+  .celebrate .big{font-size:28px;margin-bottom:4px;}
+  .celebrate p{margin:0;font-size:14.5px;color:#CFE8E6;}
+
+  footer.note{
+    margin-top:30px;
+    padding-top:18px;
+    border-top:1px solid var(--card-border);
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:480px){
+    header h1{font-size:22px;}
+    .info-row{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="progress-bar-outer">
+    <div class="progress-label">
+      <span>Your progress</span>
+      <strong id="progressText">0 of 7 checked</strong>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 2</p>
+    <h1>Build It: Conwy Kayak Club</h1>
+    <p>Paired coding task &mdash; two parts, about 27 minutes total. Tick each box as you complete it &mdash; your progress bar fills in as you go.</p>
+  </header>
+
+  <div class="info-row">
+    <div class="chip"><strong>Scenario</strong>Conwy Kayak Club</div>
+    <div class="chip"><strong>Where</strong>Inside add_record() &mdash; no new functions</div>
+  </div>
+
+  <p style="font-weight:700;margin-bottom:8px;">Before you start</p>
+  <div class="scenario">Conwy Kayak Club hires out kayaks and paddles to visitors. Staff need a program that lets them record the details of a new hire, look up a hire later by the visitor's name, and exit safely.</div>
+  <p class="note">Get out your Lesson 1 planning sheet for the fields you identified. Open your menu_shell file and find add_record() &mdash; that's where all of today's work goes.</p>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--teal);">1</div>
+      <h2>Build the Input Sequence</h2>
+    </div>
+    <div class="part-desc" style="background:var(--teal-light);">
+      <p>Using your Lesson 1 plan, add one <code>input()</code> line inside <code>add_record()</code> for each field a new kayak hire needs (e.g. visitor name, kayak type, hire date). Keep them in the same order as your plan.</p>
+      <p>Finish with a print statement for each value, so you can see everything you've collected.</p>
+    </div>
+    <ul class="checklist" data-group="part1">
+      <li><label><input type="checkbox" data-id="p1-1"><span class="text">Every field from my plan has its own input() line</span></label></li>
+      <li><label><input type="checkbox" data-id="p1-2"><span class="text">The order matches my plan</span></label></li>
+      <li><label><input type="checkbox" data-id="p1-3"><span class="text">I've printed every value to check it works</span></label></li>
+      <li><label><input type="checkbox" data-id="p1-4"><span class="text">Everything is inside add_record() &mdash; no separate functions</span></label></li>
+    </ul>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--orange);">2</div>
+      <h2>Add Validation</h2>
+    </div>
+    <div class="part-desc" style="background:var(--orange-light);">
+      <p>Pick one field from your sequence and add a presence check to it, using the while loop pattern from the reference sheet: keep re-asking until something is actually entered.</p>
+      <p>One good check, done properly, is a success for today &mdash; don't rush to add more.</p>
+    </div>
+    <ul class="checklist" data-group="part2">
+      <li><label><input type="checkbox" data-id="p2-1"><span class="text">I've picked one field to validate</span></label></li>
+      <li><label><input type="checkbox" data-id="p2-2"><span class="text">My check uses a while loop</span></label></li>
+      <li><label><input type="checkbox" data-id="p2-3"><span class="text">Testing it with blank input makes it re-ask</span></label></li>
+    </ul>
+
+    <div class="callout gold">
+      <strong class="title">Finished early?</strong>
+      Try a second check on a different field &mdash; the Student Reference Sheet has a length check and a range check example you can adapt.
+      <ul class="checklist" data-group="extension" style="margin-top:10px;">
+        <li><label><input type="checkbox" data-id="ext-1"><span class="text">(Extension) Added a second check on a different field</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="celebrate" id="celebrate">
+    <div class="big">&#127881;</div>
+    <p><strong>All done!</strong> Keep add_record() open &mdash; you'll compare it against the class model on the Whiteboard next.</p>
+  </div>
+
+  <div class="callout teal">
+    <strong class="title">Stuck?</strong>
+    Check the Sequence &amp; Validation reference sheet for worked examples, or ask to see the model answer &mdash; there's no penalty for checking, only for staying stuck.
+  </div>
+
+  <footer class="note">AS Unit 2 &mdash; Lesson 2 &middot; pairs with the Sequence &amp; Validation reference sheet and menu shell files</footer>
+</div>
+
+<script>
+  var REQUIRED_IDS = ["p1-1","p1-2","p1-3","p1-4","p2-1","p2-2","p2-3"];
+  var STORAGE_KEY = "conwy-kayak-build-task-v1";
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* storage unavailable — progress just won't persist across reloads */
+    }
+  }
+
+  var state = loadState();
+  var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+  checkboxes.forEach(function (cb) {
+    var id = cb.dataset.id;
+    if (state[id]) {
+      cb.checked = true;
+      cb.closest("li").classList.add("checked");
+    }
+    cb.addEventListener("change", function () {
+      state[id] = cb.checked;
+      cb.closest("li").classList.toggle("checked", cb.checked);
+      saveState(state);
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    var done = REQUIRED_IDS.filter(function (id) { return state[id]; }).length;
+    var total = REQUIRED_IDS.length;
+    var pct = Math.round((done / total) * 100);
+    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressText").textContent = done + " of " + total + " checked";
+    document.getElementById("celebrate").classList.toggle("show", done === total);
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
