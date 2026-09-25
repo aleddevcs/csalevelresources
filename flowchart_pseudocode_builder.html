@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flowchart ↔ Pseudo-code Builder</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --shape:#FFFFFF; --stroke:#003366; --head:#003366; --headInk:#FFFFFF; --soft:#FBF3DD;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6; --sel:#CC9900;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --shape:#0D1824; --stroke:#9CC2E8; --head:#001F3F; --soft:#33290E;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --shape:#0D1824; --stroke:#9CC2E8; --head:#001F3F; --soft:#33290E;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+code,.mono{font-family:"Courier New",Courier,monospace}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:var(--headInk);padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1280px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+.progress{font-size:15px;color:#C9D6E3}
+.progress b{color:#FFD966}
+nav{display:flex;gap:4px;max-width:1280px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 18px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .tick{color:#FFD966;margin-left:6px;font-weight:700}
+nav button[aria-selected="true"] .tick{color:var(--amberText)}
+
+main{max-width:1280px;margin:0 auto;padding:20px 24px 40px}
+.taskbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.taskbar h2{font-size:24px;color:var(--navy)}
+.dots{display:flex;gap:8px;align-items:center}
+.dot{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.prompt{background:var(--soft);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+.prompt b{color:var(--amberText)}
+
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:16px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+.flowwrap{background:var(--panel);border-radius:12px;padding:10px;overflow-x:auto}
+.flowwrap svg{display:block;height:auto;max-width:100%;margin:0 auto}
+
+pre.pseudo{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:0 0 14px;font-size:16px;line-height:1.5;overflow-x:auto;color:var(--ink)}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:7px 12px;font-family:"Courier New",monospace;font-size:15px;touch-action:none;user-select:none}
+.chip:hover{border-color:var(--navy)}
+.chip[aria-pressed="true"]{border-color:var(--amber);background:var(--soft)}
+.chip.used{opacity:.35}
+.hint{font-size:14px;color:var(--muted);margin:10px 0 0}
+
+.answer{list-style:none;margin:0;padding:0;counter-reset:ln;min-height:60px;background:var(--code);border:1px solid var(--line);border-radius:8px}
+.answer:empty::before{content:"Click lines in the bank to add them here.";display:block;padding:16px;color:var(--muted);font-size:15px}
+.answer li{display:flex;align-items:center;gap:8px;padding:4px 8px;border-bottom:1px solid var(--line);counter-increment:ln}
+.answer li:last-child{border-bottom:0}
+.answer li::before{content:counter(ln);width:22px;color:var(--muted);font-size:13px;text-align:right;flex:none}
+.answer .txt{flex:1;font-family:"Courier New",monospace;font-size:16px;white-space:pre;overflow-x:auto}
+.answer li.ok{background:var(--okBg)}
+.answer li.bad{background:var(--badBg)}
+.ctl{display:flex;gap:3px;flex:none}
+.ctl button{width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font-size:14px;padding:0}
+.ctl button:hover{border-color:var(--navy)}
+
+.opts{display:grid;gap:8px;margin-top:6px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 14px;font-size:16px}
+.opt:hover{border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn{border:0;border-radius:8px;padding:10px 20px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:var(--amber);color:#1F2A36}
+.btn.ghost{background:transparent;color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.feedback{margin-top:16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:12px 16px}
+.feedback h3{font-size:16px;color:var(--navy);margin-bottom:6px}
+.feedback ul{margin:0;padding-left:20px}
+.feedback li{margin:4px 0}
+.feedback li.ok::marker{color:var(--ok)}
+.feedback li.bad::marker{color:var(--bad)}
+.feedback .sum{font-weight:700}
+.feedback .sum.ok{color:var(--ok)}
+.feedback .sum.bad{color:var(--bad)}
+
+/* flowchart */
+.fnode .shape{fill:var(--shape);stroke:var(--stroke);stroke-width:2}
+.fnode text{fill:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:14px;font-weight:700;dominant-baseline:central}
+.fnode.blank .shape{stroke-dasharray:6 4}
+.fnode.blank text.letter{fill:var(--muted);font-size:16px}
+.fnode.placed text{font-family:"Courier New",monospace;font-weight:700;font-size:13px}
+.fnode.click{cursor:pointer}
+.fnode.click:hover .shape{stroke:var(--amber)}
+.fnode.sel .shape{stroke:var(--sel);stroke-width:3.5}
+.fnode.ok .shape{stroke:var(--ok);stroke-width:3;fill:var(--okBg)}
+.fnode.bad .shape{stroke:var(--bad);stroke-width:3;fill:var(--badBg)}
+.fnode.drop .shape{stroke:var(--amber);stroke-width:3.5}
+.edge{fill:none;stroke:var(--stroke);stroke-width:1.8}
+.elabel{fill:var(--amberText);font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:13px;font-weight:700}
+.arrowhead{fill:var(--stroke)}
+
+.done-banner{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--okBg);color:var(--ok);font-weight:700}
+@media (prefers-reduced-motion: no-preference){ .chip,.opt,.dot{transition:border-color .15s,background .15s} }
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Flowchart ↔ Pseudo-code Builder</h1><div class="spec">Unit 3 · 3.1.1 · Work in pairs</div></div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+/* ---------------- flowchart geometry + rendering ---------------- */
+const G = {W:200,H:44,DW:280,DH:74,TW:140,TH:40,ROW:78,Y0:40,COL:330};
+const NS = 'http://www.w3.org/2000/svg';
+function geom(n){
+  const t=n.type;
+  const w=t==='dec'?G.DW:t==='term'?G.TW:G.W, h=t==='dec'?G.DH:t==='term'?G.TH:G.H;
+  return {cx:(n.col||0)*G.COL, cy:G.Y0+n.row*G.ROW, w, h};
+}
+function port(g,side){
+  if(side==='bottom')return {x:g.cx,y:g.cy+g.h/2};
+  if(side==='top')return {x:g.cx,y:g.cy-g.h/2};
+  if(side==='right')return {x:g.cx+g.w/2,y:g.cy};
+  return {x:g.cx-g.w/2,y:g.cy};
+}
+function route(e,gf,gt){
+  const exit=e.exit||'bottom', enter=e.enter||'top';
+  const s=port(gf,exit), t=port(gt,enter), p=[s];
+  const lx = e.lane!==undefined ? e.lane : null;
+  if(exit==='right'||exit==='left'){
+    if(enter==='top'){
+      if(lx===null){p.push({x:t.x,y:s.y});}
+      else{p.push({x:lx,y:s.y},{x:lx,y:t.y-22},{x:t.x,y:t.y-22});}
+    } else { const x=lx===null?t.x:lx; if(lx!==null){p.push({x:lx,y:s.y},{x:lx,y:t.y});} }
+  } else {
+    if(enter==='top'){ if(Math.abs(s.x-t.x)>1){p.push({x:s.x,y:t.y-22},{x:t.x,y:t.y-22});} }
+    else { if(lx!==null){p.push({x:s.x,y:s.y+18},{x:lx,y:s.y+18},{x:lx,y:t.y});} else p.push({x:s.x,y:t.y}); }
+  }
+  p.push(t); return {pts:p,s,exit};
+}
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+function wrap(text,max){
+  if(text.length<=max)return [text];
+  const words=text.split(' ');let a='',lines=[];
+  for(const w of words){ if((a+' '+w).trim().length>max && a){lines.push(a);a=w;} else a=(a+' '+w).trim(); }
+  if(a)lines.push(a); return lines;
+}
+function drawShape(g,type,parent){
+  const {cx,cy,w,h}=g, x=cx-w/2, y=cy-h/2;
+  if(type==='term') return el('rect',{x,y,width:w,height:h,rx:h/2,class:'shape'},parent);
+  if(type==='proc') return el('rect',{x,y,width:w,height:h,class:'shape'},parent);
+  if(type==='io'){const k=14;return el('polygon',{points:`${x+k},${y} ${x+w},${y} ${x+w-k},${y+h} ${x},${y+h}`,class:'shape'},parent);}
+  if(type==='dec') return el('polygon',{points:`${cx},${y} ${x+w},${cy} ${cx},${y+h} ${x},${cy}`,class:'shape'},parent);
+  if(type==='sub'){const r=el('rect',{x,y,width:w,height:h,class:'shape'},parent);el('line',{x1:x+14,y1:y,x2:x+14,y2:y+h,class:'shape'},parent);el('line',{x1:x+w-14,y1:y,x2:x+w-14,y2:y+h,class:'shape'},parent);return r;}
+}
+/* opts: textFor(node)->{text,cls}, stateFor(node)->class, clickable(node), onClick(node), onDrop(node,data) */
+function renderFlow(host,spec,opts={}){
+  host.innerHTML='';
+  const svg=el('svg',{role:'img','aria-label':spec.aria||'Flowchart'});
+  const defs=el('defs',{},svg);
+  const m=el('marker',{id:'ah'+(renderFlow.n=(renderFlow.n||0)+1),viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+  el('path',{d:'M0,0 L10,5 L0,10 z',class:'arrowhead'},m);
+  const mid=m.getAttribute('id');
+  const byId={};spec.nodes.forEach(n=>byId[n.id]=n);
+  let minX=Infinity,maxX=-Infinity,maxY=0;
+  spec.nodes.forEach(n=>{const g=geom(n);minX=Math.min(minX,g.cx-g.w/2);maxX=Math.max(maxX,g.cx+g.w/2);maxY=Math.max(maxY,g.cy+g.h/2);});
+  spec.edges.forEach(e=>{if(e.lane!==undefined){minX=Math.min(minX,e.lane-10);maxX=Math.max(maxX,e.lane+10);}});
+  const pad=30;
+  const vbW=maxX-minX+2*pad;
+  svg.setAttribute('viewBox',`${minX-pad} 0 ${vbW} ${maxY+pad}`);
+  svg.style.width=Math.round(vbW*1.15)+'px';
+  const eg=el('g',{},svg);
+  spec.edges.forEach(e=>{
+    const gf=geom(byId[e.from]), gt=geom(byId[e.to]);
+    const r=route(e,gf,gt);
+    el('polyline',{points:r.pts.map(p=>p.x+','+p.y).join(' '),class:'edge','marker-end':`url(#${mid})`},eg);
+    const lab = opts.labelFor ? opts.labelFor(e) : e.label;
+    if(lab){
+      let lx=r.s.x,ly=r.s.y,anchor='start';
+      if(r.exit==='bottom'){lx+=8;ly+=15;}
+      else if(r.exit==='right'){lx+=8;ly-=8;}
+      else {lx-=8;ly-=8;anchor='end';}
+      el('text',{x:lx,y:ly,class:'elabel','text-anchor':anchor},eg).textContent=lab;
+    }
+  });
+  spec.nodes.forEach(n=>{
+    const g=geom(n);
+    const info=opts.textFor?opts.textFor(n):{text:n.text,cls:''};
+    const state=opts.stateFor?opts.stateFor(n):'';
+    const clickable=opts.clickable?opts.clickable(n):false;
+    const grp=el('g',{class:`fnode ${info.cls||''} ${state||''} ${clickable?'click':''}`},svg);
+    drawShape(g,n.draw||n.type,grp);
+    const max=n.type==='dec'?22:24;
+    const lines=wrap(info.text,max), lh=16;
+    lines.forEach((ln,i)=>{
+      const t=el('text',{x:g.cx,y:g.cy+(i-(lines.length-1)/2)*lh,'text-anchor':'middle',class:info.textCls||''},grp);
+      t.textContent=ln;
+    });
+    if(clickable){
+      grp.setAttribute('tabindex','0');grp.setAttribute('role','button');
+      grp.setAttribute('aria-label',info.aria||info.text);
+      grp.addEventListener('click',()=>opts.onClick(n));
+      grp.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();opts.onClick(n);}});
+    }
+    if(opts.onDrop && clickable){
+      grp.addEventListener('dragover',ev=>{ev.preventDefault();grp.classList.add('drop');});
+      grp.addEventListener('dragleave',()=>grp.classList.remove('drop'));
+      grp.addEventListener('drop',ev=>{ev.preventDefault();grp.classList.remove('drop');opts.onDrop(n,ev.dataTransfer.getData('text/plain'));});
+    }
+  });
+  host.appendChild(svg);
+}
+
+/* ---------------- exercise data ---------------- */
+const MATCH=[
+ {title:'Count-controlled loop',
+  prompt:'Drag each flowchart label onto the correct blank shape. Two labels are distractors and are not used.',
+  pseudo:'set total = 0\nfor i = 1 to 5\n    set total = total + i\nnext i\noutput total',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},
+   {id:'a',type:'proc',text:'total = 0',row:1,blank:1,why:'an operation box: it sets the running total to 0 before the loop starts'},
+   {id:'b',type:'proc',text:'i = 1',row:2,blank:1,why:'an operation box: a for loop starts its counter at the first value (i = 1)'},
+   {id:'d',type:'dec',text:'i <= 5?',row:3.2,blank:1,why:'a decision: the loop condition is tested before each pass, and the for loop runs while i is 5 or less'},
+   {id:'e',type:'proc',text:'total = total + i',row:4.6,blank:1,why:'an operation box: the loop body adds i to the running total'},
+   {id:'f',type:'proc',text:'i = i + 1',row:5.6,blank:1,why:'an operation box: next i increments the counter before the condition is tested again'},
+   {id:'g',type:'io',text:'Output total',row:4.6,col:1,blank:1,why:'an output (parallelogram): the result is output once the loop has finished'},
+   {id:'t',type:'term',text:'Stop',row:5.6,col:1}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'b'},{from:'b',to:'d'},{from:'d',to:'e',label:'Yes'},{from:'e',to:'f'},
+   {from:'f',to:'d',exit:'left',enter:'left',lane:-190},{from:'d',to:'g',exit:'right',label:'No'},{from:'g',to:'t'}],
+  distractors:['i = 0','Input total']},
+ {title:'Dual alternative selection',
+  prompt:'Drag each flowchart label onto the correct blank shape. Two labels are distractors and are not used.',
+  pseudo:'input mark\nif mark > 25\n    set result = "pass"\nelse\n    set result = "fail"\nend if\noutput result',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},
+   {id:'a',type:'io',text:'Input mark',row:1,blank:1,why:'an input (parallelogram): input mark collects a value from the user'},
+   {id:'d',type:'dec',text:'mark > 25?',row:2.2,blank:1,why:'a decision: the if condition is exactly mark > 25, not mark >= 25'},
+   {id:'e',type:'proc',text:'result = "pass"',row:3.6,blank:1,why:'an operation on the Yes branch: this runs when the condition is true'},
+   {id:'f',type:'proc',text:'result = "fail"',row:3.6,col:1,blank:1,why:'an operation on the No branch: this is the else part of the selection'},
+   {id:'g',type:'io',text:'Output result',row:5,blank:1,why:'an output (parallelogram): both branches rejoin before the result is output'},
+   {id:'t',type:'term',text:'Stop',row:6}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'d'},{from:'d',to:'e',label:'Yes'},{from:'d',to:'f',exit:'right',label:'No'},
+   {from:'e',to:'g'},{from:'f',to:'g',exit:'bottom',enter:'right'},{from:'g',to:'t'}],
+  distractors:['mark >= 25?','Output mark']},
+ {title:'Condition-controlled loop (condition at the end)',
+  prompt:'Drag each flowchart label onto the correct blank shape. Two labels are distractors and are not used.',
+  pseudo:'repeat\n    output "Guess a number"\n    input num\nuntil num >= 1 AND num <= 100\noutput "Accepted"',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},
+   {id:'a',type:'io',text:'Output "Guess a number"',row:1,blank:1,why:'an output: it is the first line inside the repeat loop, so it is where the loop jumps back to'},
+   {id:'b',type:'io',text:'Input num',row:2,blank:1,why:'an input (parallelogram): the user enters a number on every pass of the loop'},
+   {id:'d',type:'dec',text:'num >= 1 AND num <= 100?',row:3.3,blank:1,why:'a decision at the END of the loop: the block has already run once before the condition is tested'},
+   {id:'e',type:'io',text:'Output "Accepted"',row:4.8,blank:1,why:'an output after the loop: it only runs once the until condition is true'},
+   {id:'t',type:'term',text:'Stop',row:5.8}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'b'},{from:'b',to:'d'},{from:'d',to:'e',label:'Yes'},
+   {from:'d',to:'a',exit:'right',enter:'right',lane:210,label:'No'},{from:'e',to:'t'}],
+  distractors:['num > 100?','Output num']}
+];
+
+const BUILD=[
+ {title:'Condition-controlled loop (condition at the start)',
+  prompt:'Build the pseudo-code for this flowchart. Click lines in the bank to add them, then use the arrows to reorder and indent. Two lines are distractors.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'proc',text:'total = 0',row:1},
+   {id:'d',type:'dec',text:'total < 100?',row:2.2},{id:'b',type:'io',text:'Input num',row:3.6},
+   {id:'c',type:'proc',text:'total = total + num',row:4.6},{id:'o',type:'io',text:'Output total',row:5.8},{id:'t',type:'term',text:'Stop',row:6.8}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'d'},{from:'d',to:'b',label:'Yes'},{from:'b',to:'c'},
+   {from:'c',to:'d',exit:'right',enter:'right',lane:190},{from:'d',to:'o',exit:'left',lane:-190,label:'No'},{from:'o',to:'t'}],
+  lines:[[0,'set total = 0'],[0,'while total < 100'],[1,'input num'],[1,'set total = total + num'],[0,'repeat'],[0,'output total']],
+  distractors:[['until total >= 100','The condition is tested at the START of the loop (before the body runs), so this needs a while loop, not repeat…until.'],
+               ['for total = 0 to 100','total goes up by whatever the user enters, not by 1 each time, so a count-controlled for loop does not fit. Use a condition-controlled while loop.']]},
+ {title:'Multiple selection',
+  prompt:'Build the pseudo-code for this flowchart. Click lines in the bank to add them, then use the arrows to reorder and indent. Two lines are distractors.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'io',text:'Input age',row:1},
+   {id:'d1',type:'dec',text:'age <= 18?',row:2.2},{id:'y1',type:'io',text:'Output "Youth rate"',row:2.2,col:1},
+   {id:'d2',type:'dec',text:'age >= 66?',row:3.6},{id:'y2',type:'io',text:'Output "Pensioner rate"',row:3.6,col:1},
+   {id:'y3',type:'io',text:'Output "Adult rate"',row:5},{id:'t',type:'term',text:'Stop',row:6.2}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'d1'},{from:'d1',to:'y1',exit:'right',enter:'left',label:'Yes'},{from:'d1',to:'d2',label:'No'},
+   {from:'d2',to:'y2',exit:'right',enter:'left',label:'Yes'},{from:'d2',to:'y3',label:'No'},{from:'y3',to:'t'},
+   {from:'y1',to:'t',exit:'right',enter:'right',lane:480},{from:'y2',to:'t',exit:'right',enter:'right',lane:480}],
+  lines:[[0,'input age'],[0,'if age <= 18'],[1,'output "Youth rate"'],[0,'else if age >= 66'],[1,'output "Pensioner rate"'],[0,'else'],[1,'output "Adult rate"'],[0,'end if']],
+  distractors:[['else age >= 66','A second condition needs else if. A plain else has no condition: it catches everything left over.'],
+               ['end else','WJEC pseudo-code closes the whole selection with a single end if.']]},
+ {title:'Count-controlled loop from a flowchart',
+  prompt:'Build the pseudo-code for this flowchart using a count-controlled for loop. Three lines are distractors.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'io',text:'Input num',row:1},{id:'b',type:'proc',text:'i = 1',row:2},
+   {id:'d',type:'dec',text:'i <= 12?',row:3.2},{id:'c',type:'io',text:'Output num * i',row:4.6},
+   {id:'e',type:'proc',text:'i = i + 1',row:5.6},{id:'t',type:'term',text:'Stop',row:6.8}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'b'},{from:'b',to:'d'},{from:'d',to:'c',label:'Yes'},{from:'c',to:'e'},
+   {from:'e',to:'d',exit:'right',enter:'right',lane:190},{from:'d',to:'t',exit:'left',lane:-190,label:'No'}],
+  lines:[[0,'input num'],[0,'for i = 1 to 12'],[1,'output num * i'],[0,'next i']],
+  distractors:[['set i = i + 1','A for…next loop increments i automatically. The flowchart shows i = i + 1, but in pseudo-code that is part of next i.'],
+               ['set i = 1','A for loop sets the starting value itself (for i = 1 to 12), so you do not initialise i separately.'],
+               ['for i = 0 to 12','The flowchart starts i at 1, so the range is 1 to 12. Starting at 0 would output num * 0 as an extra line.']]}
+];
+
+const ERRORS=[
+ {title:'The loop that never ends',
+  prompt:'This algorithm should output the six times table (0 to 36) and then stop. One shape contains an error. Click it, then choose the fix.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'proc',text:'count = 0',row:1},
+   {id:'d',type:'dec',text:'count > 6?',row:2.2},{id:'t',type:'term',text:'Stop',row:2.2,col:1},
+   {id:'o',type:'io',text:'Output count * 6',row:3.6},{id:'x',type:'proc',text:'i = i + 1',row:4.6}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'d'},{from:'d',to:'t',exit:'right',enter:'left',label:'Yes'},{from:'d',to:'o',label:'No'},
+   {from:'o',to:'x'},{from:'x',to:'d',exit:'left',enter:'left',lane:-190}],
+  error:'x',
+  hint:'Trace it: what is count after the first pass? After the second?',
+  options:[['count = count + 1',1,'Correct. The decision tests count, so count must change on every pass. It now increases by 1 each time until count > 6 is true and the loop terminates.'],
+           ['count = 0',0,'This resets count to 0 on every pass, so count > 6 is still never true.'],
+           ['i = 1',0,'The condition tests count, not i. Changing i has no effect on whether the loop ends.']],
+  explain:'The decision tests count, but the loop only ever changes i. count stays at 0, so the terminating condition is never met and the loop runs forever (an infinite loop).'},
+ {title:'Wrong symbol',
+  prompt:'This algorithm applies a 10% discount to prices over £50. One shape is drawn with the wrong symbol. Click it, then choose the fix.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'io',draw:'proc',text:'Input price',row:1},
+   {id:'d',type:'dec',text:'price > 50?',row:2.2},{id:'b',type:'proc',text:'price = price * 0.9',row:3.6},
+   {id:'o',type:'io',text:'Output price',row:4.8},{id:'t',type:'term',text:'Stop',row:5.8}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'d'},{from:'d',to:'b',label:'Yes'},{from:'b',to:'o'},
+   {from:'d',to:'o',exit:'right',enter:'right',lane:220,label:'No'},{from:'o',to:'t'}],
+  error:'a',
+  hint:'Check each shape against the flowchart symbols. Which symbol is used for inputs and outputs?',
+  options:[['Draw it as a parallelogram (input/output)',1,'Correct. Input price collects data from the user, so it must use the input/output symbol, a parallelogram.'],
+           ['Draw it as a diamond (decision)',0,'A diamond is only for a decision with a condition and two labelled exits. Input price is not a decision.'],
+           ['Draw it as a rounded rectangle (start/stop)',0,'Rounded rectangles only mark the start and end of an algorithm.']],
+  explain:'A rectangle is an operation (process) box, used for assignments and calculations. Input and output must use a parallelogram.'},
+ {title:'Access denied',
+  prompt:'This algorithm should keep asking for the password until it is correct, then grant access. One shape contains an error. Click it, then choose the fix.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'io',text:'Input password',row:1},
+   {id:'d',type:'dec',text:'password = "letmein"?',row:2.3},{id:'o',type:'io',text:'Output "Access granted"',row:3.8},{id:'t',type:'term',text:'Stop',row:4.8}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'d'},{from:'d',to:'o',label:'No'},
+   {from:'d',to:'a',exit:'right',enter:'right',lane:220,label:'Yes'},{from:'o',to:'t'}],
+  error:'d',
+  hint:'Trace it with the correct password. Where does the algorithm go?',
+  options:[['Swap the Yes and No labels',1,'Correct. A correct password (Yes) should lead to "Access granted", and a wrong one (No) should loop back to ask again.'],
+           ['Change the condition to password != "letmein"?',1,'Also correct. Reversing the condition fixes the logic without moving the labels. Both are valid fixes: talk about which you would prefer and why.'],
+           ['Remove the loop back to Input password',0,'Without the loop, a wrong password would still reach "Access granted". The loop is needed; its labels are the problem.']],
+  explain:'As drawn, the correct password loops back to ask again and any wrong password is granted access. The decision\'s exits are the wrong way round.'},
+ {title:'The broken swap',
+  prompt:'This algorithm should swap the values of a and b. One shape contains an error. Click it, then choose the fix.',
+  nodes:[
+   {id:'s',type:'term',text:'Start',row:0},{id:'a',type:'io',text:'Input a, b',row:1},{id:'b',type:'proc',text:'temp = a',row:2},
+   {id:'c',type:'proc',text:'a = b',row:3},{id:'x',type:'proc',text:'temp = b',row:4},{id:'o',type:'io',text:'Output a, b',row:5},{id:'t',type:'term',text:'Stop',row:6}],
+  edges:[{from:'s',to:'a'},{from:'a',to:'b'},{from:'b',to:'c'},{from:'c',to:'x'},{from:'x',to:'o'},{from:'o',to:'t'}],
+  error:'x',
+  hint:'Try it with a = 3 and b = 7. What are a, b and temp after each step?',
+  options:[['b = temp',1,'Correct. temp holds the original value of a, so copying it into b completes the swap.'],
+           ['temp = a',0,'temp already holds a from the first step. This leaves b unchanged.'],
+           ['a = temp',0,'This puts the original a back into a, undoing the swap.']],
+  explain:'After a = b, the original value of a is only in temp. The last step must copy it back into b. As drawn, b never changes and both variables end up holding the original b. This is the swap used in bubble sort, and WJEC 2019 Q12 had the same mistake.'}
+];
+
+/* ---------------- state ---------------- */
+const TABS=[{key:'match',label:'Match',data:MATCH,name:'Match the labels'},
+            {key:'build',label:'Build',data:BUILD,name:'Build the pseudo-code'},
+            {key:'error',label:'Spot the error',data:ERRORS,name:'Spot the error'}];
+const state={tab:0,idx:[0,0,0],done:[new Set(),new Set(),new Set()],ex:{}};
+function key(){return TABS[state.tab].key+state.idx[state.tab];}
+function seeded(arr,seed){const a=arr.slice();let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){if(attrs[k]==null)continue;if(k==='class')n.className=attrs[k];else if(k.startsWith('on'))n.addEventListener(k.slice(2),attrs[k]);else n.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>{if(c==null)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+
+function renderTabs(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach((t,i)=>{
+    const done=state.done[i].size, total=t.data.length;
+    const b=h('button',{role:'tab','aria-selected':String(i===state.tab),onclick:()=>{state.tab=i;render();}},t.label,
+      h('span',{class:'tick'},`${done}/${total}`));
+    nav.appendChild(b);
+  });
+  const all=TABS.reduce((a,t)=>a+t.data.length,0), got=state.done.reduce((a,s)=>a+s.size,0);
+  document.getElementById('progress').innerHTML=`<b>${got}</b> of ${all} tasks complete`;
+}
+function taskbar(){
+  const t=TABS[state.tab], i=state.idx[state.tab], ex=t.data[i];
+  const dots=h('div',{class:'dots','aria-label':'Tasks'});
+  t.data.forEach((_,j)=>{
+    const d=h('button',{class:'dot'+(state.done[state.tab].has(j)?' done':''),'aria-current':String(j===i),'aria-label':`Task ${j+1}`,onclick:()=>{state.idx[state.tab]=j;render();}},String(j+1));
+    dots.appendChild(d);
+  });
+  return h('div',{class:'taskbar'},h('h2',{},`${t.name}: ${ex.title}`),dots);
+}
+function feedbackBox(title,items,summary,ok){
+  const box=h('div',{class:'feedback','aria-live':'polite'},h('h3',{},title));
+  if(summary)box.appendChild(h('p',{class:'sum '+(ok?'ok':'bad'),style:'margin:0 0 6px'},summary));
+  if(items&&items.length){const ul=h('ul');items.forEach(([cls,txt])=>ul.appendChild(h('li',{class:cls},txt)));box.appendChild(ul);}
+  return box;
+}
+function complete(){state.done[state.tab].add(state.idx[state.tab]);renderTabs();}
+function nextBtn(){
+  const t=TABS[state.tab], i=state.idx[state.tab];
+  if(i<t.data.length-1)return h('button',{class:'btn ghost',onclick:()=>{state.idx[state.tab]++;render();}},'Next task');
+  if(state.tab<TABS.length-1)return h('button',{class:'btn ghost',onclick:()=>{state.tab++;render();}},`Go to ${TABS[state.tab+1].label}`);
+  return null;
+}
+
+/* ---------------- MATCH ---------------- */
+function matchView(){
+  const i=state.idx[0], ex=MATCH[i], k=key();
+  if(!state.ex[k]){
+    const chips=seeded([...ex.nodes.filter(n=>n.blank).map(n=>({text:n.text,ans:n.id})),...ex.distractors.map(d=>({text:d,ans:null}))],i*7+3);
+    state.ex[k]={chips,placed:{},sel:null,checked:null};
+  }
+  const st=state.ex[k];
+  const letters={};let L=0;ex.nodes.forEach(n=>{if(n.blank)letters[n.id]=String.fromCharCode(65+L++);});
+  const usedChip=new Set(Object.values(st.placed));
+  const flowHost=h('div',{class:'flowwrap'});
+  const place=(n,ci)=>{
+    ci=Number(ci);if(isNaN(ci))return;
+    for(const id in st.placed)if(st.placed[id]===ci)delete st.placed[id];
+    st.placed[n.id]=ci;st.sel=null;st.checked=null;render();
+  };
+  const redraw=()=>renderFlow(flowHost,ex,{
+    textFor:n=>{
+      if(!n.blank)return {text:n.text};
+      const ci=st.placed[n.id];
+      if(ci===undefined)return {text:letters[n.id],cls:'blank',textCls:'letter',aria:`Blank shape ${letters[n.id]}`};
+      return {text:st.chips[ci].text,cls:'placed',aria:`Shape ${letters[n.id]}: ${st.chips[ci].text}. Click to remove.`};
+    },
+    stateFor:n=>st.checked&&n.blank&&st.placed[n.id]!==undefined?(st.checked[n.id]?'ok':'bad'):'',
+    clickable:n=>!!n.blank,
+    onClick:n=>{
+      if(st.sel!==null){place(n,st.sel);}
+      else if(st.placed[n.id]!==undefined){delete st.placed[n.id];st.checked=null;render();}
+    },
+    onDrop:(n,data)=>place(n,data)
+  });
+  redraw();
+  const bank=h('div',{class:'bank'});
+  st.chips.forEach((c,ci)=>{
+    const used=usedChip.has(ci);
+    const b=h('button',{class:'chip'+(used?' used':''),draggable:'true','aria-pressed':String(st.sel===ci),
+      onclick:()=>{st.sel=st.sel===ci?null:ci;render();}},c.text);
+    b.addEventListener('dragstart',ev=>{ev.dataTransfer.setData('text/plain',String(ci));});
+    bank.appendChild(b);
+  });
+  const blanks=ex.nodes.filter(n=>n.blank);
+  const fb=h('div');
+  const check=()=>{
+    st.checked={};const items=[];let right=0;
+    blanks.forEach(n=>{
+      const ci=st.placed[n.id];
+      if(ci===undefined){items.push(['bad',`Shape ${letters[n.id]} is empty. It should be ${n.why}.`]);return;}
+      const ok=st.chips[ci].ans===n.id;st.checked[n.id]=ok;
+      if(ok){right++;items.push(['ok',`Shape ${letters[n.id]} (${n.text}) is ${n.why}.`]);}
+      else items.push(['bad',`Shape ${letters[n.id]}: "${st.chips[ci].text}" is not right here. This shape is ${n.why}.`]);
+    });
+    const all=right===blanks.length;
+    if(all&&!st.revealed)complete();
+    st.fb={items:all?items:items.filter(x=>x[0]==='bad'),summary:all?(st.revealed?'All shapes correct, but answers were revealed. Reset and try from memory to complete this task.':'All shapes correct. Well done.'):`${right} of ${blanks.length} shapes correct. Fix the red shapes and check again.`,ok:all};
+    render();
+  };
+  const reveal=()=>{
+    blanks.forEach(n=>{st.placed[n.id]=st.chips.findIndex(c=>c.ans===n.id);});
+    st.revealed=true;st.checked=null;st.fb={items:blanks.map(n=>['ok',`Shape ${letters[n.id]} (${n.text}) is ${n.why}.`]),summary:'Answers revealed. Read each explanation, then reset and try again from memory.',ok:true};render();
+  };
+  const reset=()=>{delete state.ex[k];render();};
+  if(st.fb)fb.appendChild(feedbackBox('Feedback',st.fb.items,st.fb.summary,st.fb.ok));
+  return h('div',{},
+    taskbar(),
+    h('div',{class:'prompt'},h('b',{},'Task: '),ex.prompt,' Click a label, then click a shape, or drag and drop. Click a filled shape to clear it.'),
+    h('div',{class:'grid'},
+      h('div',{},
+        h('div',{class:'panel'},h('h3',{},'Pseudo-code'),h('pre',{class:'pseudo mono'},ex.pseudo),
+          h('h3',{},'Flowchart labels'),bank,
+          h('p',{class:'hint'},st.sel!==null?`Selected: "${st.chips[st.sel].text}". Now click a shape.`:'Select a label to place it.')),
+        h('div',{class:'actions'},
+          h('button',{class:'btn primary',onclick:check},'Check'),
+          h('button',{class:'btn ghost',onclick:reset},'Reset'),
+          h('button',{class:'btn ghost',onclick:reveal},'Show answers'),
+          nextBtn()),
+        fb),
+      flowHost));
+}
+
+/* ---------------- BUILD ---------------- */
+function buildView(){
+  const i=state.idx[1], ex=BUILD[i], k=key();
+  if(!state.ex[k]){
+    const items=[...ex.lines.map((l,j)=>({text:l[1],indent:l[0],order:j})),...ex.distractors.map(d=>({text:d[0],order:-1,why:d[1]}))];
+    state.ex[k]={bank:seeded(items,i*11+5),answer:[],marks:null,fb:null};
+  }
+  const st=state.ex[k];
+  const flowHost=h('div',{class:'flowwrap'});
+  renderFlow(flowHost,ex,{});
+  const inAns=new Set(st.answer.map(a=>a.b));
+  const bank=h('div',{class:'bank'});
+  st.bank.forEach((it,bi)=>{
+    bank.appendChild(h('button',{class:'chip'+(inAns.has(bi)?' used':''),disabled:inAns.has(bi)?'':null,
+      onclick:()=>{if(inAns.has(bi))return;st.answer.push({b:bi,indent:0});st.marks=null;st.fb=null;render();}},it.text));
+  });
+  const ol=h('ol',{class:'answer','aria-label':'Your pseudo-code'});
+  const mv=(j,d)=>{const t=j+d;if(t<0||t>=st.answer.length)return;[st.answer[j],st.answer[t]]=[st.answer[t],st.answer[j]];st.marks=null;st.fb=null;render();};
+  st.answer.forEach((a,j)=>{
+    const it=st.bank[a.b];
+    const cls=st.marks?(st.marks[j]?'ok':'bad'):'';
+    ol.appendChild(h('li',{class:cls},
+      h('span',{class:'txt'},'    '.repeat(a.indent)+it.text),
+      h('span',{class:'ctl'},
+        h('button',{'aria-label':'Outdent',title:'Outdent',onclick:()=>{a.indent=Math.max(0,a.indent-1);st.marks=null;st.fb=null;render();}},'←'),
+        h('button',{'aria-label':'Indent',title:'Indent',onclick:()=>{a.indent=Math.min(3,a.indent+1);st.marks=null;st.fb=null;render();}},'→'),
+        h('button',{'aria-label':'Move up',title:'Move up',onclick:()=>mv(j,-1)},'↑'),
+        h('button',{'aria-label':'Move down',title:'Move down',onclick:()=>mv(j,1)},'↓'),
+        h('button',{'aria-label':'Remove',title:'Remove',onclick:()=>{st.answer.splice(j,1);st.marks=null;st.fb=null;render();}},'×'))));
+  });
+  const check=()=>{
+    const n=ex.lines.length;const items=[];st.marks=[];let right=0;
+    st.answer.forEach((a,j)=>{
+      const it=st.bank[a.b];
+      if(it.order<0){st.marks.push(false);items.push(['bad',`Line ${j+1} "${it.text}": ${it.why}`]);return;}
+      const pos=it.order===j, ind=a.indent===it.indent;
+      st.marks.push(pos&&ind);
+      if(pos&&ind)right++;
+      else if(pos)items.push(['bad',`Line ${j+1} "${it.text}" is in the right place but has the wrong indentation. Statements inside a loop or selection are indented one level.`]);
+      else items.push(['bad',`Line ${j+1} "${it.text}" is in the wrong position. Follow the flow lines from Start and write each shape in the order it is reached.`]);
+    });
+    const missing=ex.lines.filter((l,j)=>!st.answer.some(a=>st.bank[a.b].order===j));
+    if(missing.length)items.push(['bad',`${missing.length} line${missing.length>1?'s are':' is'} still missing from your answer.`]);
+    const all=right===n&&st.answer.length===n;
+    if(all&&!st.revealed)complete();
+    st.fb={items:all?[['ok','Every line is in the correct order with the correct indentation.'],...ex.distractors.map(d=>['ok',`Not used, "${d[0]}": ${d[1]}`])]:items,
+      summary:all?(st.revealed?'Correct, but the answer was revealed. Reset and try from memory to complete this task.':'Correct pseudo-code. Well done.'):`${right} of ${n} lines correct.`,ok:all};
+    render();
+  };
+  const reveal=()=>{
+    st.answer=ex.lines.map((l,j)=>({b:st.bank.findIndex(it=>it.order===j),indent:l[0]}));
+    st.revealed=true;st.marks=null;st.fb={items:ex.distractors.map(d=>['ok',`Not used, "${d[0]}": ${d[1]}`]),summary:'Answer revealed. Reset and try again from memory.',ok:true};render();
+  };
+  const fb=h('div');if(st.fb)fb.appendChild(feedbackBox('Feedback',st.fb.items,st.fb.summary,st.fb.ok));
+  return h('div',{},
+    taskbar(),
+    h('div',{class:'prompt'},h('b',{},'Task: '),ex.prompt),
+    h('div',{class:'grid'},
+      h('div',{},
+        h('div',{class:'panel'},h('h3',{},'Line bank'),bank,h('h3',{style:'margin-top:16px'},'Your pseudo-code'),ol),
+        h('div',{class:'actions'},
+          h('button',{class:'btn primary',onclick:check,disabled:st.answer.length?null:''},'Check'),
+          h('button',{class:'btn ghost',onclick:()=>{delete state.ex[k];render();}},'Reset'),
+          h('button',{class:'btn ghost',onclick:reveal},'Show answer'),
+          nextBtn()),
+        fb),
+      flowHost));
+}
+
+/* ---------------- ERROR ---------------- */
+function errorView(){
+  const i=state.idx[2], ex=ERRORS[i], k=key();
+  if(!state.ex[k])state.ex[k]={sel:null,wrong:0,msg:null,chosen:{},solved:false};
+  const st=state.ex[k];
+  const flowHost=h('div',{class:'flowwrap'});
+  renderFlow(flowHost,ex,{
+    clickable:()=>!st.solved,
+    stateFor:n=>n.id===st.sel?(n.id===ex.error?(st.solved?'ok':'sel'):'bad'):'',
+    onClick:n=>{
+      st.sel=n.id;
+      if(n.id!==ex.error){st.wrong++;st.msg={ok:false,text:`"${n.text}" is correct as drawn. ${st.wrong>=2?'Hint: '+ex.hint:'Try another shape.'}`};}
+      else st.msg={ok:true,text:`Yes, "${n.text}" contains the error. Now choose the fix.`};
+      render();
+    }
+  });
+  const side=h('div');
+  if(st.msg)side.appendChild(feedbackBox(st.msg.ok?'Error found':'Not that one',null,st.msg.text,st.msg.ok));
+  if(st.sel===ex.error){
+    const opts=h('div',{class:'opts'});
+    ex.options.forEach(([t,ok,why],oi)=>{
+      const cls=st.chosen[oi]!==undefined?(ok?' ok':' bad'):'';
+      opts.appendChild(h('button',{class:'opt'+cls,onclick:()=>{
+        st.chosen[oi]=true;
+        if(ok&&!st.solved){st.solved=true;complete();}
+        render();}},t));
+    });
+    side.appendChild(h('div',{class:'panel',style:'margin-top:16px'},h('h3',{},'Choose the fix'),opts));
+    const why=ex.options.map((o,oi)=>st.chosen[oi]?[o[1]?'ok':'bad',`${o[0]}: ${o[2]}`]:null).filter(Boolean);
+    if(st.solved)why.push(['ok','Why it was wrong: '+ex.explain]);
+    if(why.length)side.appendChild(feedbackBox('Feedback',why,st.solved?'Error fixed.':null,true));
+  }
+  return h('div',{},
+    taskbar(),
+    h('div',{class:'prompt'},h('b',{},'Task: '),ex.prompt),
+    h('div',{class:'grid'},
+      h('div',{},
+        h('div',{class:'panel'},h('h3',{},'How to find it'),
+          h('p',{style:'margin:0'},'Trace the algorithm with real values, one shape at a time. Check each symbol is the right type, each decision has two correctly labelled exits, and every loop changes the variable in its condition.')),
+        side,
+        h('div',{class:'actions'},
+          h('button',{class:'btn ghost',onclick:()=>{delete state.ex[k];render();}},'Reset'),
+          nextBtn())),
+      flowHost));
+}
+
+/* ---------------- main render ---------------- */
+function render(){
+  renderTabs();
+  const main=document.getElementById('main');main.innerHTML='';
+  const view=[matchView,buildView,errorView][state.tab]();
+  main.appendChild(view);
+  main.setAttribute('aria-label',TABS[state.tab].name);
+}
+render();
+</script>
+</body>
+</html>

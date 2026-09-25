@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recursion Visualiser</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --frame:#FFFFFF; --stroke:#003366;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+.mono{font-family:"Courier New",Courier,monospace}
+button,select,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+.keys{font-size:14px;color:#C9D6E3}
+.keys kbd{background:#0B4478;border-radius:4px;padding:1px 6px;font-family:inherit;color:#fff}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch;margin-bottom:16px}
+.top h2{font-size:24px;color:var(--navy)}
+.intro{flex:1 1 420px}
+.intro p{margin:4px 0 0;color:var(--muted)}
+.predict{flex:1 1 420px;background:var(--soft);border-radius:12px;padding:12px 16px}
+.predict h3{font-size:17px;color:var(--amberText);margin-bottom:4px}
+.predict p{margin:0 0 8px}
+.predict textarea{width:100%;min-height:52px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg);color:var(--ink);resize:vertical}
+.predict .row{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.reveal{margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:16px}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.controls label{font-size:15px;color:var(--muted)}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.stats{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+.stat{font-size:14px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.stepno{font-size:14px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,0.85fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:1000px){.grid{grid-template-columns:1fr 1fr}.grid .log{grid-column:1 / -1}}
+@media (max-width:680px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+
+.code{list-style:none;margin:0;padding:8px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln;overflow-x:auto}
+.code li{counter-increment:ln;padding:3px 12px 3px 8px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;display:flex}
+.code li::before{content:counter(ln);width:24px;flex:none;color:var(--muted);font-size:12px;padding-top:2px}
+.code li.cur{background:var(--soft);font-weight:700;outline:2px solid var(--amber);outline-offset:-2px;border-radius:4px}
+
+.stackwrap{position:relative}
+.stack{display:flex;flex-direction:column-reverse;gap:6px;min-height:340px;justify-content:flex-start;padding:10px 64px 10px 10px;border:2px solid var(--stroke);border-top:0;border-radius:0 0 10px 10px;background:var(--bg)}
+.stack.overflow{border-color:var(--bad);background:var(--badBg)}
+.frame{position:relative;border:2px solid var(--stroke);border-radius:8px;padding:8px 10px;background:var(--frame)}
+.frame .fl{font-family:"Courier New",monospace;font-weight:700;font-size:16px;color:var(--navy)}
+.frame .fp{font-family:"Courier New",monospace;font-size:14.5px;color:var(--ink)}
+.frame.waiting{opacity:.85}
+.frame.waiting .fp{color:var(--muted)}
+.frame.active{border-color:var(--amber);border-width:3px}
+.frame.base{background:#CC9900;border-color:#CC9900}
+.frame.base .fl,.frame.base .fp{color:#1F2A36}
+.frame.ret{border-color:var(--ok);border-width:3px;background:var(--okBg)}
+.frame.over{border-color:var(--bad);border-width:3px;background:var(--badBg)}
+.frame .toptag{position:absolute;right:-60px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:700;color:var(--amberText);white-space:nowrap}
+.frame .toptag::before{content:"◀ ";}
+.more{border:2px dashed var(--line);border-radius:8px;padding:6px 10px;color:var(--muted);font-size:14px;text-align:center}
+.empty{color:var(--muted);font-size:15px;text-align:center;padding:14px 0}
+.stacklabel{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:6px}
+.banner{margin-top:10px;border-radius:8px;padding:10px 12px;font-weight:700}
+.banner.bad{background:var(--bad);color:#fff}
+.banner.ok{background:var(--okBg);color:var(--ok)}
+@media (prefers-reduced-motion: no-preference){
+  .frame.new{animation:drop .35s ease-out}
+  .frame.flash{animation:flash .9s ease-out}
+  .frame.base.pulse{animation:pulse .8s ease-out 2}
+}
+@keyframes drop{from{transform:translateY(-18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%{box-shadow:0 0 0 6px rgba(204,153,0,.55)}100%{box-shadow:0 0 0 0 rgba(204,153,0,0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(204,153,0,.7)}100%{box-shadow:0 0 0 12px rgba(204,153,0,0)}}
+
+.now{background:var(--bg);border:2px solid var(--amber);border-radius:10px;padding:10px 12px;margin-bottom:12px;min-height:84px}
+.now .ev{font-size:13px;font-weight:700;color:var(--amberText)}
+.now p{margin:2px 0 0}
+.loglist{margin:0;padding:0 0 0 22px;max-height:300px;overflow-y:auto;font-size:14.5px;color:var(--muted)}
+.loglist li{margin:3px 0}
+.loglist li.cur{color:var(--ink);font-weight:700}
+.out{background:#0F1E2E;color:#E4ECF4;border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;min-height:60px;margin-top:12px;white-space:pre}
+.out .lbl{color:#9FB1C4;font-family:Calibri,Arial,sans-serif;font-size:13px;display:block;margin-bottom:4px}
+.out .newline{color:#FFD966}
+
+.treepanel{margin-top:18px}
+.treepanel svg{display:block;width:100%;height:auto;max-height:380px}
+.tn rect{fill:var(--frame);stroke:var(--stroke);stroke-width:2}
+.tn text{fill:var(--ink);font-family:"Courier New",monospace;font-weight:700;font-size:14px;dominant-baseline:central}
+.tn.stack rect{stroke:#CC9900;stroke-width:3}
+.tn.cur rect{fill:#CC9900;stroke:#CC9900}
+.tn.cur text{fill:#1F2A36}
+.tn.done rect{fill:#003366;stroke:#003366}
+.tn.done text{fill:#fff}
+.tn.rep2 rect{stroke:#B03A3A;stroke-width:4}
+.tn.rep3 rect{stroke:#CC9900;stroke-width:4;stroke-dasharray:6 3}
+.tedge{stroke:var(--stroke);stroke-width:1.6}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--muted);align-items:center}
+.sw{display:inline-block;width:16px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:2px solid var(--stroke)}
+
+.think{margin-top:16px;border-radius:10px;padding:12px 16px;background:var(--okBg)}
+.think h3{font-size:17px;color:var(--ok);margin-bottom:4px}
+.think p{margin:0}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:900px){.cmp{grid-template-columns:1fr}}
+.cmp .side{display:grid;gap:12px}
+.cmp .side > h3{font-size:20px;color:var(--navy)}
+.cmp .stack{min-height:230px}
+.cmpsum{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:900px){.cmpsum{grid-template-columns:1fr}}
+.meter{height:14px;border-radius:7px;background:var(--code);border:1px solid var(--line);overflow:hidden;margin-top:6px}
+.meter span{display:block;height:100%;background:#CC9900}
+.vars{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.var{border:2px solid var(--line);border-radius:8px;padding:4px 10px;font-family:"Courier New",monospace;font-weight:700;background:var(--bg)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Recursion Visualiser</h1><div class="spec">Unit 3 · 3.2.1 · Predict first, then step through</div></div>
+    <div class="keys"><kbd>→</kbd> step &nbsp; <kbd>←</kbd> back &nbsp; <kbd>P</kbd> play/pause</div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+/* ============ trace engine ============ */
+function Tracer(){this.steps=[];this.stack=[];this.calls=0;this.peak=0;this.out=[];this.tree={};this.newOut=-1;}
+Tracer.prototype.snap=function(line,text,ev,opt={}){
+  this.peak=Math.max(this.peak,this.stack.length);
+  const st=this.stack.map((f,i)=>({label:f.label,pending:f.pending,state:i===this.stack.length-1?(f.state||'active'):'waiting',id:f.id,flash:f.flash}));
+  this.stack.forEach(f=>f.flash=false);
+  this.steps.push({line,text,ev,stack:st,calls:this.calls,depth:this.stack.length,peak:this.peak,out:this.out.slice(),newOut:this.newOut,
+    tree:JSON.parse(JSON.stringify(this.tree)),cur:opt.cur,vars:opt.vars,over:opt.over});
+  this.newOut=-1;
+};
+Tracer.prototype.push=function(label,pending){this.calls++;const f={label,pending,state:'active',id:this.calls};this.stack.push(f);return f;};
+Tracer.prototype.print=function(s){this.out.push(s);this.newOut=this.out.length-1;};
+const ord=n=>['','first','second','third','fourth','fifth'][n]||n+'th';
+
+/* ---- Factorial ---- */
+const FACT_CODE=['Declare Factorial(n)','    if n <= 1','        return 1','    else','        return n * call Factorial(n - 1)','    end if','End Subroutine'];
+function factTrace(N){
+  const T=new Tracer();
+  function f(n,caller){
+    const fr=T.push(`Factorial(${n})`,`n = ${n}`);
+    T.snap(0,`Factorial(${n}) is called${caller?' by '+caller:''}. A new frame is pushed onto the call stack holding its parameter, n = ${n}.`,'Call');
+    if(n<=1){
+      fr.state='base';
+      T.snap(1,`Test the base case: is ${n} <= 1? Yes. The base case (terminating condition) has been reached, so no further recursive calls are made.`,'Base case');
+      fr.pending='returns 1';fr.state='ret';
+      T.snap(2,`Factorial(${n}) returns 1. Its frame will now be popped off the stack and the value passed back to the caller.`,'Return');
+      T.stack.pop();return 1;
+    }
+    T.snap(1,`Test the base case: is ${n} <= 1? No, so this is the recursive case.`,'Test');
+    fr.pending=`${n} × Factorial(${n-1}) = ?`;
+    T.snap(4,`Recursive case: Factorial(${n}) needs ${n} × Factorial(${n-1}). It calls itself with a smaller parameter (n - 1) and must wait until that call returns.`,'Recursive call');
+    const r=f(n-1,`Factorial(${n})`);
+    fr.pending=`${n} × ${r} = ${n*r}`;fr.flash=true;fr.state='active';
+    T.snap(4,`Factorial(${n-1}) returned ${r} and its frame was popped (last in, first out). Factorial(${n}) can now finish its calculation: ${n} × ${r} = ${n*r}.`,'Resume');
+    fr.pending=`returns ${n*r}`;fr.state='ret';
+    T.snap(4,`Factorial(${n}) returns ${n*r}${caller?' to '+caller:' to the main program'}.`,'Return');
+    T.stack.pop();return n*r;
+  }
+  const res=f(N,null);
+  T.snap(-1,`The call stack is empty. Factorial(${N}) = ${res}, using ${T.calls} calls and a maximum stack depth of ${T.peak} frames.`,'Finished');
+  return T.steps;
+}
+
+/* ---- Countdown ---- */
+const CD_CODE=['Declare Countdown(n)','    if n = 0','        output "Lift off!"','    else','        output "Before: ", n','        call Countdown(n - 1)','        output "After: ", n','    end if','End Subroutine'];
+function cdTrace(N){
+  const T=new Tracer();
+  function c(n,caller){
+    const fr=T.push(`Countdown(${n})`,`n = ${n}`);
+    T.snap(0,`Countdown(${n}) is called${caller?' by '+caller:''}. A frame holding n = ${n} is pushed onto the call stack.`,'Call');
+    if(n===0){
+      fr.state='base';
+      T.snap(1,`Test the base case: is n = 0? Yes. This is the base case, so Countdown does not call itself again.`,'Base case');
+      T.print('Lift off!');
+      T.snap(2,`Output "Lift off!". This is the deepest point: the stack is at its tallest.`,'Output');
+      fr.state='ret';fr.pending='finished';
+      T.snap(8,`Countdown(0) reaches the end of the subroutine. Its frame is popped and control returns to ${caller}.`,'Return');
+      T.stack.pop();return;
+    }
+    T.snap(1,`Test the base case: is n = 0? No (n = ${n}), so this is the recursive case.`,'Test');
+    T.print(`Before: ${n}`);
+    T.snap(4,`Output "Before: ${n}". This line runs BEFORE the recursive call, on the way down the stack.`,'Output');
+    fr.pending=`waiting for Countdown(${n-1})`;
+    T.snap(5,`Countdown(${n}) calls Countdown(${n-1}) and pauses here. It cannot run its next line until Countdown(${n-1}) has finished.`,'Recursive call');
+    c(n-1,`Countdown(${n})`);
+    fr.pending=`n = ${n}`;fr.flash=true;fr.state='active';
+    T.snap(5,`Countdown(${n-1}) has finished and been popped. Countdown(${n}) is back on top of the stack and carries on from the line after the call, still with n = ${n}.`,'Resume');
+    T.print(`After: ${n}`);
+    T.snap(6,`Output "After: ${n}". This line runs AFTER the recursive call, on the way back up as the stack unwinds, so these values come out in reverse order.`,'Output');
+    fr.state='ret';fr.pending='finished';
+    T.snap(8,`Countdown(${n}) reaches the end of the subroutine. Its frame is popped${caller?' and control returns to '+caller:''}.`,'Return');
+    T.stack.pop();
+  }
+  c(N,null);
+  T.snap(-1,`The call stack is empty. Notice the output: the "Before" lines count down, the base case prints once, and the "After" lines count back up in reverse order.`,'Finished');
+  return T.steps;
+}
+
+/* ---- Fibonacci ---- */
+const FIB_CODE=['Declare Fib(n)','    if n <= 1','        return n','    else','        return call Fib(n - 1) + call Fib(n - 2)','    end if','End Subroutine'];
+function fibTree(N){ // preorder ids, layout by leaves
+  const nodes=[];let leaf=0;
+  function b(n,depth,parent){const id=nodes.length;const nd={id,n,depth,parent,kids:[]};nodes.push(nd);
+    if(n>1){nd.kids.push(b(n-1,depth+1,id));nd.kids.push(b(n-2,depth+1,id));nd.x=(nodes[nd.kids[0]].x+nodes[nd.kids[1]].x)/2;}
+    else{nd.x=leaf++;}
+    return id;}
+  b(N,0,null);return nodes;
+}
+function fibTrace(N){
+  const T=new Tracer();let next=0;
+  function fb(n,caller){
+    const id=next++;
+    const fr=T.push(`Fib(${n})`,`n = ${n}`);
+    T.tree[id]={s:'stack'};
+    T.snap(0,`Fib(${n}) is called${caller?' by '+caller:''}. This is call number ${T.calls}.`,'Call',{cur:id});
+    if(n<=1){
+      fr.state='base';fr.pending=`returns ${n}`;
+      T.snap(1,`Base case: ${n} <= 1, so Fib(${n}) returns ${n} straight away without calling itself.`,'Base case',{cur:id});
+      T.tree[id]={s:'done',v:n};T.stack.pop();return n;
+    }
+    fr.pending=`Fib(${n-1}) + Fib(${n-2}) = ?`;
+    T.snap(4,`Recursive case: Fib(${n}) needs Fib(${n-1}) + Fib(${n-2}). It calls Fib(${n-1}) first and waits.`,'Recursive call',{cur:id});
+    const a=fb(n-1,`Fib(${n})`);
+    fr.pending=`${a} + Fib(${n-2}) = ?`;fr.flash=true;fr.state='active';
+    T.snap(4,`Fib(${n-1}) returned ${a}. Now Fib(${n}) makes its second call, to Fib(${n-2}).`,'Resume',{cur:id});
+    const c=fb(n-2,`Fib(${n})`);
+    fr.pending=`${a} + ${c} = ${a+c}`;fr.flash=true;fr.state='ret';
+    T.tree[id]={s:'stack',v:a+c};
+    T.snap(4,`Fib(${n-2}) returned ${c}. Fib(${n}) returns ${a} + ${c} = ${a+c}${caller?' to '+caller:''}.`,'Return',{cur:id});
+    T.tree[id]={s:'done',v:a+c};T.stack.pop();return a+c;
+  }
+  const r=fb(N,null);
+  T.snap(-1,`Finished: Fib(${N}) = ${r}. That took ${T.calls} calls. Look at the tree: Fib(3) was worked out twice and Fib(2) three times. The code is short and elegant, but it repeats work.`,'Finished');
+  return T.steps;
+}
+
+/* ---- Broken factorial ---- */
+const BROKEN_CODE=['Declare Factorial(n)','    return n * call Factorial(n - 1)','End Subroutine'];
+const LIMIT=12;
+function brokenTrace(N){
+  const T=new Tracer();let n=N;
+  while(true){
+    const fr=T.push(`Factorial(${n})`,`n = ${n}`);
+    if(T.stack.length>LIMIT){
+      fr.state='over';fr.pending='no room on the stack';
+      T.snap(0,`Factorial(${n}) is called, but the call stack is full (limit: ${LIMIT} frames). STACK OVERFLOW: the program runs out of stack memory and crashes.`,'Stack overflow',{over:true});
+      const last=T.steps[T.steps.length-1];last.depth=LIMIT;last.peak=LIMIT;
+      break;
+    }
+    const d=T.stack.length;
+    T.snap(0,d===1?`Factorial(${n}) is called. A frame holding n = ${n} is pushed onto the call stack.`:`Factorial(${n}) is called and another frame is pushed. Stack depth: ${d} of ${LIMIT}.`,'Call');
+    fr.pending=`${n} × Factorial(${n-1}) = ?`;
+    let msg;
+    if(n===1)msg=`n = 1, which would have been the base case, but this version never tests for it. It calls Factorial(0) anyway.`;
+    else if(n<=0)msg=`n is now ${n} and still falling. There is no base case, so nothing will ever stop the calls, and no frame can return.`;
+    else msg=`Factorial(${n}) calls Factorial(${n-1}) and waits. There is no if statement, so there is no terminating condition.`;
+    T.snap(1,msg,'Recursive call');
+    n--;
+  }
+  return T.steps;
+}
+
+/* ---- Iterative factorial ---- */
+const ITER_CODE=['Declare FactorialLoop(n)','    set result = 1','    for i = 1 to n','        set result = result * i','    next i','    return result','End Subroutine'];
+function iterTrace(N){
+  const T=new Tracer();
+  const fr=T.push(`FactorialLoop(${N})`,`n = ${N}`);
+  T.snap(0,`FactorialLoop(${N}) is called. One frame is pushed onto the call stack.`,'Call',{vars:{n:N}});
+  let result=1;fr.pending=`n = ${N}, result = 1`;
+  T.snap(1,`result is set to 1.`,'Assign',{vars:{n:N,result}});
+  for(let i=1;i<=N;i++){
+    fr.pending=`i = ${i}, result = ${result}`;
+    T.snap(2,`Loop: i = ${i}.`,'Loop',{vars:{n:N,i,result}});
+    result*=i;fr.pending=`i = ${i}, result = ${result}`;fr.flash=true;
+    T.snap(3,`result = result × i, so result is now ${result}. The same frame is reused: no new calls.`,'Assign',{vars:{n:N,i,result}});
+  }
+  fr.pending=`returns ${result}`;fr.state='ret';
+  T.snap(5,`The loop has finished. FactorialLoop(${N}) returns ${result}.`,'Return',{vars:{n:N,result}});
+  T.stack.pop();
+  T.snap(-1,`Finished with a maximum stack depth of 1 frame, however large n is.`,'Finished');
+  return T.steps;
+}
+
+/* ============ examples ============ */
+const EX=[
+ {key:'fact',tab:'Factorial(4)',title:'Factorial(4)',code:FACT_CODE,steps:factTrace(4),
+  intro:'Watch the stack grow as each call waits for the next, hit the base case, then unwind as each value is returned.',
+  predict:'How many calls will be made, and what is the tallest the call stack will get?',
+  answer:'4 calls (Factorial(4), (3), (2) and (1)). The stack reaches a depth of 4 frames at the base case, then unwinds: 1, 2, 6, 24.',
+  think:'Why did the stack get taller before it got shorter? What would happen if the base case were never reached?'},
+ {key:'cd',tab:'Countdown(3)',title:'Countdown(3)',code:CD_CODE,steps:cdTrace(3),output:true,
+  intro:'This subroutine outputs something before AND after its recursive call. Watch the output panel as you step.',
+  predict:'Write down the exact output, line by line, before you press Step.',
+  answer:'Before: 3, Before: 2, Before: 1, Lift off!, After: 1, After: 2, After: 3. The "After" lines wait on the stack until the calls return, so they come out in reverse order.',
+  think:'Why did the "After" lines come out in reverse? What does that tell you about the order frames are popped off a stack?'},
+ {key:'fib',tab:'Fibonacci(5)',title:'Fibonacci(5)',code:FIB_CODE,steps:fibTrace(5),tree:fibTree(5),
+  intro:'Each call makes TWO recursive calls, so the calls form a tree. The stack only ever holds one branch of it at a time.',
+  predict:'How many calls will Fib(5) make in total? How many times will Fib(2) be calculated?',
+  answer:'15 calls in total. Fib(2) is calculated 3 times and Fib(3) twice, because each branch recalculates values another branch has already worked out.',
+  think:'The code is only a few lines long, but how many calls did it make? Is short, elegant code always efficient?'},
+ {key:'broken',tab:'Broken factorial',title:'Broken factorial: no base case',code:BROKEN_CODE,steps:brokenTrace(4),limit:LIMIT,
+  intro:`This version of Factorial has no if statement. The stack in this tool can hold ${LIMIT} frames (a real stack is bigger, but it is still finite).`,
+  predict:'What do you think will happen when you keep pressing Step?',
+  answer:'The calls never stop. n goes 4, 3, 2, 1, 0, -1, … and every call pushes another frame, but none can return. Eventually the stack runs out of memory: a stack overflow, and the program crashes.',
+  think:'What happened without a base case? What would this mean in a real program, and how do you prevent it?'},
+ {key:'cmp',tab:'Iteration vs recursion',title:'Iteration vs recursion',compare:true,
+  left:{title:'Iterative',code:ITER_CODE,steps:iterTrace(4)},right:{title:'Recursive',code:FACT_CODE,steps:factTrace(4)},
+  intro:'Both subroutines calculate 4! = 24. Step through them side by side and compare what happens on the call stack.',
+  predict:'Which version will use more memory on the call stack, and why?',
+  answer:'The recursive version. Each recursive call pushes a new frame, so Factorial(4) needs 4 frames at once. The iterative version reuses one frame for the whole loop.',
+  think:'Both give 24. Which would you choose, and when? Think about code length, readability, memory and the risk of stack overflow.'}
+];
+
+/* ============ UI ============ */
+const S={tab:0,step:EX.map(()=>0),play:null,speed:1000,revealed:EX.map(()=>false),pred:EX.map(()=>''),rep:false};
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='html')n.innerHTML=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const cur=()=>EX[S.tab];
+const len=ex=>ex.compare?Math.max(ex.left.steps.length,ex.right.steps.length):ex.steps.length;
+const prevIds={};
+
+function renderTabs(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  EX.forEach((ex,i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{stop();S.tab=i;render();}},h('span',{class:'n'},String(i+1)),ex.tab)));
+}
+function codeList(code,line){
+  return h('ol',{class:'code','aria-label':'Pseudo-code'},code.map((c,i)=>h('li',{class:i===line?'cur':null,'aria-current':i===line?'step':null},c)));
+}
+function stackView(step,key,opts={}){
+  const wrap=h('div',{class:'stackwrap'});
+  const box=h('div',{class:'stack'+(step.over?' overflow':''),'aria-label':'Call stack'});
+  const frames=step.stack;const max=opts.max||8;
+  const seen=prevIds[key]||new Set();const now=new Set();
+  let list=frames;let hidden=0;
+  if(frames.length>max){hidden=frames.length-(max-1);list=frames.slice(hidden);}
+  if(hidden)box.appendChild(h('div',{class:'more'},`+ ${hidden} more frame${hidden>1?'s':''} below`));
+  if(!frames.length)box.appendChild(h('div',{class:'empty'},'The call stack is empty'));
+  list.forEach((f,i)=>{
+    now.add(f.id);
+    const isTop=i===list.length-1;
+    const cls=['frame',f.state==='waiting'?'waiting':f.state==='base'?'base pulse':f.state==='ret'?'ret':f.state==='over'?'over':'active'];
+    if(!seen.has(f.id))cls.push('new');
+    if(f.flash)cls.push('flash');
+    box.appendChild(h('div',{class:cls.join(' ')},
+      h('div',{class:'fl'},f.label),h('div',{class:'fp'},f.pending||''),
+      isTop?h('span',{class:'toptag'},'top'):null));
+  });
+  frames.forEach(f=>now.add(f.id));
+  prevIds[key]=now;
+  wrap.appendChild(box);
+  wrap.appendChild(h('div',{class:'stacklabel'},h('span',{},'bottom: first call'),opts.limit?h('span',{},`depth ${step.depth} / limit ${opts.limit}`):h('span',{},`depth ${step.depth}`)));
+  if(step.over)wrap.appendChild(h('div',{class:'banner bad',role:'alert'},'STACK OVERFLOW: the program has crashed'));
+  return wrap;
+}
+function logView(steps,i){
+  const s=steps[i];
+  const now=h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${i+1} of ${steps.length} · ${s.ev}`),h('p',{},s.text));
+  const ol=h('ol',{class:'loglist',start:'1'});
+  steps.slice(0,i+1).forEach((st,j)=>ol.appendChild(h('li',{class:j===i?'cur':null},st.text)));
+  setTimeout(()=>{ol.scrollTop=ol.scrollHeight;},0);
+  return h('div',{},now,h('h3',{style:'font-size:15px;color:var(--muted);margin:0 0 6px'},'Step log'),ol);
+}
+function outView(step){
+  const o=h('div',{class:'out','aria-label':'Program output'},h('span',{class:'lbl'},'Output'));
+  step.out.forEach((l,j)=>o.appendChild(h('div',{class:j===step.newOut?'newline':null},l)));
+  if(!step.out.length)o.appendChild(h('div',{style:'color:#9FB1C4'},'(nothing yet)'));
+  return o;
+}
+function treeView(ex,step){
+  const nodes=ex.tree;const W=66,H=30,DX=86,DY=66,PX=40,PY=26;
+  const maxX=Math.max(...nodes.map(n=>n.x)),maxD=Math.max(...nodes.map(n=>n.depth));
+  const done=step.ev==='Finished';
+  let svg=`<svg viewBox="0 0 ${maxX*DX+2*PX+W} ${maxD*DY+2*PY+H}" role="img" aria-label="Call tree for Fib(5)">`;
+  const pos=n=>({x:PX+n.x*DX+W/2,y:PY+n.depth*DY+H/2});
+  nodes.forEach(n=>{if(n.parent!=null&&step.tree[n.id]){const a=pos(nodes[n.parent]),b=pos(n);svg+=`<line class="tedge" x1="${a.x}" y1="${a.y+H/2}" x2="${b.x}" y2="${b.y-H/2}"/>`;}});
+  nodes.forEach(n=>{const t=step.tree[n.id];if(!t)return;const p=pos(n);
+    let cls='tn '+(t.s==='done'?'done':'stack');if(step.cur===n.id)cls+=' cur';
+    if(S.rep&&done){if(n.n===2)cls+=' rep2';if(n.n===3)cls+=' rep3';}
+    const label=t.v!=null&&t.s==='done'?`F(${n.n})=${t.v}`:`F(${n.n})`;
+    svg+=`<g class="${cls}"><rect x="${p.x-W/2-6}" y="${p.y-H/2}" width="${W+12}" height="${H}" rx="8"/><text x="${p.x}" y="${p.y}" text-anchor="middle">${label}</text></g>`;});
+  svg+='</svg>';
+  const counts={};Object.keys(step.tree).forEach(id=>{const n=nodes[id].n;counts[n]=(counts[n]||0)+1;});
+  const panel=h('div',{class:'panel treepanel'},
+    h('div',{style:'display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:8px'},
+      h('h3',{style:'margin:0'},'Call tree'),
+      h('div',{class:'legend'},
+        h('span',{},h('span',{class:'sw',style:'background:#CC9900;border-color:#CC9900'}),'current call'),
+        h('span',{},h('span',{class:'sw',style:'border-color:#CC9900'}),'waiting on the stack'),
+        h('span',{},h('span',{class:'sw',style:'background:#003366;border-color:#003366'}),'returned'),
+        h('span',{},`Fib(2) calculated: `,h('b',{},String(counts[2]||0)),` · Fib(3): `,h('b',{},String(counts[3]||0))))),
+    h('div',{html:svg}));
+  if(done)panel.appendChild(h('label',{style:'display:flex;gap:8px;align-items:center;margin-top:8px;font-size:15px'},
+    h('input',{type:'checkbox',checked:S.rep||null,onchange:e=>{S.rep=e.target.checked;render();}}),'Highlight repeated work (red: Fib(2), dashed amber: Fib(3))'));
+  return panel;
+}
+function predictCard(i){
+  const ex=EX[i];
+  const ta=h('textarea',{'aria-label':'Your prediction',placeholder:'Type your prediction here…'});ta.value=S.pred[i];
+  ta.addEventListener('input',()=>{S.pred[i]=ta.value;});
+  return h('div',{class:'predict'},h('h3',{},'Predict first'),h('p',{},ex.predict),ta,
+    h('div',{class:'row'},h('button',{class:'btn ghost',onclick:()=>{S.revealed[i]=!S.revealed[i];render();}},S.revealed[i]?'Hide answer':'Reveal answer')),
+    S.revealed[i]?h('div',{class:'reveal'},ex.answer):null);
+}
+function controls(ex){
+  const i=S.step[S.tab],L=len(ex),end=i>=L-1;
+  const stepNow=ex.compare?null:ex.steps[i];
+  const stats=h('div',{class:'stats'});
+  if(ex.compare){
+    const a=ex.left.steps[Math.min(i,ex.left.steps.length-1)],b=ex.right.steps[Math.min(i,ex.right.steps.length-1)];
+    stats.append(h('div',{class:'stat'},h('b',{},String(a.peak)),'iterative peak depth'),h('div',{class:'stat'},h('b',{},String(b.peak)),'recursive peak depth'));
+  } else {
+    stats.append(h('div',{class:'stat'},h('b',{},String(stepNow.calls)),'calls made'),
+      h('div',{class:'stat'},h('b',{},String(stepNow.depth)),'stack depth'),
+      h('div',{class:'stat'},h('b',{},String(stepNow.peak)),'peak depth'));
+  }
+  const sel=h('select',{'aria-label':'Speed',onchange:e=>{S.speed=Number(e.target.value);if(S.play){stop();play();}}},
+    ...[['1700','Slow'],['1000','Normal'],['450','Fast']].map(([v,t])=>{const o=h('option',{value:v},t);if(Number(v)===S.speed)o.selected=true;return o;}));
+  return h('div',{class:'controls'},
+    h('button',{class:'btn ghost',onclick:back,disabled:i===0},'← Back'),
+    h('button',{class:'btn primary',onclick:step,disabled:end},'Step →'),
+    h('button',{class:'btn accent',onclick:()=>S.play?stop():play(),disabled:end&&!S.play},S.play?'Pause':'Auto-play'),
+    h('label',{},'Speed ',sel),
+    h('button',{class:'btn ghost',onclick:()=>{stop();S.step[S.tab]=0;prevIds[ex.key]=null;prevIds[ex.key+'L']=null;prevIds[ex.key+'R']=null;S.rep=false;render();}},'Reset'),
+    stats);
+}
+function single(ex){
+  const i=S.step[S.tab],s=ex.steps[i];
+  const out=[];
+  out.push(h('div',{class:'top'},h('div',{class:'intro'},h('h2',{},ex.title),h('p',{},ex.intro)),predictCard(S.tab)));
+  out.push(controls(ex));
+  out.push(h('div',{class:'grid'},
+    h('div',{class:'panel'},h('h3',{},'Pseudo-code'),codeList(ex.code,s.line),ex.output?outView(s):null),
+    h('div',{class:'panel'},h('h3',{},'Call stack'),stackView(s,ex.key,{limit:ex.limit,max:8})),
+    h('div',{class:'panel log'},h('h3',{},'What is happening'),logView(ex.steps,i))));
+  if(ex.tree)out.push(treeView(ex,s));
+  if(i===ex.steps.length-1)out.push(h('div',{class:'think'},h('h3',{},'Discuss with your partner'),h('p',{},ex.think)));
+  return out;
+}
+function compare(ex){
+  const i=S.step[S.tab];
+  const side=(sd,k)=>{
+    const j=Math.min(i,sd.steps.length-1),s=sd.steps[j];
+    return h('div',{class:'side'},h('h3',{},sd.title),
+      h('div',{class:'panel'},codeList(sd.code,s.line)),
+      h('div',{class:'panel'},h('h3',{},'Call stack'),stackView(s,ex.key+k,{max:6}),
+        s.vars?h('div',{class:'vars'},...Object.entries(s.vars).map(([a,b])=>h('span',{class:'var'},`${a} = ${b}`))):null),
+      h('div',{class:'now'},h('div',{class:'ev'},j>=sd.steps.length-1&&i>j?'Finished':`Step ${j+1} of ${sd.steps.length} · ${s.ev}`),h('p',{},s.text)));
+  };
+  const out=[];
+  out.push(h('div',{class:'top'},h('div',{class:'intro'},h('h2',{},ex.title),h('p',{},ex.intro)),predictCard(S.tab)));
+  out.push(controls(ex));
+  out.push(h('div',{class:'cmp'},side(ex.left,'L'),side(ex.right,'R')));
+  const a=ex.left.steps[Math.min(i,ex.left.steps.length-1)],b=ex.right.steps[Math.min(i,ex.right.steps.length-1)];
+  const pct=x=>Math.round(x/4*100);
+  out.push(h('div',{class:'cmpsum'},
+    h('div',{class:'panel'},h('h3',{},'Iterative: peak stack use'),h('div',{},`${a.peak} frame${a.peak===1?'':'s'}`),h('div',{class:'meter'},h('span',{style:`width:${pct(a.peak)}%`}))),
+    h('div',{class:'panel'},h('h3',{},'Recursive: peak stack use'),h('div',{},`${b.peak} frame${b.peak===1?'':'s'}`),h('div',{class:'meter'},h('span',{style:`width:${pct(b.peak)}%`})))));
+  if(i===len(ex)-1)out.push(h('div',{class:'think'},h('h3',{},'Discuss with your partner'),
+    h('p',{},ex.think+' For Factorial(1000), the recursive version would need 1000 frames on the stack at once; the iterative version still needs just 1.')));
+  return out;
+}
+function render(){
+  renderTabs();
+  const ex=cur(),main=document.getElementById('main');main.innerHTML='';
+  (ex.compare?compare(ex):single(ex)).forEach(n=>main.appendChild(n));
+}
+function step(){const L=len(cur());if(S.step[S.tab]<L-1){S.step[S.tab]++;render();}if(S.step[S.tab]>=L-1)stop(true);}
+function back(){stop();if(S.step[S.tab]>0){S.step[S.tab]--;prevIds[cur().key]=null;render();}}
+function play(){if(S.step[S.tab]>=len(cur())-1)return;S.play=setInterval(step,S.speed);render();}
+function stop(quiet){if(S.play){clearInterval(S.play);S.play=null;if(!quiet)render();else render();}}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowRight'){e.preventDefault();step();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();back();}
+  else if(e.key==='p'||e.key==='P'){S.play?stop():play();}
+});
+render();
+</script>
+</body>
+</html>

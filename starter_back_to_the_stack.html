@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter: Back to the Stack</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --frame:#FFFFFF; --stroke:#003366;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:18px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+.mono,code{font-family:"Courier New",Courier,monospace}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;max-width:1100px;margin:0 auto}
+header h1{font-size:30px}
+.sub{font-size:16px;color:#C9D6E3}
+.timer{display:flex;align-items:center;gap:10px}
+.clock{font-family:Cambria,Georgia,serif;font-size:34px;font-weight:700;color:#FFD966;min-width:92px;text-align:right}
+.clock.low{color:#FF9B9B}
+.hbtn{background:#CC9900;color:#1F2A36;border:0;border-radius:8px;padding:8px 14px;font-weight:700}
+.hbtn.ghost{background:transparent;color:#fff;border:2px solid #4A6F95}
+
+main{max-width:1100px;margin:0 auto;padding:20px 24px 40px}
+.score{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.score p{margin:0;color:var(--muted)}
+.score b{font-family:Cambria,Georgia,serif;font-size:24px;color:var(--navy)}
+.q{background:var(--panel);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.q h2{font-size:21px;color:var(--navy);margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.q h2 .num{flex:none;width:30px;height:30px;border-radius:50%;background:#003366;color:#fff;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 14px}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.fb{margin-top:10px;padding:10px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.fb .v{font-weight:700}
+.fb .v.ok{color:var(--ok)}
+.fb .v.bad{color:var(--bad)}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start}
+@media (max-width:760px){.twocol{grid-template-columns:1fr}}
+.ops{list-style:none;margin:0 0 12px;padding:10px 14px;background:var(--code);border:1px solid var(--line);border-radius:8px;font-family:"Courier New",monospace;font-size:17px;counter-reset:op}
+.ops li{padding:2px 6px;border-radius:4px;counter-increment:op}
+.ops li::before{content:counter(op) ". ";color:var(--muted)}
+.ops li.cur{background:var(--soft);outline:2px solid var(--amber)}
+.ops li.done{color:var(--muted)}
+.inputs{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.inputs label{display:grid;gap:4px;font-size:15px;color:var(--muted)}
+.inputs input,.inputs select{border:2px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);color:var(--ink);width:120px}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700}
+.btn.primary{background:#003366;color:#fff}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.stackvis{display:flex;flex-direction:column;align-items:center}
+.arr{display:grid;grid-template-columns:34px 130px 60px;align-items:center}
+.idx{font-size:14px;color:var(--muted);text-align:right;padding-right:8px}
+.cell{height:46px;border:2px solid var(--stroke);border-top-width:1px;display:flex;align-items:center;justify-content:center;font-family:"Courier New",monospace;font-weight:700;font-size:20px;background:var(--frame);color:var(--ink)}
+.arr:first-child .cell{border-top-width:2px}
+.cell.filled{background:var(--soft)}
+.cell.gone{color:var(--muted);text-decoration:line-through;background:var(--frame)}
+.ptr{font-size:14px;font-weight:700;color:var(--amberText);padding-left:8px}
+.toplbl{margin-top:8px;font-family:"Courier New",monospace;font-weight:700;color:var(--navy)}
+.note{font-size:14px;color:var(--muted);margin-top:4px;text-align:center}
+@media (prefers-reduced-motion: no-preference){.cell.filled.new{animation:pop .35s ease-out}}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:none;opacity:1}}
+
+.teaser{background:var(--soft)}
+.teaser h2{color:var(--amberText)}
+.end{margin-top:16px;padding:14px 18px;border-radius:12px;background:#003366;color:#fff}
+.end h3{font-size:20px;margin-bottom:4px;color:#FFD966}
+.end p{margin:0}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Starter: Back to the Stack</h1><div class="sub">Topic 1 recap · Answer on your own, then check with your partner</div></div>
+    <div class="timer"><span class="clock" id="clock" aria-live="off">5:00</span>
+      <button class="hbtn" id="tgo">Start timer</button><button class="hbtn ghost" id="treset">Reset</button></div>
+  </div>
+</header>
+<main>
+  <div class="score"><p>Each question marks itself when you answer. Your first answer is the one that counts.</p><div><b id="score">0</b> <span style="color:var(--muted)">/ 6 correct</span></div></div>
+  <div id="qs"></div>
+  <div class="end" id="end" hidden>
+    <h3>Keep this in mind</h3>
+    <p>A stack is last in, first out. Today you will see that every time a subroutine is called, a frame is pushed onto a stack called the <b>call stack</b>. That is how recursion keeps track of its calls.</p>
+  </div>
+</main>
+
+<script>
+const Q=[
+ {type:'mcq',q:'What does LIFO stand for?',
+  opts:['Last In, First Out','Last In, Final Output','Least Important, First Out','Last Item, First Operation'],a:0,
+  why:'A stack is a LIFO structure: the last item pushed on is the first item popped off.'},
+ {type:'mcq',q:'A stack is stored in an array of size 5 (indexes 0 to 4). The top pointer is 2. What happens when push("X") runs?',
+  opts:['top becomes 3 and "X" is stored at index 3','"X" is stored at index 2, then top becomes 3','top becomes 1 and "X" is stored at index 1','"X" is stored at index 0 and the other items move up'],a:0,
+  why:'push first checks the stack is not full, then increments top (2 → 3) and stores the item at the new top position, index 3. Items already on the stack never move.'},
+ {type:'trace',q:'The stack starts empty with top = -1. Trace these operations, then answer.',
+  ops:['push("A")','push("B")','pop()','push("C")','push("D")','pop()'],
+  why:'After push A, push B the stack is A, B (top = 1). pop removes B (top = 0). push C, push D gives A, C, D (top = 2). pop removes D, leaving A, C with top = 1 and "C" on top.'},
+ {type:'mcq',q:'The top pointer is -1. What happens if pop() is called?',
+  opts:['Stack underflow: the stack is empty so there is nothing to pop','Stack overflow: the stack is full','The item at index 0 is removed','top becomes -2 and nothing else happens'],a:0,
+  why:'A top pointer of -1 means the stack is empty. Trying to pop an empty stack causes stack underflow, so pop should check top = -1 first.'},
+ {type:'mcq',q:'A stack array has size 4 (indexes 0 to 3) and the top pointer is 3. What happens if push("Z") is called?',
+  opts:['Stack overflow: the stack is full','"Z" is stored at index 4','Stack underflow','The item at index 3 is replaced by "Z"'],a:0,
+  why:'top = 3 is the last index, so the stack is full. Pushing again causes stack overflow, so push should check top = size - 1 first. Remember this term: you will meet it again today.'},
+ {type:'mcq',teaser:true,q:'Looking ahead: subroutine A calls B, B calls C, and C calls D. Each one has to wait for the one it called to finish. Which subroutine finishes first?',
+  opts:['A','B','C','D'],a:3,
+  why:'D was called last, so it finishes first, then C, then B, then A. That is last in, first out: the computer keeps track of the waiting calls using a stack.'}
+];
+const S={first:Q.map(()=>null),score:0};
+const $=id=>document.getElementById(id);
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function mark(i,ok){if(S.first[i]===null){S.first[i]=ok;if(ok)S.score++;$('score').textContent=S.score;}
+  if(S.first.every(x=>x!==null))$('end').hidden=false;}
+function fb(host,ok,why){host.innerHTML='';host.append(h('div',{class:'fb'},h('span',{class:'v '+(ok?'ok':'bad')},ok?'Correct. ':'Not quite. '),why));}
+
+function mcq(i,q){
+  if(!q.shuf){const order=[[1,0,3,2],[2,0,3,1],[0,1,2,3],[3,1,0,2],[1,2,0,3],[0,1,2,3]][i];
+    q.opts=order.map(k=>q.opts[k]);q.a=order.indexOf(q.a);q.shuf=true;}
+  const box=h('div',{class:'fbhost'});
+  const opts=h('div',{class:'opts'});
+  q.opts.forEach((o,j)=>{
+    const b=h('button',{class:'opt',onclick:()=>{
+      const ok=j===q.a;mark(i,ok);
+      opts.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add('ok');});
+      if(!ok)b.classList.add('bad');
+      fb(box,ok,q.why);
+    }},o);
+    opts.appendChild(b);
+  });
+  return [opts,box];
+}
+
+function trace(i,q){
+  const N=4;
+  const states=[];let st=[],top=-1,gone=[];
+  states.push({st:[],top:-1,gone:[]});
+  q.ops.forEach(op=>{
+    if(op.startsWith('push')){const v=op.match(/"(.)"/)[1];top++;st[top]=v;}
+    else{st.splice(top,1);top--;}
+    states.push({st:st.slice(),top});
+  });
+  const final=states[states.length-1];
+  const opsList=h('ol',{class:'ops'},q.ops.map(o=>h('li',{},o)));
+  const inTop=h('input',{type:'number',min:'-1',max:'3',inputmode:'numeric','aria-label':'Final value of top'});
+  const inItem=h('select',{'aria-label':'Item at the top'},h('option',{value:''},'choose…'),...['A','B','C','D'].map(x=>h('option',{value:x},x)));
+  const box=h('div');
+  const vis=h('div',{class:'stackvis','aria-label':'Stack diagram'});
+  let shown=-1,timer=null;
+  function draw(k){
+    vis.innerHTML='';
+    const s=k<0?{st:[],top:-1}:states[k];
+    const prev=k>0?states[k-1]:{st:[],top:-1};
+    for(let r=N-1;r>=0;r--){
+      const filled=r<=s.top;
+      const cls='cell'+(filled?' filled':'')+(filled&&r>prev.top?' new':'');
+      vis.appendChild(h('div',{class:'arr'},h('span',{class:'idx'},String(r)),h('div',{class:cls},filled?s.st[r]:''),
+        h('span',{class:'ptr'},r===s.top?'◀ top':'')));
+    }
+    vis.appendChild(h('div',{class:'toplbl'},`top = ${s.top}`));
+    vis.appendChild(h('div',{class:'note'},k<=0?'Start: empty stack':`After ${q.ops[k-1]}`));
+    opsList.querySelectorAll('li').forEach((li,j)=>{li.className=j<k-1?'done':j===k-1?'cur':'';});
+  }
+  draw(0);
+  const play=h('button',{class:'btn ghost',disabled:true,onclick:()=>{
+    clearInterval(timer);let k=0;draw(0);
+    timer=setInterval(()=>{k++;draw(k);if(k>=states.length-1)clearInterval(timer);},900);
+  }},'Replay the operations');
+  const check=h('button',{class:'btn primary',onclick:()=>{
+    if(inTop.value===''||!inItem.value){box.innerHTML='';box.append(h('div',{class:'fb'},'Give both answers before you check.'));return;}
+    const okTop=Number(inTop.value)===final.top, okItem=inItem.value===final.st[final.top];
+    const ok=okTop&&okItem;mark(i,ok);
+    inTop.style.borderColor=okTop?'var(--ok)':'var(--bad)';inItem.style.borderColor=okItem?'var(--ok)':'var(--bad)';
+    check.disabled=true;play.disabled=false;inTop.disabled=true;inItem.disabled=true;
+    fb(box,ok,(ok?'':`The answer is top = ${final.top} with "${final.st[final.top]}" on top. `)+q.why);
+    play.click();
+  }},'Check');
+  return [h('div',{class:'twocol'},
+    h('div',{},opsList,
+      h('div',{class:'inputs'},h('label',{},'Final value of top',inTop),h('label',{},'Item at the top',inItem),check,play),box),
+    vis)];
+}
+
+const host=$('qs');
+Q.forEach((q,i)=>{
+  const card=h('section',{class:'q'+(q.teaser?' teaser':''),'aria-labelledby':'q'+i},
+    h('h2',{id:'q'+i},h('span',{class:'num'},String(i+1)),h('span',{},q.q)));
+  (q.type==='trace'?trace(i,q):mcq(i,q)).forEach(n=>card.appendChild(n));
+  host.appendChild(card);
+});
+
+/* timer */
+let left=300,tid=null;
+function show(){const m=Math.floor(left/60),s=left%60;$('clock').textContent=`${m}:${String(s).padStart(2,'0')}`;$('clock').classList.toggle('low',left<=30);}
+$('tgo').onclick=()=>{
+  if(tid){clearInterval(tid);tid=null;$('tgo').textContent='Resume';return;}
+  if(left<=0)left=300;
+  tid=setInterval(()=>{left--;show();if(left<=0){clearInterval(tid);tid=null;$('tgo').textContent='Start timer';$('clock').textContent="Time's up";}},1000);
+  $('tgo').textContent='Pause';
+};
+$('treset').onclick=()=>{clearInterval(tid);tid=null;left=300;show();$('tgo').textContent='Start timer';};
+show();
+</script>
+</body>
+</html>
