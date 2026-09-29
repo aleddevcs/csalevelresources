@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Validation Lab</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+.mono{font-family:"Courier New",Courier,monospace}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1280px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+.progress{font-size:15px;color:#C9D6E3}
+.progress b{color:#FFD966}
+nav{display:flex;gap:4px;max-width:1280px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+nav .tick{color:#FFD966;margin-left:6px}
+nav button[aria-selected="true"] .tick{color:var(--amberText)}
+
+main{max-width:1280px;margin:0 auto;padding:20px 24px 40px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:12px 16px;margin:10px 0 16px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:16px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+.btn{border:0;border-radius:8px;padding:10px 20px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.feedback{margin-top:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:12px 16px}
+.feedback h3{font-size:16px;color:var(--navy);margin-bottom:6px}
+.feedback ul{margin:0;padding-left:20px}
+.feedback li{margin:4px 0}
+.sum{font-weight:700;margin:0 0 6px}
+.sum.ok{color:var(--ok)} .sum.bad{color:var(--bad)}
+
+/* form */
+.form{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px}
+.form h3{margin-bottom:12px}
+.field{margin-bottom:12px}
+.field label{display:block;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:4px}
+.field input{width:100%;border:2px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);font-family:"Courier New",monospace;font-size:16px}
+.field input.err{border-color:var(--bad)}
+.field .msg{color:var(--bad);font-size:14px;margin-top:3px;font-weight:700}
+.field .hintline{color:var(--muted);font-size:13px}
+.show{font-size:14px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.toggles{display:grid;gap:8px}
+.tg{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.tg input{width:20px;height:20px;accent-color:#CC9900;flex:none}
+.tg .k{font-weight:700;color:var(--navy)}
+.tg .d{font-size:14px;color:var(--muted)}
+.tg .kind{margin-left:auto;font-size:12px;font-weight:700;border-radius:10px;padding:2px 8px;flex:none}
+.kind.v{background:#003366;color:#fff}
+.kind.vf{background:#CC9900;color:#1F2A36}
+.subh{font-size:14px;font-weight:700;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.confirm{margin-top:12px;border:2px solid var(--amber);border-radius:10px;padding:12px;background:var(--soft)}
+.confirm table{border-collapse:collapse;margin:6px 0 10px;font-family:"Courier New",monospace;font-size:15px}
+.confirm td{padding:2px 12px 2px 0}
+.dbwrap{overflow-x:auto;margin-top:6px}
+table.db{border-collapse:collapse;width:100%;min-width:460px;font-size:14px}
+table.db th{background:#003366;color:#fff;text-align:left;padding:6px 8px;font-weight:700}
+table.db td{border-bottom:1px solid var(--line);padding:6px 8px;font-family:"Courier New",monospace;vertical-align:top;background:var(--bg)}
+table.db td.rub{background:var(--badBg);color:var(--bad)}
+table.db td .why{display:block;font-family:Calibri,Arial,sans-serif;font-size:12px;font-weight:700}
+.empty{color:var(--muted);font-size:15px;padding:10px 0}
+.chal{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.chal li{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:15px}
+.chal .box{flex:none;width:20px;height:20px;border-radius:5px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.chal li.done{border-color:var(--ok);background:var(--okBg)}
+.chal li.done .box{background:var(--ok);border-color:var(--ok)}
+.saved{margin-top:10px;font-weight:700;color:var(--ok)}
+
+/* which check */
+.scard{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+.scard .ctx{font-size:15px;color:var(--muted)}
+.scard .fld{font-size:20px;font-weight:700;color:var(--navy);margin:6px 0 4px}
+.scard .val{font-family:"Courier New",monospace;font-size:22px;font-weight:700;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:inline-block;min-width:120px}
+.scard .rule{margin-top:8px;font-size:15px}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.choice{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 12px;font-weight:700}
+.choice:hover:not(:disabled){border-color:var(--navy)}
+.choice:disabled{cursor:default}
+.choice.ok{border-color:var(--ok);background:var(--okBg)}
+.choice.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700;font-size:13px}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.dot.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+
+/* sort */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;padding:10px;border:2px dashed var(--line);border-radius:10px;background:var(--bg)}
+.scrd{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:8px 12px;font-size:15px;text-align:left;max-width:100%}
+.scrd:hover{border-color:var(--navy)}
+.scrd[aria-pressed="true"]{border-color:var(--amber);background:var(--soft)}
+.scrd.ok{border-color:var(--ok);background:var(--okBg)}
+.scrd.bad{border-color:var(--bad);background:var(--badBg)}
+.bins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+@media (max-width:900px){.bins{grid-template-columns:1fr}}
+.bin{border-radius:12px;padding:12px;min-height:200px;border:2px solid var(--line);background:var(--panel);display:flex;flex-direction:column;gap:8px}
+.bin.drop{border-color:var(--amber)}
+.bin .bh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bin h3{font-size:19px;margin:0}
+.bin .add{background:#003366;color:#fff;border:0;border-radius:6px;padding:4px 10px;font-size:14px;font-weight:700}
+.bin.v h3{color:var(--navy)} .bin.vf h3{color:var(--amberText)}
+
+/* parsons */
+.pgrid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:20px;align-items:start}
+@media (max-width:900px){.pgrid{grid-template-columns:1fr}}
+pre.ref{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;white-space:pre-wrap;margin:0 0 10px;overflow-x:auto;color:var(--ink)}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:6px 10px;font-family:"Courier New",monospace;font-size:14.5px}
+.chip:hover:not(:disabled){border-color:var(--navy)}
+.chip:disabled{opacity:.35;cursor:default}
+.answer{list-style:none;margin:0;padding:0;counter-reset:ln;min-height:60px;background:var(--code);border:1px solid var(--line);border-radius:8px}
+.answer:empty::before{content:"Click lines in the bank to add them here.";display:block;padding:16px;color:var(--muted);font-size:15px}
+.answer li{display:flex;align-items:center;gap:8px;padding:3px 8px;border-bottom:1px solid var(--line);counter-increment:ln}
+.answer li:last-child{border-bottom:0}
+.answer li::before{content:counter(ln);width:22px;color:var(--muted);font-size:13px;text-align:right;flex:none}
+.answer li.fixed{background:var(--panel)}
+.answer .txt{flex:1;font-family:"Courier New",monospace;font-size:14px;white-space:pre;overflow-x:auto}
+.answer li.ok{background:var(--okBg)}
+.answer li.bad{background:var(--badBg)}
+.ctl{display:flex;gap:3px;flex:none}
+.ctl button{width:28px;height:28px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font-size:13px;padding:0}
+.tester{margin-top:16px}
+.trow{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.trow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.trow input{border:2px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--bg);color:var(--ink);font-family:"Courier New",monospace;width:150px}
+.out{background:#0F1E2E;color:#E4ECF4;border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;margin-top:10px;white-space:pre-wrap;min-height:48px}
+.tests{margin-top:10px;font-size:15px}
+.tests li{margin:3px 0}
+.stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (max-width:760px){.stages{grid-template-columns:1fr 1fr}}
+.stg{display:flex;gap:10px;align-items:center;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:8px 10px}
+.stg small{color:var(--muted);font-size:13px}
+.stg b{font-family:"Courier New",monospace;font-size:14px}
+.stg .sn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--panel);color:var(--navy);font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.stg.cur{border-color:#CC9900;background:var(--soft)}
+.stg.done .sn{background:var(--ok);color:#fff}
+.stg:disabled{opacity:.5;cursor:not-allowed}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Validation Lab</h1><div class="spec">Unit 3 · 3.3.1 · Work in pairs</div></div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function seeded(arr,seed){const a=arr.slice();let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ================= rules ================= */
+const R={
+  presence:v=>v.trim()!=='',
+  length:v=>v.length>=8&&v.length<=16,
+  type:v=>/^-?\d+$/.test(v.trim()),
+  range:v=>{const n=Number(v.trim());return v.trim()!==''&&!isNaN(n)&&n>=16&&n<=99;},
+  format:v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim()),
+};
+const CHECKS=[
+  {k:'presence',name:'Presence check',field:'username',d:'Username must not be blank',kind:'v',msg:'Presence check failed: username cannot be blank.'},
+  {k:'length',name:'Length check',field:'password',d:'Password must be 8 to 16 characters',kind:'v',msg:'Length check failed: password must be 8 to 16 characters.'},
+  {k:'type',name:'Type check',field:'age',d:'Age must be a whole number',kind:'v',msg:'Type check failed: age must be a whole number.'},
+  {k:'range',name:'Range check',field:'age',d:'Age must be between 16 and 99',kind:'v',msg:'Range check failed: age must be between 16 and 99.'},
+  {k:'format',name:'Format check',field:'email',d:'Email must look like name@site.com',kind:'v',msg:'Format check failed: email must match the pattern name@site.com.'},
+  {k:'double',name:'Double entry',field:'confirm',d:'Both passwords must match',kind:'vf',msg:'Double entry check failed: the two passwords do not match.'},
+  {k:'proof',name:'Proofreading',field:null,d:'Show the details back to the user to confirm',kind:'vf'},
+];
+const CHALS=[
+  {id:'blank',t:'Store a record with a blank username'},
+  {id:'short',t:'Store a password shorter than 8 characters'},
+  {id:'nan',t:'Store an age that is not a number'},
+  {id:'old',t:'Store an age of 150'},
+  {id:'at',t:'Store an email address with no @ in it'},
+  {id:'mism',t:'Store a record where the two passwords do not match'},
+];
+
+const S={tab:0,
+  form:{v:{username:'',password:'',confirm:'',age:'',email:''},on:{},errs:{},db:[],pending:null,show:false,saved:false,done:new Set(),revealWrong:false},
+  wc:{i:0,ans:{}},
+  vv:{place:{},sel:null,checked:false,done:false},ps:null
+};
+
+/* ================= TAB 1: Break the form ================= */
+function flaws(r){
+  const f={};
+  if(!R.presence(r.username))f.username='blank';
+  if(r.password.length<8)f.password='too short';else if(r.password.length>16)f.password='too long';
+  if(r.password!==r.confirm)f.password=(f.password?f.password+', ':'')+'does not match';
+  if(!R.type(r.age))f.age='not a whole number';else if(!R.range(r.age))f.age='out of range';
+  if(!R.format(r.email))f.email='bad format';
+  return f;
+}
+function updateChallenges(){
+  const F=S.form;
+  F.db.forEach(r=>{
+    if(!R.presence(r.username))F.done.add('blank');
+    if(r.password.length<8)F.done.add('short');
+    if(!/^\s*-?\d+(\.\d+)?\s*$/.test(r.age)||isNaN(Number(r.age)))F.done.add('nan');
+    if(Number(r.age)===150)F.done.add('old');
+    if(!r.email.includes('@'))F.done.add('at');
+    if(r.password!==r.confirm)F.done.add('mism');
+  });
+}
+function formView(){
+  const F=S.form;
+  const allOn=CHECKS.every(c=>F.on[c.k]);
+  const inp=(key,label,type,hint)=>{
+    const i=h('input',{id:'f_'+key,type:(type==='password'&&!F.show)?'password':'text',autocomplete:'off',spellcheck:'false',class:F.errs[key]?'err':null});
+    i.value=F.v[key];i.addEventListener('input',()=>{F.v[key]=i.value;F.saved=false;});
+    return h('div',{class:'field'},h('label',{for:'f_'+key},label),i,
+      hint?h('div',{class:'hintline'},hint):null,
+      ...(F.errs[key]||[]).map(m=>h('div',{class:'msg',role:'alert'},m)));
+  };
+  const submit=()=>{
+    const v=F.v;const errs={};const add=(k,m)=>{(errs[k]=errs[k]||[]).push(m);};
+    CHECKS.forEach(c=>{
+      if(!F.on[c.k]||!c.field)return;
+      if(c.k==='double'){if(v.password!==v.confirm)add('confirm',c.msg);return;}
+      if(!R[c.k](v[c.field]))add(c.field,c.msg);
+    });
+    F.errs=errs;F.saved=false;
+    if(Object.keys(errs).length){render();return;}
+    if(F.on.proof){F.pending={...v};render();return;}
+    save({...v});
+  };
+  const save=r=>{F.db.push(r);F.pending=null;F.saved=true;F.errs={};updateChallenges();render();};
+  const form=h('div',{class:'form'},h('h3',{},'Create an account'),
+    inp('username','Username','text'),
+    inp('password','Password','password'),
+    inp('confirm','Confirm password','password'),
+    inp('age','Age','text'),
+    inp('email','Email','text'),
+    h('label',{class:'show'},h('input',{type:'checkbox',checked:F.show||null,onchange:e=>{F.show=e.target.checked;render();}}),'Show passwords'),
+    h('div',{class:'actions',style:'margin-top:4px'},
+      h('button',{class:'btn primary',onclick:submit},'Create account'),
+      h('button',{class:'btn ghost',onclick:()=>{Object.keys(F.v).forEach(k=>F.v[k]='');F.errs={};F.pending=null;F.saved=false;render();}},'Clear form')),
+    F.pending?h('div',{class:'confirm',role:'dialog','aria-label':'Proofreading check'},
+      h('b',{},'Proofreading: please check your details'),
+      h('table',{},...['username','age','email'].map(k=>h('tr',{},h('td',{},k),h('td',{},F.pending[k]||'(blank)')))),
+      h('div',{},'Is this information correct?'),
+      h('div',{class:'actions'},h('button',{class:'btn primary',onclick:()=>save(F.pending)},'Yes, save it'),
+        h('button',{class:'btn ghost',onclick:()=>{F.pending=null;render();}},'No, go back and fix it'))):null,
+    F.saved?h('div',{class:'saved',role:'status'},'✓ Account created and stored in the database.'):null);
+
+  const toggles=h('div',{class:'toggles'});
+  const mk=c=>h('label',{class:'tg'},h('input',{type:'checkbox',checked:F.on[c.k]||null,onchange:e=>{F.on[c.k]=e.target.checked;F.errs={};render();}}),
+    h('span',{},h('span',{class:'k'},c.name),h('br'),h('span',{class:'d'},c.d)),h('span',{class:'kind '+c.kind},c.kind==='v'?'validation':'verification'));
+  toggles.append(h('div',{class:'subh'},'Validation checks'),...CHECKS.filter(c=>c.kind==='v').map(mk),
+    h('div',{class:'subh'},'Verification methods'),...CHECKS.filter(c=>c.kind==='vf').map(mk));
+
+  const rows=F.db.map(r=>{const f=flaws(r);const cell=(k,val)=>h('td',{class:f[k]?'rub':null},val===''?'(blank)':val,f[k]?h('span',{class:'why'},f[k]):null);
+    return h('tr',{},cell('username',r.username),cell('password',F.show?r.password:'•'.repeat(r.password.length)+` (${r.password.length})`),cell('age',r.age),cell('email',r.email));});
+  const db=h('div',{class:'panel',style:'margin-top:20px'},
+    h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap'},h('h3',{style:'margin:0'},'Database: users table'),
+      h('button',{class:'btn ghost',onclick:()=>{F.db=[];F.done=new Set();F.saved=false;render();}},'Empty the database')),
+    F.db.length?h('div',{class:'dbwrap'},h('table',{class:'db'},h('thead',{},h('tr',{},...['username','password (length)','age','email'].map(t=>h('th',{},t)))),h('tbody',{},...rows)))
+      :h('div',{class:'empty'},'No records stored yet.'),
+    F.db.length?h('p',{style:'margin:8px 0 0;font-size:14px;color:var(--muted)'},'Red cells are rubbish data that got stored.'):null);
+
+  const chal=h('ul',{class:'chal'},CHALS.map(c=>h('li',{class:F.done.has(c.id)?'done':null},h('span',{class:'box'},F.done.has(c.id)?'✓':''),c.t)));
+  const stage2=h('div',{class:'panel',style:'margin-top:14px'},
+    h('h3',{},'Round 2: switch every check on'),
+    h('p',{style:'margin:0 0 8px'},allOn?'All checks are on. Try the challenges again. Can you still get rubbish in?':'Once you have finished the challenges, tick every check on the left and try again.'),
+    h('p',{style:'margin:0 0 8px'},h('b',{},'Final challenge: '),'with every check on, can you store a record that passes every check but is still ',h('i',{},'wrong'),'? For example, an age that is not your real age.'),
+    h('button',{class:'btn ghost',onclick:()=>{F.revealWrong=!F.revealWrong;render();}},F.revealWrong?'Hide':'What does this show?'),
+    F.revealWrong?h('div',{class:'feedback'},h('p',{class:'sum ok'},'Validation cannot prove data is correct.'),
+      'An age of 45 passes the type and range checks even if you are 17. Validation only checks that data is reasonable and follows the rules. Only verification (double entry, proofreading against the original) can check it is what the user intended, and even then only if the user notices.'):null);
+
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Break the Form')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Round 1: all checks start switched off. Complete the challenges by getting rubbish data stored. Then switch the checks on one at a time and see what they stop.'),
+    h('div',{class:'grid'},
+      h('div',{},form,db),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Checks'),toggles),
+        h('div',{class:'panel',style:'margin-top:14px'},h('h3',{},`Round 1 challenges (${F.done.size}/${CHALS.length})`),chal),stage2)));
+}
+
+/* ================= TAB 2: Which check? ================= */
+const OPTS=['Range check','Type check','Length check','Presence check','Format check','Double entry','No validation check can catch this'];
+const WC=[
+ {ctx:'Gym membership form',f:'Age',v:'150',rule:'Members must be 16 to 99.',a:'Range check',why:'150 is a whole number, so a type check passes it. A range check tests it falls between 16 and 99.'},
+ {ctx:'Gym membership form',f:'Age',v:'sixteen',rule:'Age must be entered as a number.',a:'Type check',why:'A type check makes sure the data is the expected data type, here an integer, not a string.'},
+ {ctx:'College login',f:'Password',v:'cat',rule:'Passwords must be 8 to 16 characters.',a:'Length check',why:'A length check counts the characters. "cat" has only 3.'},
+ {ctx:'Online shop checkout',f:'Surname',v:'',rule:'Surname is required.',a:'Presence check',why:'A presence check makes sure essential data has not been left blank.'},
+ {ctx:'Newsletter sign-up',f:'Email',v:'aled.example.com',rule:'Must be a valid email address.',a:'Format check',why:'A format check tests the data matches a pattern. This has no @, so it cannot be an email address.'},
+ {ctx:'Exam results system',f:'Mark out of 100',v:'-5',rule:'Marks must be 0 to 100.',a:'Range check',why:'-5 is a valid integer, but it is below the lowest allowed value of 0.'},
+ {ctx:'Online shop',f:'Quantity ordered',v:'2.5',rule:'Quantity must be a whole number.',a:'Type check',why:'You cannot order half an item. A type check requires an integer, so 2.5 (a real number) is rejected.'},
+ {ctx:'Account settings',f:'Confirm new email',v:'aled@example.co',rule:'Must match the email typed in the box above (aled@example.com).',a:'Double entry',why:'Both entries are valid emails, so a format check passes them. Double entry compares the two and spots they differ. This is verification, not validation.'},
+ {ctx:'Mobile top-up',f:'Mobile number',v:'0770',rule:'UK mobile numbers have 11 digits.',a:'Length check',why:'The number is only 4 digits long. A length check requires exactly 11.'},
+ {ctx:'Booking form',f:'Date (dd/mm/yyyy)',v:'2008-03-12',rule:'Dates must be entered as dd/mm/yyyy.',a:'Format check',why:'The date is real, but it is in the wrong layout. A format check tests the pattern dd/mm/yyyy.'},
+ {ctx:'College enrolment',f:'Date of birth',v:'21/03/2008',rule:'The student was actually born on 12/03/2008.',a:'No validation check can catch this',why:'21/03/2008 is present, in the right format and in a sensible range, so every validation check passes. Only verification, such as proofreading against the original, would catch this.'},
+ {ctx:'Gym membership form',f:'Age',v:'45',rule:'The member is actually 17.',a:'No validation check can catch this',why:'45 is a whole number between 16 and 99, so it is valid. Validation cannot tell that it is untrue.'},
+];
+function wcView(){
+  const W=S.wc,i=W.i,q=WC[i],ans=W.ans[i];
+  const right=Object.entries(W.ans).filter(([k,v])=>v===WC[k].a).length;
+  const dots=h('div',{class:'dots','aria-label':'Scenarios'},WC.map((_,j)=>h('button',{class:'dot'+(W.ans[j]!==undefined?(W.ans[j]===WC[j].a?' ok':' bad'):''),'aria-current':String(j===i),'aria-label':'Scenario '+(j+1),onclick:()=>{W.i=j;render();}},String(j+1))));
+  const choices=h('div',{class:'choices'},OPTS.map(o=>{
+    let cls='choice';if(ans!==undefined){if(o===q.a)cls+=' ok';else if(o===ans)cls+=' bad';}
+    return h('button',{class:cls,disabled:ans!==undefined||null,onclick:()=>{W.ans[i]=o;render();}},o);
+  }));
+  const done=Object.keys(W.ans).length===WC.length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Which check catches it?')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Each card shows data a user typed in. Choose the check that would stop it. One answer only, so think before you click.'),
+    h('div',{style:'display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center'},dots,h('div',{style:'font-weight:700;color:var(--navy)'},`Score: ${right} / ${WC.length}`)),
+    h('div',{class:'scard'},h('div',{class:'ctx'},`Scenario ${i+1} · ${q.ctx}`),h('div',{class:'fld'},q.f),
+      h('div',{class:'val'},q.v===''?'(left blank)':q.v),h('div',{class:'rule'},h('b',{},'Rule: '),q.rule)),
+    choices,
+    ans!==undefined?h('div',{class:'feedback'},h('p',{class:'sum '+(ans===q.a?'ok':'bad')},ans===q.a?'Correct.':`Not quite. The answer is: ${q.a}.`),q.why):null,
+    h('div',{class:'actions'},
+      h('button',{class:'btn ghost',disabled:i===0||null,onclick:()=>{W.i--;render();}},'← Previous'),
+      h('button',{class:'btn primary',disabled:i===WC.length-1||null,onclick:()=>{W.i++;render();}},'Next →'),
+      h('button',{class:'btn ghost',onclick:()=>{S.wc={i:0,ans:{}};render();}},'Start again')),
+    done?h('div',{class:'feedback'},h('p',{class:'sum ok'},`Finished: ${right} out of ${WC.length}.`),'Look back at the last two scenarios. Both pass every validation check but are still wrong. That is the key limitation of validation.'):null);
+}
+
+/* ================= TAB 3: Validation or verification ================= */
+const BINS=[{k:'v',t:'Validation'},{k:'vf',t:'Verification'},{k:'b',t:'Both'}];
+const VV=[
+ ['Checks that data is sensible, reasonable and within acceptable boundaries','v','This is the definition of validation.'],
+ ['Checks data against a set of rules set up in the program','v','Validation rules, such as range or format rules, are written into the program.'],
+ ['Checks that an age is between 16 and 99','v','A range check is a validation check.'],
+ ['Checks that an email contains an @ and a full stop','v','A format check is a validation check.'],
+ ['Cannot prove that the data entered is what the user intended','v','This is the key limitation of validation: valid data can still be wrong.'],
+ ['Checks that the data entered by the user is consistent','vf','This is the WJEC definition of verification.'],
+ ['Asking the user to type their password twice','vf','Double entry is a verification method: the two entries are compared.'],
+ ['Comparing the entered data with the original paper form','vf','Checking against the original source is verification (proofreading).'],
+ ['Showing the user their details and asking "Is this correct?"','vf','Displaying data back for the user to check is proofreading, a verification method.'],
+ ['Would catch a date of birth typed as 21/03/2008 instead of 12/03/2008','vf','Both dates are valid, so no validation check catches it. Proofreading could.'],
+ ['Aims to minimise the risk of human error when data is input','b','The WJEC mark scheme says both validation and verification are used to minimise the risk of human error.'],
+ ['Happens when data is being entered into a system','b','Both are carried out as data is input, before it is stored or processed.'],
+];
+function vvView(){
+  const V=S.vv;
+  const order=seeded(VV.map((_,i)=>i),17);
+  const pick=i=>{V.sel=V.sel===i?null:i;render();};
+  const drop=(k,i)=>{if(i==null||isNaN(i))return;V.place[i]=k;V.sel=null;V.checked=false;render();};
+  const card=i=>{
+    const placed=V.place[i];let cls='scrd';
+    if(V.checked&&placed)cls+=placed===VV[i][1]?' ok':' bad';
+    const b=h('button',{class:cls,draggable:'true','aria-pressed':String(V.sel===i),onclick:()=>{if(placed&&!V.sel&&V.sel!==0){delete V.place[i];V.checked=false;render();}else pick(i);}},VV[i][0]);
+    b.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',String(i)));
+    return b;
+  };
+  const pool=h('div',{class:'pool','aria-label':'Unsorted cards'},order.filter(i=>!V.place[i]).map(card));
+  if(!pool.children.length)pool.append(h('span',{style:'color:var(--muted);font-size:15px'},'All cards sorted. Press Check.'));
+  const bins=h('div',{class:'bins'},BINS.map(b=>{
+    const el=h('div',{class:'bin '+b.k},h('div',{class:'bh'},h('h3',{},b.t),V.sel!=null?h('button',{class:'add',onclick:()=>drop(b.k,V.sel)},'Place here'):null),
+      ...order.filter(i=>V.place[i]===b.k).map(card));
+    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drop');});
+    el.addEventListener('dragleave',()=>el.classList.remove('drop'));
+    el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drop');drop(b.k,Number(e.dataTransfer.getData('text/plain')));});
+    return el;}));
+  const placed=Object.keys(V.place).length;
+  let fb=null;
+  if(V.checked){
+    const wrong=Object.entries(V.place).filter(([i,k])=>k!==VV[i][1]);
+    const right=placed-wrong.length;
+    if(!wrong.length&&placed===VV.length)V.done=true;
+    fb=h('div',{class:'feedback'},h('p',{class:'sum '+(wrong.length?'bad':'ok')},wrong.length?`${right} of ${placed} placed correctly. Red cards are in the wrong place: click one to take it back.`:(placed===VV.length?'All cards sorted correctly. Well done.':`${right} correct so far.`)),
+      wrong.length?h('ul',{},...wrong.map(([i])=>h('li',{},`"${VV[i][0]}": ${VV[i][2]}`))):null);
+  }
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Validation or verification?')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Sort each card into Validation, Verification or Both. Click a card, then "Place here" on a column, or drag it. Click a placed card to send it back.'),
+    pool,bins,
+    h('div',{class:'actions'},h('button',{class:'btn primary',disabled:!placed||null,onclick:()=>{V.checked=true;render();}},'Check'),
+      h('button',{class:'btn ghost',onclick:()=>{S.vv={place:{},sel:null,checked:false,done:false};render();}},'Reset')),
+    fb);
+}
+
+/* ================= TAB 4: Build the validator (staged Parsons) ================= */
+const IF_BLOCKS=[
+  [[1,'if call PresenceCheck(username) = FALSE'],[2,'output "Username must not be blank"'],[2,'set valid = FALSE'],[1,'end if']],
+  [[1,'if call LengthCheck(password, 8, 16) = FALSE'],[2,'output "Password must be 8 to 16 characters"'],[2,'set valid = FALSE'],[1,'end if']],
+  [[1,'if call RangeCheck(age, 16, 99) = FALSE'],[2,'output "Age must be between 16 and 99"'],[2,'set valid = FALSE'],[1,'end if']],
+];
+function perms(a){if(a.length<=1)return [a];const r=[];a.forEach((x,i)=>perms(a.slice(0,i).concat(a.slice(i+1))).forEach(p=>r.push([x,...p])));return r;}
+const ret=(c)=>[[1,c],[2,'return TRUE'],[1,'else'],[2,'return FALSE'],[1,'end if']];
+const STAGES=[
+ {name:'PresenceCheck',head:'Declare PresenceCheck(data)',tester:'presence',
+  prompt:'Build a presence check. It returns TRUE if something has been entered and FALSE if the data is empty.',
+  solutions:[ret('if data IS NOT EMPTY'),[[1,'if data IS EMPTY'],[2,'return FALSE'],[1,'else'],[2,'return TRUE'],[1,'end if']]],
+  dis:[['return data','A check subroutine must return TRUE or FALSE (a Boolean), not the data itself.']],
+  after:'Both conditions in the bank can work. If you test IS EMPTY, the returns must swap round. Can you explain why?'},
+ {name:'LengthCheck',head:'Declare LengthCheck(data, minLength, maxLength)',tester:'length',
+  prompt:'Build a length check. It returns TRUE only if the number of characters is between minLength and maxLength, including the boundaries themselves. Think hard about which condition to use.',
+  solutions:[ret('if LENGTH(data) >= minLength AND LENGTH(data) <= maxLength')],
+  dis:[['if LENGTH(data) >= minLength OR LENGTH(data) <= maxLength','With OR, only one part has to be true. A 200-character password is >= 8, so it would pass. Both conditions must be true, so use AND.'],
+       ['if LENGTH(data) > minLength AND LENGTH(data) < maxLength','> and < exclude the boundaries, so a password of exactly 8 or exactly 16 characters would be rejected. The boundaries are allowed, so use >= and <=.'],
+       ['if data >= minLength AND data <= maxLength','This compares the data itself with the numbers, not how many characters it has. Use LENGTH(data).']],
+  after:'Test it with passwords of 7, 8, 16 and 17 characters and compare the two result columns.'},
+ {name:'RangeCheck',head:'Declare RangeCheck(value, minValue, maxValue)',tester:'range',
+  prompt:'Build a range check. It returns TRUE only if the value is between minValue and maxValue, including the boundaries.',
+  solutions:[ret('if value >= minValue AND value <= maxValue')],
+  dis:[['if value > minValue AND value < maxValue','> and < exclude the boundaries, so ages of exactly 16 and 99 would be rejected even though they are allowed.'],
+       ['if value >= minValue OR value <= maxValue','With OR, every number passes: 150 is >= 16, and -5 is <= 99. Both conditions must be true, so use AND.'],
+       ['return value','A check subroutine must return TRUE or FALSE, not the value.']],
+  after:'Test the boundaries: 15, 16, 99 and 100. Which ones does the > and < version get wrong?'},
+ {name:'ValidateSignUp',head:'Declare ValidateSignUp(username, password, age)',tester:'signup',extension:true,
+  prompt:'Extension: put it all together. Call your three subroutines to validate the sign-up form. Output a message for each failed check and return TRUE only if everything is valid. The three if blocks can go in any order.',
+  solutions:perms([0,1,2]).map(p=>[[1,'set valid = TRUE'],...p.flatMap(i=>IF_BLOCKS[i]),[1,'return valid']]),
+  dis:[['if call LengthCheck(password, 16, 8) = FALSE','The parameters are in the wrong order. LengthCheck(data, minLength, maxLength) needs the minimum first: 8, then 16.'],
+       ['if call RangeCheck(age, 16, 99) = TRUE','This would output the error message when the age IS valid. You want the message when the check returns FALSE.'],
+       ['return TRUE','This always reports the form as valid, even when a check failed. Return the valid variable instead.']],
+  after:'Your three subroutines are now reused inside one validator. That is the advantage of writing each check as its own subroutine.'},
+];
+STAGES.forEach((st,si)=>{
+  const base=st.solutions[0].map(([ind,t])=>t);
+  const extra=[];
+  st.solutions.slice(1).forEach(sol=>{const pool=base.concat(extra);sol.forEach(([,t])=>{const i=pool.indexOf(t);if(i>=0)pool.splice(i,1);else extra.push(t);});});
+  st.bank=seeded([...base.map(t=>({text:t})),...extra.map(t=>({text:t})),...st.dis.map(([t,why])=>({text:t,dis:true,why}))],31+si*7);
+});
+const newStage=()=>({answer:[],marks:null,fb:null,solved:false,revealed:false,log:[],inp:'',sign:{username:'',password:'',age:''},out:''});
+S.ps={stage:0,st:STAGES.map(newStage)};
+const unlocked=i=>i===0||S.ps.st[i-1].solved||S.ps.st[i-1].revealed;
+
+function testerView(si){
+  const st=STAGES[si],P=S.ps.st[si];
+  const addLog=(row)=>{P.log.unshift(row);P.log=P.log.slice(0,8);render();};
+  const tf=b=>b?'TRUE':'FALSE';
+  if(st.tester==='signup'){
+    const T=P.sign;
+    const inp=(k,l)=>{const i=h('input',{value:T[k],'aria-label':l,spellcheck:'false'});i.addEventListener('input',()=>{T[k]=i.value;});return h('label',{},l,i);};
+    const run=()=>{const out=[];let valid=true;
+      if(T.username===''){out.push('Username must not be blank');valid=false;}
+      if(!(T.password.length>=8&&T.password.length<=16)){out.push('Password must be 8 to 16 characters');valid=false;}
+      const n=Number(T.age);if(!(T.age.trim()!==''&&!isNaN(n)&&n>=16&&n<=99)){out.push('Age must be between 16 and 99');valid=false;}
+      out.push(`ValidateSignUp returns ${tf(valid)}`);P.out=out.join('\n');render();};
+    return h('div',{class:'panel tester'},h('h3',{},'Test your validator'),
+      h('div',{class:'trow'},inp('username','username'),inp('password','password'),inp('age','age'),h('button',{class:'btn primary',id:'runbtn',onclick:run},'Run')),
+      h('div',{class:'out',role:'status'},P.out||'Output appears here.'));
+  }
+  const i=h('input',{value:P.inp,'aria-label':'Test input',spellcheck:'false',id:'tin'});
+  i.addEventListener('input',()=>{P.inp=i.value;});
+  let quick=[],run,cols;
+  if(st.tester==='presence'){
+    cols=['data','PresenceCheck returns'];
+    run=v=>addLog([v===''?'(empty)':`"${v}"`,tf(v!=='')]);
+    quick=[['empty',''],['"a"','a'],['"Aled"','Aled']];
+  } else if(st.tester==='length'){
+    cols=['data','LENGTH','your LengthCheck','with > and <'];
+    run=v=>addLog([`"${v}"`,String(v.length),tf(v.length>=8&&v.length<=16),tf(v.length>8&&v.length<16)]);
+    quick=[['7 chars','abcdefg'],['8 chars','abcdefgh'],['12 chars','abcdefghijkl'],['16 chars','abcdefghijklmnop'],['17 chars','abcdefghijklmnopq']];
+  } else {
+    cols=['value','your RangeCheck','with > and <'];
+    run=v=>{const n=Number(v);if(v.trim()===''||isNaN(n)){addLog([v||'(empty)','not a number','']);return;}
+      addLog([String(n),tf(n>=16&&n<=99),tf(n>16&&n<99)]);};
+    quick=[['15','15'],['16','16'],['50','50'],['99','99'],['100','100']];
+  }
+  const params=st.tester==='length'?' with minLength = 8, maxLength = 16':st.tester==='range'?' with minValue = 16, maxValue = 99':'';
+  const table=P.log.length?h('div',{class:'dbwrap'},h('table',{class:'db'},h('thead',{},h('tr',{},...cols.map(c=>h('th',{},c)))),
+    h('tbody',{},...P.log.map(r=>h('tr',{},...r.map((c,ci)=>{const wrong=st.tester!=='presence'&&ci===r.length-1&&c!==''&&c!==r[r.length-2];
+      return h('td',{class:wrong?'rub':null},c,wrong?h('span',{class:'why'},'different!'):null);})))))):null;
+  return h('div',{class:'panel tester'},h('h3',{},`Test your ${st.name}${params}`),
+    h('div',{class:'trow'},h('label',{},st.tester==='range'?'value':'data',i),
+      h('button',{class:'btn primary',id:'runbtn',onclick:()=>run(P.inp)},'Run')),
+    h('div',{style:'display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center'},h('span',{style:'font-size:14px;color:var(--muted)'},'Quick tests:'),
+      ...quick.map(([l,v])=>h('button',{class:'chip',onclick:()=>{P.inp=v;run(v);}},l))),
+    table?h('div',{style:'margin-top:10px'},table):null,
+    st.tester!=='presence'&&P.log.length?h('p',{style:'margin:8px 0 0;font-size:14px;color:var(--muted)'},'The last column shows what the boundary distractor would have returned. Red means it gets that test wrong.'):null);
+}
+
+function psView(){
+  const si=S.ps.stage,st=STAGES[si],P=S.ps.st[si];
+  const used=new Set(P.answer.map(a=>a.b));
+  const bank=h('div',{class:'bank'},st.bank.map((it,bi)=>h('button',{class:'chip',disabled:used.has(bi)||null,onclick:()=>{P.answer.push({b:bi,indent:1});P.marks=null;P.fb=null;render();}},it.text)));
+  const ol=h('ol',{class:'answer','aria-label':'Your pseudo-code'});
+  const fixedLi=t=>h('li',{class:'fixed'},h('span',{class:'txt'},t),h('span',{class:'ctl',style:'font-size:12px;color:var(--muted)'},'given'));
+  ol.appendChild(fixedLi(st.head));
+  const chg=()=>{P.marks=null;P.fb=null;render();};
+  const mv=(j,d)=>{const t=j+d;if(t<0||t>=P.answer.length)return;[P.answer[j],P.answer[t]]=[P.answer[t],P.answer[j]];chg();};
+  P.answer.forEach((a,j)=>{
+    const it=st.bank[a.b];const cls=P.marks?(P.marks[j]?'ok':'bad'):null;
+    ol.appendChild(h('li',{class:cls},h('span',{class:'txt'},'    '.repeat(a.indent)+it.text),
+      h('span',{class:'ctl'},
+        h('button',{'aria-label':'Outdent',onclick:()=>{a.indent=Math.max(0,a.indent-1);chg();}},'←'),
+        h('button',{'aria-label':'Indent',onclick:()=>{a.indent=Math.min(3,a.indent+1);chg();}},'→'),
+        h('button',{'aria-label':'Move up',onclick:()=>mv(j,-1)},'↑'),
+        h('button',{'aria-label':'Move down',onclick:()=>mv(j,1)},'↓'),
+        h('button',{'aria-label':'Remove',onclick:()=>{P.answer.splice(j,1);chg();}},'×'))));
+  });
+  ol.appendChild(fixedLi('End Subroutine'));
+  const check=()=>{
+    const ans=P.answer.map(a=>({t:st.bank[a.b].text,ind:a.indent,it:st.bank[a.b]}));
+    let best=null,bs=-1;
+    st.solutions.forEach(sol=>{let sc=0;ans.forEach((a,j)=>{if(sol[j]&&sol[j][1]===a.t&&sol[j][0]===a.ind)sc++;});if(sc>bs){bs=sc;best=sol;}});
+    const items=[];
+    P.marks=ans.map((a,j)=>{
+      const s=best[j];
+      if(s&&s[1]===a.t&&s[0]===a.ind)return true;
+      if(a.it.dis)items.push(`Line ${j+2} "${a.t}": ${a.it.why}`);
+      else if(!best.some(x=>x[1]===a.t))items.push(`Line ${j+2} "${a.t}" is not needed in this version.`);
+      else if(s&&s[1]===a.t)items.push(`Line ${j+2} "${a.t}" is in the right place but the indentation is wrong. Lines inside an if or else are indented one more level.`);
+      else items.push(`Line ${j+2} "${a.t}" is in the wrong position.`);
+      return false;});
+    const n=best.length;
+    if(ans.length<n)items.push(`${n-ans.length} line${n-ans.length>1?'s are':' is'} still missing.`);
+    const ok=bs===n&&ans.length===n;
+    if(ok&&!P.revealed)P.solved=true;
+    P.fb={ok,items:ok?[st.after]:items,summary:ok?(P.revealed?'Correct, but the answer was revealed. Reset and try from memory to complete this stage.':`Correct. ${st.name} works.`):`${bs} of ${n} lines correct.`};
+    render();
+  };
+  const reveal=()=>{
+    P.revealed=true;const usedB=new Set();
+    P.answer=st.solutions[0].map(([ind,t])=>{const bi=st.bank.findIndex((it,k)=>it.text===t&&!usedB.has(k));usedB.add(bi);return {b:bi,indent:ind};});
+    P.marks=null;P.fb={ok:true,items:[...st.dis.map(([t,w])=>`Not used, "${t}": ${w}`),st.after],summary:'Answer revealed.'};render();
+  };
+  const stageBar=h('div',{class:'stages'},STAGES.map((x,i)=>{
+    const S2=S.ps.st[i];const lock=!unlocked(i);
+    return h('button',{class:'stg'+(i===si?' cur':'')+(S2.solved?' done':''),disabled:lock||null,'aria-current':String(i===si),
+      onclick:()=>{S.ps.stage=i;render();}},
+      h('span',{class:'sn'},S2.solved?'✓':String(i+1)),h('span',{},h('b',{},x.name),h('br'),h('small',{},lock?'locked':x.extension?'extension':S2.solved?'complete':'to do')));
+  }));
+  const fb=P.fb?h('div',{class:'feedback'},h('p',{class:'sum '+(P.fb.ok?'ok':'bad')},P.fb.summary),P.fb.items.length?h('ul',{},...P.fb.items.map(t=>h('li',{},t))):null):null;
+  const nextBtn=(P.solved||P.revealed)&&si<STAGES.length-1?h('button',{class:'btn accent',onclick:()=>{S.ps.stage++;render();}},si===2?'Extension: put it together →':`Next: ${STAGES[si+1].name} →`):null;
+  const ref=si===3?h('div',{class:'panel',style:'margin-bottom:14px'},h('h3',{},'Your subroutines'),
+    h('pre',{class:'ref mono'},'PresenceCheck(data)\n  → TRUE if data is not empty\n\nLengthCheck(data, minLength, maxLength)\n  → TRUE if the length is between min and max\n\nRangeCheck(value, minValue, maxValue)\n  → TRUE if the value is between min and max')):null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Build the sign-up validator')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Build each validation check as its own subroutine, then combine them. Each stage unlocks when the one before is complete.'),
+    stageBar,
+    h('div',{class:'prompt',style:'background:var(--panel)'},h('b',{},`Stage ${si+1}: ${st.name}. `),st.prompt,` ${st.dis.length} line${st.dis.length>1?'s':''} in the bank ${st.dis.length>1?'are distractors':'is a distractor'}.`),
+    h('div',{class:'pgrid'},
+      h('div',{},ref,h('div',{class:'panel'},h('h3',{},'Line bank'),bank)),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Your pseudo-code'),ol),
+        h('div',{class:'actions'},
+          h('button',{class:'btn primary',disabled:!P.answer.length||null,onclick:check},'Check'),
+          h('button',{class:'btn ghost',onclick:()=>{const keep=P.solved;S.ps.st[si]=newStage();S.ps.st[si].solved=keep;render();}},'Reset'),
+          h('button',{class:'btn ghost',onclick:reveal},'Show answer'),nextBtn),
+        fb,(P.solved||P.revealed)?testerView(si):null)));
+}
+
+/* ================= shell ================= */
+const TABS=[{t:'Break the Form',v:formView,done:()=>S.form.done.size===CHALS.length},
+  {t:'Which check?',v:wcView,done:()=>Object.keys(S.wc.ans).length===WC.length},
+  {t:'Validation or verification?',v:vvView,done:()=>S.vv.done},
+  {t:'Build the validator',v:psView,done:()=>S.ps.st.slice(0,3).every(x=>x.solved)}];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach((t,i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t.t,t.done()?h('span',{class:'tick'},'✓'):null)));
+  document.getElementById('progress').innerHTML=`<b>${TABS.filter(t=>t.done()).length}</b> of 4 tabs complete`;
+  const main=document.getElementById('main');
+  const active=document.activeElement&&document.activeElement.id;
+  main.innerHTML='';main.appendChild(TABS[S.tab].v());
+  if(active&&active.startsWith('f_')){const el=document.getElementById(active);if(el)el.focus();}
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter: Lesson 1 Recap</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --frame:#FFFFFF; --stroke:#003366;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:18px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+.mono,code{font-family:"Courier New",Courier,monospace}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;max-width:1100px;margin:0 auto}
+header h1{font-size:30px}
+.sub{font-size:16px;color:#C9D6E3}
+.timer{display:flex;align-items:center;gap:10px}
+.clock{font-family:Cambria,Georgia,serif;font-size:34px;font-weight:700;color:#FFD966;min-width:92px;text-align:right}
+.clock.low{color:#FF9B9B}
+.hbtn{background:#CC9900;color:#1F2A36;border:0;border-radius:8px;padding:8px 14px;font-weight:700}
+.hbtn.ghost{background:transparent;color:#fff;border:2px solid #4A6F95}
+
+main{max-width:1100px;margin:0 auto;padding:20px 24px 40px}
+.score{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.score p{margin:0;color:var(--muted)}
+.score b{font-family:Cambria,Georgia,serif;font-size:24px;color:var(--navy)}
+.q{background:var(--panel);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.q h2{font-size:21px;color:var(--navy);margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.q h2 .num{flex:none;width:30px;height:30px;border-radius:50%;background:#003366;color:#fff;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 14px}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.fb{margin-top:10px;padding:10px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.fb .v{font-weight:700}
+.fb .v.ok{color:var(--ok)}
+.fb .v.bad{color:var(--bad)}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start}
+@media (max-width:760px){.twocol{grid-template-columns:1fr}}
+.ops{list-style:none;margin:0 0 12px;padding:10px 14px;background:var(--code);border:1px solid var(--line);border-radius:8px;font-family:"Courier New",monospace;font-size:17px;counter-reset:op}
+.ops li{padding:2px 6px;border-radius:4px;counter-increment:op}
+.ops li::before{content:counter(op) ". ";color:var(--muted)}
+.ops li.cur{background:var(--soft);outline:2px solid var(--amber)}
+.ops li.done{color:var(--muted)}
+.inputs{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.inputs label{display:grid;gap:4px;font-size:15px;color:var(--muted)}
+.inputs input,.inputs select{border:2px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);color:var(--ink);width:120px}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700}
+.btn.primary{background:#003366;color:#fff}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.stackvis{display:flex;flex-direction:column;align-items:center}
+.arr{display:grid;grid-template-columns:34px 130px 60px;align-items:center}
+.idx{font-size:14px;color:var(--muted);text-align:right;padding-right:8px}
+.cell{height:46px;border:2px solid var(--stroke);border-top-width:1px;display:flex;align-items:center;justify-content:center;font-family:"Courier New",monospace;font-weight:700;font-size:20px;background:var(--frame);color:var(--ink)}
+.arr:first-child .cell{border-top-width:2px}
+.cell.filled{background:var(--soft)}
+.cell.gone{color:var(--muted);text-decoration:line-through;background:var(--frame)}
+.ptr{font-size:14px;font-weight:700;color:var(--amberText);padding-left:8px}
+.toplbl{margin-top:8px;font-family:"Courier New",monospace;font-weight:700;color:var(--navy)}
+.note{font-size:14px;color:var(--muted);margin-top:4px;text-align:center}
+@media (prefers-reduced-motion: no-preference){.cell.filled.new{animation:pop .35s ease-out}}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:none;opacity:1}}
+
+.teaser{background:var(--soft)}
+.teaser h2{color:var(--amberText)}
+.end{margin-top:16px;padding:14px 18px;border-radius:12px;background:#003366;color:#fff}
+.end h3{font-size:20px;margin-bottom:4px;color:#FFD966}
+.end p{margin:0}
+.code{margin:0 0 12px;padding:10px 14px;background:var(--code);border:1px solid var(--line);border-radius:8px;font-family:"Courier New",monospace;font-size:16px;white-space:pre;overflow-x:auto;color:var(--ink)}
+.opt svg{display:block;margin:0 auto 6px}
+.opt.sym{text-align:center}
+.tt{border-collapse:collapse;font-size:16px;margin-bottom:10px}
+.tt th{background:#003366;color:#fff;padding:6px 10px;text-align:left}
+.tt td{border-bottom:1px solid var(--line);padding:5px 10px;font-family:"Courier New",monospace;background:var(--bg)}
+.tt input{width:64px;border:2px solid #CC9900;border-radius:6px;padding:3px 6px;background:var(--bg);color:var(--ink);font-family:"Courier New",monospace}
+.tt input.ok{border-color:var(--ok);background:var(--okBg)}
+.tt input.bad{border-color:var(--bad);background:var(--badBg)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Starter: Lesson 1 Recap</h1><div class="sub">Algorithms and recursion · Answer on your own, then check with your partner</div></div>
+    <div class="timer"><span class="clock" id="clock" aria-live="off">8:00</span>
+      <button class="hbtn" id="tgo">Start timer</button><button class="hbtn ghost" id="treset">Reset</button></div>
+  </div>
+</header>
+<main>
+  <div class="score"><p>Each question marks itself when you answer. Your first answer is the one that counts.</p><div><b id="score">0</b> <span style="color:var(--muted)">/ 7 correct</span></div></div>
+  <div id="qs"></div>
+  <div class="end" id="end" hidden>
+    <h3>Keep this in mind</h3>
+    <p>Look back at question 7. That three-line swap using <b>temp</b> is the heart of <b>bubble sort</b>, one of the sorting algorithms you will meet later today.</p>
+  </div>
+</main>
+<script>
+const SYM={
+ para:'<svg width="90" height="44" viewBox="0 0 90 44" aria-hidden="true"><polygon points="14,4 86,4 76,40 4,40" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>',
+ dia:'<svg width="90" height="44" viewBox="0 0 90 44" aria-hidden="true"><polygon points="45,2 88,22 45,42 2,22" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>',
+ rect:'<svg width="90" height="44" viewBox="0 0 90 44" aria-hidden="true"><rect x="4" y="4" width="82" height="36" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>',
+ term:'<svg width="90" height="44" viewBox="0 0 90 44" aria-hidden="true"><rect x="4" y="4" width="82" height="36" rx="18" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>'};
+const Q=[
+ {type:'mcq',q:'Which is the best definition of an algorithm?',
+  opts:['A program written in a high-level language','A step-by-step set of instructions or rules that provides a solution to a specific problem','A flowchart showing the inputs and outputs of a program','A set of instructions that repeats until the user stops it'],a:1,
+  why:'This is the mark-scheme definition: 1 mark for "step-by-step set of instructions or rules", 1 mark for "solution to a specific problem". An algorithm is not tied to any language or diagram.'},
+ {type:'sym',q:'Which flowchart symbol is used for an input or an output?',
+  opts:[['rect','Symbol A'],['term','Symbol B'],['para','Symbol C'],['dia','Symbol D']],a:2,
+  why:'Inputs and outputs use a parallelogram. A rectangle is an operation (process), a rounded rectangle is start/stop, and a diamond is a decision.'},
+ {type:'mcq',q:'Which loop ALWAYS runs its code at least once?',
+  opts:['while … repeat (condition checked at the start)','repeat … until (condition checked at the end)','for … next (count-controlled)','None of them'],a:1,
+  why:'repeat … until checks its condition at the END, so the code inside always runs once before the test. A while loop checks at the start, so it might never run.'},
+ {type:'mcq',q:'What is the base case in a recursive function?',
+  opts:['The first call made to the function','The line where the function calls itself','The terminating condition that stops any further recursive calls','The largest value the parameter can take'],a:2,
+  why:'The base case is the terminating condition. When it is reached, the function returns a value without calling itself, and the calls on the stack start to return.'},
+ {type:'num',q:'Trace this recursive function.',
+  code:'Declare Factorial(n)\n    if n <= 1\n        return 1\n    else\n        return n * call Factorial(n - 1)\n    end if\nEnd Subroutine',
+  parts:[['What does Factorial(3) return?',6],['How many calls to Factorial are made in total?',3]],
+  why:'Factorial(3) calls Factorial(2), which calls Factorial(1): 3 calls. Factorial(1) is the base case and returns 1. Then 2 × 1 = 2, and 3 × 2 = 6.'},
+ {type:'mcq',q:'A recursive function has no base case. What happens when it is called?',
+  opts:['It returns 0','It runs once and stops','It keeps calling itself until the call stack runs out of memory: a stack overflow','The compiler adds a base case automatically'],a:2,
+  why:'Every call pushes a new frame onto the call stack, and none can return. Eventually the stack runs out of memory, a stack overflow, and the program crashes.'},
+ {type:'swap',q:'Trace this code. Fill in the values of a, b and temp after each line runs.',
+  code:'set a = 3\nset b = 7\nset temp = a\nset a = b\nset b = temp',
+  rows:[['set temp = a',3,7,3],['set a = b',7,7,3],['set b = temp',7,3,3]],
+  why:'temp saves the original value of a (3). Then a = b copies 7 into a, so for a moment both a and b hold 7. Finally b = temp puts the saved 3 into b. Without temp, the 3 would be lost.'}
+];
+const S={first:Q.map(()=>null),score:0};
+const $=id=>document.getElementById(id);
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='html')n.innerHTML=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function mark(i,ok){if(S.first[i]===null){S.first[i]=ok;if(ok)S.score++;$('score').textContent=S.score;}
+  if(S.first.every(x=>x!==null))$('end').hidden=false;}
+function fb(host,ok,why){host.innerHTML='';host.append(h('div',{class:'fb'},h('span',{class:'v '+(ok?'ok':'bad')},ok?'Correct. ':'Not quite. '),why));}
+function mcq(i,q){
+  const box=h('div');const opts=h('div',{class:'opts'});
+  q.opts.forEach((o,j)=>{
+    const inner=q.type==='sym'?[h('span',{html:SYM[o[0]]}),o[1]]:[o];
+    const b=h('button',{class:'opt'+(q.type==='sym'?' sym':''),'aria-label':q.type==='sym'?o[1]+': '+({para:'parallelogram',dia:'diamond',rect:'rectangle',term:'rounded rectangle'})[o[0]]:null,onclick:()=>{
+      const ok=j===q.a;mark(i,ok);
+      opts.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add('ok');});
+      if(!ok)b.classList.add('bad');fb(box,ok,q.why);}},...inner);
+    opts.appendChild(b);});
+  return [opts,box];
+}
+function num(i,q){
+  const box=h('div');const ins=[];
+  const grid=h('div',{class:'inputs'},...q.parts.map(([l])=>{const inp=h('input',{type:'number',inputmode:'numeric','aria-label':l});ins.push(inp);return h('label',{},l,inp);}));
+  const btn=h('button',{class:'btn primary',onclick:()=>{
+    if(ins.some(x=>x.value==='')){box.innerHTML='';box.append(h('div',{class:'fb'},'Answer both parts before you check.'));return;}
+    let ok=true;q.parts.forEach(([,a],k)=>{const good=Number(ins[k].value)===a;ins[k].style.borderColor=good?'var(--ok)':'var(--bad)';if(!good)ok=false;ins[k].disabled=true;});
+    btn.disabled=true;mark(i,ok);fb(box,ok,(ok?'':`The answers are ${q.parts.map(p=>p[1]).join(' and ')}. `)+q.why);}},'Check');
+  grid.appendChild(btn);
+  return [h('pre',{class:'code'},q.code),grid,box];
+}
+function swap(i,q){
+  const box=h('div');const cells=[];
+  const tb=h('tbody');
+  tb.append(h('tr',{},h('td',{},'(after set b = 7)'),h('td',{},'3'),h('td',{},'7'),h('td',{},'–')));
+  q.rows.forEach(r=>{const tr=h('tr',{},h('td',{},r[0]));[1,2,3].forEach(c=>{const inp=h('input',{type:'number',inputmode:'numeric','aria-label':`${['','a','b','temp'][c]} after ${r[0]}`});cells.push([inp,r[c]]);tr.append(h('td',{},inp));});tb.append(tr);});
+  const tbl=h('table',{class:'tt'},h('thead',{},h('tr',{},...['After line','a','b','temp'].map(t=>h('th',{},t)))),tb);
+  const btn=h('button',{class:'btn primary',onclick:()=>{
+    if(cells.some(([x])=>x.value==='')){box.innerHTML='';box.append(h('div',{class:'fb'},'Fill in every cell before you check.'));return;}
+    let ok=true;cells.forEach(([x,a])=>{const g=Number(x.value)===a;x.classList.add(g?'ok':'bad');if(!g){ok=false;x.value=a;}x.disabled=true;});
+    btn.disabled=true;mark(i,ok);fb(box,ok,(ok?'':'Wrong cells have been corrected in red. ')+q.why);}},'Check');
+  return [h('pre',{class:'code'},q.code),tbl,btn,box];
+}
+const host=$('qs');
+Q.forEach((q,i)=>{
+  const card=h('section',{class:'q','aria-labelledby':'q'+i},h('h2',{id:'q'+i},h('span',{class:'num'},String(i+1)),h('span',{},q.q)));
+  const parts=q.type==='num'?num(i,q):q.type==='swap'?swap(i,q):mcq(i,q);
+  parts.forEach(n=>card.appendChild(n));host.appendChild(card);
+});
+let left=480,tid=null;
+function show(){const m=Math.floor(left/60),s=left%60;$('clock').textContent=`${m}:${String(s).padStart(2,'0')}`;$('clock').classList.toggle('low',left<=30);}
+$('tgo').onclick=()=>{
+  if(tid){clearInterval(tid);tid=null;$('tgo').textContent='Resume';return;}
+  if(left<=0)left=480;
+  tid=setInterval(()=>{left--;show();if(left<=0){clearInterval(tid);tid=null;$('tgo').textContent='Start timer';$('clock').textContent="Time's up";}},1000);
+  $('tgo').textContent='Pause';};
+$('treset').onclick=()=>{clearInterval(tid);tid=null;left=480;show();$('tgo').textContent='Start timer';};
+show();
+</script>
+</body>
+</html>

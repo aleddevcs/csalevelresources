@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card Table</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --felt:#1E5A46; --feltLine:#2D7A60;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --felt:#143D30; --feltLine:#21604B;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --felt:#143D30; --feltLine:#21604B;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1240px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1240px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+nav .tick{color:#FFD966;margin-left:6px}
+nav button[aria-selected="true"] .tick{color:var(--amberText)}
+
+main{max-width:1240px;margin:0 auto;padding:18px 24px 40px}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;background:var(--soft);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+@media (max-width:760px){.rule{grid-template-columns:1fr}}
+.rule h2{font-size:22px;color:var(--navy);margin-bottom:4px}
+.rule p{margin:0}
+.stats{display:flex;gap:18px}
+.stat{text-align:center;min-width:86px}
+.stat b{display:block;font-family:Cambria,Georgia,serif;font-size:34px;line-height:1.05;color:var(--navy)}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.bad b{color:var(--bad)}
+
+.table{background:var(--felt);border-radius:16px;padding:22px 18px 14px;border:3px solid var(--feltLine)}
+.cards{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.slot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pos{font-size:13px;color:#CFE6DC;font-weight:700}
+.card{width:92px;height:128px;perspective:600px;border:0;background:none;padding:0;border-radius:12px}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.card.up .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
+.back{background:#003366;border:3px solid #fff;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.09) 0 6px,transparent 6px 12px)}
+.back::after{content:"?";color:#FFD966;font-family:Cambria,Georgia,serif;font-size:34px;font-weight:700}
+.front{background:#fff;border:3px solid #fff;transform:rotateY(180deg);color:#003366;font-family:Cambria,Georgia,serif;font-size:42px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.card.key .back,.card.key .front{border-color:#CC9900;box-shadow:0 0 0 3px #CC9900}
+.card.placed .front{border-color:#3FBF7F;background:#E3F3EA}
+.card.placed .back{border-color:#3FBF7F}
+.card.bad .front{border-color:#F29A9A;background:#F9E6E6}
+.card.moving .inner{animation:nudge .35s ease-out}
+@media (prefers-reduced-motion: reduce){.card .inner{transition:none}.card.moving .inner{animation:none}}
+@keyframes nudge{0%{transform:translateY(-14px) rotateY(180deg)}100%{transform:rotateY(180deg)}}
+.tag{font-size:12px;font-weight:700;border-radius:10px;padding:1px 8px;min-height:20px}
+.tag.key{background:#CC9900;color:#1F2A36}
+.tag.placed{background:#3FBF7F;color:#0D1824}
+.tag.sorted{background:#CFE6DC;color:#143D30}
+.region{height:6px;border-radius:3px;margin-top:2px;width:92px}
+.region.on{background:#CFE6DC}
+
+.decide{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;min-height:48px;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 20px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn.light{background:#fff;color:#003366;border:2px solid #fff}
+.btn.lightghost{background:transparent;color:#fff;border:2px solid #CFE6DC}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hintline{color:#CFE6DC;font-size:15px;text-align:center}
+
+.msg{margin-top:14px;border-radius:10px;padding:12px 16px;border:1px solid var(--line);background:var(--bg);min-height:52px}
+.msg.ok{border-color:var(--ok);background:var(--okBg)}
+.msg.bad{border-color:var(--bad);background:var(--badBg)}
+.msg b{color:var(--navy)}
+.below{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:16px}
+@media (max-width:900px){.below{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px 16px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.log{margin:0;padding-left:22px;max-height:220px;overflow-y:auto;font-size:15px;color:var(--muted)}
+.log li{margin:2px 0}
+.log li:first-child{color:var(--ink);font-weight:700}
+table.sb{border-collapse:collapse;width:100%;font-size:15px}
+table.sb th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.sb td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc p{margin:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Card Table</h1><div class="spec">Unit 3 · 3.4.2 · Method first: sort the cards, then name the rule</div></div>
+    <div class="spec" id="dealinfo"></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+const N=7;
+const MODES=[
+ {k:'free',t:'Round 1: Free sort',name:'Free sort',
+  rule:'Sort the cards into ascending order (smallest on the left) any way you like. You can only look at two cards at a time, just like a computer can only compare two values at once. Every time you turn over a pair, that is one comparison.'},
+ {k:'bubble',t:'Round 2: Bubble rule',name:'Bubble sort',
+  rule:'Compare neighbours only, working from left to right: turn over cards 1 and 2, then 2 and 3, and so on. If the left card is bigger, swap them. At the end of each pass, start again from the left. The tool checks every move follows the rule.'},
+ {k:'insert',t:'Round 3: Insertion rule',name:'Insertion sort',
+  rule:'Take the next card (outlined in amber) and slide it left into place. Compare it with the card on its left: if that card is bigger, swap them and compare again; if not, it is inserted. Then move on to the next card. The tool checks every move follows the rule.'},
+];
+function rnd(){const s=new Set();while(s.size<N)s.add(1+Math.floor(Math.random()*99));return [...s];}
+const S={tab:0,deal:rnd(),dealNo:1,results:[],r:null};
+function fresh(){
+  S.r={cards:S.deal.slice(),up:[],cmp:0,swaps:0,breaks:0,done:false,sortedOK:null,log:[],msg:null,msgCls:'',
+       i:0,j:0,swapped:false,placed:new Set(),offerStop:false, key:1,pos:1, moving:[]};
+}
+fresh();
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const mode=()=>MODES[S.tab].k;
+const say=(t,cls='')=>{S.r.msg=t;S.r.msgCls=cls;};
+const log=t=>S.r.log.unshift(t);
+
+function expectedPair(){
+  const r=S.r;
+  if(mode()==='bubble')return [r.j,r.j+1];
+  if(mode()==='insert')return [r.pos-1,r.pos];
+  return null;
+}
+function clickCard(ix){
+  const r=S.r;if(r.done||r.offerStop)return;
+  if(r.up.includes(ix))return;
+  if(r.up.length===2){r.up=[];}
+  const exp=expectedPair();
+  if(exp){
+    if(!exp.includes(ix)){
+      r.breaks++;
+      say(mode()==='bubble'?`Rule broken: bubble sort compares neighbours from left to right. The next pair is cards ${exp[0]+1} and ${exp[1]+1}.`
+        :`Rule broken: insertion sort compares the card being inserted with the card on its left. The next pair is cards ${exp[0]+1} and ${exp[1]+1}.`,'bad');
+      render();return;
+    }
+  }
+  r.up.push(ix);
+  if(r.up.length===2){
+    r.cmp++;
+    const [a,b]=r.up.slice().sort((x,y)=>x-y);r.up=[a,b];
+    log(`Comparison ${r.cmp}: card ${a+1} (${r.cards[a]}) and card ${b+1} (${r.cards[b]}).`);
+    say(mode()==='free'?'Decide: swap these two cards, or turn them back over?':
+        mode()==='bubble'?`Compare: is the left card bigger than the right card? If so, swap them.`:
+        `Compare: is the card on the left bigger than the card being inserted? If so, swap them.`);
+  } else say(`Now turn over a second card${exp?' (card '+((exp[0]===ix?exp[1]:exp[0])+1)+')':''}.`);
+  render();
+}
+function swapUp(){const r=S.r;const [a,b]=r.up;[r.cards[a],r.cards[b]]=[r.cards[b],r.cards[a]];r.swaps++;r.moving=[a,b];}
+function decide(doSwap){
+  const r=S.r;const [a,b]=r.up;const L=r.cards[a],R=r.cards[b];
+  if(mode()==='free'){
+    if(doSwap){swapUp();log(`Swapped cards ${a+1} and ${b+1}.`);}
+    r.up=doSwap?r.up:[];say(doSwap?'Swapped. Turn over another pair, or press "I think it\'s sorted".':'Turned back over. Choose another pair.');
+    if(doSwap)setTimeout(()=>{if(S.r===r){r.up=[];render();}},900);
+    render();return;
+  }
+  const should=L>R;
+  if(doSwap!==should){
+    r.breaks++;
+    say(should?`Rule broken: ${L} is bigger than ${R}, so these cards are in the wrong order and must be swapped.`
+              :`Rule broken: ${L} is not bigger than ${R}, so they are already in the right order. ${mode()==='bubble'?'Do not swap.':'The card is inserted here.'}`,'bad');
+    render();return;
+  }
+  if(doSwap){swapUp();log(`${L} > ${R}: swapped.`);}else log(`${L} < ${R}: ${mode()==='bubble'?'no swap':'inserted'}.`);
+  if(mode()==='bubble')afterBubble(doSwap);else afterInsert(doSwap);
+  setTimeout(()=>{if(S.r===r){r.up=[];r.moving=[];render();}},900);
+  render();
+}
+function afterBubble(swapped){
+  const r=S.r;if(swapped)r.swapped=true;
+  r.j++;
+  if(r.j>=N-1-r.i){
+    const fin=N-1-r.i;r.placed.add(fin);
+    const passNo=r.i+1;
+    r.i++;r.j=0;
+    if(r.i>=N-1){r.placed.add(0);finish(`Pass ${passNo} complete. After ${N-1} passes every card is in its final place.`);return;}
+    if(!r.swapped){r.offerStop=true;say(`Pass ${passNo} complete with NO swaps. If nothing moved, every card must already be in order. Bubble sort can stop here, or you can carry on with the remaining passes.`,'ok');r.swapped=false;return;}
+    r.swapped=false;
+    say(`End of pass ${passNo}. The largest remaining card has "bubbled" to position ${fin+1} and is now in its final place. Start pass ${passNo+1} from the left: cards 1 and 2.`,'ok');
+  } else say(`Next pair: cards ${r.j+1} and ${r.j+2}.`);
+}
+function afterInsert(swapped){
+  const r=S.r;
+  if(swapped){
+    r.pos--;
+    if(r.pos===0){say(`The card reached the start of the list, so it is inserted at position 1.`,'ok');nextKey();}
+    else say(`Swapped. Keep going: compare the card being inserted (now card ${r.pos+1}) with card ${r.pos}.`);
+  } else {say(`Inserted at position ${r.pos+1}. The sorted portion now has ${r.key+1} cards.`,'ok');nextKey();}
+}
+function nextKey(){
+  const r=S.r;r.key++;r.pos=r.key;
+  if(r.key>=N){finish('Every card has been inserted into the sorted portion.');return;}
+  r.msg+=` Next card to insert: card ${r.key+1}.`;
+}
+function finish(why){
+  const r=S.r;r.done=true;r.offerStop=false;r.up=[];
+  const ok=r.cards.every((v,i)=>i===0||r.cards[i-1]<v);r.sortedOK=ok;
+  for(let i=0;i<N;i++)r.placed.add(i);
+  say(`${why} ${ok?'The cards are in ascending order.':'The cards are NOT fully sorted: look at the red cards.'} Total: ${r.cmp} comparisons and ${r.swaps} swaps.`,ok?'ok':'bad');
+  S.results.push({deal:S.dealNo,mode:MODES[S.tab].name,cmp:r.cmp,swaps:r.swaps,breaks:mode()==='free'?'n/a':r.breaks,ok});
+  render();
+}
+function hint(){
+  const r=S.r;const exp=expectedPair();if(!exp||r.done)return;
+  say(`Hint: the next pair to compare is cards ${exp[0]+1} and ${exp[1]+1}.`);render();
+}
+
+function renderTabs(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  MODES.forEach((m,i)=>{const done=S.results.some(x=>x.deal===S.dealNo&&x.mode===m.name&&x.ok);
+    nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;fresh();render();}},h('span',{class:'n'},String(i+1)),m.t.replace(/^Round \d: /,''),done?h('span',{class:'tick'},'✓'):null));});
+  document.getElementById('dealinfo').textContent=`Deal ${S.dealNo} · ${N} cards · the same deal is used for every round`;
+}
+function render(){
+  renderTabs();
+  const r=S.r,m=MODES[S.tab],main=document.getElementById('main');main.innerHTML='';
+  main.appendChild(h('div',{class:'rule'},
+    h('div',{},h('h2',{},m.t),h('p',{},m.rule)),
+    h('div',{class:'stats'},
+      h('div',{class:'stat'},h('b',{},String(r.cmp)),h('span',{},'comparisons')),
+      h('div',{class:'stat'},h('b',{},String(r.swaps)),h('span',{},'swaps')),
+      m.k!=='free'?h('div',{class:'stat'+(r.breaks?' bad':'')},h('b',{},String(r.breaks)),h('span',{},'rule breaks')):null)));
+  // cards
+  const row=h('div',{class:'cards'});
+  r.cards.forEach((v,ix)=>{
+    const up=r.done||r.up.includes(ix)||(m.k==='bubble'&&r.placed.has(ix));
+    const isKey=m.k==='insert'&&!r.done&&ix===r.pos;
+    const bad=r.done&&!r.sortedOK&&((ix>0&&r.cards[ix-1]>v)||(ix<N-1&&v>r.cards[ix+1]));
+    const cls=['card',up?'up':'',isKey?'key':'',(m.k==='bubble'&&r.placed.has(ix))||(r.done&&r.sortedOK)?'placed':'',bad?'bad':'',r.moving.includes(ix)?'moving':''].join(' ');
+    const btn=h('button',{class:cls,'aria-label':`Card ${ix+1}, ${up?'showing '+v:'face down'}`,onclick:()=>clickCard(ix),disabled:(r.done||(m.k==='bubble'&&r.placed.has(ix)&&!r.done))||null},
+      h('div',{class:'inner'},h('div',{class:'face back'}),h('div',{class:'face front'},String(v))));
+    let tag=null;
+    if(isKey)tag=h('span',{class:'tag key'},'inserting');
+    else if(m.k==='bubble'&&r.placed.has(ix)&&!r.done)tag=h('span',{class:'tag placed'},'final place');
+    row.appendChild(h('div',{class:'slot'},h('span',{class:'pos'},'Card '+(ix+1)),btn,h('div',{class:'region'+((m.k==='insert'&&!r.done&&ix<=r.key)?' on':'')}),tag||h('span',{class:'tag'},'')));
+  });
+  const both=r.up.length===2&&!r.done;
+  const dec=h('div',{class:'decide'});
+  if(r.offerStop){
+    dec.append(h('button',{class:'btn light',onclick:()=>{finish('You stopped early because a pass made no swaps.');}},'Stop now: it is sorted'),
+      h('button',{class:'btn lightghost',onclick:()=>{r.offerStop=false;say(`Carrying on. Pass ${r.i+1}: start with cards 1 and 2.`);render();}},'Carry on with the next pass'));
+  } else if(both){
+    if(m.k==='free')dec.append(h('button',{class:'btn light',onclick:()=>decide(true)},'Swap these two'),h('button',{class:'btn lightghost',onclick:()=>decide(false)},'Turn back over'));
+    else if(m.k==='bubble')dec.append(h('button',{class:'btn light',onclick:()=>decide(true)},'Swap'),h('button',{class:'btn lightghost',onclick:()=>decide(false)},"Don't swap"));
+    else dec.append(h('button',{class:'btn light',onclick:()=>decide(true)},'Swap (shift left)'),h('button',{class:'btn lightghost',onclick:()=>decide(false)},'Insert here'));
+  } else if(!r.done){
+    dec.append(h('span',{class:'hintline'},m.k==='free'?'Click two cards to compare them.':
+      m.k==='bubble'?`Pass ${r.i+1}: click the next pair of neighbours.`:`Inserting card ${r.pos+1}: click it and the card on its left.`));
+  }
+  const legend=m.k==='insert'&&!r.done?h('div',{class:'hintline',style:'margin-top:6px'},'The pale bar under the cards marks the sorted portion plus the card being inserted.'):null;
+  main.appendChild(h('div',{class:'table'},row,dec,legend));
+  main.appendChild(h('div',{class:'msg '+(r.msgCls||''),'aria-live':'polite'},r.msg||'Click a card to turn it over.'));
+  main.appendChild(h('div',{class:'toolbar'},
+    m.k==='free'&&!r.done?h('button',{class:'btn accent',onclick:()=>finish('You said the cards are sorted.')},"I think it's sorted"):null,
+    m.k!=='free'&&!r.done?h('button',{class:'btn ghost',onclick:hint},'Hint'):null,
+    h('button',{class:'btn ghost',onclick:()=>{fresh();render();}},'Restart this round'),
+    r.done&&S.tab<2?h('button',{class:'btn primary',onclick:()=>{S.tab++;fresh();render();}},`Next: ${MODES[S.tab+1].t} →`):null,
+    h('button',{class:'btn ghost',onclick:()=>{S.deal=rnd();S.dealNo++;S.tab=0;fresh();render();}},'New deal')));
+  // below
+  const lg=h('ol',{class:'log',reversed:true},r.log.map(t=>h('li',{},t)));
+  const rows=S.results.filter(x=>x.deal===S.dealNo);
+  const sb=rows.length?h('table',{class:'sb'},h('thead',{},h('tr',{},...['Round','Comparisons','Swaps','Rule breaks','Sorted?'].map(t=>h('th',{},t)))),
+    h('tbody',{},...rows.map(x=>h('tr',{},h('td',{},x.mode),h('td',{},String(x.cmp)),h('td',{},String(x.swaps)),h('td',{},String(x.breaks)),h('td',{},x.ok?'✓':'✗'))))):h('p',{style:'margin:0;color:var(--muted)'},'Your results for this deal will appear here.');
+  const names=new Set(rows.filter(x=>x.ok).map(x=>x.mode));
+  const disc=names.size===3?h('div',{class:'disc'},h('h3',{},'Discuss with your partner'),
+    h('p',{},'Which method used the fewest comparisons on this deal? Describe what you did in rounds 2 and 3 in your own words. Without stopping early, bubble sort on 7 cards always makes 6 + 5 + 4 + 3 + 2 + 1 = 21 comparisons. Why? Did insertion sort need fewer?')):null;
+  main.appendChild(h('div',{class:'below'},
+    h('div',{class:'panel'},h('h3',{},'Move log'),r.log.length?lg:h('p',{style:'margin:0;color:var(--muted)'},'Each comparison is recorded here.')),
+    h('div',{class:'panel'},h('h3',{},`Scoreboard: deal ${S.dealNo}`),sb,disc)));
+}
+fresh();render();
+</script>
+</body>
+</html>

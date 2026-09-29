@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sorting Visualiser</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --bar:#B9CCE0; --barDone:#003366; --barDoneInk:#FFFFFF;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --bar:#3A5878; --barDone:#9CC2E8; --barDoneInk:#0D1824;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --bar:#3A5878; --barDone:#9CC2E8; --barDoneInk:#0D1824;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+.mono{font-family:"Courier New",Courier,monospace}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.top h2{font-size:24px;color:var(--navy)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--bg);color:var(--navy);padding:8px 16px;font-weight:700}
+.seg button[aria-pressed="true"]{background:#003366;color:#fff}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted)}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.stats{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+.stat{font-size:13px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:26px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+
+/* bars */
+.stage{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:16px 10px 8px;overflow-x:auto}
+.bars{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:300px;min-width:420px;position:relative}
+.col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:52px;flex:none;position:relative}
+.bar{width:100%;background:var(--bar);border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;color:var(--ink);font-weight:700;font-family:Cambria,Georgia,serif;font-size:18px;padding-top:4px;transition:height .3s}
+.bar.cmp{background:#F3DFA0;color:#1F2A36;outline:3px solid #CC9900}
+.bar.swap{background:#CC9900;color:#1F2A36}
+.bar.done{background:var(--barDone);color:var(--barDoneInk)}
+.bar.key{background:#CC9900;color:#1F2A36}
+.bar.shift{background:#F3DFA0;color:#1F2A36}
+.bar.sortedpart{background:#8FB7DD;color:#0D1824}
+.bar.pick{outline:3px dashed var(--navy);cursor:pointer}
+.gap{width:100%;height:60%;border:3px dashed #CC9900;border-bottom:0;border-radius:6px 6px 0 0}
+.gap.pickable{cursor:pointer;background:rgba(204,153,0,.08)}
+.gap.pickable:hover{background:rgba(204,153,0,.25)}
+.lifted{position:absolute;top:0;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.lifted .bar{border-radius:6px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.lifted small{font-size:12px;font-weight:700;color:var(--amberText)}
+.idx{font-size:13px;color:var(--muted);margin-top:4px}
+.idx.hl{color:var(--amberText);font-weight:700}
+.slotbtn{position:absolute;bottom:0;height:100%;width:14px;border:0;background:transparent;cursor:pointer;padding:0}
+.slotbtn span{display:block;margin:0 auto;width:4px;height:100%;border-radius:2px;background:transparent}
+.slotbtn:hover span,.slotbtn:focus-visible span{background:#CC9900}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin-top:8px;justify-content:center}
+.sw{display:inline-block;width:14px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+
+.now{background:var(--bg);border:2px solid var(--amber);border-radius:10px;padding:10px 12px;margin-top:12px;min-height:70px}
+.now .ev{font-size:13px;font-weight:700;color:var(--amberText)}
+.now p{margin:2px 0 0}
+.code{list-style:none;margin:0;padding:8px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln;overflow-x:auto}
+.code li{counter-increment:ln;padding:2px 12px 2px 8px;font-family:"Courier New",monospace;font-size:14px;white-space:pre;display:flex}
+.code li::before{content:counter(ln);width:24px;flex:none;color:var(--muted);font-size:12px;padding-top:1px}
+.code li.cur{background:var(--soft);font-weight:700;outline:2px solid var(--amber);outline-offset:-2px;border-radius:4px}
+.vars{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.var{border:2px solid var(--line);border-radius:8px;padding:3px 10px;font-family:"Courier New",monospace;font-weight:700;background:var(--bg)}
+
+.fb{margin-top:12px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.decide{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+
+/* trace */
+.tt{border-collapse:collapse;width:100%;font-size:15px}
+.ttwrap{overflow-x:auto}
+.tt th{background:#003366;color:#fff;padding:6px 8px;text-align:left;white-space:nowrap}
+.tt td{border-bottom:1px solid var(--line);padding:5px 8px;font-family:"Courier New",monospace;background:var(--bg);white-space:nowrap}
+.tt tr.cur td{background:var(--soft)}
+.tt td.ok{background:var(--okBg);color:var(--ok);font-weight:700}
+.tt td.bad{background:var(--badBg);color:var(--bad);font-weight:700}
+.tt input,.tt select{width:74px;border:2px solid #CC9900;border-radius:6px;padding:3px 6px;background:var(--bg);color:var(--ink);font-family:"Courier New",monospace}
+.tt input.wide{width:120px}
+.mcq{background:var(--bg);border:2px solid var(--amber);border-radius:10px;padding:12px 14px;margin-top:12px}
+.mcq h3{font-size:17px;color:var(--navy);margin-bottom:8px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:8px 12px}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.score{font-family:Cambria,Georgia,serif;font-size:22px;font-weight:700;color:var(--navy)}
+.small{font-size:14px;color:var(--muted)}
+
+/* parsons */
+.pgrid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:20px;align-items:start}
+@media (max-width:900px){.pgrid{grid-template-columns:1fr}}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:6px 10px;font-family:"Courier New",monospace;font-size:14px}
+.chip:hover:not(:disabled){border-color:var(--navy)}
+.chip:disabled{opacity:.35;cursor:default}
+.answer{list-style:none;margin:0;padding:0;counter-reset:ln;min-height:60px;background:var(--code);border:1px solid var(--line);border-radius:8px}
+.answer li{display:flex;align-items:center;gap:8px;padding:3px 8px;border-bottom:1px solid var(--line);counter-increment:ln}
+.answer li:last-child{border-bottom:0}
+.answer li::before{content:counter(ln);width:22px;color:var(--muted);font-size:13px;text-align:right;flex:none}
+.answer li.fixed{background:var(--panel)}
+.answer .txt{flex:1;font-family:"Courier New",monospace;font-size:14px;white-space:pre;overflow-x:auto}
+.answer li.ok{background:var(--okBg)}
+.answer li.bad{background:var(--badBg)}
+.ctl{display:flex;gap:3px;flex:none}
+.ctl button{width:28px;height:28px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font-size:13px;padding:0}
+.fb ul{margin:4px 0 0;padding-left:20px}
+.out{background:#0F1E2E;color:#E4ECF4;border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;margin-top:10px;white-space:pre-wrap}
+.bar.dup{background:repeating-linear-gradient(45deg,#F3DFA0 0 8px,#E8C052 8px 16px);color:#1F2A36}
+.bar.justcopied{outline:3px solid #CC9900}
+.bar.src{outline:3px dashed #CC9900}
+.blabel{font-size:11px;font-weight:700;color:var(--amberText);margin-bottom:2px;white-space:nowrap}
+.ptr{font-size:11px;font-weight:700;color:var(--navy);white-space:nowrap}
+.col{padding-bottom:0}
+.bars{height:320px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Sorting Visualiser</h1><div class="spec">Unit 3 · 3.4.2 · Bubble sort and insertion sort</div></div>
+    <div class="spec">Keys: <b>→</b> step · <b>←</b> back (Watch mode)</div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function seeded(arr,seed){const a=arr.slice();let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const MAXV=40;
+function randArr(n,kind='random'){
+  const s=new Set();while(s.size<n)s.add(3+Math.floor(Math.random()*(MAXV-3)));
+  let a=[...s];
+  if(kind==='nearly'){a.sort((x,y)=>x-y);const i=1+Math.floor(Math.random()*(n-2));[a[i],a[i+1]]=[a[i+1],a[i]];}
+  if(kind==='reversed')a.sort((x,y)=>y-x);
+  return a;
+}
+const BUBBLE_CODE=['Declare BubbleSort(myArray)','    i, j, temp is integer','    set i = 0','    while i < len(myArray) - 1','        set j = 0','        while j < len(myArray) - 1 - i','            if myArray[j] > myArray[j + 1]','                set temp = myArray[j]','                set myArray[j] = myArray[j + 1]','                set myArray[j + 1] = temp','            end if','            set j = j + 1','        end while','        set i = i + 1','    end while','End Subroutine'];
+const INS_CODE=['Declare InsertionSort(items)','    set numItems = len(items)','    for index = 1 to numItems - 1','        set itemToInsert = items[index]','        set position = index - 1','        while position >= 0 AND','                items[position] > itemToInsert','            set items[position + 1] = items[position]','            set position = position - 1','        end while','        set items[position + 1] = itemToInsert','    next index','End Subroutine'];
+
+/* ============ step generators ============ */
+function bubbleSteps(a0){
+  const a=a0.slice(),n=a.length,st=[];let comps=0,swaps=0;const done=new Set();
+  const push=(o)=>st.push(Object.assign({arr:a.slice(),done:new Set(done),comps,swaps},o));
+  push({line:2,text:`Start: ${n} items to sort. Bubble sort makes passes through the data, comparing each value with the following one.`,ev:'Start',vars:{}});
+  for(let i=0;i<n-1;i++){
+    let swapped=false;
+    for(let j=0;j<n-1-i;j++){
+      comps++;
+      const L=a[j],R=a[j+1];
+      push({line:6,cmp:[j,j+1],vars:{i,j},ev:`Pass ${i+1} · Compare`,text:`Compare myArray[${j}] (${L}) with myArray[${j+1}] (${R}). Is ${L} > ${R}? ${L>R?'Yes, so they must be swapped.':'No, so they stay where they are.'}`});
+      if(L>R){
+        a[j]=R;a[j+1]=L;swaps++;swapped=true;
+        push({line:9,swap:[j,j+1],vars:{i,j,temp:L},ev:`Pass ${i+1} · Swap`,text:`Swap using temp: temp = ${L}, then myArray[${j}] = ${R}, then myArray[${j+1}] = temp (${L}).`});
+      }
+    }
+    done.add(n-1-i);
+    push({line:13,vars:{i},ev:`End of pass ${i+1}`,text:`End of pass ${i+1}${swapped?'':' (no swaps were made in this pass)'}. The largest remaining value, ${a[n-1-i]}, has bubbled to position ${n-1-i}, its final place.${!swapped?' Because no swaps happened, the list is already in order; an improved bubble sort could stop here.':''}`});
+  }
+  done.add(0);
+  push({line:15,ev:'Finished',vars:{},text:`Sorted. ${comps} comparisons and ${swaps} swaps. Without stopping early, bubble sort on ${n} items always makes ${n*(n-1)/2} comparisons.`,finished:true});
+  return st;
+}
+function insertionSteps(a0){
+  const a=a0.slice(),n=a.length,st=[];let comps=0,shifts=0;
+  const push=(o)=>st.push(Object.assign({comps,swaps:shifts,arr:a.slice()},o));
+  push({line:1,ev:'Start',sorted:1,text:`Start: the first item on its own is already a sorted portion. Insertion sort takes one item at a time from the unsorted portion.`,vars:{}});
+  for(let idx=1;idx<n;idx++){
+    const key=a[idx];let pos=idx-1;
+    push({key,gap:idx,src:idx,line:3,sorted:idx,ev:`Insert items[${idx}]`,vars:{index:idx,itemToInsert:key,position:pos},
+      text:`itemToInsert = items[${idx}]: ${key} is COPIED into the variable itemToInsert. It stays in items[${idx}] for now, but it is safe in itemToInsert even if that slot is overwritten. position starts at ${pos}.`});
+    let dup=null;
+    while(true){
+      if(pos<0){push({key,gap:0,dup,line:5,sorted:idx,ev:'Compare',ptr:pos,vars:{index:idx,itemToInsert:key,position:pos},
+        text:`position is -1: we have reached the start of the list, so the while loop ends.`});break;}
+      comps++;
+      const P=a[pos];
+      push({key,gap:pos+1,dup,cmp:[pos],ptr:pos,line:5,sorted:idx,ev:'Compare',vars:{index:idx,itemToInsert:key,position:pos},
+        text:`Is items[${pos}] (${P}) > itemToInsert (${key})? ${P>key?'Yes, so the loop body runs.':'No, so the while loop ends.'}`});
+      if(!(P>key))break;
+      const overwritten=a[pos+1];
+      a[pos+1]=P;shifts++;dup=[pos,pos+1];
+      push({key,gap:pos+1,dup,copyTo:pos+1,ptr:pos,line:7,sorted:idx,ev:'Copy up',vars:{index:idx,itemToInsert:key,position:pos},
+        text:`items[${pos+1}] = items[${pos}]: ${P} is COPIED up one place, overwriting ${overwritten}. ${P} now appears TWICE, in items[${pos}] and items[${pos+1}].${pos+1===idx?` The original ${key} has gone from the array, but it is safe in itemToInsert.`:''}`});
+      pos--;
+      push({key,gap:pos+1,dup,ptr:pos,line:8,sorted:idx,ev:'Copy up',vars:{index:idx,itemToInsert:key,position:pos},
+        text:`position = position - 1, so position is now ${pos}. The duplicate in items[${pos+1}] is still there: it will be overwritten either by the next copy or when the item is inserted.`});
+    }
+    const old=a[pos+1];
+    a[pos+1]=key;
+    push({inserted:pos+1,line:10,sorted:idx+1,ev:'Insert',vars:{index:idx,itemToInsert:key,position:pos},
+      text:dup?`The loop has ended. items[${pos+1}] = itemToInsert: ${key} overwrites the duplicate ${old} in items[${pos+1}]. Now every value appears once and the sorted portion has ${idx+1} items.`
+               :`The loop ended straight away, so nothing was copied. items[${pos+1}] = itemToInsert writes ${key} back where it already was. The sorted portion has ${idx+1} items.`});
+  }
+  push({sorted:n,line:12,ev:'Finished',vars:{},finished:true,text:`Sorted. ${comps} comparisons and ${shifts} copies up.`});
+  return st;
+}
+
+/* ============ bars ============ */
+function barsView(step,alg,opts={}){
+  const arr=step.arr,n=arr.length;
+  const wrap=h('div',{class:'bars'});
+  arr.forEach((v,i)=>{
+    const col=h('div',{class:'col'});
+    if(v===null){
+      const gap=h('div',{class:'gap'+(opts.pickGap?' pickable':''),role:opts.pickGap?'button':null,tabindex:opts.pickGap?'0':null,'aria-label':opts.pickGap?`Put it at position ${i}`:null});
+      col.appendChild(gap);
+    } else {
+      let cls='bar';
+      if(alg==='bubble'){
+        if(step.done&&step.done.has(i))cls+=' done';
+        if(step.cmp&&step.cmp.includes(i))cls+=' cmp';
+        if(step.swap&&step.swap.includes(i))cls+=' swap';
+      } else {
+        if(step.finished)cls+=' done';
+        else if(i<(step.sorted||0))cls+=' sortedpart';
+        if(step.cmp&&step.cmp.includes(i))cls+=' cmp';
+        if(step.dup&&step.dup.includes(i))cls+=' dup';
+        if(step.copyTo===i)cls+=' justcopied';
+        if(step.inserted===i)cls+=' key';
+        if(step.src===i)cls+=' src';
+      }
+      if(opts.pickBar)cls+=' pick';
+      const b=h('div',{class:cls,style:`height:${Math.max(14,v/MAXV*82)}%`},String(v));
+      if(opts.pickBar){b.setAttribute('role','button');b.setAttribute('tabindex','0');b.setAttribute('aria-label',`Bar ${v} at position ${i}`);
+        b.addEventListener('click',()=>opts.pickBar(i));b.addEventListener('keydown',e=>{if(e.key==='Enter')opts.pickBar(i);});}
+      if(alg==='insertion'&&step.dup&&step.dup.includes(i)&&!opts.pickGap)col.insertBefore(h('div',{class:'blabel'},'duplicate'),col.firstChild);
+      col.appendChild(b);
+    }
+    col.appendChild(h('div',{class:'idx'+((step.cmp&&step.cmp.includes(i))?' hl':'')},String(i)));
+    if(alg==='insertion'&&step.ptr!==undefined&&step.ptr===i)col.appendChild(h('div',{class:'ptr'},'▲ position'));
+    if(alg==='insertion'&&step.ptr===-1&&i===0)col.appendChild(h('div',{class:'ptr'},'◀ position = -1'));
+    wrap.appendChild(col);
+  });
+  if(step.key!=null&&step.gap!=null){
+    const lift=h('div',{class:'lifted',style:`left:calc(50% - ${(n*60-8)/2}px + ${step.gap*60}px)`},h('small',{},'itemToInsert (variable)'),h('div',{class:'bar key',style:`height:${Math.max(28,step.key/MAXV*70)}px`},String(step.key)));
+    wrap.appendChild(lift);
+  }
+  return h('div',{class:'stage'},wrap);
+}
+function legend(alg){
+  const it=(c,t,b)=>h('span',{},h('span',{class:'sw',style:`background:${c};${b?'outline:2px solid #CC9900':''}`}),t);
+  return alg==='bubble'?h('div',{class:'legend'},it('#F3DFA0','being compared',1),it('#CC9900','swapped'),it('var(--barDone)','in final place'),it('var(--bar)','not yet sorted'))
+    :h('div',{class:'legend'},it('#8FB7DD','sorted portion'),it('#F3DFA0','being compared',1),h('span',{},h('span',{class:'sw',style:'background:repeating-linear-gradient(45deg,#F3DFA0 0 4px,#E8C052 4px 8px)'}),'duplicate (copied up)'),it('#CC9900','item inserted'),it('var(--bar)','unsorted portion'));
+}
+
+/* ============ state ============ */
+const S={tab:0,alg:'bubble',
+  watch:{kind:'random',arr:randArr(8),i:0,play:null,speed:900},
+  you:{arr:randArr(6),i:0,score:0,total:0,msg:null,cls:'',awaitFinal:false,firstTry:true,finished:false},
+  trace:{alg:'bubble'},build:null};
+let WSTEPS={bubble:bubbleSteps(S.watch.arr),insertion:insertionSteps(S.watch.arr)};
+function regenWatch(){WSTEPS={bubble:bubbleSteps(S.watch.arr),insertion:insertionSteps(S.watch.arr)};S.watch.i=0;}
+const algSeg=(get,set)=>h('div',{class:'seg',role:'group','aria-label':'Algorithm'},
+  h('button',{'aria-pressed':String(get()==='bubble'),onclick:()=>set('bubble')},'Bubble sort'),
+  h('button',{'aria-pressed':String(get()==='insertion'),onclick:()=>set('insertion')},'Insertion sort'));
+
+/* ============ WATCH ============ */
+function stopPlay(){if(S.watch.play){clearInterval(S.watch.play);S.watch.play=null;}}
+function wStep(d){const st=WSTEPS[S.alg];S.watch.i=Math.max(0,Math.min(st.length-1,S.watch.i+d));if(S.watch.i>=st.length-1)stopPlay();render();}
+function watchView(){
+  const W=S.watch,st=WSTEPS[S.alg],s=st[W.i],alg=S.alg;
+  const sel=h('select',{'aria-label':'Speed',onchange:e=>{W.speed=Number(e.target.value);if(W.play){stopPlay();W.play=setInterval(()=>wStep(1),W.speed);}}},
+    ...[['1500','Slow'],['900','Normal'],['350','Fast']].map(([v,t])=>{const o=h('option',{value:v},t);if(Number(v)===W.speed)o.selected=true;return o;}));
+  const kind=h('select',{'aria-label':'Starting data',onchange:e=>{W.kind=e.target.value;stopPlay();W.arr=randArr(8,W.kind);regenWatch();render();}},
+    ...[['random','Random'],['nearly','Nearly sorted'],['reversed','Reversed']].map(([v,t])=>{const o=h('option',{value:v},t);if(v===W.kind)o.selected=true;return o;}));
+  const vars=s.vars||{};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Watch'),algSeg(()=>S.alg,a=>{stopPlay();S.alg=a;W.i=0;render();})),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Step through a bubble sort, then an insertion sort on the same data. Watch the counters. Then try "Nearly sorted" and "Reversed" data: which algorithm copes better with each?'),
+    h('div',{class:'controls'},
+      h('button',{class:'btn ghost',disabled:W.i===0||null,onclick:()=>{stopPlay();wStep(-1);}},'← Back'),
+      h('button',{class:'btn primary',disabled:W.i>=st.length-1||null,onclick:()=>{stopPlay();wStep(1);}},'Step →'),
+      h('button',{class:'btn accent',disabled:(W.i>=st.length-1&&!W.play)||null,onclick:()=>{if(W.play){stopPlay();render();}else{W.play=setInterval(()=>wStep(1),W.speed);render();}}},W.play?'Pause':'Auto-play'),
+      h('label',{},'Speed ',sel),h('label',{},'Data ',kind),
+      h('button',{class:'btn ghost',onclick:()=>{stopPlay();W.arr=randArr(8,W.kind);regenWatch();render();}},'New data'),
+      h('button',{class:'btn ghost',onclick:()=>{stopPlay();W.i=0;render();}},'Reset'),
+      h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},String(s.comps)),'comparisons'),h('div',{class:'stat'},h('b',{},String(s.swaps)),alg==='bubble'?'swaps':'copies up'))),
+    h('div',{class:'grid'},
+      h('div',{},barsView(s,alg),legend(alg),
+        h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${W.i+1} of ${st.length} · ${s.ev}`),h('p',{},s.text))),
+      h('div',{class:'panel'},h('h3',{},'Pseudo-code'),
+        h('ol',{class:'code'},(alg==='bubble'?BUBBLE_CODE:INS_CODE).map((c,i)=>h('li',{class:i===s.line?'cur':null},c))),
+        h('div',{class:'vars'},...Object.entries(vars).filter(([,v])=>v!==undefined).map(([k,v])=>h('span',{class:'var'},`${k} = ${v}`))))));
+}
+
+/* ============ YOU SORT IT ============ */
+function youReset(newArr){const Y=S.you;if(newArr)Y.arr=randArr(6);Y.i=0;Y.score=0;Y.total=0;Y.msg=null;Y.cls='';Y.firstTry=true;Y.finished=false;Y.steps=S.alg==='bubble'?bubbleSteps(Y.arr):insertionSteps(Y.arr);advanceYou();}
+function advanceYou(){
+  // move to the next decision point
+  const Y=S.you,st=Y.steps;
+  while(Y.i<st.length-1){
+    const s=st[Y.i];
+    if(S.alg==='bubble'&&(s.ev.includes('Compare')||s.ev.startsWith('End of pass')))return;
+    if(S.alg==='insertion'&&s.ev.startsWith('Insert items'))return;
+    Y.i++;
+  }
+  Y.finished=true;
+}
+function youView(){
+  const Y=S.you;if(!Y.steps)youReset(false);
+  const s=Y.steps[Y.i],alg=S.alg;
+  const mark=(ok,good,badtxt)=>{if(Y.firstTry){Y.total++;if(ok)Y.score++;}
+    if(ok){Y.msg=good;Y.cls='ok';Y.firstTry=true;return true;}Y.msg=badtxt;Y.cls='bad';Y.firstTry=false;render();return false;};
+  let area=null,barOpts={};
+  if(!Y.finished){
+    if(alg==='bubble'&&s.ev.includes('Compare')){
+      const [a,b]=s.cmp,L=s.arr[a],R=s.arr[b],should=L>R;
+      const go=sw=>{if(!mark(sw===should,`Correct: ${L} ${should?'>':'<'} ${R}, so ${should?'swap':'no swap'}.`,`Not quite: ${L} is ${should?'bigger':'smaller'} than ${R}, so they ${should?'must be swapped':'are already in order'}. Try again.`))return;
+        Y.i++;advanceYou();render();};
+      area=h('div',{},h('p',{style:'text-align:center;margin:10px 0 0;font-weight:700'},`Compare ${L} and ${R}. What should bubble sort do?`),
+        h('div',{class:'decide'},h('button',{class:'btn primary',onclick:()=>go(true)},'Swap'),h('button',{class:'btn ghost',onclick:()=>go(false)},'No swap')));
+    } else if(alg==='bubble'){
+      const n=s.arr.length,pass=s.vars.i;const target=n-1-pass;
+      const shown=Object.assign({},s,{done:Y.steps[Y.i-1]?Y.steps[Y.i-1].done:new Set()});
+      barOpts.pickBar=i=>{if(!mark(i===target,`Correct: ${s.arr[target]} is the largest remaining value, so after pass ${pass+1} it has bubbled into its final place at position ${target}.`,`Not that one. After each pass, the largest remaining value has bubbled to the end of the unsorted part.`))return;Y.i++;advanceYou();render();};
+      area=h('p',{style:'text-align:center;margin:10px 0 0;font-weight:700'},`End of pass ${pass+1}. Click the bar that is now in its final place.`);
+      return youLayout(shown,alg,barOpts,area);
+    } else {
+      // insertion: choose the gap position
+      const key=s.key,idx=s.vars.index;
+      const sortedPart=Y.steps[Y.i].arr.slice(0,idx);
+      let correct=0;while(correct<idx&&sortedPart[correct]<key)correct++;
+      const view={arr:[...s.arr.slice(0,idx).filter(()=>true)],sorted:idx};
+      // build a display: sorted portion with clickable slots
+      const disp=Object.assign({},s,{key:null,gap:null,ptr:undefined});
+      area=h('div',{},h('p',{style:'text-align:center;margin:10px 0 6px;font-weight:700'},`itemToInsert = ${key}. Where does it belong in the sorted portion (positions 0 to ${idx})?`),
+        h('div',{class:'decide'},...Array.from({length:idx+1},(_,p)=>h('button',{class:'btn ghost',onclick:()=>{
+          const shiftsNeeded=idx-correct;
+          if(!mark(p===correct,`Correct: ${key} goes into position ${correct}. ${shiftsNeeded===0?'Nothing needed copying up.':`${shiftsNeeded} item${shiftsNeeded===1?' was':'s were'} copied up one place first (each one briefly duplicated), then ${key} overwrote the last duplicate.`}`,`Not quite. Compare ${key} with each sorted item from the right: keep going left while the item is bigger than ${key}.`))return;
+          while(Y.i<Y.steps.length-1&&!(Y.steps[Y.i].ev==='Insert'&&Y.steps[Y.i].inserted!=null))Y.i++;
+          Y.i++;advanceYou();render();}},`Position ${p}`))));
+      return youLayout(disp,alg,{},area,key);
+    }
+  }
+  return youLayout(Y.finished?Y.steps[Y.steps.length-1]:s,alg,barOpts,area);
+}
+function youLayout(step,alg,barOpts,area,liftKey){
+  const Y=S.you;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'You sort it'),algSeg(()=>S.alg,a=>{S.alg=a;youReset(false);render();})),
+    h('div',{class:'prompt'},h('b',{},'Task: '),alg==='bubble'?'Make every bubble sort decision yourself: swap or no swap for each pair, and at the end of each pass pick the value now in its final place.':'For each item, decide which position it should be inserted into in the sorted portion. The pale blue bars are the sorted portion; the bar with the dashed amber outline is the item being inserted (itemToInsert).'),
+    h('div',{class:'controls'},
+      h('button',{class:'btn ghost',onclick:()=>{youReset(true);render();}},'New data'),
+      h('button',{class:'btn ghost',onclick:()=>{youReset(false);render();}},'Restart'),
+      h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},`${Y.score}/${Y.total}`),'right first time'))),
+    h('div',{style:'position:relative'},barsView(step,alg,barOpts),
+      liftKey!=null?h('div',{style:'text-align:center;margin-top:8px'},h('span',{class:'var',style:'border-color:#CC9900'},`itemToInsert = ${liftKey}`)):null),
+    legend(alg),area,
+    Y.msg?h('div',{class:'fb '+Y.cls,'aria-live':'polite'},Y.msg):null,
+    Y.finished?h('div',{class:'fb ok'},h('b',{},'Sorted! '),`You made ${Y.score} of ${Y.total} decisions right first time. `,alg==='bubble'?'Now switch to insertion sort.':'Now try Trace It.'):null);
+}
+
+/* ============ TRACE IT ============ */
+const TRACE={
+ bubble:{title:'Bubble sort trace on myArray = [5, 1, 4, 2]',code:BUBBLE_CODE,
+  cols:['i','j','myArray[j]','myArray[j+1]','swap?','temp','myArray after'],
+  items:[
+   {row:[0,0,5,1,'Yes',5,'1,5,4,2'],blank:[4,5],why:'5 > 1, so they are swapped. temp stores 5, the value of myArray[j], before it is overwritten.'},
+   {row:[0,1,5,4,'Yes',5,'1,4,5,2'],blank:[2,3,4,6],why:'After the first swap the array is [1, 5, 4, 2], so myArray[1] = 5 and myArray[2] = 4. 5 > 4, so swap.'},
+   {row:[0,2,5,2,'Yes',5,'1,4,2,5'],blank:[1,4,6],why:'j increases by 1 each time. 5 > 2, so swap: 5 has now bubbled to the end.'},
+   {mcq:'Pass 1 is complete. Which value is now in its final place, and why?',opts:['5, because the largest value bubbles to the end in each pass','1, because it is now at the front','2, because it was the last one compared','None yet: nothing is final until the sort finishes'],a:0,why:'In each pass the largest remaining value is carried to the end of the unsorted part, so 5 cannot move again.'},
+   {row:[1,0,1,4,'No','–','1,4,2,5'],blank:[0,1,4],why:'i is now 1 (pass 2) and j starts again at 0. 1 < 4, so no swap.'},
+   {mcq:'In pass 2 (i = 1) the inner loop only runs while j < len(myArray) - 1 - i. What is the last value of j in this pass?',opts:['j = 1','j = 2','j = 3','j = 0'],a:0,why:'len(myArray) - 1 - i = 4 - 1 - 1 = 2, so j runs 0 and 1. There is no need to compare with 5, which is already in its final place.'},
+   {row:[1,1,4,2,'Yes',4,'1,2,4,5'],blank:[2,3,4,5,6],why:'4 > 2, so swap. temp now stores 4.'},
+   {row:[2,0,1,2,'No','–','1,2,4,5'],blank:[0,4],why:'Pass 3: i = 2. 1 < 2, so no swap. The inner loop only runs once (j < 4 - 1 - 2).'},
+   {mcq:'Why is temp needed in the swap?',opts:['Without it, the value in myArray[j] would be overwritten and lost','It stores how many swaps have been made','It makes the loop run faster','It holds the largest value found so far'],a:0,why:'myArray[j] = myArray[j + 1] overwrites myArray[j], so its old value has to be saved in temp first.'},
+   {mcq:'How many comparisons did bubble sort make to sort these 4 items?',opts:['6','4','3','8'],a:0,why:'Pass 1 makes 3 comparisons, pass 2 makes 2 and pass 3 makes 1: 3 + 2 + 1 = 6.'},
+  ]},
+ insertion:{title:'Insertion sort trace on items = [4, 2, 5, 1]',code:INS_CODE,
+  cols:['index','itemToInsert','copies up','inserted at','items after'],
+  items:[
+   {row:[1,2,1,0,'2,4,5,1'],blank:[1,2,3,4],why:'itemToInsert = items[1] = 2. 4 > 2, so 4 is copied up one place. position becomes -1, so 2 is inserted at position 0.'},
+   {mcq:'Just before 2 is inserted (when the while loop ends), what does items contain?',opts:['[4, 4, 5, 1]','[2, 4, 5, 1]','[ , 4, 5, 1] with an empty gap','[4, 2, 5, 1]'],a:0,why:'items[1] = items[0] copied 4 up one place, so 4 appears twice. The 2 was overwritten in the array, but it is safe in itemToInsert. Only when the loop ends does items[0] = itemToInsert overwrite the duplicate. Arrays never have empty gaps.'},
+   {row:[2,5,0,2,'2,4,5,1'],blank:[1,2,3],why:'itemToInsert = 5. 4 > 5 is false, so nothing is copied and 5 stays at position 2.'},
+   {mcq:'For index = 2, how many comparisons did the while loop make?',opts:['1','0','2','3'],a:0,why:'One comparison (is 4 > 5?) was enough: it was false, so the loop stopped straight away.'},
+   {row:[3,1,3,0,'1,2,4,5'],blank:[1,2,3,4],why:'itemToInsert = 1. 5, 4 and 2 are all bigger, so all three are copied up one place, and 1 is inserted at position 0.'},
+   {mcq:'For index = 3, the while loop copies 5, then 4, then 2 up one place. What does items contain just before 1 is inserted?',opts:['[2, 2, 4, 5]','[1, 2, 4, 5]','[2, 4, 4, 5]','[2, 4, 5, 5]'],a:0,why:'Each copy leaves a duplicate behind: [2,4,5,5], then [2,4,4,5], then [2,2,4,5]. The final duplicate in items[0] is overwritten by items[0] = itemToInsert, giving [1,2,4,5].'},
+   {mcq:'Why does the while condition check position >= 0 first?',opts:['So it stops at the start of the list instead of looking at items[-1]','So the loop runs at least once','To check the list is not empty','Because position always starts at 0'],a:0,why:'When the item is smaller than everything in the sorted portion, position reaches -1. Without the check, items[-1] would be outside the array.'},
+   {mcq:'Which starting list would insertion sort handle with the fewest comparisons?',opts:['[1, 2, 4, 5]','[5, 4, 2, 1]','[4, 2, 5, 1]','They all take the same number'],a:0,why:'If the list is already sorted, each item needs only one comparison to find it is already in place: 3 comparisons in total.'},
+  ]}
+};
+function traceState(alg){if(!S.trace[alg])S.trace[alg]={k:0,ans:{},res:{},score:0,total:0};return S.trace[alg];}
+function norm(v){return String(v).toLowerCase().replace(/[\[\]\s]/g,'').replace(/–|-/g,'-');}
+function traceView(){
+  const alg=S.trace.alg,T=TRACE[alg],st=traceState(alg);
+  const items=T.items;
+  const rows=[];let mcqNode=null;
+  items.forEach((it,k)=>{
+    if(k>st.k)return;
+    if(it.mcq){if(k===st.k)mcqNode=it;return;}
+    const cur=k===st.k&&!st.res[k];
+    const tr=h('tr',{class:cur?'cur':null});
+    it.row.forEach((v,c)=>{
+      const blank=it.blank.includes(c);
+      if(!blank){tr.appendChild(h('td',{},Array.isArray(v)?v.join(','):String(v)));return;}
+      if(st.res[k]){const ok=st.res[k][c];tr.appendChild(h('td',{class:ok?'ok':'bad'},ok?String(v):`${v} ✗`));return;}
+      const key=k+':'+c;
+      if(T.cols[c]==='swap?'){const s=h('select',{'aria-label':T.cols[c]},h('option',{value:''},'?'),h('option',{value:'Yes'},'Yes'),h('option',{value:'No'},'No'));s.value=st.ans[key]||'';s.addEventListener('change',()=>st.ans[key]=s.value);tr.appendChild(h('td',{},s));}
+      else{const inp=h('input',{'aria-label':T.cols[c],class:String(v).includes(',')?'wide':null,placeholder:String(v).includes(',')?'e.g. 1,2,3,4':''});inp.value=st.ans[key]||'';inp.addEventListener('input',()=>st.ans[key]=inp.value);tr.appendChild(h('td',{},inp));}
+    });
+    rows.push(tr);
+  });
+  const curItem=items[st.k];
+  const checkRow=()=>{const it=curItem,res={};let all=true;
+    it.blank.forEach(c=>{const ok=norm(st.ans[st.k+':'+c]||'')===norm(it.row[c]);res[c]=ok;st.total++;if(ok)st.score++;else all=false;});
+    st.res[st.k]=res;st.last={ok:all,text:(all?'All correct. ':'Some cells were wrong: the correct values are shown. ')+it.why};render();};
+  const next=()=>{st.k++;st.last=null;render();};
+  const finished=st.k>=items.length;
+  let mcqView=null;
+  if(mcqNode){
+    const k=st.k,picked=st.res[k];
+    mcqView=h('div',{class:'mcq'},h('h3',{},mcqNode.mcq),h('div',{class:'opts'},mcqNode.opts.map((o,oi)=>{
+      let cls='opt';if(picked!==undefined){if(oi===mcqNode.a)cls+=' ok';else if(oi===picked)cls+=' bad';}
+      return h('button',{class:cls,disabled:picked!==undefined||null,onclick:()=>{st.res[k]=oi;st.total++;if(oi===mcqNode.a)st.score++;st.last={ok:oi===mcqNode.a,text:(oi===mcqNode.a?'Correct. ':'Not quite. ')+mcqNode.why};render();}},o);})));
+  }
+  const answered=st.res[st.k]!==undefined;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Trace It'),h('div',{class:'seg'},
+      h('button',{'aria-pressed':String(alg==='bubble'),onclick:()=>{S.trace.alg='bubble';render();}},'Bubble sort'),
+      h('button',{'aria-pressed':String(alg==='insertion'),onclick:()=>{S.trace.alg='insertion';render();}},'Insertion sort'))),
+    h('div',{class:'prompt'},h('b',{},'Challenge: '),'Trace the algorithm by hand. Fill in the amber cells of each new row, then press Check. One attempt per row and per question: highest score wins. Separate list items in the array column with commas.'),
+    h('div',{class:'grid'},
+      h('div',{},
+        h('div',{class:'panel'},h('div',{style:'display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px'},h('h3',{style:'margin:0'},T.title),h('span',{class:'score'},`Score: ${st.score} / ${st.total}`)),
+          h('div',{class:'ttwrap'},h('table',{class:'tt'},h('thead',{},h('tr',{},...T.cols.map(c=>h('th',{},c)))),h('tbody',{},...rows))),
+          !finished&&curItem&&!curItem.mcq&&!answered?h('div',{style:'margin-top:10px'},h('button',{class:'btn primary',onclick:checkRow},'Check this row')):null),
+        mcqView,
+        st.last?h('div',{class:'fb '+(st.last.ok?'ok':'bad'),'aria-live':'polite'},st.last.text):null,
+        !finished&&answered?h('div',{style:'margin-top:10px'},h('button',{class:'btn accent',onclick:next},st.k===items.length-1?'Finish':'Next →')):null,
+        finished?h('div',{class:'fb ok'},h('b',{},`Finished: ${st.score} out of ${st.total}. `),alg==='bubble'?'Now try the insertion sort trace.':'Compare your score with other pairs.',' ',h('button',{class:'btn ghost',style:'margin-left:8px',onclick:()=>{S.trace[alg]=null;render();}},'Try again')):null),
+      h('div',{class:'panel'},h('h3',{},'Pseudo-code'),h('ol',{class:'code'},T.code.map(c=>h('li',{},c))),
+        h('p',{class:'small',style:'margin:10px 0 0'},alg==='bubble'?'Each row of the table is one comparison (one run of the if statement).':'Each row of the table is one run of the for loop: one item being inserted.'))));
+}
+
+/* ============ BUILD IT ============ */
+const BSOL=[[1,'i, j, temp is integer'],[1,'set i = 0'],[1,'while i < len(myArray) - 1'],[2,'set j = 0'],[2,'while j < len(myArray) - 1 - i'],[3,'if myArray[j] > myArray[j + 1]'],[4,'set temp = myArray[j]'],[4,'set myArray[j] = myArray[j + 1]'],[4,'set myArray[j + 1] = temp'],[3,'end if'],[3,'set j = j + 1'],[2,'end while'],[2,'set i = i + 1'],[1,'end while']];
+const BDIS=[
+  ['if myArray[j] < myArray[j + 1]','This swaps when the left value is smaller, which sorts into DESCENDING order. For ascending order, swap when myArray[j] > myArray[j + 1].'],
+  ['set myArray[j + 1] = myArray[j]','This copies myArray[j] over myArray[j + 1] without saving it first, so a value is lost. The swap must use temp.'],
+  ['while j < len(myArray) + 1 - i','On the first pass j would reach len(myArray), so myArray[j + 1] would be outside the array. The limit is len(myArray) - 1 - i.'],
+];
+const BBANK=seeded([...BSOL.map(([,t])=>({text:t})),...BDIS.map(([t,why])=>({text:t,dis:true,why}))],41);
+function buildInit(){S.build={answer:[],marks:null,fb:null,solved:false,revealed:false,out:''};}
+buildInit();
+function buildView(){
+  const P=S.build;const used=new Set(P.answer.map(a=>a.b));
+  const bank=h('div',{class:'bank'},BBANK.map((it,bi)=>h('button',{class:'chip',disabled:used.has(bi)||null,onclick:()=>{P.answer.push({b:bi,indent:1});P.marks=null;P.fb=null;render();}},it.text)));
+  const ol=h('ol',{class:'answer','aria-label':'Your pseudo-code'});
+  const fixed=t=>h('li',{class:'fixed'},h('span',{class:'txt'},t),h('span',{class:'small'},'given'));
+  ol.appendChild(fixed('Declare BubbleSort(myArray)'));
+  const chg=()=>{P.marks=null;P.fb=null;render();};
+  const mv=(j,d)=>{const t=j+d;if(t<0||t>=P.answer.length)return;[P.answer[j],P.answer[t]]=[P.answer[t],P.answer[j]];chg();};
+  P.answer.forEach((a,j)=>{const it=BBANK[a.b];
+    ol.appendChild(h('li',{class:P.marks?(P.marks[j]?'ok':'bad'):null},h('span',{class:'txt'},'    '.repeat(a.indent)+it.text),
+      h('span',{class:'ctl'},
+        h('button',{'aria-label':'Outdent',onclick:()=>{a.indent=Math.max(0,a.indent-1);chg();}},'←'),
+        h('button',{'aria-label':'Indent',onclick:()=>{a.indent=Math.min(5,a.indent+1);chg();}},'→'),
+        h('button',{'aria-label':'Move up',onclick:()=>mv(j,-1)},'↑'),
+        h('button',{'aria-label':'Move down',onclick:()=>mv(j,1)},'↓'),
+        h('button',{'aria-label':'Remove',onclick:()=>{P.answer.splice(j,1);chg();}},'×'))));});
+  ol.appendChild(fixed('End Subroutine'));
+  const check=()=>{const items=[];let right=0;
+    P.marks=P.answer.map((a,j)=>{const it=BBANK[a.b],s=BSOL[j];
+      if(s&&s[1]===it.text&&s[0]===a.indent){right++;return true;}
+      if(it.dis)items.push(`Line ${j+2} "${it.text}": ${it.why}`);
+      else if(s&&s[1]===it.text)items.push(`Line ${j+2} "${it.text}" is in the right place but the indentation is wrong. Each loop and if adds one level.`);
+      else items.push(`Line ${j+2} "${it.text}" is in the wrong position.`);
+      return false;});
+    if(P.answer.length<BSOL.length)items.push(`${BSOL.length-P.answer.length} line(s) still missing.`);
+    const ok=right===BSOL.length&&P.answer.length===BSOL.length;
+    if(ok&&!P.revealed)P.solved=true;
+    P.fb={ok,items,summary:ok?(P.revealed?'Correct, but the answer was revealed. Reset and try from memory.':'Correct: this is a working bubble sort. Run it below.'):`${right} of ${BSOL.length} lines correct.`};render();};
+  const reveal=()=>{P.revealed=true;const u=new Set();P.answer=BSOL.map(([ind,t])=>{const bi=BBANK.findIndex((x,k)=>x.text===t&&!u.has(k));u.add(bi);return {b:bi,indent:ind};});
+    P.marks=null;P.fb={ok:true,items:BDIS.map(([t,w])=>`Not used, "${t}": ${w}`),summary:'Answer revealed.'};render();};
+  const run=()=>{const a=randArr(8);P.out=`Before: [${a.join(', ')}]\nAfter:  [${a.slice().sort((x,y)=>x-y).join(', ')}]\n${a.length*(a.length-1)/2} comparisons made.`;render();};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Build it: bubble sort')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Arrange and indent the lines to make a bubble sort that sorts myArray into ascending order. Three lines are distractors that look almost right. This is the structure a full-mark answer to WJEC 2017 Q6 [9] needs.'),
+    h('div',{class:'pgrid'},
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Line bank'),bank)),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Your pseudo-code'),ol),
+        h('div',{class:'controls',style:'margin-top:12px;background:transparent;padding:0'},
+          h('button',{class:'btn primary',disabled:!P.answer.length||null,onclick:check},'Check'),
+          h('button',{class:'btn ghost',onclick:()=>{const s=P.solved;buildInit();S.build.solved=s;render();}},'Reset'),
+          h('button',{class:'btn ghost',onclick:reveal},'Show answer')),
+        P.fb?h('div',{class:'fb '+(P.fb.ok?'ok':'bad')},h('b',{},P.fb.summary),P.fb.items.length?h('ul',{},...P.fb.items.map(t=>h('li',{},t))):null):null,
+        (P.solved||P.revealed)?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Run it'),h('button',{class:'btn primary',onclick:run},'Sort a random array'),P.out?h('div',{class:'out'},P.out):null):null)));
+}
+
+/* ============ shell ============ */
+const TABS=[['Watch',watchView],['You sort it',youView],['Trace It',traceView],['Build it',buildView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{stopPlay();S.tab=i;if(i===1)youReset(false);render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+document.addEventListener('keydown',e=>{if(S.tab!==0)return;if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;
+  if(e.key==='ArrowRight'){e.preventDefault();stopPlay();wStep(1);}else if(e.key==='ArrowLeft'){e.preventDefault();stopPlay();wStep(-1);}});
+render();
+</script>
+</body>
+</html>
