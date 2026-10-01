@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing to a File — Live-Coding Prompt Sheet</title>
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --code-comment:#7C8FAE;
+    --code-string:#8FD6C6;
+    --code-kw:#E8A659;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  .layout{
+    display:flex;
+    min-height:100vh;
+    align-items:flex-start;
+  }
+
+  .sidebar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    width:250px;
+    flex-shrink:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .eyebrow{
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .sidebar h1{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  .sidebar .meta{
+    font-size:13px;
+    color:#A9B7D1;
+    margin-bottom:28px;
+  }
+  .navlist{list-style:none;margin:0;padding:0;}
+  .navlist li{margin-bottom:4px;}
+  .navlist a{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    text-decoration:none;
+    color:#D7DFEC;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14.5px;
+    font-weight:600;
+    transition:background .15s ease;
+  }
+  .navlist a:hover{background:rgba(255,255,255,.08);}
+  .navlist .time{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--orange);
+    background:rgba(224,123,38,.15);
+    padding:2px 7px;
+    border-radius:20px;
+  }
+  .sidebar .pacing{
+    margin-top:32px;
+    padding:14px 14px;
+    background:rgba(46,158,158,.15);
+    border-radius:10px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#CDE9E7;
+  }
+  .sidebar .pacing strong{color:#fff;display:block;margin-bottom:4px;font-size:13px;}
+
+  main{padding:40px 48px 80px;max-width:880px;flex:1;min-width:0;}
+  .page-head{margin-bottom:36px;}
+  .page-head .kicker{
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  .page-head h2{
+    font-family:Cambria, Georgia, serif;
+    font-size:30px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .page-head p{
+    font-size:15px;
+    color:var(--muted);
+    max-width:640px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  section.block{margin-bottom:52px;scroll-margin-top:24px;}
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:2px solid #E4E8EE;
+    padding-bottom:10px;
+    margin-bottom:22px;
+  }
+  .block-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:23px;
+    margin:0;
+    color:var(--navy);
+  }
+  .block-head .duration{
+    font-size:13px;
+    font-weight:700;
+    color:var(--orange);
+    background:var(--orange-light);
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  .beat{
+    background:var(--card);
+    border:1px solid #E7EAF0;
+    border-radius:12px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .beat + .beat{margin-top:18px;}
+  .beat-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--teal);
+    margin:0 0 8px;
+  }
+  .prompt{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .prompt strong{color:var(--navy);}
+
+  pre.code{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:9px;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.6;
+    overflow-x:auto;
+    margin:0 0 14px;
+  }
+  pre.code .kw{color:var(--code-kw);}
+  pre.code .str{color:var(--code-string);}
+  pre.code .cm{color:var(--code-comment);font-style:italic;}
+
+  .output{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--teal-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#1B4B4B;
+  }
+  .output .tag{
+    font-weight:700;
+    color:var(--teal);
+    white-space:nowrap;
+    margin-right:8px;
+  }
+  .output code{
+    font-family:Consolas, "Courier New", monospace;
+    background:rgba(255,255,255,.6);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  .discuss{
+    background:var(--orange-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#7A4415;
+  }
+  .discuss .tag{font-weight:700;color:var(--orange);margin-right:6px;}
+
+  .warn{
+    background:#FBEAE5;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#8A3520;
+    margin-top:14px;
+  }
+  .warn .tag{font-weight:700;color:#C0472C;margin-right:6px;}
+
+  footer.note{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid #E4E8EE;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  @media print{
+    .sidebar{position:static;height:auto;}
+    .layout{display:block;}
+    main{padding:0 20px;}
+  }
+
+  @media (max-width:760px){
+    .layout{display:block;}
+    .sidebar{position:static;height:auto;width:auto;}
+    main{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <p class="eyebrow">AS UNIT 2 &mdash; LESSON 3</p>
+    <h1>Writing to a File<br>Prompt Sheet</h1>
+    <p class="meta">Live-coding reference &middot; 50&ndash;70 min block</p>
+
+    <ul class="navlist">
+      <li><a href="#record"><span>Building a Fixed-Length Record</span><span class="time">~10 min</span></a></li>
+      <li><a href="#saving"><span>Saving to a File</span><span class="time">~10 min</span></a></li>
+    </ul>
+
+    <div class="pacing">
+      <strong>Reminder</strong>
+      Everything below still lives inside add_record() &mdash; same function, same scenario. This builds directly on today's validated fields.
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-head">
+      <p class="kicker">Teacher reference &mdash; not for students</p>
+      <h2>Writing to a File</h2>
+      <p>New content, so it gets the bigger half of the lesson. Build this slowly &mdash; pad a record, write it, then prove it actually persisted by running twice.</p>
+    </div>
+
+    <section class="block" id="record">
+      <div class="block-head">
+        <h3>Building a Fixed-Length Record</h3>
+        <span class="duration">~10 minutes</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; WHY FIXED WIDTH</p>
+        <p class="prompt"><strong>Say:</strong> "Right now our fields are all different lengths. If we just join them together, we won't be able to tell where one field ends and the next begins when we read the file back later."</p>
+        <p class="prompt">.ljust(width) pads a field with spaces up to a set width &mdash; so every record has fields in exactly the same position, every time.</p>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; LIVE-CODE THE RECORD STRING</p>
+        <p class="prompt"><strong>Say:</strong> "Let's build one record string from our three fields."</p>
+        <pre class="code">record = (
+    name.ljust(<span class="kw">20</span>) +
+    kayak.ljust(<span class="kw">15</span>) +
+    date.ljust(<span class="kw">10</span>)
+)
+
+print(record)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>One long string, each field padded with trailing spaces to its fixed width</span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 3 &middot; CHECK UNDERSTANDING</p>
+        <div class="discuss">
+          <span class="tag">Ask:</span>
+          "What would go wrong later if we picked a width too small for a long name?" &mdash; get at least one answer (truncation / fields running together) before moving on.
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="saving">
+      <div class="block-head">
+        <h3>Saving to a File</h3>
+        <span class="duration">~10 minutes</span>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 1 &middot; LIVE-CODE OPEN &amp; WRITE</p>
+        <p class="prompt"><strong>Say:</strong> "Open the file in append mode, write the record, then close it."</p>
+        <pre class="code">file = open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"a"</span>)
+file.write(record + <span class="str">"\n"</span>)
+file.close()
+
+print(<span class="str">"Saved!"</span>)</pre>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>No visible output beyond "Saved!" &mdash; the file is written silently</span>
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 2 &middot; PROVE IT WORKS</p>
+        <p class="prompt"><strong>Say:</strong> "Let's run add_record() twice in the same session, then open the file together."</p>
+        <div class="output">
+          <span class="tag">Expect:</span>
+          <span>Two lines in kayak_hires.txt, one per run &mdash; neither overwriting the other</span>
+        </div>
+        <div class="warn">
+          <span class="tag">Common slip:</span>
+          Using <code>"w"</code> instead of <code>"a"</code> silently erases every earlier record each time the file is opened. Worth demonstrating deliberately once, so students recognise the symptom.
+        </div>
+      </div>
+
+      <div class="beat">
+        <p class="beat-label">BEAT 3 &middot; HAND OVER TO THE BUILD TASK</p>
+        <p class="prompt">Students now do the same thing to their own validated add_record() &mdash; build a record string, write it in append mode, and test with two records before moving to the Whiteboard.</p>
+      </div>
+    </section>
+
+    <footer class="note">
+      AS Unit 2 &mdash; Lesson 3 &middot; Writing to a File &middot; pairs with the Lesson 3 slides and the Build Task.
+    </footer>
+  </main>
+
+</div>
+</body>
+</html>

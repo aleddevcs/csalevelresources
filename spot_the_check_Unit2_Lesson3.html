@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spot the Check</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  .hint{font-size:13px;color:var(--muted);margin:0 0 20px;}
+
+  .columns{
+    display:flex;
+    gap:18px;
+  }
+  .columns > div{flex:1;min-width:0;}
+  .col-head{
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  .col-head.right{color:var(--orange);}
+
+  .item{
+    background:var(--card);
+    border:2px solid var(--card-border);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    cursor:pointer;
+    font-size:14.5px;
+    position:relative;
+    box-shadow:var(--shadow);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    user-select:none;
+  }
+  .item:hover{border-color:var(--teal);}
+  .item.selected{border-color:var(--orange);background:var(--orange-light);}
+  .item.paired{border-color:var(--navy);}
+  .item.correct{border-color:var(--good);background:var(--good-bg);}
+  .item.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+
+  .tagnum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .item-inner{display:flex;align-items:center;}
+
+  .reflect{
+    margin-top:26px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .columns{flex-direction:column;}
+    header h1{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 3 STARTER</p>
+    <h1>Spot the Check</h1>
+    <p>Match each validation check to what it catches. Click a check on the left, then click its match on the right &mdash; click either one again to undo. We'll go over the answers together as a class once you've had a go.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="status" id="status">0 of 6 matched</div>
+    <div class="btns">
+      <button class="btn-secondary" id="shuffleBtn">&#8635; Shuffle</button>
+      <button class="btn-primary" id="checkBtn">&#10003; Check my answers</button>
+      <button class="btn-ghost" id="revealBtn">Reveal all</button>
+    </div>
+  </div>
+  <p class="hint">Three of these you've already used (Lesson 2) &mdash; three are new today.</p>
+
+  <div class="columns">
+    <div>
+      <p class="col-head">VALIDATION CHECK</p>
+      <div id="leftCol"></div>
+    </div>
+    <div>
+      <p class="col-head right">WHAT IT CATCHES</p>
+      <div id="rightCol"></div>
+    </div>
+  </div>
+
+  <div class="reflect">
+    <p class="tag">BE READY TO SAY</p>
+    <p>Which three checks are new to you today, and which field in your own Conwy Kayak Club record would you use each one on?</p>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Lesson 3 &middot; pairs with the Validation Techniques Full Reference</footer>
+</div>
+
+<script>
+  var PAIRS = [
+    { id: "presence", check: "Presence check", catches: "Nothing entered at all" },
+    { id: "length", check: "Length check", catches: "Answer too short or too long" },
+    { id: "range", check: "Range check", catches: "A number outside sensible limits" },
+    { id: "format", check: "Format check", catches: "The wrong shape or pattern" },
+    { id: "lookup", check: "Lookup check", catches: "Not one of the allowed options" },
+    { id: "type", check: "Type check", catches: "Not the kind of data expected" },
+  ];
+
+  var rightOrder = [];
+  var matches = {};        // leftId -> rightId
+  var selectedLeft = null;
+  var selectedRight = null;
+  var checked = false;
+
+  function shuffledIds() {
+    var ids = PAIRS.map(function (p) { return p.id; });
+    for (var i = ids.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = ids[i]; ids[i] = ids[j]; ids[j] = tmp;
+    }
+    if (ids.every(function (id, i) { return id === PAIRS[i].id; })) return shuffledIds();
+    return ids;
+  }
+
+  function reset() {
+    rightOrder = shuffledIds();
+    matches = {};
+    selectedLeft = null;
+    selectedRight = null;
+    checked = false;
+    render();
+    updateStatus();
+  }
+
+  function byId(id) { return PAIRS.filter(function (p) { return p.id === id; })[0]; }
+
+  function render() {
+    var leftCol = document.getElementById("leftCol");
+    var rightCol = document.getElementById("rightCol");
+    leftCol.innerHTML = "";
+    rightCol.innerHTML = "";
+
+    PAIRS.forEach(function (p) {
+      var el = document.createElement("div");
+      el.className = "item";
+      el.dataset.id = p.id;
+      var inner = document.createElement("div");
+      inner.className = "item-inner";
+      if (matches[p.id]) {
+        var num = document.createElement("span");
+        num.className = "tagnum";
+        num.textContent = PAIRS.findIndex(function (x) { return x.id === p.id; }) + 1;
+        inner.appendChild(num);
+        el.classList.add("paired");
+      }
+      if (selectedLeft === p.id) el.classList.add("selected");
+      if (checked && matches[p.id]) {
+        el.classList.add(matches[p.id] === p.id ? "correct" : "incorrect");
+      }
+      var txt = document.createElement("span");
+      txt.textContent = p.check;
+      inner.appendChild(txt);
+      el.appendChild(inner);
+      el.addEventListener("click", function () { onLeftClick(p.id); });
+      leftCol.appendChild(el);
+    });
+
+    rightOrder.forEach(function (id) {
+      var p = byId(id);
+      var el = document.createElement("div");
+      el.className = "item";
+      el.dataset.id = p.id;
+      var pairedLeftId = Object.keys(matches).filter(function (k) { return matches[k] === p.id; })[0];
+      if (pairedLeftId) {
+        el.classList.add("paired");
+      }
+      if (selectedRight === p.id) el.classList.add("selected");
+      if (checked && pairedLeftId) {
+        el.classList.add(pairedLeftId === p.id ? "correct" : "incorrect");
+      }
+      el.textContent = p.catches;
+      el.addEventListener("click", function () { onRightClick(p.id); });
+      rightCol.appendChild(el);
+    });
+  }
+
+  function onLeftClick(id) {
+    if (checked) return;
+    if (matches[id]) { delete matches[id]; selectedLeft = null; render(); updateStatus(); return; }
+    selectedLeft = (selectedLeft === id) ? null : id;
+    if (selectedLeft && selectedRight) tryPair();
+    render();
+  }
+  function onRightClick(id) {
+    if (checked) return;
+    var pairedLeftId = Object.keys(matches).filter(function (k) { return matches[k] === id; })[0];
+    if (pairedLeftId) { delete matches[pairedLeftId]; selectedRight = null; render(); updateStatus(); return; }
+    selectedRight = (selectedRight === id) ? null : id;
+    if (selectedLeft && selectedRight) tryPair();
+    render();
+  }
+  function tryPair() {
+    matches[selectedLeft] = selectedRight;
+    selectedLeft = null;
+    selectedRight = null;
+    updateStatus();
+  }
+
+  function updateStatus() {
+    var count = Object.keys(matches).length;
+    document.getElementById("status").innerHTML = "<strong>" + count + " of 6</strong> matched";
+  }
+
+  document.getElementById("shuffleBtn").addEventListener("click", reset);
+
+  document.getElementById("checkBtn").addEventListener("click", function () {
+    checked = true;
+    render();
+    var correct = Object.keys(matches).filter(function (k) { return matches[k] === k; }).length;
+    var total = PAIRS.length;
+    document.getElementById("status").innerHTML = correct === total
+      ? "<strong>All " + total + " correct!</strong>"
+      : "<strong>" + correct + " of " + total + "</strong> correct so far";
+  });
+
+  document.getElementById("revealBtn").addEventListener("click", function () {
+    PAIRS.forEach(function (p) { matches[p.id] = p.id; });
+    checked = true;
+    render();
+    document.getElementById("status").innerHTML = "Answers revealed \u2014 discuss as a class";
+  });
+
+  reset();
+</script>
+</body>
+</html>
