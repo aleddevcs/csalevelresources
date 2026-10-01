@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classify the Objective</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a;
+    --ink-soft: #3c4c53;
+    --muted: #6b7c82;
+    --faint: #98a7ab;
+    --surface: #f6f8f8;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef2f1;
+    --border: #dbe3e1;
+    --good: #1f8a5f;
+    --good-soft: #dcf0e6;
+    --good-ink: #ffffff;
+    --warn: #a3491b;
+    --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --cat-practical: #2b6f8f;
+    --cat-practical-soft: #e1ecf1;
+    --cat-general: #b8791f;
+    --cat-general-soft: #f3e4cc;
+    --cat-performance: #0e7c86;
+    --cat-performance-soft: #d7eeee;
+    --cat-security: #9c3b54;
+    --cat-security-soft: #f5dee4;
+    --cat-quality: #5c4b8a;
+    --cat-quality-soft: #e7e2f5;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --cat-practical: #6cb6d8; --cat-practical-soft: #16262c;
+      --cat-general: #e0a24a; --cat-general-soft: #362a17;
+      --cat-performance: #5cc9d1; --cat-performance-soft: #103033;
+      --cat-security: #e08aa3; --cat-security-soft: #3a1f26;
+      --cat-quality: #b3a3e8; --cat-quality-soft: #2b2440;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --cat-practical: #6cb6d8; --cat-practical-soft: #16262c;
+    --cat-general: #e0a24a; --cat-general-soft: #362a17;
+    --cat-performance: #5cc9d1; --cat-performance-soft: #103033;
+    --cat-security: #e08aa3; --cat-security-soft: #3a1f26;
+    --cat-quality: #b3a3e8; --cat-quality-soft: #2b2440;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--cat-quality-soft); color: var(--cat-quality); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  .controlbtns { display: flex; gap: 8px; }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+  button.btn.primary { background: var(--cat-quality); border-color: var(--cat-quality); color: var(--good-ink); font-weight: 600; }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  button.btn.primary:disabled { opacity: 0.5; cursor: default; }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--cat-quality); background: var(--cat-quality-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 72ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 12.5px; line-height: 1.55; max-width: 72ch; margin: 0 0 24px; }
+
+  .ref-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 900px) { .ref-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .ref-grid { grid-template-columns: 1fr; } }
+  .ref-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 13px; box-shadow: var(--shadow);
+  }
+  .ref-card .rh { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+  .ref-chip {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    min-width: 24px; height: 20px; padding: 0 5px; border-radius: 10px; color: var(--good-ink);
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .ref-chip.practical { background: var(--cat-practical); }
+  .ref-chip.general { background: var(--cat-general); }
+  .ref-chip.performance { background: var(--cat-performance); }
+  .ref-chip.security { background: var(--cat-security); }
+  .ref-chip.quality { background: var(--cat-quality); }
+  .ref-card .rlabel { font-size: 13.5px; font-weight: 600; }
+  .ref-card p { margin: 0; font-size: 11.8px; color: var(--muted); line-height: 1.48; }
+
+  .legend {
+    display: none; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 24px; font-size: 12.5px; color: var(--muted);
+  }
+  body.revealed .legend { display: flex; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; flex: none; }
+  .sw-correct { background: var(--good-soft); border: 2px solid var(--good); }
+  .sw-wrong { background: var(--warn-soft); border: 2px dashed var(--warn); }
+  .sw-missed { background: transparent; border: 1.5px dashed var(--faint); }
+
+  .score-panel {
+    display: none; background: var(--cat-quality-soft); border: 1px solid color-mix(in srgb, var(--cat-quality) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 28px;
+  }
+  body.revealed .score-panel { display: block; }
+  .score-panel .big { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--cat-quality); }
+  .score-panel p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
+  .score-panel .split { margin: 10px 0 0; font-size: 12px; color: var(--ink-soft); font-family: var(--mono); line-height: 1.7; }
+
+  .statements { display: flex; flex-direction: column; gap: 14px; }
+  .stmt {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .stmt-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+  .stmt-num {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--good-ink);
+    background: var(--ink-soft); border-radius: 5px; min-width: 22px; height: 22px; padding: 0 2px;
+    display: inline-flex; align-items: center; justify-content: center; flex: none; margin-top: 1px;
+  }
+  .stmt-text { font-size: 15px; line-height: 1.6; color: var(--ink); font-style: italic; }
+  .stmt-text::before { content: "\201C"; font-style: normal; }
+  .stmt-text::after { content: "\201D"; font-style: normal; }
+
+  .choice-row { display: flex; flex-wrap: wrap; gap: 7px; padding-left: 32px; }
+  .choice-btn {
+    font-family: var(--sans); font-size: 12.5px; font-weight: 500; color: var(--ink-soft);
+    background: var(--surface-sunken); border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 7px 13px; cursor: pointer; transition: transform 0.06s ease;
+  }
+  .choice-btn:hover { filter: brightness(0.98); border-color: var(--faint); }
+  .choice-btn:active { transform: scale(0.97); }
+  .choice-btn.sel-practical { background: var(--cat-practical-soft); border-color: var(--cat-practical); color: var(--cat-practical); font-weight: 600; }
+  .choice-btn.sel-general { background: var(--cat-general-soft); border-color: var(--cat-general); color: var(--cat-general); font-weight: 600; }
+  .choice-btn.sel-performance { background: var(--cat-performance-soft); border-color: var(--cat-performance); color: var(--cat-performance); font-weight: 600; }
+  .choice-btn.sel-security { background: var(--cat-security-soft); border-color: var(--cat-security); color: var(--cat-security); font-weight: 600; }
+  .choice-btn.sel-quality { background: var(--cat-quality-soft); border-color: var(--cat-quality); color: var(--cat-quality); font-weight: 600; }
+
+  body.revealed .choice-btn { cursor: default; pointer-events: none; }
+  .stmt.correct .stmt-head .stmt-num { background: var(--good); }
+  .stmt.wrong .stmt-head .stmt-num { background: var(--warn); }
+  .stmt.missed .stmt-head .stmt-num { background: var(--faint); }
+  body.revealed .choice-btn.answer-key { box-shadow: inset 0 0 0 2px var(--good); }
+  body.revealed .choice-btn.sel-wrong-pick { box-shadow: inset 0 0 0 2px var(--warn); }
+
+  .ann {
+    display: none; margin-top: 12px; padding-left: 32px;
+  }
+  body.revealed .ann { display: block; }
+  .ann-inner {
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+  }
+  .ann-inner .ahead { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .ann-inner .pill {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 2px 7px; border-radius: 10px; font-weight: 700;
+  }
+  .ann-inner .pill.correct { color: var(--good-ink); background: var(--good); }
+  .ann-inner .pill.wrong-pick { color: var(--good-ink); background: var(--warn); }
+  .ann-inner .pill.missed-pick { color: var(--ink-soft); background: var(--surface-raised); border: 1px solid var(--border); }
+  .ann-inner .pill.correct-cat { color: var(--good-ink); }
+
+  footer.page-foot {
+    margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>Classify the Objective</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line" id="stat-line">Click a category for each statement. <b id="pick-count">0</b> / 15 classified so far.</div>
+  <div class="controlbtns">
+    <button class="btn" id="reset-btn" hidden>Reset</button>
+    <button class="btn primary" id="reveal-btn">Reveal model answers</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Modelled Investigation · working specification, checklist item 12</span>
+  <h1>Practical, general, or something else? Classify each statement</h1>
+  <p class="lede">Your working specification needs five different kinds of statement: practical objectives, general objectives, and the performance, security and quality checklists. They can look similar at a glance — especially practical vs. general. Read each statement below (all drafted for Ysgol Cwm Coleg's library system, the same scenario you've used throughout the Investigation) and classify which part of the specification it belongs to.</p>
+  <p class="disclaimer">These are model statements for the fictional library system — use them to practise spotting the difference, then apply the same thinking to your own system's objectives and checklists.</p>
+
+  <div class="ref-grid">
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip practical">PR</span><span class="rlabel">Practical</span></div>
+      <p>Specific, measurable, actionable — concrete enough to plan and test against.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip general">GE</span><span class="rlabel">General</span></div>
+      <p>High-level and abstract — the broad vision, no feature-level detail.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip performance">PF</span><span class="rlabel">Performance</span></div>
+      <p>Metrics and criteria, how they're measured, how issues get fixed.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip security">SE</span><span class="rlabel">Security</span></div>
+      <p>Who's allowed to access or change what, and how that's enforced and checked.</p>
+    </div>
+    <div class="ref-card">
+      <div class="rh"><span class="ref-chip quality">QU</span><span class="rlabel">Quality</span></div>
+      <p>Works correctly, looks consistent, reads well as code, gets properly checked.</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="chip"><span class="swatch sw-correct"></span>Correctly classified</span>
+    <span class="chip"><span class="swatch sw-wrong"></span>Classified, but wrong category</span>
+    <span class="chip"><span class="swatch sw-missed"></span>Left unclassified</span>
+  </div>
+
+  <div class="score-panel" id="score-panel"></div>
+
+  <div class="statements" id="statements"></div>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · Lesson 5 — working specification resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CATS = [
+    { key: "practical", label: "Practical" },
+    { key: "general", label: "General" },
+    { key: "performance", label: "Performance" },
+    { key: "security", label: "Security" },
+    { key: "quality", label: "Quality" }
+  ];
+  var CAT_LABEL = {};
+  CATS.forEach(function (c) { CAT_LABEL[c.key] = c.label; });
+
+  var STATEMENTS = [
+    {
+      id: "s1", cat: "general",
+      text: "Reduce the amount of time the Librarian spends on manual record-keeping.",
+      note: "A direction of improvement, not a named feature — nothing here says which function will do it or how you'd test it. That's what makes it general rather than practical."
+    },
+    {
+      id: "s2", cat: "security",
+      text: "Only logged-in staff accounts will be able to edit or delete a stock record — students can view records but not change them.",
+      note: "This is about who's allowed to do what once they're in the system — editing restricted to staff, students read-only. That's access control, the first part of the security checklist."
+    },
+    {
+      id: "s3", cat: "practical",
+      text: "Allow students to search for a book by title, author or subject and see whether a copy is currently available on the shelf.",
+      note: "A specific, testable feature — the exact thing a user does (search by title/author/subject) and what they see back (availability). Concrete enough to build and test against."
+    },
+    {
+      id: "s4", cat: "quality",
+      text: "Every screen will use the college's official colour scheme and logo, applied consistently throughout.",
+      note: "Colour scheme and branding applied consistently — straight out of the quality checklist's consistency sub-item."
+    },
+    {
+      id: "s5", cat: "performance",
+      text: "A book search must return results in under 2 seconds, even once the catalogue holds 5,000+ records.",
+      note: "A measurable metric with a number attached (under 2 seconds) — the performance checklist's first sub-item: metrics and criteria."
+    },
+    {
+      id: "s6", cat: "general",
+      text: "Make it easier for students to find and borrow the books they need.",
+      note: "Broad vision, no feature named — compare this with statement 3, which describes the same underlying idea (searching) but as a specific, testable feature. This one stays abstract."
+    },
+    {
+      id: "s7", cat: "security",
+      text: "The system will be checked for vulnerabilities once each term, with any issues logged and fixed before the next check.",
+      note: "Regular checks for weaknesses, with issues logged and fixed — the security checklist's audits and vulnerability-assessment sub-item."
+    },
+    {
+      id: "s8", cat: "practical",
+      text: "Generate a list of all books currently overdue by more than two weeks, grouped by form group, that the Librarian can print every Monday.",
+      note: "Specific and testable: a defined trigger (overdue by 2+ weeks), a defined output (a grouped list), a defined schedule (printed Mondays). That level of detail is what makes it practical, not general."
+    },
+    {
+      id: "s9", cat: "quality",
+      text: "Buttons and menus will be large and clearly labelled, tested with a sample of staff and students before release.",
+      note: "Design and usability standards, tested with real users — the quality checklist's user-interface sub-item."
+    },
+    {
+      id: "s10", cat: "performance",
+      text: "If performance slows as the catalogue grows, an index will be added on the book reference number field.",
+      note: "This is the ‘what you'll do about it' part of the performance checklist — defining a fix (an index) for a specific performance problem (slowing search)."
+    },
+    {
+      id: "s11", cat: "general",
+      text: "Improve how members of the college can engage with the library's collection.",
+      note: "‘Engage with the collection' is a long-term outcome, not a feature — there's no specific functionality named, which is what keeps it general rather than practical."
+    },
+    {
+      id: "s12", cat: "security",
+      text: "Staff will log in with a college username and password before any system changes are permitted.",
+      note: "Logging in before changes are permitted — this is authentication, a different security sub-item from statement 2, which is about what an account can do once it's already logged in."
+    },
+    {
+      id: "s13", cat: "practical",
+      text: "Let the Librarian scan a book's barcode when it's returned, automatically clearing it from the borrower's record and updating its shelf status.",
+      note: "A specific, actionable feature: a defined action (scanning a barcode) producing two defined effects (clearing the record, updating shelf status)."
+    },
+    {
+      id: "s14", cat: "quality",
+      text: "All code will be reviewed by another student before being merged, and tested against the test plan before release.",
+      note: "Code review and testing against a test plan before release — the quality checklist's quality-assurance sub-item, distinct from statement 4's consistency or naming/commenting, which falls under code quality."
+    },
+    {
+      id: "s15", cat: "performance",
+      text: "Search response times will be checked during testing against a realistic dataset, then spot-checked again after go-live.",
+      note: "This is the ‘how it's measured' part of the performance checklist — testing during development, then checking again once the system is live."
+    }
+  ];
+
+  var mode = "task";
+  var assigned = {};
+
+  function renderStatements() {
+    var html = STATEMENTS.map(function (s, idx) {
+      var btns = CATS.map(function (c) {
+        return '<button class="choice-btn" type="button" data-id="' + s.id + '" data-cat="' + c.key + '">' + c.label + "</button>";
+      }).join("");
+      return (
+        '<div class="stmt" id="stmt-' + s.id + '">' +
+          '<div class="stmt-head"><span class="stmt-num">' + (idx + 1) + '</span><span class="stmt-text">' + s.text + "</span></div>" +
+          '<div class="choice-row" id="choices-' + s.id + '">' + btns + "</div>" +
+          '<div class="ann" id="ann-' + s.id + '"></div>' +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById("statements").innerHTML = html;
+  }
+
+  function sortedCount() {
+    return Object.keys(assigned).filter(function (id) { return assigned[id]; }).length;
+  }
+
+  function updateStatLine() {
+    document.getElementById("pick-count").textContent = sortedCount();
+  }
+
+  function applySelectionVisual(id) {
+    var row = document.getElementById("choices-" + id);
+    if (!row) return;
+    row.querySelectorAll(".choice-btn").forEach(function (btn) {
+      var cat = btn.getAttribute("data-cat");
+      btn.classList.remove("sel-practical", "sel-general", "sel-performance", "sel-security", "sel-quality");
+      if (assigned[id] === cat) btn.classList.add("sel-" + cat);
+    });
+  }
+
+  function wireChoices() {
+    document.getElementById("statements").addEventListener("click", function (ev) {
+      if (mode !== "task") return;
+      var btn = ev.target.closest(".choice-btn");
+      if (!btn) return;
+      var id = btn.getAttribute("data-id");
+      var cat = btn.getAttribute("data-cat");
+      assigned[id] = (assigned[id] === cat) ? null : cat;
+      if (!assigned[id]) delete assigned[id];
+      applySelectionVisual(id);
+      updateStatLine();
+    });
+  }
+
+  function tally() {
+    var total = STATEMENTS.length, correct = 0, wrong = 0, missed = 0;
+    var byCat = {};
+    CATS.forEach(function (c) { byCat[c.key] = { total: 0, correct: 0 }; });
+    STATEMENTS.forEach(function (s) {
+      byCat[s.cat].total++;
+      var a = assigned[s.id];
+      if (a === s.cat) { correct++; byCat[s.cat].correct++; }
+      else if (a) wrong++;
+      else missed++;
+    });
+    return { total: total, correct: correct, wrong: wrong, missed: missed, byCat: byCat };
+  }
+
+  function renderScore() {
+    var t = tally();
+    var panel = document.getElementById("score-panel");
+    var extra = [];
+    if (t.wrong) extra.push(t.wrong + " classified into the wrong category");
+    if (t.missed) extra.push(t.missed + " left unclassified");
+    var splitLine = CATS.map(function (c) {
+      var b = t.byCat[c.key];
+      return c.label + ": " + b.correct + "/" + b.total;
+    }).join(" &nbsp;·&nbsp; ");
+    panel.innerHTML =
+      '<span class="big">' + t.correct + " / " + t.total + "</span>" +
+      "<p>correctly classified" + (extra.length ? " — " + extra.join("; ") + "." : ". Every statement correctly matched to its part of the specification." ) + "</p>" +
+      '<p class="split">' + splitLine + "</p>";
+  }
+
+  function renderAnnotation(s) {
+    var el = document.getElementById("ann-" + s.id);
+    var a = assigned[s.id];
+    var correct = a === s.cat;
+    var pillHtml;
+    if (correct) pillHtml = '<span class="pill correct">You got it — ' + CAT_LABEL[s.cat] + "</span>";
+    else if (a) pillHtml = '<span class="pill wrong-pick">You chose ' + CAT_LABEL[a] + " — answer is " + CAT_LABEL[s.cat] + "</span>";
+    else pillHtml = '<span class="pill missed-pick">Left unclassified — answer is ' + CAT_LABEL[s.cat] + "</span>";
+    el.innerHTML = '<div class="ann-inner"><div class="ahead">' + pillHtml + "</div><p style=\"margin:0\">" + s.note + "</p></div>";
+  }
+
+  function revealAll() {
+    mode = "revealed";
+    document.body.classList.add("revealed");
+    STATEMENTS.forEach(function (s) {
+      var card = document.getElementById("stmt-" + s.id);
+      var a = assigned[s.id];
+      card.classList.remove("correct", "wrong", "missed");
+      if (a === s.cat) card.classList.add("correct");
+      else if (a) card.classList.add("wrong");
+      else card.classList.add("missed");
+
+      var row = document.getElementById("choices-" + s.id);
+      row.querySelectorAll(".choice-btn").forEach(function (btn) {
+        var cat = btn.getAttribute("data-cat");
+        btn.classList.remove("answer-key", "sel-wrong-pick");
+        if (cat === s.cat) btn.classList.add("answer-key");
+        if (a && a !== s.cat && cat === a) btn.classList.add("sel-wrong-pick");
+      });
+      renderAnnotation(s);
+    });
+    renderScore();
+    document.getElementById("reveal-btn").hidden = true;
+    document.getElementById("reset-btn").hidden = false;
+    document.getElementById("stat-line").textContent = "Model answers revealed — compare your choices against the notes below each statement.";
+  }
+
+  function resetAll() {
+    mode = "task";
+    assigned = {};
+    document.body.classList.remove("revealed");
+    renderStatements();
+    document.getElementById("stat-line").innerHTML = 'Click a category for each statement. <b id="pick-count">0</b> / 15 classified so far.';
+    document.getElementById("reveal-btn").hidden = false;
+    document.getElementById("reset-btn").hidden = true;
+  }
+
+  document.getElementById("reveal-btn").addEventListener("click", revealAll);
+  document.getElementById("reset-btn").addEventListener("click", resetAll);
+
+  wireChoices();
+  renderStatements();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DFD Symbol Match</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #6b7c82; --faint: #98a7ab;
+    --surface: #f6f8f8; --surface-raised: #ffffff; --surface-sunken: #eef2f1; --border: #dbe3e1;
+    --good: #1f8a5f; --good-soft: #dcf0e6; --good-ink: #ffffff;
+    --warn: #a3491b; --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --cat-entity: #2b6f8f; --cat-entity-soft: #e1ecf1;
+    --cat-process: #b8791f; --cat-process-soft: #f3e4cc;
+    --cat-store: #0e7c86; --cat-store-soft: #d7eeee;
+    --cat-flow: #5c4b8a; --cat-flow-soft: #e7e2f5;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --cat-entity: #6cb6d8; --cat-entity-soft: #16262c;
+      --cat-process: #e0a24a; --cat-process-soft: #362a17;
+      --cat-store: #5cc9d1; --cat-store-soft: #103033;
+      --cat-flow: #b3a3e8; --cat-flow-soft: #2b2440;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --cat-entity: #6cb6d8; --cat-entity-soft: #16262c;
+    --cat-process: #e0a24a; --cat-process-soft: #362a17;
+    --cat-store: #5cc9d1; --cat-store-soft: #103033;
+    --cat-flow: #b3a3e8; --cat-flow-soft: #2b2440;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--cat-flow-soft); color: var(--cat-flow); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  .controlbtns { display: flex; gap: 8px; }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+  button.btn.primary { background: var(--cat-flow); border-color: var(--cat-flow); color: var(--good-ink); font-weight: 600; }
+  button.btn.primary:hover { filter: brightness(1.08); }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--cat-flow); background: var(--cat-flow-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 26px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 70ch; margin: 0 0 24px; }
+
+  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  @media (max-width: 680px) { .board { grid-template-columns: 1fr; gap: 16px; } }
+  .col-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--faint); margin-bottom: 10px;
+  }
+  .cards { display: flex; flex-direction: column; gap: 10px; }
+
+  .sym-card, .def-card {
+    background: var(--surface-raised); border: 2px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; cursor: pointer; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px; transition: border-color 0.12s ease, transform 0.08s ease;
+  }
+  .sym-card:hover, .def-card:hover { border-color: var(--faint); }
+  .sym-card:active, .def-card:active { transform: scale(0.99); }
+  .sym-card.selected { border-color: var(--cat-flow); box-shadow: 0 0 0 3px var(--cat-flow-soft); }
+  .sym-card .icon { flex: none; width: 64px; height: 44px; }
+  .sym-card .matched-name { font-size: 13.5px; font-weight: 600; color: var(--muted); }
+
+  .def-card p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-soft); }
+
+  .sym-card.locked, .def-card.locked { cursor: default; border-color: var(--good); background: var(--good-soft); }
+  .sym-card.locked .matched-name { color: var(--good); }
+  .sym-card.locked:hover, .def-card.locked:hover { border-color: var(--good); }
+  .def-card.locked p { color: var(--ink); }
+
+  .def-card.wrong-flash { border-color: var(--warn); background: var(--warn-soft); }
+  .sym-card.wrong-flash { border-color: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); }
+
+  .complete-banner {
+    display: none; margin-top: 24px; background: var(--good-soft); border: 1px solid color-mix(in srgb, var(--good) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; font-size: 14px; color: var(--ink);
+  }
+  .complete-banner.show { display: block; }
+  .complete-banner b { color: var(--good); }
+
+  footer.page-foot {
+    margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>DFD Symbol Match</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line" id="stat-line">Click a symbol, then click its matching name and definition. <b id="match-count">0</b> / 4 matched.</div>
+  <div class="controlbtns">
+    <button class="btn" id="reset-btn" hidden>Reset</button>
+    <button class="btn primary" id="reveal-btn">Reveal all</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Starter · 5 minutes · pairs</span>
+  <h1>Four symbols, four jobs</h1>
+  <p class="lede">Before we use data flow diagrams for real, get the vocabulary straight. Click a symbol on the left, then click the definition on the right that matches it. Get the four pairs matched — don't worry about the rules yet, that's next.</p>
+
+  <div class="board">
+    <div>
+      <div class="col-label">Symbols</div>
+      <div class="cards" id="symbols"></div>
+    </div>
+    <div>
+      <div class="col-label">Definitions</div>
+      <div class="cards" id="definitions"></div>
+    </div>
+  </div>
+
+  <div class="complete-banner" id="complete-banner"><b>All four matched.</b> You've got the vocabulary — next, the rules for how these fit together.</div>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · Lesson 5 — DFD resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ICONS = {
+    process: '<svg viewBox="0 0 64 44" width="64" height="44"><rect x="2" y="2" rx="12" ry="12" width="60" height="40" fill="var(--cat-process-soft)" stroke="var(--cat-process)" stroke-width="2"/></svg>',
+    entity: '<svg viewBox="0 0 64 44" width="64" height="44"><rect x="2" y="2" width="60" height="40" fill="var(--cat-entity-soft)" stroke="var(--cat-entity)" stroke-width="2"/></svg>',
+    store: '<svg viewBox="0 0 64 44" width="64" height="44"><line x1="2" y1="6" x2="62" y2="6" stroke="var(--cat-store)" stroke-width="3"/><line x1="2" y1="38" x2="62" y2="38" stroke="var(--cat-store)" stroke-width="3"/><rect x="2" y="6" width="60" height="32" fill="var(--cat-store-soft)"/></svg>',
+    flow: '<svg viewBox="0 0 64 44" width="64" height="44"><defs><marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0, 8 4, 0 8" fill="var(--cat-flow)"/></marker></defs><line x1="4" y1="22" x2="52" y2="22" stroke="var(--cat-flow)" stroke-width="3" marker-end="url(#arrowhead)"/></svg>'
+  };
+
+  var ITEMS = [
+    { key: "process", name: "Process", def: "A step that does something to data — checks it, transforms it, or calculates something new." },
+    { key: "entity", name: "External entity", def: "A person, organisation or system outside the one you're modelling — a source or destination for data." },
+    { key: "store", name: "Data store", def: "Somewhere data is held between processes — a file, a database table, a paper ledger." },
+    { key: "flow", name: "Data flow", def: "An arrow showing data moving from one part of the system to another — always labelled with what's flowing." }
+  ];
+  var ITEM_BY_KEY = {};
+  ITEMS.forEach(function (i) { ITEM_BY_KEY[i.key] = i; });
+
+  var SYMBOL_ORDER = ["process", "entity", "store", "flow"];
+  var DEF_ORDER = ["flow", "store", "process", "entity"];
+
+  var selected = null;
+  var matched = {};
+
+  function renderSymbols() {
+    var html = SYMBOL_ORDER.map(function (key) {
+      return (
+        '<div class="sym-card" data-key="' + key + '" tabindex="0" role="button">' +
+          '<span class="icon">' + ICONS[key] + "</span>" +
+          '<span class="matched-name" id="name-' + key + '"></span>' +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById("symbols").innerHTML = html;
+  }
+
+  function renderDefs() {
+    var html = DEF_ORDER.map(function (key) {
+      var item = ITEM_BY_KEY[key];
+      return (
+        '<div class="def-card" data-key="' + key + '" tabindex="0" role="button">' +
+          "<p>" + item.def + "</p>" +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById("definitions").innerHTML = html;
+  }
+
+  function matchedCount() {
+    return Object.keys(matched).length;
+  }
+
+  function updateStat() {
+    document.getElementById("match-count").textContent = matchedCount();
+  }
+
+  function clearSelection() {
+    selected = null;
+    document.querySelectorAll(".sym-card").forEach(function (el) { el.classList.remove("selected"); });
+  }
+
+  function flash(el) {
+    el.classList.add("wrong-flash");
+    setTimeout(function () { el.classList.remove("wrong-flash"); }, 420);
+  }
+
+  function lockPair(key) {
+    matched[key] = true;
+    var symEl = document.querySelector('.sym-card[data-key="' + key + '"]');
+    var defEl = document.querySelector('.def-card[data-key="' + key + '"]');
+    symEl.classList.add("locked");
+    defEl.classList.add("locked");
+    document.getElementById("name-" + key).textContent = ITEM_BY_KEY[key].name;
+    updateStat();
+    if (matchedCount() === ITEMS.length) {
+      document.getElementById("complete-banner").classList.add("show");
+      document.getElementById("stat-line").textContent = "All four matched — nice work.";
+      document.getElementById("reveal-btn").hidden = true;
+      document.getElementById("reset-btn").hidden = false;
+    }
+  }
+
+  function onSymbolClick(ev) {
+    var card = ev.target.closest(".sym-card");
+    if (!card || card.classList.contains("locked")) return;
+    var key = card.getAttribute("data-key");
+    if (selected === key) { clearSelection(); return; }
+    clearSelection();
+    selected = key;
+    card.classList.add("selected");
+  }
+
+  function onDefClick(ev) {
+    var card = ev.target.closest(".def-card");
+    if (!card || card.classList.contains("locked")) return;
+    if (!selected) { flash(card); return; }
+    var key = card.getAttribute("data-key");
+    if (key === selected) {
+      lockPair(selected);
+      clearSelection();
+    } else {
+      flash(card);
+      var symEl = document.querySelector('.sym-card[data-key="' + selected + '"]');
+      flash(symEl);
+      clearSelection();
+    }
+  }
+
+  function revealAll() {
+    ITEMS.forEach(function (item) {
+      if (!matched[item.key]) lockPair(item.key);
+    });
+    clearSelection();
+    document.getElementById("stat-line").textContent = "All four revealed — review the pairs, then move on.";
+    document.getElementById("reveal-btn").hidden = true;
+    document.getElementById("reset-btn").hidden = false;
+  }
+
+  function resetAll() {
+    selected = null;
+    matched = {};
+    document.getElementById("complete-banner").classList.remove("show");
+    renderSymbols();
+    renderDefs();
+    document.getElementById("stat-line").innerHTML = 'Click a symbol, then click its matching name and definition. <b id="match-count">0</b> / 4 matched.';
+    document.getElementById("reveal-btn").hidden = false;
+    document.getElementById("reset-btn").hidden = true;
+  }
+
+  document.getElementById("symbols").addEventListener("click", onSymbolClick);
+  document.getElementById("definitions").addEventListener("click", onDefClick);
+  document.getElementById("reveal-btn").addEventListener("click", revealAll);
+  document.getElementById("reset-btn").addEventListener("click", resetAll);
+
+  renderSymbols();
+  renderDefs();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spot the Broken Rule</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #6b7c82; --faint: #98a7ab;
+    --surface: #f6f8f8; --surface-raised: #ffffff; --surface-sunken: #eef2f1; --border: #dbe3e1;
+    --good: #1f8a5f; --good-soft: #dcf0e6; --good-ink: #ffffff;
+    --warn: #a3491b; --warn-soft: #f5ded0;
+    --focus: #2b6f8f;
+    --cat-entity: #2b6f8f; --cat-entity-soft: #e1ecf1;
+    --cat-process: #b8791f; --cat-process-soft: #f3e4cc;
+    --cat-store: #0e7c86; --cat-store-soft: #d7eeee;
+    --shadow: 0 1px 2px rgba(22, 35, 42, 0.06), 0 6px 20px rgba(22, 35, 42, 0.06);
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+      --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+      --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+      --warn: #e0925a; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --cat-entity: #6cb6d8; --cat-entity-soft: #16262c;
+      --cat-process: #e0a24a; --cat-process-soft: #362a17;
+      --cat-store: #5cc9d1; --cat-store-soft: #103033;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #93a3a1; --faint: #66787a;
+    --surface: #10181a; --surface-raised: #172224; --surface-sunken: #0c1314; --border: #263335;
+    --good: #49b98a; --good-soft: #163627; --good-ink: #0c1314;
+    --warn: #e0925a; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --cat-entity: #6cb6d8; --cat-entity-soft: #16262c;
+    --cat-process: #e0a24a; --cat-process-soft: #362a17;
+    --cat-store: #5cc9d1; --cat-store-soft: #103033;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; row-gap: 6px; }
+  .brand b { font-size: 17px; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--warn-soft); color: var(--warn); padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .controlbar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; background: var(--surface-raised); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; box-shadow: var(--shadow);
+  }
+  .stat-line { font-size: 13.5px; color: var(--ink-soft); }
+  .stat-line b { color: var(--ink); font-family: var(--mono); }
+  .controlbtns { display: flex; gap: 8px; }
+  button.btn {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-raised);
+    color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  button.btn:hover { background: var(--surface-sunken); }
+  button.btn.primary { background: var(--warn); border-color: var(--warn); color: var(--good-ink); font-weight: 600; }
+  button.btn.primary:hover { filter: brightness(1.08); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--warn); background: var(--warn-soft); display: inline-block;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+  }
+  h1 { font-size: 26px; margin: 0 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 72ch; margin: 0 0 8px; }
+  .disclaimer { color: var(--faint); font-size: 12.5px; line-height: 1.55; max-width: 72ch; margin: 0 0 24px; }
+
+  .rules-ref {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px;
+  }
+  @media (max-width: 760px) { .rules-ref { grid-template-columns: 1fr 1fr; } }
+  .rule-card {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 13px; box-shadow: var(--shadow);
+  }
+  .rule-card .rh { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+  .rule-chip {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700; color: var(--good-ink);
+    background: var(--ink-soft); min-width: 20px; height: 20px; border-radius: 10px; padding: 0 5px;
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .rule-card .rlabel { font-size: 13px; font-weight: 600; }
+  .rule-card p { margin: 0; font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+
+  .legend {
+    display: none; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 24px; font-size: 12.5px; color: var(--muted);
+  }
+  body.revealed .legend { display: flex; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; flex: none; }
+  .sw-correct { background: var(--good-soft); border: 2px solid var(--good); }
+  .sw-wrong { background: var(--warn-soft); border: 2px dashed var(--warn); }
+  .sw-missed { background: transparent; border: 1.5px dashed var(--faint); }
+
+  .score-panel {
+    display: none; background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--border));
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 28px;
+  }
+  body.revealed .score-panel { display: block; }
+  .score-panel .big { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--warn); }
+  .score-panel p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
+
+  .fragments { display: flex; flex-direction: column; gap: 18px; }
+  .frag {
+    background: var(--surface-raised); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .frag-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .frag-num {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--good-ink);
+    background: var(--ink-soft); border-radius: 5px; min-width: 22px; height: 22px; padding: 0 2px;
+    display: inline-flex; align-items: center; justify-content: center; flex: none; margin-top: 1px;
+  }
+  .frag.correct .frag-num { background: var(--good); }
+  .frag.wrong .frag-num { background: var(--warn); }
+  .frag.missed .frag-num { background: var(--faint); }
+  .frag-title { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+
+  .frag-svg-wrap { background: var(--surface-sunken); border-radius: 8px; padding: 10px; margin-bottom: 12px; }
+  .frag-svg-wrap svg { width: 100%; height: auto; display: block; max-width: 560px; margin: 0 auto; }
+  .box-label { font-family: var(--sans); font-size: 12.5px; font-weight: 600; fill: var(--ink); }
+  .box-sub { font-family: var(--mono); font-size: 9.5px; fill: var(--muted); }
+  .flow-label { font-family: var(--sans); font-size: 10.5px; fill: var(--ink-soft); }
+  .flow-line { stroke: var(--muted); stroke-width: 2; fill: none; }
+
+  .choice-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .choice-btn {
+    font-family: var(--sans); font-size: 12.5px; font-weight: 500; color: var(--ink-soft);
+    background: var(--surface-sunken); border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 7px 13px; cursor: pointer;
+  }
+  .choice-btn:hover { filter: brightness(0.98); border-color: var(--faint); }
+  .choice-btn.selected { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); font-weight: 600; }
+  body.revealed .choice-btn { cursor: default; pointer-events: none; }
+  body.revealed .choice-btn.answer-key { box-shadow: inset 0 0 0 2px var(--good); background: var(--good-soft); color: var(--good); font-weight: 600; }
+  body.revealed .choice-btn.sel-wrong-pick { box-shadow: inset 0 0 0 2px var(--warn); }
+
+  .note {
+    display: none; margin-top: 12px;
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+  }
+  body.revealed .note { display: block; }
+  .note .pill {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-right: 8px;
+  }
+  .note .pill.correct { color: var(--good-ink); background: var(--good); }
+  .note .pill.wrong-pick { color: var(--good-ink); background: var(--warn); }
+  .note .pill.missed-pick { color: var(--ink-soft); background: var(--surface-raised); border: 1px solid var(--border); }
+
+  footer.page-foot {
+    margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--faint); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><b>Spot the Broken Rule</b><span class="tag">Unit 5 NEA · Investigation</span></div>
+</div>
+
+<div class="controlbar">
+  <div class="stat-line" id="stat-line">Pick a rule for each fragment — or "No rule broken" if it's valid. <b id="pick-count">0</b> / 5 classified so far.</div>
+  <div class="controlbtns">
+    <button class="btn" id="reset-btn" hidden>Reset</button>
+    <button class="btn primary" id="reveal-btn">Reveal model answers</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <span class="eyebrow">Self-check · use anytime during independent build</span>
+  <h1>Five DFD fragments. Which rule is broken?</h1>
+  <p class="lede">Each fragment below is a small piece of a library-system DFD. Four break exactly one of the 4 rules — one doesn't break any rule at all, however suspicious it looks. Read each one carefully and choose which rule it breaks, or "No rule broken" if it's actually fine.</p>
+  <p class="disclaimer">Use this any time during independent work to self-check your own DFD against the same 4 rules.</p>
+
+  <div class="rules-ref">
+    <div class="rule-card"><div class="rh"><span class="rule-chip">1</span><span class="rlabel">Rule 1</span></div><p>Every process has at least one input and one output.</p></div>
+    <div class="rule-card"><div class="rh"><span class="rule-chip">2</span><span class="rlabel">Rule 2</span></div><p>Every store has at least one flow in and one flow out.</p></div>
+    <div class="rule-card"><div class="rh"><span class="rule-chip">3</span><span class="rlabel">Rule 3</span></div><p>Nothing reaches a store except through a process.</p></div>
+    <div class="rule-card"><div class="rh"><span class="rule-chip">4</span><span class="rlabel">Rule 4</span></div><p>Every process connects onward to another process or a store.</p></div>
+  </div>
+
+  <div class="legend">
+    <span class="chip"><span class="swatch sw-correct"></span>Correctly spotted</span>
+    <span class="chip"><span class="swatch sw-wrong"></span>Spotted, but wrong rule</span>
+    <span class="chip"><span class="swatch sw-missed"></span>Left unanswered</span>
+  </div>
+
+  <div class="score-panel" id="score-panel"></div>
+
+  <div class="fragments" id="fragments"></div>
+
+  <footer class="page-foot">Unit 5 NEA · Investigation · Lesson 5 — DFD resource set</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var OPTIONS = [
+    { key: "r1", label: "Rule 1" },
+    { key: "r2", label: "Rule 2" },
+    { key: "r3", label: "Rule 3" },
+    { key: "r4", label: "Rule 4" },
+    { key: "none", label: "No rule broken" }
+  ];
+  var OPT_LABEL = {};
+  OPTIONS.forEach(function (o) { OPT_LABEL[o.key] = o.label; });
+
+  var FRAGMENTS = [
+    {
+      id: "f1", title: "Fragment 1 — calculating a fine", answer: "r1",
+      note: "Every process needs at least one input as well as an output. P1 has an output (to D1) but nothing flowing in — where would the fine amount actually come from?",
+      svg:
+        '<svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs><marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--muted)"></polygon></marker></defs>' +
+          '<line class="flow-line" x1="230" y1="75" x2="330" y2="75" marker-end="url(#a1)"></line>' +
+          '<rect x="60" y="40" width="170" height="70" rx="14" fill="var(--cat-process-soft)" stroke="var(--cat-process)" stroke-width="2"></rect>' +
+          '<text class="box-sub" x="145" y="65" text-anchor="middle">P1</text>' +
+          '<text class="box-label" x="145" y="83" text-anchor="middle">Calculate Fine</text>' +
+          '<line x1="330" y1="40" x2="330" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="330" y1="40" x2="450" y2="40" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="330" y1="110" x2="450" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<rect x="330" y="40" width="120" height="70" fill="var(--cat-store-soft)"></rect>' +
+          '<text class="box-label" x="390" y="80" text-anchor="middle">D1: Fines Ledger</text>' +
+          '<text class="flow-label" x="280" y="35" text-anchor="middle">fine amount</text>' +
+        "</svg>"
+    },
+    {
+      id: "f2", title: "Fragment 2 — logging a book return", answer: "r2",
+      note: "Every store needs at least one flow out as well as in. D2 is written to but never read from in this fragment — nothing ever uses the data once it's stored.",
+      svg:
+        '<svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs><marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--muted)"></polygon></marker></defs>' +
+          '<line class="flow-line" x1="150" y1="75" x2="230" y2="75" marker-end="url(#a2)"></line>' +
+          '<line class="flow-line" x1="330" y1="75" x2="400" y2="75" marker-end="url(#a2)"></line>' +
+          '<rect x="20" y="40" width="130" height="70" fill="var(--cat-entity-soft)" stroke="var(--cat-entity)" stroke-width="2"></rect>' +
+          '<text class="box-label" x="85" y="80" text-anchor="middle">Librarian</text>' +
+          '<rect x="230" y="40" width="100" height="70" rx="14" fill="var(--cat-process-soft)" stroke="var(--cat-process)" stroke-width="2"></rect>' +
+          '<text class="box-sub" x="280" y="65" text-anchor="middle">P2</text>' +
+          '<text class="box-label" x="280" y="83" text-anchor="middle">Log Return</text>' +
+          '<line x1="400" y1="40" x2="400" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="400" y1="40" x2="520" y2="40" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="400" y1="110" x2="520" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<rect x="400" y="40" width="120" height="70" fill="var(--cat-store-soft)"></rect>' +
+          '<text class="box-label" x="460" y="80" text-anchor="middle">D2: Return Log</text>' +
+          '<text class="flow-label" x="190" y="35" text-anchor="middle">return confirmed</text>' +
+          '<text class="flow-label" x="365" y="35" text-anchor="middle">return logged</text>' +
+        "</svg>"
+    },
+    {
+      id: "f3", title: "Fragment 3 — updating a member's address", answer: "r3",
+      note: "Nothing may reach a store except through a process. Member is an external entity — it can't write to a store directly; a process has to sit in between to handle and validate that update.",
+      svg:
+        '<svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs><marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--muted)"></polygon></marker></defs>' +
+          '<line class="flow-line" x1="180" y1="75" x2="280" y2="75" marker-end="url(#a3)"></line>' +
+          '<rect x="40" y="40" width="140" height="70" fill="var(--cat-entity-soft)" stroke="var(--cat-entity)" stroke-width="2"></rect>' +
+          '<text class="box-label" x="110" y="80" text-anchor="middle">Member</text>' +
+          '<line x1="280" y1="40" x2="280" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="280" y1="40" x2="420" y2="40" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="280" y1="110" x2="420" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<rect x="280" y="40" width="140" height="70" fill="var(--cat-store-soft)"></rect>' +
+          '<text class="box-label" x="350" y="80" text-anchor="middle">D3: Membership Records</text>' +
+          '<text class="flow-label" x="230" y="35" text-anchor="middle">updated address</text>' +
+        "</svg>"
+    },
+    {
+      id: "f4", title: "Fragment 4 — printing a receipt", answer: "r4",
+      note: "Every process must connect onward to another process or a store, not just out to an entity. P5 reads from D4 but its only output leaves the system to Borrower — nothing ever records that the receipt was printed.",
+      svg:
+        '<svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs><marker id="a4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--muted)"></polygon></marker></defs>' +
+          '<line class="flow-line" x1="140" y1="75" x2="220" y2="75" marker-end="url(#a4)"></line>' +
+          '<line class="flow-line" x1="320" y1="75" x2="400" y2="75" marker-end="url(#a4)"></line>' +
+          '<rect x="20" y="40" width="120" height="70" fill="var(--cat-store-soft)"></rect>' +
+          '<line x1="20" y1="40" x2="20" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="20" y1="40" x2="140" y2="40" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="20" y1="110" x2="140" y2="110" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<text class="box-label" x="80" y="80" text-anchor="middle">D4: Transaction Log</text>' +
+          '<rect x="220" y="40" width="100" height="70" rx="14" fill="var(--cat-process-soft)" stroke="var(--cat-process)" stroke-width="2"></rect>' +
+          '<text class="box-sub" x="270" y="65" text-anchor="middle">P5</text>' +
+          '<text class="box-label" x="270" y="83" text-anchor="middle">Print Receipt</text>' +
+          '<rect x="400" y="40" width="130" height="70" fill="var(--cat-entity-soft)" stroke="var(--cat-entity)" stroke-width="2"></rect>' +
+          '<text class="box-label" x="465" y="80" text-anchor="middle">Borrower</text>' +
+          '<text class="flow-label" x="178" y="35" text-anchor="middle">transaction details</text>' +
+          '<text class="flow-label" x="360" y="35" text-anchor="middle">receipt</text>' +
+        "</svg>"
+    },
+    {
+      id: "f5", title: "Fragment 5 — generating a loan report", answer: "none",
+      note: "No rule broken. P6 has an input and an output (rule 1), D5 has a flow in and a flow out (rule 2), nothing touches D5 except via P6 (rule 3), and P6 connects onward to D5 as well as out to Teacher (rule 4) — the same pattern as P3 in the cataloguing example, and gap 4 of What's Missing?.",
+      svg:
+        '<svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs><marker id="a5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--muted)"></polygon></marker></defs>' +
+          '<line class="flow-line" x1="150" y1="60" x2="230" y2="60" marker-end="url(#a5)"></line>' +
+          '<line class="flow-line" x1="330" y1="60" x2="410" y2="60" marker-end="url(#a5)"></line>' +
+          '<path class="flow-line" d="M 300 130 C 300 100, 290 90, 282 72" marker-end="url(#a5)"></path>' +
+          '<path class="flow-line" d="M 260 95 C 255 115, 255 125, 258 155" marker-end="url(#a5)"></path>' +
+          '<rect x="20" y="25" width="130" height="70" fill="var(--cat-entity-soft)" stroke="var(--cat-entity)" stroke-width="2"></rect>' +
+          '<text class="box-label" x="85" y="65" text-anchor="middle">Teacher</text>' +
+          '<rect x="230" y="25" width="100" height="70" rx="14" fill="var(--cat-process-soft)" stroke="var(--cat-process)" stroke-width="2"></rect>' +
+          '<text class="box-sub" x="280" y="50" text-anchor="middle">P6</text>' +
+          '<text class="box-label" x="280" y="68" text-anchor="middle">Generate Report</text>' +
+          '<rect x="410" y="25" width="130" height="70" fill="var(--cat-entity-soft)" stroke="var(--cat-entity)" stroke-width="2"></rect>' +
+          '<text class="box-label" x="475" y="65" text-anchor="middle">Teacher</text>' +
+          '<rect x="190" y="155" width="140" height="30" fill="var(--cat-store-soft)"></rect>' +
+          '<line x1="190" y1="155" x2="190" y2="185" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="190" y1="155" x2="330" y2="155" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<line x1="190" y1="185" x2="330" y2="185" stroke="var(--cat-store)" stroke-width="3"></line>' +
+          '<text class="flow-label" x="190" y="15" text-anchor="middle">report request</text>' +
+          '<text class="flow-label" x="370" y="15" text-anchor="middle">report file</text>' +
+          '<text class="flow-label" x="335" y="105" text-anchor="start">loan data</text>' +
+          '<text class="flow-label" x="245" y="132" text-anchor="end">report logged</text>' +
+          '<text class="box-label" x="260" y="175" text-anchor="middle" style="font-size:11px">D5: Loan Records</text>' +
+        "</svg>"
+    }
+  ];
+
+  var assigned = {};
+
+  function renderFragments() {
+    var html = FRAGMENTS.map(function (f, idx) {
+      var btns = OPTIONS.map(function (o) {
+        return '<button class="choice-btn" type="button" data-frag="' + f.id + '" data-opt="' + o.key + '">' + o.label + "</button>";
+      }).join("");
+      return (
+        '<div class="frag" id="frag-' + f.id + '">' +
+          '<div class="frag-head"><span class="frag-num">' + (idx + 1) + '</span><span class="frag-title">' + f.title + "</span></div>" +
+          '<div class="frag-svg-wrap">' + f.svg + "</div>" +
+          '<div class="choice-row" id="choices-' + f.id + '">' + btns + "</div>" +
+          '<div class="note" id="note-' + f.id + '"></div>' +
+        "</div>"
+      );
+    }).join("");
+    document.getElementById("fragments").innerHTML = html;
+  }
+
+  function sortedCount() {
+    return Object.keys(assigned).filter(function (id) { return assigned[id]; }).length;
+  }
+
+  function updateStatLine() {
+    document.getElementById("pick-count").textContent = sortedCount();
+  }
+
+  function applySelectionVisual(id) {
+    var row = document.getElementById("choices-" + id);
+    if (!row) return;
+    row.querySelectorAll(".choice-btn").forEach(function (btn) {
+      btn.classList.toggle("selected", assigned[id] === btn.getAttribute("data-opt"));
+    });
+  }
+
+  function wireChoices() {
+    document.getElementById("fragments").addEventListener("click", function (ev) {
+      var btn = ev.target.closest(".choice-btn");
+      if (!btn || document.body.classList.contains("revealed")) return;
+      var id = btn.getAttribute("data-frag");
+      var opt = btn.getAttribute("data-opt");
+      assigned[id] = (assigned[id] === opt) ? null : opt;
+      if (!assigned[id]) delete assigned[id];
+      applySelectionVisual(id);
+      updateStatLine();
+    });
+  }
+
+  function tally() {
+    var total = FRAGMENTS.length, correct = 0, wrong = 0, missed = 0;
+    FRAGMENTS.forEach(function (f) {
+      var a = assigned[f.id];
+      if (a === f.answer) correct++;
+      else if (a) wrong++;
+      else missed++;
+    });
+    return { total: total, correct: correct, wrong: wrong, missed: missed };
+  }
+
+  function renderScore() {
+    var t = tally();
+    var panel = document.getElementById("score-panel");
+    var extra = [];
+    if (t.wrong) extra.push(t.wrong + " spotted with the wrong rule");
+    if (t.missed) extra.push(t.missed + " left unanswered");
+    panel.innerHTML =
+      '<span class="big">' + t.correct + " / " + t.total + "</span>" +
+      "<p>correctly spotted" + (extra.length ? " — " + extra.join("; ") + "." : ". Every fragment correctly diagnosed — including spotting the one that wasn't broken." ) + "</p>";
+  }
+
+  function renderNote(f) {
+    var el = document.getElementById("note-" + f.id);
+    var a = assigned[f.id];
+    var correct = a === f.answer;
+    var pillHtml;
+    if (correct) pillHtml = '<span class="pill correct">You got it — ' + OPT_LABEL[f.answer] + "</span>";
+    else if (a) pillHtml = '<span class="pill wrong-pick">You chose ' + OPT_LABEL[a] + " — answer is " + OPT_LABEL[f.answer] + "</span>";
+    else pillHtml = '<span class="pill missed-pick">Left unanswered — answer is ' + OPT_LABEL[f.answer] + "</span>";
+    el.innerHTML = pillHtml + f.note;
+  }
+
+  function revealAll() {
+    document.body.classList.add("revealed");
+    FRAGMENTS.forEach(function (f) {
+      var card = document.getElementById("frag-" + f.id);
+      var a = assigned[f.id];
+      card.classList.remove("correct", "wrong", "missed");
+      if (a === f.answer) card.classList.add("correct");
+      else if (a) card.classList.add("wrong");
+      else card.classList.add("missed");
+
+      var row = document.getElementById("choices-" + f.id);
+      row.querySelectorAll(".choice-btn").forEach(function (btn) {
+        var opt = btn.getAttribute("data-opt");
+        if (opt === f.answer) btn.classList.add("answer-key");
+        if (a && a !== f.answer && opt === a) btn.classList.add("sel-wrong-pick");
+      });
+      renderNote(f);
+    });
+    renderScore();
+    document.getElementById("reveal-btn").hidden = true;
+    document.getElementById("reset-btn").hidden = false;
+    document.getElementById("stat-line").textContent = "Model answers revealed — compare your choices against the notes below each fragment.";
+  }
+
+  function resetAll() {
+    assigned = {};
+    document.body.classList.remove("revealed");
+    renderFragments();
+    document.getElementById("stat-line").innerHTML = 'Pick a rule for each fragment — or "No rule broken" if it\'s valid. <b id="pick-count">0</b> / 5 classified so far.';
+    document.getElementById("reveal-btn").hidden = false;
+    document.getElementById("reset-btn").hidden = true;
+  }
+
+  document.getElementById("reveal-btn").addEventListener("click", revealAll);
+  document.getElementById("reset-btn").addEventListener("click", resetAll);
+
+  wireChoices();
+  renderFragments();
+})();
+</script>
+</body>
+</html>
