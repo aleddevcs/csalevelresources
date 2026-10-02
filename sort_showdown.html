@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sort Showdown</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --bar:#9DB8D3;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --bar:#3F6286;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --bar:#3F6286;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1340px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1340px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1340px;margin:0 auto;padding:18px 24px 40px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin:10px 0 14px}
+.prompt b{color:var(--amberText)}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:950px){.lanes{grid-template-columns:1fr}}
+.lane{background:var(--panel);border-radius:12px;padding:12px;border:3px solid transparent}
+.lane.win{border-color:#CC9900}
+.lane h3{font-size:19px;color:var(--navy);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lane h3 small{font-family:Calibri,Arial,sans-serif;font-size:13px;color:var(--muted);font-weight:400}
+.bars{display:flex;align-items:flex-end;gap:1px;height:170px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 6px 0;margin:8px 0}
+.bars div{flex:1;background:var(--bar);border-radius:2px 2px 0 0;min-width:1px}
+.bars div.hl{background:#CC9900}
+.bars div.done{background:#003366}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.num{background:var(--bg);border-radius:8px;padding:6px;text-align:center}
+.num b{display:block;font-family:Cambria,Georgia,serif;font-size:24px;color:var(--navy);line-height:1.1}
+.num span{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;background:#CC9900;color:#1F2A36;font-weight:700;border-radius:12px;padding:1px 10px;font-size:13px}
+.panel{background:var(--panel);border-radius:12px;padding:14px;margin-top:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+.chart{display:grid;gap:8px}
+.crow{display:grid;grid-template-columns:130px 1fr 90px;gap:10px;align-items:center;font-size:15px}
+.ctrack{background:var(--bg);border-radius:6px;height:24px;overflow:hidden;border:1px solid var(--line)}
+.cfill{height:100%;background:#003366}
+.cfill.q{background:#CC9900}
+.cfill.i{background:#5B8DB8}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+.twrap{overflow-x:auto}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px;white-space:nowrap}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg);white-space:nowrap}
+table.t td.best{background:var(--okBg);color:var(--ok);font-weight:700}
+.small{font-size:14px;color:var(--muted)}
+.disc{margin-top:14px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+/* which sort */
+.scard{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.scard .sc{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px;font-family:Cambria,Georgia,serif}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:700px){.choices{grid-template-columns:1fr}}
+.choice{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font-weight:700}
+.choice:hover:not(:disabled){border-color:var(--navy)}
+.choice:disabled{cursor:default}
+.choice.ok{border-color:var(--ok);background:var(--okBg)}
+.choice.bad{border-color:var(--bad);background:var(--badBg)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700;font-size:13px}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.dot.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Sort Showdown</h1><div class="spec">Unit 3 · 3.4.1 · Bubble sort vs insertion sort vs quicksort</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function makeData(n,order){
+  const a=Array.from({length:n},(_,i)=>i+1);
+  if(order==='random'||order==='nearly'){for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+  if(order==='nearly'){a.sort((x,y)=>x-y);const k=Math.max(1,Math.round(n*0.05));for(let t=0;t<k;t++){const i=Math.floor(Math.random()*(n-1));[a[i],a[i+1]]=[a[i+1],a[i]];}}
+  if(order==='reversed')a.reverse();
+  return a;
+}
+/* each sort returns {cmp, moves, depth, frames?} ; frames recorded only when rec=true */
+function bubble(a0,rec,early){
+  const a=a0.slice(),n=a.length,fr=[];let cmp=0,moves=0;
+  for(let i=0;i<n-1;i++){let sw=false;
+    for(let j=0;j<n-1-i;j++){cmp++;if(a[j]>a[j+1]){[a[j],a[j+1]]=[a[j+1],a[j]];moves++;sw=true;}
+      if(rec)fr.push({arr:a.slice(),hl:[j,j+1],done:n-1-i});}
+    if(early&&!sw)break;}
+  if(rec)fr.push({arr:a.slice(),hl:[],done:0,fin:true});
+  return {cmp,moves,depth:1,calls:1,frames:fr};
+}
+function insertion(a0,rec){
+  const a=a0.slice(),n=a.length,fr=[];let cmp=0,moves=0;
+  for(let idx=1;idx<n;idx++){const key=a[idx];let pos=idx-1;
+    while(pos>=0){cmp++;const big=a[pos]>key;if(rec)fr.push({arr:a.slice(),hl:[pos,pos+1]});if(!big)break;a[pos+1]=a[pos];moves++;pos--;}
+    a[pos+1]=key;}
+  if(rec)fr.push({arr:a.slice(),hl:[],fin:true});
+  return {cmp,moves,depth:1,calls:1,frames:fr};
+}
+function quick(a0,rec){
+  const a=a0.slice(),fr=[];let cmp=0,moves=0,depth=0,maxd=0,calls=0;
+  function qs(lo,hi){calls++;depth++;maxd=Math.max(maxd,depth);
+    let tl=lo,th=hi;const piv=a[Math.floor((lo+hi)/2)];
+    while(tl<=th){
+      while(true){cmp++;if(rec)fr.push({arr:a.slice(),hl:[tl],range:[lo,hi]});if(!(a[tl]<piv&&tl<hi))break;tl++;}
+      while(true){cmp++;if(rec)fr.push({arr:a.slice(),hl:[th],range:[lo,hi]});if(!(piv<a[th]&&th>lo))break;th--;}
+      if(tl<=th){[a[tl],a[th]]=[a[th],a[tl]];moves++;tl++;th--;}
+    }
+    if(lo<th)qs(lo,th);if(tl<hi)qs(tl,hi);depth--;}
+  qs(0,a.length-1);
+  if(rec)fr.push({arr:a.slice(),hl:[],fin:true});
+  return {cmp,moves,depth:maxd,calls,frames:fr};
+}
+const SORTS=[{k:'b',name:'Bubble sort',moveName:'swaps'},{k:'i',name:'Insertion sort',moveName:'copies up'},{k:'q',name:'Quicksort',moveName:'swaps'}];
+function runAll(data,rec,early){return {b:bubble(data,rec,early),i:insertion(data,rec),q:quick(data,rec)};}
+
+/* ============ state ============ */
+const S={tab:0,n:30,order:'random',early:false,speed:30,data:null,res:null,pos:{b:0,i:0,q:0},timer:null,hist:[],scale:null,wc:{i:0,ans:{}}};
+function newData(){stop();S.data=makeData(S.n,S.order);S.res=runAll(S.data,S.n<=60,S.early);S.pos={b:0,i:0,q:0};S.recorded=false;}
+newData();
+function stop(){if(S.timer){clearInterval(S.timer);S.timer=null;}}
+function finishedAll(){return S.res.b.frames.length?SORTS.every(s=>S.pos[s.k]>=S.res[s.k].frames.length-1):true;}
+function record(){
+  if(S.recorded)return;S.recorded=true;
+  const r=S.res,best=Math.min(r.b.cmp,r.i.cmp,r.q.cmp);
+  S.hist.unshift({n:S.n,order:S.order,early:S.early,b:r.b.cmp,i:r.i.cmp,q:r.q.cmp,win:SORTS.filter(s=>r[s.k].cmp===best).map(s=>s.name).join(' & ')});
+}
+function race(){
+  if(S.n>60){record();render();return;}
+  stop();S.pos={b:0,i:0,q:0};
+  const per=Math.max(1,Math.ceil(S.speed/10));
+  S.timer=setInterval(()=>{
+    SORTS.forEach(s=>{S.pos[s.k]=Math.min(S.res[s.k].frames.length-1,S.pos[s.k]+per);});
+    if(finishedAll()){stop();record();}
+    render();
+  },60);
+  render();
+}
+
+/* ============ RACE TAB ============ */
+const ORDERS=[['random','Random'],['nearly','Nearly sorted'],['reversed','Reversed'],['sorted','Already sorted']];
+const oname=o=>ORDERS.find(x=>x[0]===o)[1];
+function laneView(s){
+  const r=S.res[s.k],fr=r.frames,anim=fr.length>0;
+  const p=anim?Math.min(S.pos[s.k],fr.length-1):0;
+  const f=anim?fr[p]:null;
+  const shownCmp=anim?(f.fin?r.cmp:Math.round(r.cmp*p/(fr.length-1))):r.cmp;
+  const done=!anim||f.fin;
+  const allDone=finishedAll();
+  const best=Math.min(S.res.b.cmp,S.res.i.cmp,S.res.q.cmp);
+  const win=(allDone||!anim)&&S.recorded&&r.cmp===best;
+  const arr=anim?f.arr:S.data.slice().sort((a,b)=>a-b);
+  const mx=S.n;
+  const bars=h('div',{class:'bars','aria-hidden':'true'},...arr.map((v,i)=>{
+    let cls='';if(f&&!f.fin&&f.hl.includes(i))cls='hl';else if(done&&(S.recorded||!anim))cls='done';
+    return h('div',{class:cls,style:`height:${Math.max(2,v/mx*100)}%`});}));
+  return h('div',{class:'lane'+(win?' win':'')},
+    h('h3',{},s.name,win?h('span',{class:'badge'},'fewest comparisons'):h('small',{},s.k==='q'?'recursive':'non-recursive')),
+    S.n<=60?bars:h('div',{class:'small',style:'margin:8px 0'},'Lists over 60 items are not animated: results only.'),
+    h('div',{class:'nums'},
+      h('div',{class:'num'},h('b',{},(done&&S.recorded)||!anim?String(r.cmp):String(shownCmp)),h('span',{},'comparisons')),
+      h('div',{class:'num'},h('b',{},(done&&S.recorded)||!anim?String(r.moves):'…'),h('span',{},s.moveName)),
+      h('div',{class:'num'},h('b',{},String(s.k==='q'?r.depth:1)),h('span',{},s.k==='q'?`max stack depth (${r.calls} calls)`:'stack frame'))));
+}
+function raceView(){
+  const sel=(lab,val,opts,on)=>h('label',{},lab,h('select',{onchange:e=>on(e.target.value)},...opts.map(([v,t])=>{const o=h('option',{value:String(v)},t);if(String(v)===String(val))o.selected=true;return o;})));
+  const r=S.res,showRes=S.recorded;
+  const max=Math.max(r.b.cmp,r.i.cmp,r.q.cmp,1);
+  const chart=showRes?h('div',{class:'panel'},h('h3',{},`Comparisons: ${S.n} items, ${oname(S.order).toLowerCase()}`),
+    h('div',{class:'chart'},...SORTS.map(s=>h('div',{class:'crow'},h('span',{},s.name),h('div',{class:'ctrack'},h('div',{class:'cfill '+s.k,style:`width:${r[s.k].cmp/max*100}%`})),h('b',{},String(r[s.k].cmp)))))):null;
+  const hist=S.hist.length?h('div',{class:'panel'},h('h3',{},'Results so far'),h('div',{class:'twrap'},h('table',{class:'t'},
+    h('thead',{},h('tr',{},...['Items','Starting order','Bubble','Insertion','Quicksort','Fewest comparisons'].map(t=>h('th',{},t)))),
+    h('tbody',{},...S.hist.map(x=>{const best=Math.min(x.b,x.i,x.q);return h('tr',{},h('td',{},String(x.n)),h('td',{},oname(x.order)+(x.early?' (early stop)':'')),
+      ...['b','i','q'].map(k=>h('td',{class:x[k]===best?'best':null},String(x[k]))),h('td',{},x.win));}))))):null;
+  const orders=new Set(S.hist.map(x=>x.order));
+  const disc=S.hist.length>=3?h('div',{class:'disc'},h('h3',{},'Look for patterns'),h('ul',{},
+    h('li',{},'Which sort wins on random data as the list gets bigger?'),
+    h('li',{},'Which sort wins on nearly sorted or already sorted data? Why does that make sense?'),
+    h('li',{},'Bubble sort without the early stop makes the same number of comparisons whatever the order. Why?'),
+    h('li',{},'Quicksort is the only one that needs more than one stack frame. Why does that matter for very large data?'))):null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Race')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'All three sorts get exactly the same list. Press Race and compare the number of comparisons. Change the size and the starting order, and record which sort wins each time.'),
+    h('div',{class:'controls'},
+      sel('Items',S.n,[[10,'10'],[30,'30'],[60,'60'],[200,'200 (results only)'],[1000,'1000 (results only)']],v=>{S.n=Number(v);newData();render();}),
+      sel('Starting order',S.order,ORDERS,v=>{S.order=v;newData();render();}),
+      h('label',{},h('input',{type:'checkbox',checked:S.early||null,onchange:e=>{S.early=e.target.checked;newData();render();}}),'Bubble sort stops early if a pass makes no swaps'),
+      sel('Speed',S.speed,[[10,'Slow'],[30,'Normal'],[90,'Fast']],v=>{S.speed=Number(v);}),
+      h('button',{class:'btn accent',onclick:race},S.n>60?'Show results':'Race!'),
+      h('button',{class:'btn ghost',onclick:()=>{newData();render();}},'New list')),
+    h('div',{class:'lanes'},...SORTS.map(laneView)),
+    chart,hist,disc);
+}
+
+/* ============ SCALING TAB ============ */
+function scaleView(){
+  const run=()=>{const rows=[];[10,100,1000,5000].forEach(n=>{const d=makeData(n,S.scaleOrder||'random');const r=runAll(d,false,S.scaleEarly);rows.push({n,b:r.b.cmp,i:r.i.cmp,q:r.q.cmp,qd:r.q.depth});});S.scale=rows;render();};
+  const sel=h('select',{onchange:e=>{S.scaleOrder=e.target.value;S.scale=null;render();}},...ORDERS.map(([v,t])=>{const o=h('option',{value:v},t);if(v===(S.scaleOrder||'random'))o.selected=true;return o;}));
+  const tbl=S.scale?h('div',{class:'panel'},h('h3',{},`Comparisons as the list grows (${oname(S.scaleOrder||'random').toLowerCase()} data)`),h('div',{class:'twrap'},h('table',{class:'t'},
+    h('thead',{},h('tr',{},...['Items','Bubble sort','Insertion sort','Quicksort','Quicksort max stack depth'].map(t=>h('th',{},t)))),
+    h('tbody',{},...S.scale.map(x=>{const best=Math.min(x.b,x.i,x.q);return h('tr',{},h('td',{},x.n.toLocaleString()),...['b','i','q'].map(k=>h('td',{class:x[k]===best?'best':null},x[k].toLocaleString())),h('td',{},String(x.qd)));})))),
+    h('p',{class:'small',style:'margin:8px 0 0'},'Look at what happens to each column when the number of items goes up 10 times (10 → 100 → 1000).')):null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Scaling test')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Run all three sorts on bigger and bigger lists. When the list is 10 times longer, how many times more comparisons does each sort make?'),
+    h('div',{class:'controls'},h('label',{},'Starting order',sel),
+      h('label',{},h('input',{type:'checkbox',checked:S.scaleEarly||null,onchange:e=>{S.scaleEarly=e.target.checked;S.scale=null;render();}}),'Bubble sort stops early'),
+      h('button',{class:'btn accent',onclick:run},'Run the test')),
+    tbl,
+    S.scale?h('div',{class:'disc'},h('h3',{},'What does this show?'),h('ul',{},
+      h('li',{},'On random data, bubble and insertion sort make roughly 100 times more comparisons when the list is 10 times longer. Quicksort grows much more slowly, which is why it is chosen for large data sets.'),
+      h('li',{},'Try "Already sorted": insertion sort (and bubble sort with the early stop) need only one comparison per item.'),
+      h('li',{},'The last column is quicksort\'s cost: the deeper the recursion, the more stack frames are held in memory at once.'))):null);
+}
+
+/* ============ WHICH SORT TAB ============ */
+const WC=[
+ {sc:'A bank sorts 2 million customer records overnight. The data is in no particular order.',ok:['q'],why:'Large, random data: quicksort is usually far faster, because its comparisons grow much more slowly than bubble or insertion sort as the list gets bigger.'},
+ {sc:'A teacher\'s list of 500 exam marks is already in order. One new mark is added to the end and the list is sorted again.',ok:['i'],why:'The data is nearly sorted. Insertion sort needs about one comparison per item and only moves the new mark, so it does very little work.'},
+ {sc:'A tiny sensor with very little memory sorts its last 20 temperature readings.',ok:['i','b'],why:'A small list and very little memory: a non-recursive sort that works in place is best. Insertion sort or bubble sort both work; quicksort\'s recursive calls each need stack memory.'},
+ {sc:'A beginner programmer needs to write their first sort, for a list of 6 names, and must be able to debug it easily.',ok:['b','i'],why:'With only 6 items, speed does not matter. Simplicity does: bubble sort (or insertion sort) is easier to write, trace and debug than recursive quicksort.'},
+ {sc:'An online game re-sorts its leaderboard of 100 players every time one player\'s score changes a little.',ok:['i'],why:'After one small change the list is still nearly sorted, which is exactly where insertion sort is most efficient.'},
+ {sc:'A search engine must sort 50 million random results as quickly as possible, on a server with plenty of memory.',ok:['q'],why:'Huge random data and plenty of memory for the call stack: quicksort\'s speed on large data makes it the right choice.'},
+];
+function wcView(){
+  const W=S.wc,i=W.i,q=WC[i],ans=W.ans[i];
+  const right=Object.entries(W.ans).filter(([k,v])=>WC[k].ok.includes(v)).length;
+  const dots=h('div',{class:'dots'},WC.map((_,j)=>h('button',{class:'dot'+(W.ans[j]!==undefined?(WC[j].ok.includes(W.ans[j])?' ok':' bad'):''),'aria-current':String(j===i),onclick:()=>{W.i=j;render();}},String(j+1))));
+  const choices=h('div',{class:'choices'},SORTS.map(s=>{let cls='choice';if(ans!==undefined){if(q.ok.includes(s.k))cls+=' ok';else if(ans===s.k)cls+=' bad';}
+    return h('button',{class:cls,disabled:ans!==undefined||null,onclick:()=>{W.ans[i]=s.k;render();}},s.name);}));
+  const done=Object.keys(W.ans).length===WC.length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Which sort would you choose?')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Read each scenario and choose the most suitable sort. Think about the size of the data, how ordered it already is, memory and simplicity. Some scenarios have more than one good answer.'),
+    h('div',{style:'display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center'},dots,h('b',{style:'color:var(--navy)'},`Score: ${right} / ${WC.length}`)),
+    h('div',{class:'scard'},h('div',{class:'small'},`Scenario ${i+1}`),h('div',{class:'sc'},q.sc),choices,
+      ans!==undefined?h('div',{class:'fb '+(q.ok.includes(ans)?'ok':'bad')},h('b',{},q.ok.includes(ans)?'Good choice. ':'Not the best choice. '),q.why):null),
+    h('div',{style:'display:flex;gap:10px'},
+      h('button',{class:'btn ghost',disabled:i===0||null,onclick:()=>{W.i--;render();}},'← Previous'),
+      h('button',{class:'btn primary',disabled:i===WC.length-1||null,onclick:()=>{W.i++;render();}},'Next →'),
+      h('button',{class:'btn ghost',onclick:()=>{S.wc={i:0,ans:{}};render();}},'Start again')),
+    done?h('div',{class:'disc'},h('h3',{},`Finished: ${right} of ${WC.length}`),h('p',{style:'margin:0'},'No single sorting algorithm is best in every situation. A programmer weighs speed against memory use and simplicity, for the amount and order of data involved.')):null);
+}
+
+/* ============ shell ============ */
+const TABS=[['Race',raceView],['Scaling test',scaleView],['Which sort?',wcView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{stop();S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+</script>
+</body>
+</html>

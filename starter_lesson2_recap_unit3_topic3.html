@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter: Lesson 2 Recap</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --frame:#FFFFFF; --stroke:#003366;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --frame:#0D1824; --stroke:#9CC2E8;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:18px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+.mono,code{font-family:"Courier New",Courier,monospace}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header{background:var(--head);color:#fff;padding:18px 24px}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;max-width:1100px;margin:0 auto}
+header h1{font-size:30px}
+.sub{font-size:16px;color:#C9D6E3}
+.timer{display:flex;align-items:center;gap:10px}
+.clock{font-family:Cambria,Georgia,serif;font-size:34px;font-weight:700;color:#FFD966;min-width:92px;text-align:right}
+.clock.low{color:#FF9B9B}
+.hbtn{background:#CC9900;color:#1F2A36;border:0;border-radius:8px;padding:8px 14px;font-weight:700}
+.hbtn.ghost{background:transparent;color:#fff;border:2px solid #4A6F95}
+
+main{max-width:1100px;margin:0 auto;padding:20px 24px 40px}
+.score{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.score p{margin:0;color:var(--muted)}
+.score b{font-family:Cambria,Georgia,serif;font-size:24px;color:var(--navy)}
+.q{background:var(--panel);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.q h2{font-size:21px;color:var(--navy);margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.q h2 .num{flex:none;width:30px;height:30px;border-radius:50%;background:#003366;color:#fff;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 14px}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.fb{margin-top:10px;padding:10px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.fb .v{font-weight:700}
+.fb .v.ok{color:var(--ok)}
+.fb .v.bad{color:var(--bad)}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start}
+@media (max-width:760px){.twocol{grid-template-columns:1fr}}
+.ops{list-style:none;margin:0 0 12px;padding:10px 14px;background:var(--code);border:1px solid var(--line);border-radius:8px;font-family:"Courier New",monospace;font-size:17px;counter-reset:op}
+.ops li{padding:2px 6px;border-radius:4px;counter-increment:op}
+.ops li::before{content:counter(op) ". ";color:var(--muted)}
+.ops li.cur{background:var(--soft);outline:2px solid var(--amber)}
+.ops li.done{color:var(--muted)}
+.inputs{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.inputs label{display:grid;gap:4px;font-size:15px;color:var(--muted)}
+.inputs input,.inputs select{border:2px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);color:var(--ink);width:120px}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700}
+.btn.primary{background:#003366;color:#fff}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.stackvis{display:flex;flex-direction:column;align-items:center}
+.arr{display:grid;grid-template-columns:34px 130px 60px;align-items:center}
+.idx{font-size:14px;color:var(--muted);text-align:right;padding-right:8px}
+.cell{height:46px;border:2px solid var(--stroke);border-top-width:1px;display:flex;align-items:center;justify-content:center;font-family:"Courier New",monospace;font-weight:700;font-size:20px;background:var(--frame);color:var(--ink)}
+.arr:first-child .cell{border-top-width:2px}
+.cell.filled{background:var(--soft)}
+.cell.gone{color:var(--muted);text-decoration:line-through;background:var(--frame)}
+.ptr{font-size:14px;font-weight:700;color:var(--amberText);padding-left:8px}
+.toplbl{margin-top:8px;font-family:"Courier New",monospace;font-weight:700;color:var(--navy)}
+.note{font-size:14px;color:var(--muted);margin-top:4px;text-align:center}
+@media (prefers-reduced-motion: no-preference){.cell.filled.new{animation:pop .35s ease-out}}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:none;opacity:1}}
+
+.teaser{background:var(--soft)}
+.teaser h2{color:var(--amberText)}
+.end{margin-top:16px;padding:14px 18px;border-radius:12px;background:#003366;color:#fff}
+.end h3{font-size:20px;margin-bottom:4px;color:#FFD966}
+.end p{margin:0}
+.code{margin:0 0 12px;padding:10px 14px;background:var(--code);border:1px solid var(--line);border-radius:8px;font-family:"Courier New",monospace;font-size:16px;white-space:pre;overflow-x:auto;color:var(--ink)}
+.opt svg{display:block;margin:0 auto 6px}
+.opt.sym{text-align:center}
+.inputs input.arr{width:160px}
+.tt{border-collapse:collapse;font-size:16px;margin-bottom:10px}
+.tt th{background:#003366;color:#fff;padding:6px 10px;text-align:left}
+.tt td{border-bottom:1px solid var(--line);padding:5px 10px;font-family:"Courier New",monospace;background:var(--bg)}
+.tt input{width:64px;border:2px solid #CC9900;border-radius:6px;padding:3px 6px;background:var(--bg);color:var(--ink);font-family:"Courier New",monospace}
+.tt input.ok{border-color:var(--ok);background:var(--okBg)}
+.tt input.bad{border-color:var(--bad);background:var(--badBg)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Starter: Lesson 2 Recap</h1><div class="sub">Validation, verification and sorting · Answer on your own, then check with your partner</div></div>
+    <div class="timer"><span class="clock" id="clock" aria-live="off">8:00</span>
+      <button class="hbtn" id="tgo">Start timer</button><button class="hbtn ghost" id="treset">Reset</button></div>
+  </div>
+</header>
+<main>
+  <div class="score"><p>Each question marks itself when you answer. Your first answer is the one that counts.</p><div><b id="score">0</b> <span style="color:var(--muted)">/ 7 correct</span></div></div>
+  <div id="qs"></div>
+  <div class="end" id="end" hidden>
+    <h3>Keep this in mind</h3>
+    <p>Today you meet a third sort: <b>quicksort</b>. Like bubble sort it swaps values using a temporary variable, and like the factorial function from Lesson 1 it <b>calls itself</b>.</p>
+  </div>
+</main>
+<script>
+const Q=[
+ {type:'mcq',q:'What is the purpose of validation?',
+  opts:['To prove that the data entered is correct','To check that data is sensible, reasonable and within acceptable boundaries, using rules set up in the program','To compare the data entered with the original document','To encrypt data before it is stored'],a:1,
+  why:'Validation checks data against a set of rules, so it is reasonable. It cannot prove the data is correct: that is the key limitation.'},
+ {type:'mcq',q:'Which of these is a VERIFICATION method?',
+  opts:['Range check','Presence check','Double entry','Format check'],a:2,
+  why:'Double entry (typing the data twice and comparing) is verification. The other three are validation checks.'},
+ {type:'mcq',q:'A gym form requires members to be aged 16 to 99. Someone enters 150. Which check stops it?',
+  opts:['Type check','Range check','Length check','Presence check'],a:1,
+  why:'150 is a whole number, so a type check passes it. A range check tests that it falls between 16 and 99.'},
+ {type:'mcq',q:'A student\'s date of birth is typed as 21/03/2008 instead of 12/03/2008. What would catch this mistake?',
+  opts:['A format check','A range check','Proofreading against the original enrolment form','A presence check'],a:2,
+  why:'21/03/2008 is present, in the right format and in range, so every validation check passes. Only verification, such as proofreading against the original source, can catch it.'},
+ {type:'trace',q:'Bubble sort: myArray = [4, 2, 5, 1]. Trace ONE pass.',
+  parts:[['myArray after pass 1 (separate with commas)','2,4,1,5',true],['Which value is now in its final place?','5',false]],
+  why:'4 > 2: swap → [2, 4, 5, 1]. 4 < 5: no swap. 5 > 1: swap → [2, 4, 1, 5]. The largest value, 5, has bubbled to the end, its final place.'},
+ {type:'mcq',q:'Insertion sort: items = [3, 7, 9, 5]. The 5 is being inserted (itemToInsert = 5). What does items contain at the moment the while loop ends, just BEFORE 5 is inserted?',
+  opts:['[3, 7, 7, 9]','[3, 5, 7, 9]','[3, 7, _, 9] with an empty gap','[3, 7, 9, 9]'],a:0,
+  why:'9 > 5, so 9 is copied up: [3, 7, 9, 9]. 7 > 5, so 7 is copied up: [3, 7, 7, 9]. 3 > 5 is false, so the loop ends. 7 appears twice until items[position + 1] = itemToInsert overwrites the duplicate, giving [3, 5, 7, 9]. Arrays never have empty gaps.'},
+ {type:'mcq',q:'In bubble sort, why does the inner loop only run while j < len(myArray) - 1 - i?',
+  opts:['To make the loop run more times','Because the last i items are already in their final place, so there is no need to compare them','To stop the array going below index 0','Because i counts the number of swaps'],a:1,
+  why:'After each pass the largest remaining value is in its final place at the end. On pass i + 1, the last i items never need comparing again.'}
+];
+const S={first:Q.map(()=>null),score:0};
+const $=id=>document.getElementById(id);
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function mark(i,ok){if(S.first[i]===null){S.first[i]=ok;if(ok)S.score++;$('score').textContent=S.score;}
+  if(S.first.every(x=>x!==null))$('end').hidden=false;}
+function fb(host,ok,why){host.innerHTML='';host.append(h('div',{class:'fb'},h('span',{class:'v '+(ok?'ok':'bad')},ok?'Correct. ':'Not quite. '),why));}
+const norm=v=>String(v).replace(/[\[\]\s]/g,'');
+function mcq(i,q){
+  const box=h('div');const opts=h('div',{class:'opts'});
+  q.opts.forEach((o,j)=>{
+    const b=h('button',{class:'opt',onclick:()=>{
+      const ok=j===q.a;mark(i,ok);
+      opts.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add('ok');});
+      if(!ok)b.classList.add('bad');fb(box,ok,q.why);}},o);
+    opts.appendChild(b);});
+  return [opts,box];
+}
+function trace(i,q){
+  const box=h('div');const ins=[];
+  const grid=h('div',{class:'inputs'},...q.parts.map(([l,,arr])=>{const inp=h('input',{type:'text','aria-label':l,class:arr?'arr':null,placeholder:arr?'e.g. 1,2,3,4':''});ins.push(inp);return h('label',{},l,inp);}));
+  const btn=h('button',{class:'btn primary',onclick:()=>{
+    if(ins.some(x=>x.value.trim()==='')){box.innerHTML='';box.append(h('div',{class:'fb'},'Answer both parts before you check.'));return;}
+    let ok=true;q.parts.forEach(([,a],k)=>{const good=norm(ins[k].value)===norm(a);ins[k].style.borderColor=good?'var(--ok)':'var(--bad)';if(!good)ok=false;ins[k].disabled=true;});
+    btn.disabled=true;mark(i,ok);fb(box,ok,(ok?'':`The answers are [${q.parts[0][1].split(',').join(', ')}] and ${q.parts[1][1]}. `)+q.why);}},'Check');
+  grid.appendChild(btn);
+  return [grid,box];
+}
+const host=$('qs');
+Q.forEach((q,i)=>{
+  const card=h('section',{class:'q','aria-labelledby':'q'+i},h('h2',{id:'q'+i},h('span',{class:'num'},String(i+1)),h('span',{},q.q)));
+  (q.type==='trace'?trace(i,q):mcq(i,q)).forEach(n=>card.appendChild(n));host.appendChild(card);
+});
+let left=480,tid=null;
+function show(){const m=Math.floor(left/60),s=left%60;$('clock').textContent=`${m}:${String(s).padStart(2,'0')}`;$('clock').classList.toggle('low',left<=30);}
+$('tgo').onclick=()=>{
+  if(tid){clearInterval(tid);tid=null;$('tgo').textContent='Resume';return;}
+  if(left<=0)left=480;
+  tid=setInterval(()=>{left--;show();if(left<=0){clearInterval(tid);tid=null;$('tgo').textContent='Start timer';$('clock').textContent="Time's up";}},1000);
+  $('tgo').textContent='Pause';};
+$('treset').onclick=()=>{clearInterval(tid);tid=null;left=480;show();$('tgo').textContent='Start timer';};
+show();
+</script>
+</body>
+</html>

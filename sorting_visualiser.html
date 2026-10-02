@@ -291,7 +291,7 @@ function legend(alg){
 const S={tab:0,alg:'bubble',
   watch:{kind:'random',arr:randArr(8),i:0,play:null,speed:900},
   you:{arr:randArr(6),i:0,score:0,total:0,msg:null,cls:'',awaitFinal:false,firstTry:true,finished:false},
-  trace:{alg:'bubble'},build:null};
+  trace:{alg:'bubble'},build:{alg:'bubble'}};
 let WSTEPS={bubble:bubbleSteps(S.watch.arr),insertion:insertionSteps(S.watch.arr)};
 function regenWatch(){WSTEPS={bubble:bubbleSteps(S.watch.arr),insertion:insertionSteps(S.watch.arr)};S.watch.i=0;}
 const algSeg=(get,set)=>h('div',{class:'seg',role:'group','aria-label':'Algorithm'},
@@ -477,24 +477,49 @@ function traceView(){
 }
 
 /* ============ BUILD IT ============ */
-const BSOL=[[1,'i, j, temp is integer'],[1,'set i = 0'],[1,'while i < len(myArray) - 1'],[2,'set j = 0'],[2,'while j < len(myArray) - 1 - i'],[3,'if myArray[j] > myArray[j + 1]'],[4,'set temp = myArray[j]'],[4,'set myArray[j] = myArray[j + 1]'],[4,'set myArray[j + 1] = temp'],[3,'end if'],[3,'set j = j + 1'],[2,'end while'],[2,'set i = i + 1'],[1,'end while']];
-const BDIS=[
-  ['if myArray[j] < myArray[j + 1]','This swaps when the left value is smaller, which sorts into DESCENDING order. For ascending order, swap when myArray[j] > myArray[j + 1].'],
-  ['set myArray[j + 1] = myArray[j]','This copies myArray[j] over myArray[j + 1] without saving it first, so a value is lost. The swap must use temp.'],
-  ['while j < len(myArray) + 1 - i','On the first pass j would reach len(myArray), so myArray[j + 1] would be outside the array. The limit is len(myArray) - 1 - i.'],
-];
-const BBANK=seeded([...BSOL.map(([,t])=>({text:t})),...BDIS.map(([t,why])=>({text:t,dis:true,why}))],41);
-function buildInit(){S.build={answer:[],marks:null,fb:null,solved:false,revealed:false,out:''};}
-buildInit();
+const BUBBLE_SOL=[[1,'i, j, temp is integer'],[1,'set i = 0'],[1,'while i < len(myArray) - 1'],[2,'set j = 0'],[2,'while j < len(myArray) - 1 - i'],[3,'if myArray[j] > myArray[j + 1]'],[4,'set temp = myArray[j]'],[4,'set myArray[j] = myArray[j + 1]'],[4,'set myArray[j + 1] = temp'],[3,'end if'],[3,'set j = j + 1'],[2,'end while'],[2,'set i = i + 1'],[1,'end while']];
+const INS_A=[[1,'set numItems = len(items)'],[1,'for index = 1 to numItems - 1'],[2,'set itemToInsert = items[index]'],[2,'set position = index - 1'],[2,'while position >= 0 AND items[position] > itemToInsert'],[3,'set items[position + 1] = items[position]'],[3,'set position = position - 1'],[2,'end while'],[2,'set items[position + 1] = itemToInsert'],[1,'next index']];
+const INS_B=INS_A.slice();[INS_B[2],INS_B[3]]=[INS_A[3],INS_A[2]];
+const BUILDS={
+ bubble:{name:'bubble sort',head:'Declare BubbleSort(myArray)',solutions:[BUBBLE_SOL],
+  prompt:'Arrange and indent the lines to make a bubble sort that sorts myArray into ascending order. Three lines are distractors that look almost right. This is the structure a full-mark answer to WJEC 2017 Q6 [9] needs.',
+  dis:[['if myArray[j] < myArray[j + 1]','This swaps when the left value is smaller, which sorts into DESCENDING order. For ascending order, swap when myArray[j] > myArray[j + 1].'],
+       ['set myArray[j + 1] = myArray[j]','This copies myArray[j] over myArray[j + 1] without saving it first, so a value is lost. The swap must use temp.'],
+       ['while j < len(myArray) + 1 - i','On the first pass j would reach len(myArray), so myArray[j + 1] would be outside the array. The limit is len(myArray) - 1 - i.']],
+  success:'Correct: this is a working bubble sort. Run it below.'},
+ insertion:{name:'insertion sort',head:'Declare InsertionSort(items)',solutions:[INS_A,INS_B],
+  prompt:'Arrange and indent the lines to make an insertion sort that sorts items into ascending order. Think hard about two lines: the one that copies a bigger item UP one place, and the one that finally inserts itemToInsert. Four lines are distractors.',
+  dis:[['set items[position] = items[position + 1]','This copies DOWN, the wrong way. Each bigger item must be copied UP one place: items[position + 1] = items[position]. That leaves the value briefly duplicated until it is overwritten.'],
+       ['set items[position] = itemToInsert','One place too far left. When the loop stops, items[position] is the first item that is NOT bigger (or position is -1), so the item belongs in items[position + 1], overwriting the duplicate.'],
+       ['while position >= 0 OR items[position] > itemToInsert','With OR the loop would keep going even when position reaches -1, and items[-1] is outside the array. Both conditions must be true, so use AND.'],
+       ['set position = position + 1','position must move LEFT through the sorted portion (position - 1). Moving right would never reach the start of the list.']],
+  success:'Correct: this is a working insertion sort. Run it below to see every copy and duplicate.'},
+};
+Object.entries(BUILDS).forEach(([k,c],si)=>{
+  const base=c.solutions[0].map(([,t])=>t);
+  c.bank=seeded([...base.map(t=>({text:t})),...c.dis.map(([t,why])=>({text:t,dis:true,why}))],41+si*13);
+});
+function buildInit(alg){S.build=S.build||{alg:'bubble'};S.build[alg]={answer:[],marks:null,fb:null,solved:(S.build[alg]&&S.build[alg].solved)||false,revealed:false,out:''};}
+buildInit('bubble');buildInit('insertion');
+function runInsertionDemo(){
+  const a=randArr(6),out=[`Start:            [${a.join(', ')}]`];
+  for(let idx=1;idx<a.length;idx++){
+    const key=a[idx];let pos=idx-1;out.push('');out.push(`index ${idx}: itemToInsert = ${key}`);
+    while(pos>=0&&a[pos]>key){a[pos+1]=a[pos];out.push(`  copy ${a[pos]} up:     [${a.join(', ')}]   ← ${a[pos]} appears twice`);pos--;}
+    a[pos+1]=key;out.push(`  insert ${key}:       [${a.join(', ')}]`);
+  }
+  return out.join('\n');
+}
 function buildView(){
-  const P=S.build;const used=new Set(P.answer.map(a=>a.b));
-  const bank=h('div',{class:'bank'},BBANK.map((it,bi)=>h('button',{class:'chip',disabled:used.has(bi)||null,onclick:()=>{P.answer.push({b:bi,indent:1});P.marks=null;P.fb=null;render();}},it.text)));
+  const alg=S.build.alg,C=BUILDS[alg],P=S.build[alg];
+  const used=new Set(P.answer.map(a=>a.b));
+  const bank=h('div',{class:'bank'},C.bank.map((it,bi)=>h('button',{class:'chip',disabled:used.has(bi)||null,onclick:()=>{P.answer.push({b:bi,indent:1});P.marks=null;P.fb=null;render();}},it.text)));
   const ol=h('ol',{class:'answer','aria-label':'Your pseudo-code'});
   const fixed=t=>h('li',{class:'fixed'},h('span',{class:'txt'},t),h('span',{class:'small'},'given'));
-  ol.appendChild(fixed('Declare BubbleSort(myArray)'));
+  ol.appendChild(fixed(C.head));
   const chg=()=>{P.marks=null;P.fb=null;render();};
   const mv=(j,d)=>{const t=j+d;if(t<0||t>=P.answer.length)return;[P.answer[j],P.answer[t]]=[P.answer[t],P.answer[j]];chg();};
-  P.answer.forEach((a,j)=>{const it=BBANK[a.b];
+  P.answer.forEach((a,j)=>{const it=C.bank[a.b];
     ol.appendChild(h('li',{class:P.marks?(P.marks[j]?'ok':'bad'):null},h('span',{class:'txt'},'    '.repeat(a.indent)+it.text),
       h('span',{class:'ctl'},
         h('button',{'aria-label':'Outdent',onclick:()=>{a.indent=Math.max(0,a.indent-1);chg();}},'←'),
@@ -503,32 +528,45 @@ function buildView(){
         h('button',{'aria-label':'Move down',onclick:()=>mv(j,1)},'↓'),
         h('button',{'aria-label':'Remove',onclick:()=>{P.answer.splice(j,1);chg();}},'×'))));});
   ol.appendChild(fixed('End Subroutine'));
-  const check=()=>{const items=[];let right=0;
-    P.marks=P.answer.map((a,j)=>{const it=BBANK[a.b],s=BSOL[j];
-      if(s&&s[1]===it.text&&s[0]===a.indent){right++;return true;}
-      if(it.dis)items.push(`Line ${j+2} "${it.text}": ${it.why}`);
-      else if(s&&s[1]===it.text)items.push(`Line ${j+2} "${it.text}" is in the right place but the indentation is wrong. Each loop and if adds one level.`);
-      else items.push(`Line ${j+2} "${it.text}" is in the wrong position.`);
+  const check=()=>{
+    const ans=P.answer.map(a=>({t:C.bank[a.b].text,ind:a.indent,it:C.bank[a.b]}));
+    let best=null,bs=-1;
+    C.solutions.forEach(sol=>{let sc=0;ans.forEach((a,j)=>{if(sol[j]&&sol[j][1]===a.t&&sol[j][0]===a.ind)sc++;});if(sc>bs){bs=sc;best=sol;}});
+    const items=[];
+    P.marks=ans.map((a,j)=>{const s=best[j];
+      if(s&&s[1]===a.t&&s[0]===a.ind)return true;
+      if(a.it.dis)items.push(`Line ${j+2} "${a.t}": ${a.it.why}`);
+      else if(s&&s[1]===a.t)items.push(`Line ${j+2} "${a.t}" is in the right place but the indentation is wrong. Each loop and if adds one level.`);
+      else items.push(`Line ${j+2} "${a.t}" is in the wrong position.`);
       return false;});
-    if(P.answer.length<BSOL.length)items.push(`${BSOL.length-P.answer.length} line(s) still missing.`);
-    const ok=right===BSOL.length&&P.answer.length===BSOL.length;
+    if(ans.length<best.length)items.push(`${best.length-ans.length} line(s) still missing.`);
+    const ok=bs===best.length&&ans.length===best.length;
     if(ok&&!P.revealed)P.solved=true;
-    P.fb={ok,items,summary:ok?(P.revealed?'Correct, but the answer was revealed. Reset and try from memory.':'Correct: this is a working bubble sort. Run it below.'):`${right} of ${BSOL.length} lines correct.`};render();};
-  const reveal=()=>{P.revealed=true;const u=new Set();P.answer=BSOL.map(([ind,t])=>{const bi=BBANK.findIndex((x,k)=>x.text===t&&!u.has(k));u.add(bi);return {b:bi,indent:ind};});
-    P.marks=null;P.fb={ok:true,items:BDIS.map(([t,w])=>`Not used, "${t}": ${w}`),summary:'Answer revealed.'};render();};
-  const run=()=>{const a=randArr(8);P.out=`Before: [${a.join(', ')}]\nAfter:  [${a.slice().sort((x,y)=>x-y).join(', ')}]\n${a.length*(a.length-1)/2} comparisons made.`;render();};
+    P.fb={ok,items,summary:ok?(P.revealed?'Correct, but the answer was revealed. Reset and try from memory.':C.success):`${bs} of ${best.length} lines correct.`};render();};
+  const reveal=()=>{P.revealed=true;const u=new Set();P.answer=C.solutions[0].map(([ind,t])=>{const bi=C.bank.findIndex((x,k)=>x.text===t&&!u.has(k));u.add(bi);return {b:bi,indent:ind};});
+    P.marks=null;P.fb={ok:true,items:C.dis.map(([t,w])=>`Not used, "${t}": ${w}`),summary:'Answer revealed.'};render();};
+  const run=()=>{
+    if(alg==='bubble'){const a=randArr(8);P.out=`Before: [${a.join(', ')}]\nAfter:  [${a.slice().sort((x,y)=>x-y).join(', ')}]\n${a.length*(a.length-1)/2} comparisons made.`;}
+    else P.out=runInsertionDemo();
+    render();};
   return h('div',{},
-    h('div',{class:'top'},h('h2',{},'Build it: bubble sort')),
-    h('div',{class:'prompt'},h('b',{},'Task: '),'Arrange and indent the lines to make a bubble sort that sorts myArray into ascending order. Three lines are distractors that look almost right. This is the structure a full-mark answer to WJEC 2017 Q6 [9] needs.'),
+    h('div',{class:'top'},h('h2',{},`Build it: ${C.name}`),
+      h('div',{class:'seg',role:'group','aria-label':'Algorithm'},
+        h('button',{'aria-pressed':String(alg==='bubble'),onclick:()=>{S.build.alg='bubble';render();}},'Bubble sort'+(S.build.bubble.solved?' ✓':'')),
+        h('button',{'aria-pressed':String(alg==='insertion'),onclick:()=>{S.build.alg='insertion';render();}},'Insertion sort'+(S.build.insertion.solved?' ✓':'')))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),C.prompt),
     h('div',{class:'pgrid'},
-      h('div',{},h('div',{class:'panel'},h('h3',{},'Line bank'),bank)),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Line bank'),bank),
+        alg==='insertion'?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Remember'),
+          h('p',{style:'margin:0;font-size:15px'},'Bigger items are COPIED up one place, so a value briefly appears twice. When the while loop ends, itemToInsert overwrites the duplicate.')):null),
       h('div',{},h('div',{class:'panel'},h('h3',{},'Your pseudo-code'),ol),
         h('div',{class:'controls',style:'margin-top:12px;background:transparent;padding:0'},
           h('button',{class:'btn primary',disabled:!P.answer.length||null,onclick:check},'Check'),
-          h('button',{class:'btn ghost',onclick:()=>{const s=P.solved;buildInit();S.build.solved=s;render();}},'Reset'),
+          h('button',{class:'btn ghost',onclick:()=>{buildInit(alg);render();}},'Reset'),
           h('button',{class:'btn ghost',onclick:reveal},'Show answer')),
         P.fb?h('div',{class:'fb '+(P.fb.ok?'ok':'bad')},h('b',{},P.fb.summary),P.fb.items.length?h('ul',{},...P.fb.items.map(t=>h('li',{},t))):null):null,
-        (P.solved||P.revealed)?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Run it'),h('button',{class:'btn primary',onclick:run},'Sort a random array'),P.out?h('div',{class:'out'},P.out):null):null)));
+        (P.solved||P.revealed)?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Run it'),
+          h('button',{class:'btn primary',onclick:run},alg==='bubble'?'Sort a random array':'Sort a random array, step by step'),P.out?h('div',{class:'out'},P.out):null):null)));
 }
 
 /* ============ shell ============ */

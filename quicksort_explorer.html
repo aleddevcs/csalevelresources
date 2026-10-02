@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quicksort Explorer</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --cell:#FFFFFF; --stroke:#003366; --grey:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --cell:#0D1824; --stroke:#9CC2E8; --grey:#1C2B3C;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --cell:#0D1824; --stroke:#9CC2E8; --grey:#1C2B3C;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1340px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1340px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1340px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.stats{display:flex;gap:18px;margin-left:auto}
+.stat{font-size:13px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--bg);color:var(--navy);padding:7px 14px;font-weight:700}
+.seg button[aria-pressed="true"]{background:#003366;color:#fff}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:1000px){.grid{grid-template-columns:1fr}}
+.fb{margin-top:12px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.small{font-size:14px;color:var(--muted)}
+
+/* array */
+.arrwrap{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;overflow-x:auto}
+.arr{display:flex;justify-content:center;gap:6px;min-width:560px}
+.slot{display:flex;flex-direction:column;align-items:center;width:62px}
+.mk{height:34px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:12px;font-weight:700;line-height:1.1}
+.mk.lo{color:var(--amberText)}
+.mk.hi{color:var(--navy);justify-content:flex-start}
+.cell{width:62px;height:62px;border:2px solid var(--stroke);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Cambria,Georgia,serif;font-size:24px;font-weight:700;background:var(--cell);color:var(--ink);position:relative}
+.cell.out{background:var(--grey);color:var(--muted);border-color:var(--line)}
+.cell.pivot{box-shadow:inset 0 0 0 4px #CC9900}
+.cell.test{background:#F3DFA0;color:#1F2A36}
+.cell.swap{background:#CC9900;color:#1F2A36}
+.cell.final{background:#003366;color:#fff;border-color:#003366}
+.cell.pick{cursor:pointer}
+.cell.pick:hover{outline:3px solid #CC9900}
+.cell.right{outline:3px solid var(--ok)}
+.cell.wrong{outline:3px solid var(--bad)}
+.ix{font-size:12px;color:var(--muted);margin-top:2px}
+.rangebar{display:flex;justify-content:center;gap:6px;min-width:560px;margin-top:2px}
+.rangebar span{width:62px;height:5px;border-radius:3px}
+.rangebar span.on{background:#CC9900}
+.vars{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.var{border:2px solid var(--line);border-radius:8px;padding:3px 10px;font-family:"Courier New",monospace;font-weight:700;background:var(--bg)}
+.var.pv{border-color:#CC9900}
+.now{background:var(--bg);border:2px solid var(--amber);border-radius:10px;padding:10px 12px;margin-top:12px;min-height:80px}
+.now .ev{font-size:13px;font-weight:700;color:var(--amberText)}
+.now p{margin:2px 0 0}
+.ask{background:var(--soft);border:2px dashed #CC9900;border-radius:10px;padding:10px 12px;margin-top:12px}
+.ask b{color:var(--amberText)}
+.ask .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.code{list-style:none;margin:0;padding:8px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln;overflow-x:auto}
+.code li{counter-increment:ln;padding:1px 10px 1px 6px;font-family:"Courier New",monospace;font-size:12px;white-space:pre;display:flex}
+.code li::before{content:counter(ln);width:22px;flex:none;color:var(--muted);font-size:11px;padding-top:1px}
+.code li.cur{background:var(--soft);font-weight:700;outline:2px solid var(--amber);outline-offset:-2px;border-radius:4px}
+
+/* stack + tree */
+.stack{display:flex;flex-direction:column-reverse;gap:5px;min-height:120px;padding:8px;border:2px solid var(--stroke);border-top:0;border-radius:0 0 10px 10px;background:var(--bg)}
+.frame{border:2px solid var(--stroke);border-radius:8px;padding:5px 8px;background:var(--bg);font-size:14px}
+.frame b{font-family:"Courier New",monospace;color:var(--navy)}
+.frame.active{border-color:#CC9900;border-width:3px}
+.frame.base{background:#CC9900;border-color:#CC9900;color:#1F2A36}
+.frame.base b{color:#1F2A36}
+.frame.waiting{opacity:.8}
+.tree{display:flex;justify-content:center;overflow-x:auto;padding:6px 0}
+.tn{display:flex;flex-direction:column;align-items:center}
+.tbox{border:2px solid var(--stroke);border-radius:8px;padding:4px 8px;font-family:"Courier New",monospace;font-size:13px;font-weight:700;background:var(--bg);white-space:nowrap;text-align:center;color:var(--ink)}
+.tbox small{display:block;font-family:Calibri,Arial,sans-serif;font-weight:400;font-size:11px;color:var(--muted)}
+.tbox.onstack{border-color:#CC9900;border-width:3px}
+.tbox.cur{background:#CC9900;color:#1F2A36;border-color:#CC9900}
+.tbox.cur small{color:#1F2A36}
+.tbox.done{background:#003366;color:#fff;border-color:#003366}
+.tbox.done small{color:#C9D6E3}
+.tbox.base{background:#F3DFA0;color:#1F2A36;border-color:#CC9900}
+.tbox.base small{color:#5B4A10}
+.tbox.none{border-style:dashed;border-color:var(--line);color:var(--muted);font-family:Calibri,Arial,sans-serif;font-weight:400}
+.kids{display:flex;gap:10px;margin-top:14px;position:relative;align-items:flex-start}
+.kid{display:flex;flex-direction:column;align-items:center;position:relative}
+.kid::before{content:"";position:absolute;top:-14px;left:50%;height:14px;border-left:2px solid var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted);margin-top:8px}
+.sw{display:inline-block;width:14px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;border:2px solid var(--stroke)}
+
+/* concept tab */
+.cnode{border:2px solid var(--line);border-radius:10px;padding:6px;background:var(--bg);display:flex;flex-direction:column;align-items:center}
+.cnode.active{border-color:#CC9900;border-width:3px;background:var(--soft)}
+.cnode.sorted{border-color:var(--ok)}
+.citems{display:flex;gap:4px}
+.ci{width:40px;height:40px;border:2px solid var(--stroke);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:Cambria,Georgia,serif;font-weight:700;font-size:18px;background:var(--bg);color:var(--ink)}
+.ci.pv{background:#CC9900;color:#1F2A36;border-color:#CC9900}
+.ci.cur{outline:3px solid #CC9900;outline-offset:2px}
+.ci.pick{cursor:pointer}
+.ci.pick:hover{background:var(--soft)}
+.ci.done{background:#003366;color:#fff;border-color:#003366}
+.ci.dim{opacity:.35}
+.cempty{font-family:"Courier New",monospace;color:var(--muted);padding:8px 10px}
+.clabel{font-size:11px;color:var(--muted);margin-top:3px}
+.ctree{display:flex;justify-content:center;overflow-x:auto;padding:10px 0;min-height:200px}
+.final{display:flex;gap:6px;justify-content:center;margin-top:10px}
+
+/* build */
+.stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:900px){.stages{grid-template-columns:1fr 1fr}}
+.stg{display:flex;gap:8px;align-items:center;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:6px 8px}
+.stg small{color:var(--muted);font-size:12px}
+.stg b{font-size:14px}
+.stg .sn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--panel);color:var(--navy);font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.stg.cur{border-color:#CC9900;background:var(--soft)}
+.stg.done .sn{background:var(--ok);color:#fff}
+.stg:disabled{opacity:.5;cursor:not-allowed}
+.pgrid{display:grid;grid-template-columns:minmax(0,3.6fr) minmax(0,6.6fr) minmax(0,2.8fr);gap:16px;align-items:start}
+@media (max-width:1100px){.pgrid{grid-template-columns:1fr 1fr}.pgrid .meter{grid-column:1 / -1}}
+@media (max-width:700px){.pgrid{grid-template-columns:1fr}}
+.bank{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:5px 9px;font-family:"Courier New",monospace;font-size:13px;text-align:left}
+.chip:hover:not(:disabled){border-color:var(--navy)}
+.chip:disabled{opacity:.35;cursor:default}
+.answer{list-style:none;margin:0;padding:0;min-height:50px;background:var(--code);border:1px solid var(--line);border-radius:8px}
+.answer li{display:flex;align-items:center;gap:6px;padding:2px 6px;border-bottom:1px solid var(--line)}
+.answer li:last-child{border-bottom:0}
+.answer li.fixed{background:var(--panel);color:var(--muted)}
+.answer .txt{flex:1;font-family:"Courier New",monospace;font-size:12.5px;white-space:pre;overflow-x:auto}
+.answer li.ok{background:var(--okBg)}
+.answer li.bad{background:var(--badBg)}
+.answer li.slotline{background:var(--soft)}
+.ctl{display:flex;gap:2px;flex:none}
+.ctl button{width:26px;height:26px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font-size:12px;padding:0}
+.mlist{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.mlist li{display:flex;gap:8px;align-items:flex-start;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.mlist .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.mlist li.got{border-color:var(--ok);background:var(--okBg)}
+.mlist li.got .bx{background:var(--ok);border-color:var(--ok)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:30px;font-weight:700;color:var(--navy)}
+.fb ul{margin:4px 0 0;padding-left:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Quicksort Explorer</h1><div class="spec">Unit 3 · 3.4.2 · Divide and conquer, partitioning and recursion</div></div>
+    <div class="spec">Keys: <b>→</b> step · <b>←</b> back (Partition and Recursion tabs)</div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function seeded(arr,seed){const a=arr.slice();let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function randDistinct(n,max){const s=new Set();while(s.size<n)s.add(1+Math.floor(Math.random()*max));return [...s];}
+const NOTES=[42,23,74,11,65,58,94,36];
+const QCODE=['Declare QuickSort(myArray, indexLow, indexHi)','    pivot, tmpSwap, tmpLow, tmpHi is integer','    set tmpLow = indexLow','    set tmpHi = indexHi','    set pivot = myArray[int((indexLow + indexHi) / 2)]','    while tmpLow <= tmpHi','        while myArray[tmpLow] < pivot AND tmpLow < indexHi','            set tmpLow = tmpLow + 1','        end while','        while pivot < myArray[tmpHi] AND tmpHi > indexLow','            set tmpHi = tmpHi - 1','        end while','        if tmpLow <= tmpHi','            set tmpSwap = myArray[tmpLow]','            set myArray[tmpLow] = myArray[tmpHi]','            set myArray[tmpHi] = tmpSwap','            set tmpLow = tmpLow + 1','            set tmpHi = tmpHi - 1','        end if','    end while','    if indexLow < tmpHi then call QuickSort(myArray, indexLow, tmpHi)','    if tmpLow < indexHi then call QuickSort(myArray, tmpLow, indexHi)','End Subroutine'];
+
+/* ================= step engine ================= */
+function genSteps(a0){
+  const a=a0.slice(),steps=[],stack=[],calls=[];let fin=new Set();
+  const lab=c=>`QuickSort(${c.lo}, ${c.hi})`;
+  function snap(c,o){
+    steps.push(Object.assign({callId:c?c.id:null,lo:c?c.lo:null,hi:c?c.hi:null,arr:a.slice(),
+      stack:stack.map((f,i)=>({label:lab(f),pivot:f.pivot,pend:f.pend,state:i===stack.length-1?(f.state||'active'):'waiting'})),
+      tree:calls.map(x=>({id:x.id,parent:x.parent,side:x.side,lo:x.lo,hi:x.hi,pivot:x.pivot,status:x.status,none:x.none})),
+      fin:new Set(fin),coarse:false,phase:'partition'},o));
+  }
+  function qs(lo,hi,parent,side,depth){
+    const c={id:calls.length,lo,hi,parent,side,depth,status:'stack',pivot:null,none:false,pend:''};calls.push(c);stack.push(c);
+    snap(c,{ev:'Call',line:0,coarse:true,text:`${lab(c)} is called${parent!=null?' by '+lab(calls[parent]):''}. A new frame is pushed onto the call stack. This call sorts myArray[${lo}] to myArray[${hi}].`});
+    let tl=lo,th=hi;
+    snap(c,{ev:'Pointers',line:3,tl,th,text:`tmpLow = indexLow = ${lo} and tmpHi = indexHi = ${hi}: the pointers start at each end of the sub-list.`});
+    const m=Math.floor((lo+hi)/2),piv=a[m];c.pivot=piv;
+    snap(c,{ev:'Pivot',line:4,tl,th,pivot:piv,pidx:m,coarse:true,text:`pivot = myArray[int((${lo} + ${hi}) / 2)] = myArray[${m}] = ${piv}. The pivot is the middle item of the sub-list.`});
+    let first=true;
+    while(true){
+      const cont=tl<=th;
+      snap(c,{ev:'Loop check',line:5,tl,th,pivot:piv,text:`Is tmpLow (${tl}) <= tmpHi (${th})? ${cont?(first?'Yes, so the partition loop starts.':'Yes, so the partition loop goes round again.'):'No: the pointers have crossed, so the partition is finished.'}`});
+      first=false;
+      if(!cont)break;
+      // tmpLow scan
+      let t=tl;while(a[t]<piv&&t<hi)t++;
+      snap(c,{ev:'tmpLow scan',line:6,tl,th,pivot:piv,test:[tl],ask:{type:'cell',who:'tmpLow',ans:t,q:`Where will tmpLow stop? It moves right while myArray[tmpLow] < ${piv}. Click the cell.`},
+        text:`tmpLow scans right from position ${tl}, while its item is less than the pivot (${piv}).`});
+      while(a[tl]<piv&&tl<hi){const v=a[tl];tl++;snap(c,{ev:'tmpLow moves',line:7,tl,th,pivot:piv,test:[tl],text:`${v} < ${piv}, so tmpLow moves right to ${tl}.`});}
+      snap(c,{ev:'tmpLow stops',line:8,tl,th,pivot:piv,test:[tl],text:a[tl]<piv?`tmpLow has reached indexHi (${hi}), so it stops at ${tl}.`:`${a[tl]} is not less than ${piv}, so tmpLow stops at position ${tl}.`});
+      // tmpHi scan
+      t=th;while(piv<a[t]&&t>lo)t--;
+      snap(c,{ev:'tmpHi scan',line:9,tl,th,pivot:piv,test:[th],ask:{type:'cell',who:'tmpHi',ans:t,q:`Where will tmpHi stop? It moves left while ${piv} < myArray[tmpHi]. Click the cell.`},
+        text:`tmpHi scans left from position ${th}, while its item is greater than the pivot (${piv}).`});
+      while(piv<a[th]&&th>lo){const v=a[th];th--;snap(c,{ev:'tmpHi moves',line:10,tl,th,pivot:piv,test:[th],text:`${v} > ${piv}, so tmpHi moves left to ${th}.`});}
+      snap(c,{ev:'tmpHi stops',line:11,tl,th,pivot:piv,test:[th],text:piv<a[th]?`tmpHi has reached indexLow (${lo}), so it stops at ${th}.`:`${a[th]} is not greater than ${piv}, so tmpHi stops at position ${th}.`});
+      const sw=tl<=th;
+      snap(c,{ev:'Check',line:12,tl,th,pivot:piv,test:[tl,th],ask:{type:'yn',ans:sw,q:`tmpLow = ${tl}, tmpHi = ${th}. Will these two items be swapped?`},
+        text:`Is tmpLow (${tl}) <= tmpHi (${th})? ${sw?'Yes, so the two items swap.':'No, so there is no swap.'}`});
+      if(sw){
+        const L=a[tl],R=a[th];a[tl]=R;a[th]=L;
+        snap(c,{ev:'Swap',line:15,tl,th,pivot:piv,swap:[tl,th],text:tl===th?`tmpLow and tmpHi are on the SAME item (${L}), so it "swaps" with itself and nothing changes. This still matters: the pointers move past each other next, which ends the loop.`:`Swap using tmpSwap: tmpSwap = ${L}, myArray[${tl}] = ${R}, myArray[${th}] = ${L}. Now ${R} is on the left side and ${L} is on the right side of the pivot.`});
+        tl++;th--;
+        snap(c,{ev:'Move pointers',line:17,tl,th,pivot:piv,text:`tmpLow goes up 1 to ${tl} and tmpHi goes down 1 to ${th}.`});
+      }
+    }
+    const L=lo<th,Rr=tl<hi;
+    snap(c,{ev:'Partition done',line:19,tl,th,pivot:piv,coarse:true,ask:{type:'calls',ans:[L,Rr],q:'Partition finished. Will each recursive call run?'},
+      text:`Partition finished with tmpLow = ${tl} and tmpHi = ${th}. Everything in myArray[${lo}..${th<lo?lo-1:th}] is ≤ ${piv}, and everything in myArray[${tl>hi?hi+1:tl}..${hi}] is ≥ ${piv}.`});
+    // left
+    c.pend=L?`waiting for QuickSort(${lo}, ${th})`:'';
+    snap(c,{ev:'If (left)',line:20,tl,th,pivot:piv,phase:'rec',coarse:true,ask:{type:'yn',ans:L,q:`Is indexLow (${lo}) < tmpHi (${th})? Will the LEFT recursive call run?`},
+      text:L?`Is indexLow (${lo}) < tmpHi (${th})? Yes, so call QuickSort(myArray, ${lo}, ${th}) to sort the left part.`:`Is indexLow (${lo}) < tmpHi (${th})? No: the left part has 0 or 1 items, so it is already sorted and NO left call is made.`});
+    if(L)qs(lo,th,c.id,'L',depth+1);else calls.push({id:calls.length,parent:c.id,side:'L',none:true,lo,hi:th,status:'none'});
+    if(L){c.pend='';snap(c,{ev:'Back',line:20,phase:'rec',coarse:true,text:`QuickSort(${lo}, ${th}) has finished and its frame was popped. Back in ${lab(c)}.`});}
+    c.pend=Rr?`waiting for QuickSort(${tl}, ${hi})`:'';
+    snap(c,{ev:'If (right)',line:21,tl,th,pivot:piv,phase:'rec',coarse:true,ask:{type:'yn',ans:Rr,q:`Is tmpLow (${tl}) < indexHi (${hi})? Will the RIGHT recursive call run?`},
+      text:Rr?`Is tmpLow (${tl}) < indexHi (${hi})? Yes, so call QuickSort(myArray, ${tl}, ${hi}) to sort the right part.`:`Is tmpLow (${tl}) < indexHi (${hi})? No: the right part has 0 or 1 items, so NO right call is made.`});
+    if(Rr)qs(tl,hi,c.id,'R',depth+1);else calls.push({id:calls.length,parent:c.id,side:'R',none:true,lo:tl,hi,status:'none'});
+    if(Rr){c.pend='';snap(c,{ev:'Back',line:21,phase:'rec',coarse:true,text:`QuickSort(${tl}, ${hi}) has finished and its frame was popped. Back in ${lab(c)}.`});}
+    for(let i=lo;i<=hi;i++)fin.add(i);
+    const base=!L&&!Rr;
+    c.state=base?'base':'active';c.status=base?'base':'stack';
+    snap(c,{ev:base?'Stopping condition':'Return',line:22,phase:'rec',coarse:true,
+      text:base?`Neither if condition was true, so ${lab(c)} makes NO recursive calls. This is where the recursion stops: the stopping condition. Its frame is popped.`:`${lab(c)} has finished: myArray[${lo}..${hi}] is now sorted. Its frame is popped.`});
+    c.status='done';stack.pop();
+  }
+  qs(0,a0.length-1,null,null,0);
+  snap(null,{ev:'Finished',line:-1,coarse:true,phase:'rec',text:`Sorted: [${a.join(', ')}]. QuickSort was called ${calls.filter(x=>!x.none).length} times.`});
+  return {steps,calls:calls.filter(x=>!x.none)};
+}
+
+/* ================= shared views ================= */
+function arrayView(s,opts={}){
+  const n=s.arr.length;const row=h('div',{class:'arr'});const bar=h('div',{class:'rangebar'});
+  s.arr.forEach((v,i)=>{
+    const inR=s.lo==null||(i>=s.lo&&i<=s.hi);
+    let cls='cell';
+    if(!inR)cls+=' out';
+    if(opts.showFinal&&s.fin&&s.fin.has(i)&&!inR)cls=cls.replace(' out','')+' final';
+    if(s.pivot!=null&&v===s.pivot&&inR)cls+=' pivot';
+    if(s.test&&s.test.includes(i)&&inR)cls+=' test';
+    if(s.swap&&s.swap.includes(i))cls+=' swap';
+    if(opts.pick&&inR)cls+=' pick';
+    if(opts.mark&&opts.mark[i])cls+=' '+opts.mark[i];
+    const cell=h('div',{class:cls,role:opts.pick&&inR?'button':null,tabindex:opts.pick&&inR?'0':null,'aria-label':`Position ${i}, value ${v}`},String(v));
+    if(opts.pick&&inR){cell.addEventListener('click',()=>opts.pick(i));cell.addEventListener('keydown',e=>{if(e.key==='Enter')opts.pick(i);});}
+    row.appendChild(h('div',{class:'slot'},
+      h('div',{class:'mk lo'},s.tl===i&&!opts.hidePtr?'tmpLow':'',s.tl===i&&!opts.hidePtr?'▼':''),
+      cell,h('div',{class:'ix'},String(i)),
+      h('div',{class:'mk hi'},s.th===i&&!opts.hidePtr?'▲':'',s.th===i&&!opts.hidePtr?'tmpHi':'')));
+    bar.appendChild(h('span',{class:inR&&s.lo!=null?'on':''}));
+  });
+  const off=[];
+  if(!opts.hidePtr){if(s.tl!=null&&(s.tl<0||s.tl>=n))off.push(`tmpLow = ${s.tl} (off the end)`);if(s.th!=null&&(s.th<0||s.th>=n))off.push(`tmpHi = ${s.th} (before the start)`);}
+  return h('div',{class:'arrwrap'},row,bar,off.length?h('div',{class:'small',style:'text-align:center;margin-top:4px'},off.join(' · ')):null);
+}
+function varsView(s){
+  const v=[];
+  if(s.lo!=null)v.push(['indexLow',s.lo],['indexHi',s.hi]);
+  if(s.tl!=null)v.push(['tmpLow',s.tl]);if(s.th!=null)v.push(['tmpHi',s.th]);
+  return h('div',{class:'vars'},...v.map(([k,x])=>h('span',{class:'var'},`${k} = ${x}`)),s.pivot!=null?h('span',{class:'var pv'},`pivot = ${s.pivot}`):null);
+}
+function codeView(line){return h('ol',{class:'code','aria-label':'Pseudo-code'},QCODE.map((c,i)=>h('li',{class:i===line?'cur':null},c)));}
+function stackView(s){
+  const box=h('div',{class:'stack','aria-label':'Call stack'});
+  if(!s.stack.length)box.appendChild(h('div',{class:'small',style:'text-align:center'},'The call stack is empty'));
+  s.stack.forEach(f=>box.appendChild(h('div',{class:'frame '+f.state},h('b',{},f.label),f.pivot!=null?` · pivot ${f.pivot}`:'',f.pend?h('div',{class:'small'},f.pend):null)));
+  return box;
+}
+function treeView(s){
+  const T=s.tree;if(!T.length)return h('div',{class:'small'},'No calls yet.');
+  const kidsOf=id=>T.filter(x=>x.parent===id).sort((a,b)=>a.side<b.side?-1:1);
+  const node=x=>{
+    let cls='tbox',l1,l2;
+    if(x.none){cls+=' none';l1=x.side==='L'?'no left call':'no right call';l2=x.side==='L'?`${s.tree.find(p=>p.id===x.parent).lo} < ${x.hi}? No`:`${x.lo} < ${s.tree.find(p=>p.id===x.parent).hi}? No`;}
+    else{l1=`QS(${x.lo}, ${x.hi})`;l2=x.pivot!=null?`pivot ${x.pivot}`:'';
+      if(x.id===s.callId)cls+=' cur';else if(x.status==='base')cls+=' base';else if(x.status==='done')cls+=' done';else cls+=' onstack';
+      if(x.status==='done'&&kidsOf(x.id).every(k=>k.none))cls=cls.replace(' done',' base');}
+    const ks=x.none?[]:kidsOf(x.id);
+    return h('div',{class:'tn'},h('div',{class:cls},l1,h('small',{},l2)),ks.length?h('div',{class:'kids'},...ks.map(k=>h('div',{class:'kid'},node(k)))):null);
+  };
+  return h('div',{class:'tree'},node(T[0]));
+}
+
+/* ================= state ================= */
+const S={tab:0,
+  part:{data:'notes',arr:NOTES.slice(),call:0,i:0,mode:'watch',ans:{},score:0,total:0},
+  rec:{data:'notes',arr:NOTES.slice(),i:0,detail:false,mode:'watch',ans:{},score:0,total:0,play:null},
+  con:null, build:null};
+let PG=genSteps(S.part.arr),RG=genSteps(S.rec.arr);
+
+/* ================= TAB 2: Partition ================= */
+function partSteps(){return PG.steps.filter(s=>s.callId===PG.calls[S.part.call].id&&s.phase==='partition');}
+function askView(st,s,key,onPick){
+  const a=s.ask;if(!a)return null;const done=st.ans[key];
+  const mark=(ok,txt)=>{if(st.ans[key]!==undefined)return;st.ans[key]={ok,txt};st.total++;if(ok)st.score++;render();};
+  if(a.type==='cell'){
+    if(done)return h('div',{class:'fb '+(done.ok?'ok':'bad')},done.txt);
+    return h('div',{class:'ask'},h('b',{},'Predict: '),a.q,h('div',{class:'small'},'Click a cell in the array above.'));
+  }
+  if(a.type==='yn'){
+    if(done)return h('div',{class:'fb '+(done.ok?'ok':'bad')},done.txt);
+    const go=v=>mark(v===a.ans,v===a.ans?`Correct: ${a.ans?'yes':'no'}.`:`Not quite: the answer is ${a.ans?'yes':'no'}. Read the explanation above.`);
+    return h('div',{class:'ask'},h('b',{},'Predict: '),a.q,h('div',{class:'row'},h('button',{class:'btn primary',onclick:()=>go(true)},'Yes'),h('button',{class:'btn ghost',onclick:()=>go(false)},'No')));
+  }
+  if(a.type==='calls'){
+    if(done)return h('div',{class:'fb '+(done.ok?'ok':'bad')},done.txt);
+    const pickL={v:null},pickR={v:null};
+    const grp=(lab,obj)=>h('div',{class:'row'},h('span',{style:'min-width:110px;font-weight:700'},lab),
+      ...[true,false].map(v=>{const b=h('button',{class:'btn ghost'},v?'Runs':'Does not run');b.addEventListener('click',()=>{obj.v=v;b.parentNode.querySelectorAll('button').forEach(x=>x.style.borderColor='');b.style.borderColor='#CC9900';});return b;}));
+    return h('div',{class:'ask'},h('b',{},'Predict: '),a.q,
+      grp(`Left: QS(${s.lo}, ${s.th})`,pickL),grp(`Right: QS(${s.tl}, ${s.hi})`,pickR),
+      h('div',{class:'row'},h('button',{class:'btn primary',onclick:()=>{if(pickL.v===null||pickR.v===null)return;const ok=pickL.v===a.ans[0]&&pickR.v===a.ans[1];
+        mark(ok,`${ok?'Correct.':'Not quite.'} Left call: ${a.ans[0]?'runs':'does not run'} (is ${s.lo} < ${s.th}?). Right call: ${a.ans[1]?'runs':'does not run'} (is ${s.tl} < ${s.hi}?).`);}},'Check')));
+  }
+}
+function blockedBy(st,s,key){return st.mode==='predict'&&s.ask&&st.ans[key]===undefined;}
+function partView(){
+  const P=S.part,steps=partSteps(),s=steps[P.i],key=`${P.data}:${P.call}:${P.i}`;
+  const blocked=blockedBy(P,s,key);
+  const pick=(P.mode==='predict'&&s.ask&&s.ask.type==='cell'&&P.ans[key]===undefined)?i=>{
+    const ok=i===s.ask.ans;P.ans[key]={ok,txt:ok?`Correct: ${s.ask.who} stops at position ${s.ask.ans}.`:`Not quite: ${s.ask.who} stops at position ${s.ask.ans}. Step on to see why.`,pick:i};P.total++;if(ok)P.score++;render();}:null;
+  const markCells={};if(P.ans[key]&&P.ans[key].pick!==undefined){markCells[P.ans[key].pick]=P.ans[key].ok?'right':'wrong';if(!P.ans[key].ok)markCells[s.ask.ans]='right';}
+  const callSel=h('select',{'aria-label':'Which call',onchange:e=>{P.call=Number(e.target.value);P.i=0;render();}},
+    ...PG.calls.map((c,ci)=>{const o=h('option',{value:String(ci)},`QuickSort(myArray, ${c.lo}, ${c.hi})`);if(ci===P.call)o.selected=true;return o;}));
+  const dataSel=h('select',{'aria-label':'Data',onchange:e=>{P.data=e.target.value;P.arr=P.data==='notes'?NOTES.slice():randDistinct(8,99);PG=genSteps(P.arr);P.call=0;P.i=0;P.ans={};render();}},
+    ...[['notes','Notes example'],['random','Random list']].map(([v,t])=>{const o=h('option',{value:v},t);if(v===P.data)o.selected=true;return o;}));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Partition'),h('div',{class:'seg'},
+      h('button',{'aria-pressed':String(P.mode==='watch'),onclick:()=>{P.mode='watch';render();}},'Watch'),
+      h('button',{'aria-pressed':String(P.mode==='predict'),onclick:()=>{P.mode='predict';render();}},'Predict (challenge)'))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Step through one call of QuickSort: the pivot is chosen, then tmpLow and tmpHi scan towards each other, swapping items that are on the wrong side. In Predict mode the tool stops and asks you what happens next. Try QuickSort(myArray, 1, 4) to see the pointers stop on the same item.'),
+    h('div',{class:'controls'},
+      h('button',{class:'btn ghost',disabled:P.i===0||null,onclick:()=>{P.i--;render();}},'← Back'),
+      h('button',{class:'btn primary',disabled:(P.i>=steps.length-1||blocked)||null,onclick:()=>{P.i++;render();}},'Step →'),
+      h('label',{},'Data',dataSel),h('label',{},'Call',callSel),
+      h('button',{class:'btn ghost',onclick:()=>{P.i=0;render();}},'Restart'),
+      h('div',{class:'stats'},P.mode==='predict'?h('div',{class:'stat'},h('b',{},`${P.score}/${P.total}`),'predictions right'):null)),
+    h('div',{class:'grid'},
+      h('div',{},arrayView(s,{pick,mark:markCells,hidePtr:false}),varsView(s),
+        h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${P.i+1} of ${steps.length} · ${s.ev}`),h('p',{},blocked&&s.ask.type==='cell'?'Make your prediction first.':s.text)),
+        P.mode==='predict'?askView(P,s,key):null,
+        P.i===steps.length-1?h('div',{class:'fb ok'},'This call\'s partition is finished. The Recursion tab shows what the two recursive calls do next.'):null,
+        h('div',{class:'legend'},h('span',{},h('span',{class:'sw',style:'box-shadow:inset 0 0 0 3px #CC9900'}),'pivot value'),h('span',{},h('span',{class:'sw',style:'background:#F3DFA0'}),'being tested'),h('span',{},h('span',{class:'sw',style:'background:#CC9900'}),'swapped'),h('span',{},h('span',{class:'sw',style:'background:var(--grey);border-color:var(--line)'}),'outside this sub-list'))),
+      h('div',{class:'panel'},h('h3',{},'Pseudo-code'),codeView(s.line))));
+}
+
+/* ================= TAB 3: Recursion ================= */
+function recSteps(){return S.rec.detail?RG.steps:RG.steps.filter(s=>s.coarse);}
+function stopRec(){if(S.rec.play){clearInterval(S.rec.play);S.rec.play=null;}}
+function recView(){
+  const R=S.rec,steps=recSteps(),s=steps[Math.min(R.i,steps.length-1)],key=`${R.data}:${R.detail}:${R.i}`;
+  const ask=s.ask&&s.ask.type==='yn'&&s.phase==='rec'?s:null;
+  const blocked=R.mode==='predict'&&ask&&R.ans[key]===undefined;
+  const dataSel=h('select',{'aria-label':'Data',onchange:e=>{stopRec();R.data=e.target.value;R.arr=R.data==='notes'?NOTES.slice():randDistinct(8,99);RG=genSteps(R.arr);R.i=0;R.ans={};render();}},
+    ...[['notes','Notes example'],['random','Random list']].map(([v,t])=>{const o=h('option',{value:v},t);if(v===R.data)o.selected=true;return o;}));
+  const nextCall=()=>{let j=R.i+1;while(j<steps.length-1&&steps[j].ev!=='Call')j++;R.i=j;render();};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Recursion'),h('div',{class:'seg'},
+      h('button',{'aria-pressed':String(R.mode==='watch'),onclick:()=>{R.mode='watch';render();}},'Watch'),
+      h('button',{'aria-pressed':String(R.mode==='predict'),onclick:()=>{stopRec();R.mode='predict';render();}},'Predict (challenge)'))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Follow the whole sort. Every call is pushed onto the call stack and added to the call tree. At each if statement, decide whether the recursive call runs. Watch for calls that make NO further calls: that is where the recursion stops.'),
+    h('div',{class:'controls'},
+      h('button',{class:'btn ghost',disabled:R.i===0||null,onclick:()=>{stopRec();R.i--;render();}},'← Back'),
+      h('button',{class:'btn primary',disabled:(R.i>=steps.length-1||blocked)||null,onclick:()=>{stopRec();R.i++;render();}},'Step →'),
+      h('button',{class:'btn ghost',disabled:(R.i>=steps.length-1||blocked)||null,onclick:()=>{stopRec();nextCall();}},'Next call ⇥'),
+      R.mode==='watch'?h('button',{class:'btn accent',disabled:R.i>=steps.length-1&&!R.play||null,onclick:()=>{if(R.play){stopRec();render();}else{R.play=setInterval(()=>{if(R.i>=recSteps().length-1){stopRec();render();return;}R.i++;render();},R.detail?600:1100);render();}}},R.play?'Pause':'Auto-play'):null,
+      h('label',{},h('input',{type:'checkbox',checked:R.detail||null,onchange:e=>{stopRec();const cur=steps[R.i];R.detail=e.target.checked;const ns=recSteps();R.i=Math.max(0,ns.indexOf(cur));R.ans={};render();}}),'Show every pointer step'),
+      h('label',{},'Data',dataSel),
+      h('button',{class:'btn ghost',onclick:()=>{stopRec();R.i=0;render();}},'Restart'),
+      h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},String(s.stack.length)),'stack depth'),R.mode==='predict'?h('div',{class:'stat'},h('b',{},`${R.score}/${R.total}`),'predictions right'):null)),
+    h('div',{class:'grid'},
+      h('div',{},arrayView(s,{showFinal:true}),varsView(s),
+        h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${R.i+1} of ${steps.length} · ${s.ev}`),h('p',{},blocked?'Make your prediction first.':s.text)),
+        R.mode==='predict'&&ask?askView(R,s,key):null,
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Call tree'),treeView(s),
+          h('div',{class:'legend'},h('span',{},h('span',{class:'sw',style:'background:#CC9900;border-color:#CC9900'}),'current call'),h('span',{},h('span',{class:'sw',style:'border-color:#CC9900'}),'waiting on the stack'),h('span',{},h('span',{class:'sw',style:'background:#F3DFA0;border-color:#CC9900'}),'stopping condition: no further calls'),h('span',{},h('span',{class:'sw',style:'background:#003366;border-color:#003366'}),'finished'),h('span',{},h('span',{class:'sw',style:'border-style:dashed;border-color:var(--line)'}),'call never made')))),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Call stack'),stackView(s)),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Pseudo-code'),codeView(s.line)))));
+}
+
+/* ================= TAB 1: Divide and conquer ================= */
+function conInit(items){
+  const nodes={};let id=0;
+  const mk=(its,parent,depth,kind)=>{const n={id:id++,items:its,parent,depth,kind:kind||'list',kids:[],phase:its.length<=1?'sorted':'todo'};nodes[n.id]=n;return n;};
+  const root=mk(items,null,0);
+  S.con={nodes,root:root.id,mk,active:root.id,phase:'pick',pivotIdx:null,less:[],more:[],k:0,msg:null,cls:'',score:0,total:0,first:true};
+}
+function conNext(){
+  const C=S.con;const order=[];const walk=n=>{order.push(n);n.kids.forEach(k=>walk(C.nodes[k]));};walk(C.nodes[C.root]);
+  const nx=order.find(n=>n.phase==='todo'&&n.kind==='list');
+  if(nx){C.active=nx.id;C.phase='pick';C.pivotIdx=null;C.less=[];C.more=[];C.k=0;}else{C.active=null;C.phase='done';}
+}
+function conView(){
+  if(!S.con)conInit([7,2,9,4,8,1,6,3]);
+  const C=S.con,act=C.active!=null?C.nodes[C.active]:null;
+  const mark=(ok,good,bad)=>{if(C.first){C.total++;if(ok)C.score++;}C.first=ok;C.msg=ok?good:bad;C.cls=ok?'ok':'bad';return ok;};
+  const others=act&&C.pivotIdx!=null?act.items.map((v,i)=>[v,i]).filter(([,i])=>i!==C.pivotIdx):[];
+  const curItem=C.phase==='classify'?others[C.k]:null;
+  const nodeEl=n=>{
+    const isAct=n.id===C.active;
+    let inner;
+    if(n.kind==='pivot')inner=h('div',{class:'citems'},h('div',{class:'ci pv'},String(n.items[0])));
+    else if(!n.items.length)inner=h('div',{class:'cempty'},'[ ]');
+    else inner=h('div',{class:'citems'},...n.items.map((v,i)=>{
+      let cls='ci';
+      if(n.phase==='sorted'||n.phase==='split')cls+=n.phase==='sorted'?' done':' dim';
+      if(isAct&&C.pivotIdx===i)cls+=' pv';
+      if(isAct&&curItem&&curItem[1]===i)cls+=' cur';
+      if(isAct&&C.phase==='pick')cls+=' pick';
+      const el=h('div',{class:cls,role:isAct&&C.phase==='pick'?'button':null,tabindex:isAct&&C.phase==='pick'?'0':null},String(v));
+      if(isAct&&C.phase==='pick'){const f=()=>{const m=Math.floor((n.items.length-1)/2);
+        if(mark(i===m,`Correct: the pivot is the middle item, position int((0 + ${n.items.length-1}) / 2) = ${m}, which holds ${n.items[m]}.`,`Not quite. The algorithm always uses the middle item: int((0 + ${n.items.length-1}) / 2) = ${m}.`)){C.pivotIdx=m;C.phase=n.items.length>1?'classify':'split';C.k=0;C.first=true;}render();};
+        el.addEventListener('click',f);el.addEventListener('keydown',e=>{if(e.key==='Enter')f();});}
+      return el;}));
+    const label=n.kind==='pivot'?'pivot':n.phase==='sorted'?(n.items.length?'sorted (1 item)':'empty'):isAct?'active':'';
+    const kids=n.kids.length?h('div',{class:'kids'},...n.kids.map(k=>h('div',{class:'kid'},nodeEl(C.nodes[k])))):null;
+    return h('div',{class:'tn'},h('div',{class:'cnode'+(isAct?' active':'')+(n.phase==='sorted'&&n.kind!=='pivot'?' sorted':'')},inner,label?h('div',{class:'clabel'},label):null),kids);
+  };
+  let action=null;
+  if(C.phase==='pick')action=h('div',{class:'ask'},h('b',{},'Step 1: '),'Choose the pivot. Click the item the algorithm would pick from the highlighted list.');
+  else if(C.phase==='classify'){
+    const [v]=curItem,p=act.items[C.pivotIdx];
+    const go=sm=>{if(!mark(sm===(v<p),`Correct: ${v} is ${v<p?'smaller':'bigger'} than ${p}.`,`Not quite: ${v} is ${v<p?'smaller':'bigger'} than the pivot ${p}.`)){render();return;}
+      (v<p?C.less:C.more).push(v);C.k++;C.first=true;
+      if(C.k>=others.length){
+        const L=C.mk(C.less,act.id,act.depth+1),P=C.mk([p],act.id,act.depth+1,'pivot'),M=C.mk(C.more,act.id,act.depth+1);P.phase='sorted';
+        act.kids=[L.id,P.id,M.id];act.phase='split';C.msg=`Split complete: [${C.less.join(', ')}] | ${p} | [${C.more.join(', ')}].`;C.cls='ok';conNext();}
+      render();};
+    action=h('div',{class:'ask'},h('b',{},'Step 2: '),`Is ${v} smaller or bigger than the pivot (${p})?`,
+      h('div',{class:'row'},h('button',{class:'btn primary',onclick:()=>go(true)},`Smaller than ${p}`),h('button',{class:'btn ghost',onclick:()=>go(false)},`Bigger than ${p}`)),
+      h('div',{class:'small',style:'margin-top:6px'},`Smaller so far: [${C.less.join(', ')}]   ·   Bigger so far: [${C.more.join(', ')}]`));
+  }
+  let finalRow=null;
+  if(C.phase==='done'){
+    const leaves=[];const walk=n=>{if(n.kids.length)n.kids.forEach(k=>walk(C.nodes[k]));else n.items.forEach(v=>leaves.push(v));};walk(C.nodes[C.root]);
+    const depth=Math.max(...Object.values(C.nodes).filter(n=>n.phase==='split').map(n=>n.depth+1));
+    finalRow=h('div',{class:'fb ok'},h('b',{},'Every sub-list now has 0 or 1 items, so the list is sorted. '),`Read the tree from left to right: [${leaves.join(', ')}]. It took ${depth} level${depth===1?'':'s'} of splitting. Each split was the same problem on a smaller list: that is recursion.`);
+  }
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Divide and conquer'),h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},`${C.score}/${C.total}`),'right first time'))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'This shows the IDEA behind quicksort. For each list: choose the pivot (the middle item), then sort every other item into "smaller" or "bigger". Repeat on each new sub-list until every sub-list has 0 or 1 items.'),
+    h('div',{class:'controls'},
+      h('button',{class:'btn ghost',onclick:()=>{conInit([7,2,9,4,8,1,6,3]);render();}},'Slide example'),
+      h('button',{class:'btn ghost',onclick:()=>{conInit(randDistinct(8,20));render();}},'New list'),
+      h('button',{class:'btn ghost',onclick:()=>{conInit(randDistinct(10,30));render();}},'Bigger list (10)')),
+    h('div',{class:'panel'},h('div',{class:'ctree'},nodeEl(C.nodes[C.root]))),
+    action,C.msg&&C.phase!=='done'?h('div',{class:'fb '+C.cls,'aria-live':'polite'},C.msg):null,finalRow,
+    h('p',{class:'small',style:'margin-top:10px'},'The real algorithm does this splitting in place, using two pointers. See the Partition tab.'));
+}
+
+/* ================= TAB 4: Build it (staged) ================= */
+const MARKS=[
+  ['m1','Declares the subroutine with parameters (array, low and high bounds)'],
+  ['m2','Declares the variables'],
+  ['m3','Initialises tmpLow and tmpHi to the bounds'],
+  ['m4','Sets the pivot to the midpoint'],
+  ['m5','Outer loop with a terminating condition (tmpLow <= tmpHi)'],
+  ['m6','Compares items with the pivot'],
+  ['m7','Moves tmpLow up and tmpHi down'],
+  ['m8','Swaps the two items using tmpSwap'],
+  ['m9','Recursive call on the left part'],
+  ['m10','Recursive call on the right part'],
+];
+const SETUP=[[0,'Declare QuickSort(myArray, indexLow, indexHi)'],[1,'pivot, tmpSwap, tmpLow, tmpHi is integer'],[1,'set tmpLow = indexLow'],[1,'set tmpHi = indexHi'],[1,'set pivot = myArray[int((indexLow + indexHi) / 2)]']];
+const MOVE=[[1,'while tmpLow <= tmpHi'],[2,'while myArray[tmpLow] < pivot AND tmpLow < indexHi'],[3,'set tmpLow = tmpLow + 1'],[2,'end while'],[2,'while pivot < myArray[tmpHi] AND tmpHi > indexLow'],[3,'set tmpHi = tmpHi - 1'],[2,'end while']];
+const SWAP=[[2,'if tmpLow <= tmpHi'],[3,'set tmpSwap = myArray[tmpLow]'],[3,'set myArray[tmpLow] = myArray[tmpHi]'],[3,'set myArray[tmpHi] = tmpSwap'],[3,'set tmpLow = tmpLow + 1'],[3,'set tmpHi = tmpHi - 1'],[2,'end if']];
+const RECUR=[[1,'if indexLow < tmpHi then call QuickSort(myArray, indexLow, tmpHi)'],[1,'if tmpLow < indexHi then call QuickSort(myArray, tmpLow, indexHi)']];
+const swapPair=(arr,i,j)=>{const b=arr.slice();[b[i],b[j]]=[b[j],b[i]];return b;};
+const STAGES=[
+ {name:'Set up',marks:['m1','m2','m3','m4'],
+  prompt:'Declare the subroutine and set up the pointers and the pivot.',
+  before:[],after:['    … the partition loop goes here …','End Subroutine'],
+  solutions:[SETUP,swapPair(SETUP,2,3)],
+  dis:[['Declare QuickSort(myArray)','Each recursive call sorts a different part of the array, so the subroutine needs the bounds as parameters: indexLow and indexHi.'],
+       ['set tmpLow = 0','This only works for the very first call. Later calls sort a sub-list that may not start at 0, so tmpLow must start at indexLow.'],
+       ['set pivot = myArray[indexLow + indexHi / 2]','Without brackets, indexHi / 2 is worked out first. The midpoint needs int((indexLow + indexHi) / 2).']]},
+ {name:'Move the pointers',marks:['m5','m6','m7'],
+  prompt:'Build the outer partition loop and the two scans: tmpLow moves right past items smaller than the pivot, and tmpHi moves left past items bigger than the pivot.',
+  before:['    set pivot = myArray[int((indexLow + indexHi) / 2)]'],after:['        … the swap goes here …','    end while','End Subroutine'],
+  solutions:[MOVE],
+  dis:[['while myArray[tmpLow] > pivot AND tmpLow < indexHi','The wrong way round. tmpLow should skip over items that are already SMALLER than the pivot (they are on the correct side), and stop at the first one that is not.'],
+       ['set tmpHi = tmpHi + 1','tmpHi starts at the right-hand end and must move LEFT through the list, so it goes down by 1.'],
+       ['set tmpLow = tmpLow - 1','tmpLow starts at the left-hand end and must move RIGHT, so it goes up by 1.']]},
+ {name:'Swap and step in',marks:['m8','m7'],
+  prompt:'If the pointers have not crossed, swap their two items using tmpSwap, then move both pointers in by one.',
+  before:['        end while   (end of the tmpHi scan)'],after:['    end while','End Subroutine'],
+  solutions:[SWAP,swapPair(SWAP,4,5)],
+  dis:[['if tmpLow < tmpHi','If both pointers stop on the SAME item, < is false, so they never move past each other and the loop never ends. The condition must be <=.'],
+       ['set myArray[tmpHi] = myArray[tmpLow]','At this point myArray[tmpLow] has already been overwritten, so this copies the wrong value. The third line must use the value saved in tmpSwap.']]},
+ {name:'Recurse',marks:['m9','m10'],
+  prompt:'After the partition loop, sort each part by calling QuickSort again, but only if that part has more than one item.',
+  before:['    end while   (end of the partition loop)'],after:['End Subroutine'],
+  solutions:[RECUR,swapPair(RECUR,0,1)],
+  dis:[['call QuickSort(myArray, indexLow, indexHi)','This calls QuickSort on the SAME list again. It never gets smaller, so the recursion never stops: stack overflow.'],
+       ['if indexLow < tmpLow then call QuickSort(myArray, indexLow, tmpLow)','Wrong bound. After the partition, the left part ends at tmpHi, not tmpLow.'],
+       ['if tmpLow < indexHi then call QuickSort(myArray, indexLow, tmpHi)','The condition checks the right part, but the call sorts the left part. Condition and call must match: tmpLow to indexHi.']]},
+ {name:'Put it together',marks:MARKS.map(m=>m[0]),extension:true,
+  prompt:'Extension: build the whole quicksort in one go. This is a full answer to WJEC 2023 Q5 [8]. Watch the meter fill up.',
+  before:[],after:['End Subroutine'],
+  solutions:[[...SETUP,...MOVE,...SWAP,[1,'end while'],...RECUR]],
+  dis:[['if tmpLow < tmpHi','If both pointers stop on the same item they never move past each other, so the loop never ends. Use <=.'],
+       ['call QuickSort(myArray, indexLow, indexHi)','The same list again: the recursion never stops.'],
+       ['set tmpLow = 0','tmpLow must start at indexLow for every call.']]},
+];
+STAGES.forEach((st,si)=>{
+  const base=st.solutions[0].map(([,t])=>t);
+  st.bank=seeded([...base.map(t=>({text:t})),...st.dis.map(([t,why])=>({text:t,dis:true,why}))],61+si*11);
+});
+function buildInit(){S.build={stage:0,st:STAGES.map(()=>({answer:[],marks:null,fb:null,solved:false,revealed:false})),earned:new Set()};}
+buildInit();
+function buildView(){
+  const B=S.build,si=B.stage,st=STAGES[si],P=B.st[si];
+  const unlocked=i=>i===0||B.st[i-1].solved||B.st[i-1].revealed;
+  const used=new Set(P.answer.map(a=>a.b));
+  const bank=h('div',{class:'bank'},st.bank.map((it,bi)=>h('button',{class:'chip',disabled:used.has(bi)||null,onclick:()=>{P.answer.push({b:bi,indent:si===1?2:si===2?3:1});P.marks=null;P.fb=null;render();}},it.text)));
+  const ol=h('ol',{class:'answer','aria-label':'Your pseudo-code'});
+  st.before.forEach(t=>ol.appendChild(h('li',{class:'fixed'},h('span',{class:'txt'},t),h('span',{class:'small'},'given'))));
+  const chg=()=>{P.marks=null;P.fb=null;render();};
+  const mv=(j,d)=>{const t=j+d;if(t<0||t>=P.answer.length)return;[P.answer[j],P.answer[t]]=[P.answer[t],P.answer[j]];chg();};
+  P.answer.forEach((a,j)=>{const it=st.bank[a.b];
+    ol.appendChild(h('li',{class:P.marks?(P.marks[j]?'ok':'bad'):null},h('span',{class:'txt'},'    '.repeat(a.indent)+it.text),
+      h('span',{class:'ctl'},
+        h('button',{'aria-label':'Outdent',onclick:()=>{a.indent=Math.max(0,a.indent-1);chg();}},'←'),
+        h('button',{'aria-label':'Indent',onclick:()=>{a.indent=Math.min(5,a.indent+1);chg();}},'→'),
+        h('button',{'aria-label':'Move up',onclick:()=>mv(j,-1)},'↑'),
+        h('button',{'aria-label':'Move down',onclick:()=>mv(j,1)},'↓'),
+        h('button',{'aria-label':'Remove',onclick:()=>{P.answer.splice(j,1);chg();}},'×'))));});
+  if(!P.answer.length)ol.appendChild(h('li',{class:'slotline'},h('span',{class:'txt',style:'font-family:Calibri,Arial,sans-serif'},'Click lines in the bank to add them here.')));
+  st.after.forEach(t=>ol.appendChild(h('li',{class:'fixed'},h('span',{class:'txt'},t),h('span',{class:'small'},'given'))));
+  const check=()=>{
+    const ans=P.answer.map(a=>({t:st.bank[a.b].text,ind:a.indent,it:st.bank[a.b]}));
+    let best=null,bs=-1;
+    st.solutions.forEach(sol=>{let sc=0;ans.forEach((a,j)=>{if(sol[j]&&sol[j][1]===a.t&&sol[j][0]===a.ind)sc++;});if(sc>bs){bs=sc;best=sol;}});
+    const items=[];
+    P.marks=ans.map((a,j)=>{const s=best[j];
+      if(s&&s[1]===a.t&&s[0]===a.ind)return true;
+      if(a.it.dis)items.push(`"${a.t}": ${a.it.why}`);
+      else if(s&&s[1]===a.t)items.push(`"${a.t}" is in the right place but the indentation is wrong.`);
+      else items.push(`"${a.t}" is in the wrong position.`);
+      return false;});
+    if(ans.length<best.length)items.push(`${best.length-ans.length} line(s) still missing.`);
+    const ok=bs===best.length&&ans.length===best.length;
+    if(ok&&!P.revealed){P.solved=true;st.marks.forEach(m=>B.earned.add(m));}
+    P.fb={ok,items,summary:ok?(P.revealed?'Correct, but the answer was revealed. Reset and try from memory to earn the marks.':`Correct. ${st.marks.length} mark point${st.marks.length>1?'s':''} ticked off on the meter.`):`${bs} of ${best.length} lines correct.`};render();};
+  const reveal=()=>{P.revealed=true;const u=new Set();P.answer=st.solutions[0].map(([ind,t])=>{const bi=st.bank.findIndex((x,k)=>x.text===t&&!u.has(k));u.add(bi);return {b:bi,indent:ind};});
+    P.marks=null;P.fb={ok:true,items:st.dis.map(([t,w])=>`Not used, "${t}": ${w}`),summary:'Answer revealed. Revealed stages do not earn marks on the meter.'};render();};
+  const got=MARKS.filter(([k])=>B.earned.has(k)).length;
+  const meter=h('div',{class:'panel meter'},h('h3',{},'Mark-scheme meter'),
+    h('div',{style:'display:flex;align-items:baseline;gap:8px;margin-bottom:6px'},h('span',{class:'mscore'},`${Math.min(8,got)} / 8`),h('span',{class:'small'},`(${got} of 10 points: max 8)`)),
+    h('p',{class:'small',style:'margin:0 0 8px'},'WJEC 2023 Q5: "Write a quicksort algorithm, to sort an array of integers into ascending order." [8]'),
+    h('ul',{class:'mlist'},MARKS.map(([k,t])=>h('li',{class:B.earned.has(k)?'got':null},h('span',{class:'bx'},B.earned.has(k)?'✓':''),t))));
+  const stageBar=h('div',{class:'stages'},STAGES.map((x,i)=>{const S2=B.st[i],lock=!unlocked(i);
+    return h('button',{class:'stg'+(i===si?' cur':'')+(S2.solved?' done':''),disabled:lock||null,onclick:()=>{B.stage=i;render();}},
+      h('span',{class:'sn'},S2.solved?'✓':String(i+1)),h('span',{},h('b',{},x.name),h('br'),h('small',{},lock?'locked':x.extension?'extension':S2.solved?'complete':'to do')));}));
+  const nextBtn=(P.solved||P.revealed)&&si<STAGES.length-1?h('button',{class:'btn accent',onclick:()=>{B.stage++;render();}},`Next: ${STAGES[si+1].name} →`):null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Build it: quicksort'),h('button',{class:'btn ghost',onclick:()=>{buildInit();render();}},'Start again')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Build the quicksort algorithm in stages. Each stage unlocks the next and ticks off mark-scheme points. Three lines in each bank are distractors (two in stage 3).'),
+    stageBar,
+    h('div',{class:'prompt',style:'background:var(--panel)'},h('b',{},`Stage ${si+1}: ${st.name}. `),st.prompt),
+    h('div',{class:'pgrid'},
+      h('div',{class:'panel'},h('h3',{},'Line bank'),bank),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Your pseudo-code'),ol),
+        h('div',{class:'controls',style:'margin-top:12px;background:transparent;padding:0'},
+          h('button',{class:'btn primary',disabled:!P.answer.length||null,onclick:check},'Check'),
+          h('button',{class:'btn ghost',onclick:()=>{const keep=P.solved;B.st[si]={answer:[],marks:null,fb:null,solved:keep,revealed:false};render();}},'Reset'),
+          h('button',{class:'btn ghost',onclick:reveal},'Show answer'),nextBtn),
+        P.fb?h('div',{class:'fb '+(P.fb.ok?'ok':'bad')},h('b',{},P.fb.summary),P.fb.items.length?h('ul',{},...P.fb.items.map(t=>h('li',{},t))):null):null),
+      meter));
+}
+
+/* ================= shell ================= */
+const TABS=[['Divide and conquer',conView],['Partition',partView],['Recursion',recView],['Build it',buildView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{stopRec();S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+document.addEventListener('keydown',e=>{
+  if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;
+  if(S.tab===1){const P=S.part,st=partSteps(),s=st[P.i],blocked=blockedBy(P,s,`${P.data}:${P.call}:${P.i}`);
+    if(e.key==='ArrowRight'&&P.i<st.length-1&&!blocked){P.i++;render();}else if(e.key==='ArrowLeft'&&P.i>0){P.i--;render();}}
+  if(S.tab===2){const R=S.rec,st=recSteps(),s=st[R.i],ask=s.ask&&s.ask.type==='yn'&&s.phase==='rec',blocked=R.mode==='predict'&&ask&&R.ans[`${R.data}:${R.detail}:${R.i}`]===undefined;
+    if(e.key==='ArrowRight'&&R.i<st.length-1&&!blocked){stopRec();R.i++;render();}else if(e.key==='ArrowLeft'&&R.i>0){stopRec();R.i--;render();}}
+});
+render();
+</script>
+</body>
+</html>
