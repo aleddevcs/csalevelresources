@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Search Game</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1;
+  --head:#003366; --soft:#FBF3DD; --felt:#1E5A46; --feltLine:#2D7A60;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --head:#001F3F; --soft:#33290E; --felt:#143D30; --feltLine:#21604B;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --head:#001F3F; --soft:#33290E; --felt:#143D30; --feltLine:#21604B;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1280px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1280px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+nav .tick{color:#FFD966;margin-left:6px}
+nav button[aria-selected="true"] .tick{color:var(--amberText)}
+main{max-width:1280px;margin:0 auto;padding:18px 24px 40px}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;background:var(--soft);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+@media (max-width:760px){.rule{grid-template-columns:1fr}}
+.rule h2{font-size:22px;color:var(--navy);margin-bottom:4px}
+.rule p{margin:0}
+.target{background:#003366;color:#fff;border-radius:12px;padding:8px 18px;text-align:center}
+.target small{display:block;font-size:13px;color:#C9D6E3}
+.target b{font-family:Cambria,Georgia,serif;font-size:40px;line-height:1.05;color:#FFD966}
+.stats{display:flex;gap:16px;align-items:center}
+.stat{text-align:center;min-width:70px}
+.stat b{display:block;font-family:Cambria,Georgia,serif;font-size:34px;line-height:1.05;color:var(--navy)}
+.stat span{font-size:13px;color:var(--muted)}
+.table{background:var(--felt);border-radius:16px;padding:18px 14px 12px;border:3px solid var(--feltLine)}
+.cards{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.cards.big{gap:5px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:4px}
+.pos{font-size:12px;color:#CFE6DC;font-weight:700;min-height:16px}
+.lbl{font-size:12px;font-weight:700;min-height:18px;color:#FFD966;white-space:nowrap}
+.card{width:64px;height:90px;perspective:600px;border:0;background:none;padding:0;border-radius:10px}
+.cards.big .card{width:36px;height:54px}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .4s;transform-style:preserve-3d}
+.card.up .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
+.back{background:#003366;border:3px solid #fff;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.09) 0 6px,transparent 6px 12px)}
+.back::after{content:"?";color:#FFD966;font-family:Cambria,Georgia,serif;font-size:26px;font-weight:700}
+.cards.big .back::after{font-size:16px}
+.front{background:#fff;border:3px solid #fff;transform:rotateY(180deg);color:#003366;font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700}
+.cards.big .front{font-size:15px;border-width:2px}
+.cards.big .back{border-width:2px}
+.card.found .front{background:#E3F3EA;border-color:#3FBF7F;color:#1E7B4A}
+.card.mid .back,.card.mid .front{box-shadow:0 0 0 3px #CC9900}
+.card.out{opacity:.28}
+.card:disabled{cursor:default}
+@media (prefers-reduced-motion: reduce){.card .inner{transition:none}}
+.rangebar{display:flex;justify-content:center;gap:8px;margin-top:6px}
+.cards.big + .rangebar{gap:5px}
+.rangebar span{width:64px;height:5px;border-radius:3px}
+.cards.big + .rangebar span{width:36px}
+.rangebar span.on{background:#FFD966}
+.decide{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px;min-height:46px;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn.light{background:#fff;color:#003366;border:2px solid #fff}
+.btn.lightghost{background:transparent;color:#fff;border:2px solid #CFE6DC}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hintline{color:#CFE6DC;font-size:15px;text-align:center}
+.msg{margin-top:14px;border-radius:10px;padding:12px 16px;border:1px solid var(--line);background:var(--bg);min-height:50px}
+.msg.ok{border-color:var(--ok);background:var(--okBg)}
+.msg.bad{border-color:var(--bad);background:var(--badBg)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.toolbar label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.toolbar select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.below{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:16px}
+@media (max-width:900px){.below{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px 16px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.log{margin:0;padding-left:22px;max-height:220px;overflow-y:auto;font-size:15px;color:var(--muted)}
+.log li:first-child{color:var(--ink);font-weight:700}
+table.sb{border-collapse:collapse;width:100%;font-size:15px}
+table.sb th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.sb td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Search Game</h1><div class="spec">Unit 3 · 3.5.3 · Method first: find the card, then name the method</div></div>
+    <div class="spec" id="info"></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const ROUNDS=[
+ {k:'unsorted',t:'Round 1: Unsorted',name:'Unsorted',
+  rule:'The cards are in NO particular order. Flip cards one at a time to find the target. If you think the target is not on the table, press "It\'s not here", but can you be sure?'},
+ {k:'sorted',t:'Round 2: Sorted',name:'Sorted, free choice',
+  rule:'The same cards, now in ascending order (smallest on the left). Flip any card you like. Use what each flipped card tells you to decide where to look next.'},
+ {k:'binary',t:'Round 3: Binary rule',name:'Binary rule',
+  rule:'Always flip the MIDDLE card of the cards still in play, then decide which half to discard. Keep going until you find the target, or there are no cards left.'},
+];
+const S={tab:0,n:15,results:{unsorted:[],sorted:[],binary:[]},deal:0};
+function newDeal(){
+  const n=S.n,set=new Set();while(set.size<n)set.add(1+Math.floor(Math.random()*99));
+  const vals=[...set].sort((a,b)=>a-b);
+  let target,present=Math.random()<0.8;
+  if(present)target=vals[Math.floor(Math.random()*n)];
+  else{do{target=vals[0]+Math.floor(Math.random()*(vals[n-1]-vals[0]))}while(set.has(target));}
+  const shuffled=vals.slice();for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+  S.vals=vals;S.shuffled=shuffled;S.target=target;S.present=present;S.deal++;
+}
+function freshRound(){
+  const k=ROUNDS[S.tab].k;
+  S.r={cards:k==='unsorted'?S.shuffled.slice():S.vals.slice(),up:new Set(),flips:0,done:false,outcome:null,log:[],msg:null,cls:'',
+       first:0,last:S.n-1,mid:null,await:false};
+}
+newDeal();freshRound();
+const say=(t,c='')=>{S.r.msg=t;S.r.cls=c;};
+function finish(outcome,text,cls){
+  const r=S.r;r.done=true;r.outcome=outcome;say(text,cls);
+  S.results[ROUNDS[S.tab].k].push({flips:r.flips,outcome,present:S.present});
+  render();
+}
+function revealAll(){S.r.cards.forEach((_,i)=>S.r.up.add(i));}
+function certainAbsent(){
+  // sorted rounds: is there proof the target is not there?
+  const r=S.r,c=r.cards,n=c.length;
+  if(r.up.has(0)&&c[0]>S.target)return true;
+  if(r.up.has(n-1)&&c[n-1]<S.target)return true;
+  for(let i=0;i<n-1;i++)if(r.up.has(i)&&r.up.has(i+1)&&c[i]<S.target&&c[i+1]>S.target)return true;
+  return false;
+}
+function flip(i){
+  const r=S.r,k=ROUNDS[S.tab].k;if(r.done||r.up.has(i))return;
+  if(k==='binary'){
+    if(r.await){say('First decide which half to discard.','bad');render();return;}
+    if(i<r.first||i>r.last){say('That card has already been discarded.','bad');render();return;}
+    const m=Math.floor((r.first+r.last)/2);
+    if(i!==m){say(`Binary rule: flip the middle card of the cards in play. midpoint = (${r.first} + ${r.last}) DIV 2 = ${m}.`,'bad');render();return;}
+    r.mid=m;
+  }
+  r.up.add(i);r.flips++;const v=r.cards[i];
+  r.log.unshift(`Flip ${r.flips}: card ${i} is ${v}.`);
+  if(v===S.target){finish('found',`Found ${v} at position ${i} with ${r.flips} flip${r.flips===1?'':'s'}.`,'ok');return;}
+  if(k==='unsorted'){
+    if(r.up.size===S.n){finish('provedAbsent',`Every card checked: ${S.target} is not here. In an unordered list you can only be sure after checking every item: ${r.flips} flips.`,'ok');return;}
+    say(`${v} is not the target. In an unsorted list, that tells you nothing about where ${S.target} is.`);
+  } else if(k==='sorted'){
+    say(`${v} is ${v<S.target?'smaller':'bigger'} than ${S.target}, so the target can only be to the ${v<S.target?'RIGHT':'LEFT'} of position ${i}.`);
+  } else {
+    r.await=true;say(`${v} is not ${S.target}. Is ${S.target} smaller or bigger than ${v}? Choose which half to discard.`);
+  }
+  render();
+}
+function half(discardLeft){
+  const r=S.r,v=r.cards[r.mid];const correct=(S.target>v)===discardLeft;
+  if(!correct){say(`Not quite: ${S.target} is ${S.target>v?'bigger':'smaller'} than ${v}, so it can only be in the ${S.target>v?'right':'left'} half.`,'bad');render();return;}
+  if(discardLeft){r.first=r.mid+1;r.log.unshift(`${S.target} > ${v}: first = ${r.mid} + 1 = ${r.first}.`);}
+  else{r.last=r.mid-1;r.log.unshift(`${S.target} < ${v}: last = ${r.mid} - 1 = ${r.last}.`);}
+  r.await=false;r.mid=null;
+  if(r.first>r.last){finish('provedAbsent',`first (${r.first}) > last (${r.last}): there are no cards left in play, so ${S.target} is not here. Proved with ${r.flips} flips.`,'ok');return;}
+  say(`Cards ${r.first} to ${r.last} are still in play. Flip the middle one: (${r.first} + ${r.last}) DIV 2 = ${Math.floor((r.first+r.last)/2)}.`);render();
+}
+function notHere(){
+  const r=S.r,k=ROUNDS[S.tab].k;if(r.done)return;
+  if(S.present){const pos=r.cards.indexOf(S.target);revealAll();finish('wrong',`It WAS here, at position ${pos}. Always check before you give up!`,'bad');return;}
+  if(k==='unsorted'){revealAll();finish('guess',`Correct, it is not here, but you were guessing. In an unordered list you can only be sure after checking every item (${S.n} flips).`,'bad');return;}
+  if(certainAbsent()){finish('provedAbsent',`Correct, and you proved it: the flipped cards show there is no gap where ${S.target} could be. ${r.flips} flips.`,'ok');return;}
+  revealAll();finish('guess',`Correct, it is not here, but you had not proved it yet. Flip the cards either side of where ${S.target} would go.`,'bad');
+}
+function stats(k){const a=S.results[k];if(!a.length)return null;const f=a.map(x=>x.flips);return {n:a.length,avg:(f.reduce((p,q)=>p+q,0)/a.length).toFixed(1),max:Math.max(...f)};}
+
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  ROUNDS.forEach((m,i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;freshRound();render();}},h('span',{class:'n'},String(i+1)),m.t.replace(/^Round \d: /,''),S.results[m.k].length?h('span',{class:'tick'},`×${S.results[m.k].length}`):null)));
+  document.getElementById('info').textContent=`${S.n} cards · numbers 1 to 99`;
+  const r=S.r,m=ROUNDS[S.tab],k=m.k,main=document.getElementById('main');main.innerHTML='';
+  main.appendChild(h('div',{class:'rule'},h('div',{},h('h2',{},m.t),h('p',{},m.rule)),
+    h('div',{class:'stats'},h('div',{class:'target'},h('small',{},'Find'),h('b',{},String(S.target))),h('div',{class:'stat'},h('b',{},String(r.flips)),h('span',{},'flips')))));
+  const big=S.n>20;
+  const row=h('div',{class:'cards'+(big?' big':'')});const bar=h('div',{class:'rangebar'});
+  r.cards.forEach((v,i)=>{
+    const up=r.up.has(i);const out=k==='binary'&&!r.done&&(i<r.first||i>r.last);
+    const isMid=k==='binary'&&r.mid===i;
+    const cls=['card',up?'up':'',up&&v===S.target?'found':'',isMid?'mid':'',out?'out':''].join(' ');
+    let lbl='';if(k==='binary'&&!r.done){const parts=[];if(i===r.first)parts.push('first');if(i===r.last)parts.push('last');lbl=parts.join(' / ');}
+    row.appendChild(h('div',{class:'slot'},h('span',{class:'lbl'},lbl),
+      h('button',{class:cls,'aria-label':`Card ${i}, ${up?'showing '+v:'face down'}`,disabled:(r.done||up)||null,onclick:()=>flip(i)},
+        h('div',{class:'inner'},h('div',{class:'face back'}),h('div',{class:'face front'},String(v)))),
+      h('span',{class:'pos'},k==='unsorted'?'':String(i))));
+    bar.appendChild(h('span',{class:k==='binary'&&!r.done&&i>=r.first&&i<=r.last?'on':''}));
+  });
+  const dec=h('div',{class:'decide'});
+  if(!r.done){
+    if(k==='binary'&&r.await){const v=r.cards[r.mid];
+      dec.append(h('button',{class:'btn light',onclick:()=>half(false)},`${S.target} is smaller: discard the right half`),h('button',{class:'btn light',onclick:()=>half(true)},`${S.target} is bigger: discard the left half`));}
+    else if(k==='binary')dec.append(h('span',{class:'hintline'},`Flip the middle card of cards ${r.first} to ${r.last}.`));
+    else dec.append(h('span',{class:'hintline'},'Click a card to flip it.'),h('button',{class:'btn lightghost',onclick:notHere},"It's not here"));
+  }
+  main.appendChild(h('div',{class:'table'},row,k==='binary'?bar:null,dec));
+  main.appendChild(h('div',{class:'msg '+(r.cls||''),'aria-live':'polite'},r.msg||`Find ${S.target}. It might not be on the table.`));
+  main.appendChild(h('div',{class:'toolbar'},
+    h('button',{class:'btn accent',onclick:()=>{newDeal();freshRound();render();}},'New target'),
+    h('button',{class:'btn ghost',onclick:()=>{freshRound();render();}},'Restart this round'),
+    r.done&&S.tab<2?h('button',{class:'btn primary',onclick:()=>{S.tab++;freshRound();render();}},`Same cards: ${ROUNDS[S.tab+1].t} →`):null,
+    h('label',{},'Cards',h('select',{onchange:e=>{S.n=Number(e.target.value);S.results={unsorted:[],sorted:[],binary:[]};newDeal();freshRound();render();}},
+      ...[[15,'15'],[31,'31']].map(([v,t])=>{const o=h('option',{value:String(v)},t);if(v===S.n)o.selected=true;return o;})))));
+  const rows=ROUNDS.map(x=>{const st=stats(x.k);return h('tr',{},h('td',{},x.name),h('td',{},st?String(st.n):'–'),h('td',{},st?st.avg:'–'),h('td',{},st?String(st.max):'–'));});
+  const all=ROUNDS.every(x=>S.results[x.k].length);
+  const maxBin=Math.floor(Math.log2(S.n))+1;
+  main.appendChild(h('div',{class:'below'},
+    h('div',{class:'panel'},h('h3',{},'Move log'),r.log.length?h('ol',{class:'log',reversed:true},r.log.map(t=>h('li',{},t))):h('p',{style:'margin:0;color:var(--muted)'},'Each flip is recorded here.')),
+    h('div',{class:'panel'},h('h3',{},`Scoreboard: ${S.n} cards`),
+      h('table',{class:'sb'},h('thead',{},h('tr',{},...['Round','Games','Average flips','Most flips'].map(t=>h('th',{},t)))),h('tbody',{},...rows)),
+      h('p',{style:'margin:8px 0 0;font-size:14px;color:var(--muted)'},'Play each round a few times with "New target", then compare.'),
+      all?h('div',{class:'disc'},h('h3',{},'Discuss with your partner'),h('ul',{},
+        h('li',{},`Round 1 can take up to ${S.n} flips. The binary rule never needs more than ${maxBin}. Why?`),
+        h('li',{},'Why could you throw half the cards away in rounds 2 and 3, but not in round 1?'),
+        h('li',{},'How did you prove a number was NOT there in each round?'),
+        h('li',{},'Describe the round 1 method and the round 3 method in your own words.'))):null)));
+}
+render();
+</script>
+</body>
+</html>

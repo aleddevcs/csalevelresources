@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Search Lab</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --cell:#FFFFFF; --stroke:#003366; --grey:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --cell:#0D1824; --stroke:#9CC2E8; --grey:#1C2B3C;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --cell:#0D1824; --stroke:#9CC2E8; --grey:#1C2B3C;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1340px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1340px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1340px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.stats{display:flex;gap:18px;margin-left:auto}
+.stat{font-size:13px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--bg);color:var(--navy);padding:7px 14px;font-weight:700}
+.seg button[aria-pressed="true"]{background:#003366;color:#fff}
+.btn{border:0;border-radius:8px;padding:9px 18px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:10px}
+.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:1000px){.grid{grid-template-columns:1fr}}
+.fb{margin-top:12px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.small{font-size:14px;color:var(--muted)}
+
+/* array */
+.arrwrap{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;overflow-x:auto}
+.arr{display:flex;justify-content:center;gap:6px;min-width:560px}
+.slot{display:flex;flex-direction:column;align-items:center;width:62px}
+.mk{height:34px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:12px;font-weight:700;line-height:1.1}
+.mk.lo{color:var(--amberText)}
+.mk.hi{color:var(--navy);justify-content:flex-start}
+.cell{width:62px;height:62px;border:2px solid var(--stroke);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Cambria,Georgia,serif;font-size:24px;font-weight:700;background:var(--cell);color:var(--ink);position:relative}
+.cell.out{background:var(--grey);color:var(--muted);border-color:var(--line)}
+.cell.pivot{box-shadow:inset 0 0 0 4px #CC9900}
+.cell.test{background:#F3DFA0;color:#1F2A36}
+.cell.swap{background:#CC9900;color:#1F2A36}
+.cell.final{background:#003366;color:#fff;border-color:#003366}
+.cell.pick{cursor:pointer}
+.cell.pick:hover{outline:3px solid #CC9900}
+.cell.right{outline:3px solid var(--ok)}
+.cell.wrong{outline:3px solid var(--bad)}
+.ix{font-size:12px;color:var(--muted);margin-top:2px}
+.rangebar{display:flex;justify-content:center;gap:6px;min-width:560px;margin-top:2px}
+.rangebar span{width:62px;height:5px;border-radius:3px}
+.rangebar span.on{background:#CC9900}
+.vars{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.var{border:2px solid var(--line);border-radius:8px;padding:3px 10px;font-family:"Courier New",monospace;font-weight:700;background:var(--bg)}
+.var.pv{border-color:#CC9900}
+.now{background:var(--bg);border:2px solid var(--amber);border-radius:10px;padding:10px 12px;margin-top:12px;min-height:80px}
+.now .ev{font-size:13px;font-weight:700;color:var(--amberText)}
+.now p{margin:2px 0 0}
+.ask{background:var(--soft);border:2px dashed #CC9900;border-radius:10px;padding:10px 12px;margin-top:12px}
+.ask b{color:var(--amberText)}
+.ask .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.code{list-style:none;margin:0;padding:8px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln;overflow-x:auto}
+.code li{counter-increment:ln;padding:1px 10px 1px 6px;font-family:"Courier New",monospace;font-size:12px;white-space:pre;display:flex}
+.code li::before{content:counter(ln);width:22px;flex:none;color:var(--muted);font-size:11px;padding-top:1px}
+.code li.cur{background:var(--soft);font-weight:700;outline:2px solid var(--amber);outline-offset:-2px;border-radius:4px}
+
+/* stack + tree */
+.stack{display:flex;flex-direction:column-reverse;gap:5px;min-height:120px;padding:8px;border:2px solid var(--stroke);border-top:0;border-radius:0 0 10px 10px;background:var(--bg)}
+.frame{border:2px solid var(--stroke);border-radius:8px;padding:5px 8px;background:var(--bg);font-size:14px}
+.frame b{font-family:"Courier New",monospace;color:var(--navy)}
+.frame.active{border-color:#CC9900;border-width:3px}
+.frame.base{background:#CC9900;border-color:#CC9900;color:#1F2A36}
+.frame.base b{color:#1F2A36}
+.frame.waiting{opacity:.8}
+.tree{display:flex;justify-content:center;overflow-x:auto;padding:6px 0}
+.tn{display:flex;flex-direction:column;align-items:center}
+.tbox{border:2px solid var(--stroke);border-radius:8px;padding:4px 8px;font-family:"Courier New",monospace;font-size:13px;font-weight:700;background:var(--bg);white-space:nowrap;text-align:center;color:var(--ink)}
+.tbox small{display:block;font-family:Calibri,Arial,sans-serif;font-weight:400;font-size:11px;color:var(--muted)}
+.tbox.onstack{border-color:#CC9900;border-width:3px}
+.tbox.cur{background:#CC9900;color:#1F2A36;border-color:#CC9900}
+.tbox.cur small{color:#1F2A36}
+.tbox.done{background:#003366;color:#fff;border-color:#003366}
+.tbox.done small{color:#C9D6E3}
+.tbox.base{background:#F3DFA0;color:#1F2A36;border-color:#CC9900}
+.tbox.base small{color:#5B4A10}
+.tbox.none{border-style:dashed;border-color:var(--line);color:var(--muted);font-family:Calibri,Arial,sans-serif;font-weight:400}
+.kids{display:flex;gap:10px;margin-top:14px;position:relative;align-items:flex-start}
+.kid{display:flex;flex-direction:column;align-items:center;position:relative}
+.kid::before{content:"";position:absolute;top:-14px;left:50%;height:14px;border-left:2px solid var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted);margin-top:8px}
+.sw{display:inline-block;width:14px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;border:2px solid var(--stroke)}
+
+/* concept tab */
+.cnode{border:2px solid var(--line);border-radius:10px;padding:6px;background:var(--bg);display:flex;flex-direction:column;align-items:center}
+.cnode.active{border-color:#CC9900;border-width:3px;background:var(--soft)}
+.cnode.sorted{border-color:var(--ok)}
+.citems{display:flex;gap:4px}
+.ci{width:40px;height:40px;border:2px solid var(--stroke);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:Cambria,Georgia,serif;font-weight:700;font-size:18px;background:var(--bg);color:var(--ink)}
+.ci.pv{background:#CC9900;color:#1F2A36;border-color:#CC9900}
+.ci.cur{outline:3px solid #CC9900;outline-offset:2px}
+.ci.pick{cursor:pointer}
+.ci.pick:hover{background:var(--soft)}
+.ci.done{background:#003366;color:#fff;border-color:#003366}
+.ci.dim{opacity:.35}
+.cempty{font-family:"Courier New",monospace;color:var(--muted);padding:8px 10px}
+.clabel{font-size:11px;color:var(--muted);margin-top:3px}
+.ctree{display:flex;justify-content:center;overflow-x:auto;padding:10px 0;min-height:200px}
+.final{display:flex;gap:6px;justify-content:center;margin-top:10px}
+
+/* build */
+.stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:900px){.stages{grid-template-columns:1fr 1fr}}
+.stg{display:flex;gap:8px;align-items:center;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:6px 8px}
+.stg small{color:var(--muted);font-size:12px}
+.stg b{font-size:14px}
+.stg .sn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--panel);color:var(--navy);font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.stg.cur{border-color:#CC9900;background:var(--soft)}
+.stg.done .sn{background:var(--ok);color:#fff}
+.stg:disabled{opacity:.5;cursor:not-allowed}
+.pgrid{display:grid;grid-template-columns:minmax(0,3.6fr) minmax(0,6.6fr) minmax(0,2.8fr);gap:16px;align-items:start}
+@media (max-width:1100px){.pgrid{grid-template-columns:1fr 1fr}.pgrid .meter{grid-column:1 / -1}}
+@media (max-width:700px){.pgrid{grid-template-columns:1fr}}
+.bank{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:5px 9px;font-family:"Courier New",monospace;font-size:13px;text-align:left}
+.chip:hover:not(:disabled){border-color:var(--navy)}
+.chip:disabled{opacity:.35;cursor:default}
+.answer{list-style:none;margin:0;padding:0;min-height:50px;background:var(--code);border:1px solid var(--line);border-radius:8px}
+.answer li{display:flex;align-items:center;gap:6px;padding:2px 6px;border-bottom:1px solid var(--line)}
+.answer li:last-child{border-bottom:0}
+.answer li.fixed{background:var(--panel);color:var(--muted)}
+.answer .txt{flex:1;font-family:"Courier New",monospace;font-size:12.5px;white-space:pre;overflow-x:auto}
+.answer li.ok{background:var(--okBg)}
+.answer li.bad{background:var(--badBg)}
+.answer li.slotline{background:var(--soft)}
+.ctl{display:flex;gap:2px;flex:none}
+.ctl button{width:26px;height:26px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font-size:12px;padding:0}
+.mlist{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.mlist li{display:flex;gap:8px;align-items:flex-start;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.mlist .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.mlist li.got{border-color:var(--ok);background:var(--okBg)}
+.mlist li.got .bx{background:var(--ok);border-color:var(--ok)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:30px;font-weight:700;color:var(--navy)}
+.fb ul{margin:4px 0 0;padding-left:20px}
+
+/* flowchart */
+.fnode .shape{fill:var(--shape);stroke:var(--stroke);stroke-width:2}
+.fnode text{fill:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:14px;font-weight:700;dominant-baseline:central}
+.fnode.blank .shape{stroke-dasharray:6 4}
+.fnode.blank text.letter{fill:var(--muted);font-size:16px}
+.fnode.placed text{font-family:"Courier New",monospace;font-weight:700;font-size:13px}
+.fnode.click{cursor:pointer}
+.fnode.click:hover .shape{stroke:var(--amber)}
+.fnode.sel .shape{stroke:var(--sel);stroke-width:3.5}
+.fnode.ok .shape{stroke:var(--ok);stroke-width:3;fill:var(--okBg)}
+.fnode.bad .shape{stroke:var(--bad);stroke-width:3;fill:var(--badBg)}
+.fnode.drop .shape{stroke:var(--amber);stroke-width:3.5}
+.edge{fill:none;stroke:var(--stroke);stroke-width:1.8}
+.elabel{fill:var(--amberText);font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:13px;font-weight:700}
+.arrowhead{fill:var(--stroke)}
+
+
+
+:root{--shape:var(--bg);--sel:#CC9900}
+.cell.midc{box-shadow:inset 0 0 0 4px #CC9900}
+.cell.final{background:#1E7B4A;border-color:#1E7B4A;color:#fff}
+.mk{height:22px}
+.outbox{background:#0F1E2E;color:#E4ECF4;border-radius:8px;padding:8px 12px;font-family:"Courier New",monospace;font-size:15px;margin-top:10px}
+.outbox .small{color:#9FB1C4;font-family:Calibri,Arial,sans-serif}
+.twrap{overflow-x:auto}
+.tt{border-collapse:collapse;width:100%;font-size:15px}
+.tt th{background:#003366;color:#fff;padding:5px 8px;text-align:left;white-space:nowrap}
+.tt td{border-bottom:1px solid var(--line);padding:4px 8px;font-family:"Courier New",monospace;background:var(--bg);white-space:nowrap}
+.numin{width:90px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.flowwrap{background:var(--panel);border-radius:12px;padding:10px;overflow-x:auto}
+.flowwrap svg{display:block;height:auto;max-width:100%;margin:0 auto}
+.opts{display:grid;gap:8px;margin-top:6px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:9px 12px;font-size:15px}
+.opt.mono{font-family:"Courier New",monospace}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.dot.baddot{background:var(--bad);border-color:var(--bad);color:#fff}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;align-items:start}
+@media (max-width:950px){.grid2{grid-template-columns:1fr}}
+.pre{margin:0;font-family:"Courier New",monospace;font-size:13px;white-space:pre;overflow-x:auto;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);text-align:left}
+.cand{display:block;width:100%;text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px;color:var(--ink)}
+.cand:hover:not(:disabled){border-color:var(--navy)}
+.cand:disabled{cursor:default}
+.cand.ok{border-color:var(--ok);background:var(--okBg)}
+.cand.bad{border-color:var(--bad);background:var(--badBg)}
+.cl{display:block;font-weight:700;color:var(--navy);margin-bottom:4px}
+.lane{display:grid;grid-template-columns:130px 1fr 110px;gap:10px;align-items:center;margin:8px 0}
+.lname{font-weight:700;color:var(--navy)}
+.ltrack{height:30px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.lfill{height:100%}
+.lfill.l{background:#003366}
+.lfill.b{background:#CC9900}
+.lnum{font-family:Cambria,Georgia,serif;font-size:22px;color:var(--navy);text-align:right}
+.disc{margin-top:14px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+.stages{grid-template-columns:repeat(6,minmax(0,1fr))}
+.ask .row{align-items:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Search Lab</h1><div class="spec">Unit 3 · 3.5.3 and 3.5.4 · Describe, interpret, alter and write search algorithms</div></div>
+    <div class="spec">Keys: <b>→</b> step · <b>←</b> back (Trace It)</div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k==='html')n.innerHTML=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+function seeded(arr,seed){const a=arr.slice();let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const sel=(lab,val,opts,on)=>h('label',{},lab,h('select',{onchange:e=>on(e.target.value)},...opts.map(([v,t])=>{const o=h('option',{value:String(v)},t);if(String(v)===String(val))o.selected=true;return o;})));
+
+
+/* ---------------- flowchart geometry + rendering ---------------- */
+const G = {W:200,H:44,DW:280,DH:74,TW:140,TH:40,ROW:78,Y0:40,COL:330};
+const NS = 'http://www.w3.org/2000/svg';
+function geom(n){
+  const t=n.type;
+  const w=n.w||(t==='dec'?G.DW:t==='term'?G.TW:G.W), h=n.h||(t==='dec'?G.DH:t==='term'?G.TH:G.H);
+  return {cx:(n.col||0)*G.COL, cy:G.Y0+n.row*G.ROW, w, h};
+}
+function port(g,side){
+  if(side==='bottom')return {x:g.cx,y:g.cy+g.h/2};
+  if(side==='top')return {x:g.cx,y:g.cy-g.h/2};
+  if(side==='right')return {x:g.cx+g.w/2,y:g.cy};
+  return {x:g.cx-g.w/2,y:g.cy};
+}
+function route(e,gf,gt){
+  const exit=e.exit||'bottom', enter=e.enter||'top';
+  const s=port(gf,exit), t=port(gt,enter), p=[s];
+  const lx = e.lane!==undefined ? e.lane : null;
+  if(exit==='right'||exit==='left'){
+    if(enter==='top'){
+      if(lx===null){p.push({x:t.x,y:s.y});}
+      else{p.push({x:lx,y:s.y},{x:lx,y:t.y-22},{x:t.x,y:t.y-22});}
+    } else { const x=lx===null?t.x:lx; if(lx!==null){p.push({x:lx,y:s.y},{x:lx,y:t.y});} }
+  } else {
+    if(enter==='top'){ if(Math.abs(s.x-t.x)>1){p.push({x:s.x,y:t.y-22},{x:t.x,y:t.y-22});} }
+    else { if(lx!==null){p.push({x:s.x,y:s.y+18},{x:lx,y:s.y+18},{x:lx,y:t.y});} else p.push({x:s.x,y:t.y}); }
+  }
+  p.push(t); return {pts:p,s,exit};
+}
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+function wrap(text,max){
+  if(text.length<=max)return [text];
+  const words=text.split(' ');let a='',lines=[];
+  for(const w of words){ if((a+' '+w).trim().length>max && a){lines.push(a);a=w;} else a=(a+' '+w).trim(); }
+  if(a)lines.push(a); return lines;
+}
+function drawShape(g,type,parent){
+  const {cx,cy,w,h}=g, x=cx-w/2, y=cy-h/2;
+  if(type==='term') return el('rect',{x,y,width:w,height:h,rx:h/2,class:'shape'},parent);
+  if(type==='proc') return el('rect',{x,y,width:w,height:h,class:'shape'},parent);
+  if(type==='io'){const k=14;return el('polygon',{points:`${x+k},${y} ${x+w},${y} ${x+w-k},${y+h} ${x},${y+h}`,class:'shape'},parent);}
+  if(type==='dec') return el('polygon',{points:`${cx},${y} ${x+w},${cy} ${cx},${y+h} ${x},${cy}`,class:'shape'},parent);
+  if(type==='sub'){const r=el('rect',{x,y,width:w,height:h,class:'shape'},parent);el('line',{x1:x+14,y1:y,x2:x+14,y2:y+h,class:'shape'},parent);el('line',{x1:x+w-14,y1:y,x2:x+w-14,y2:y+h,class:'shape'},parent);return r;}
+}
+/* opts: textFor(node)->{text,cls}, stateFor(node)->class, clickable(node), onClick(node), onDrop(node,data) */
+function renderFlow(host,spec,opts={}){
+  host.innerHTML='';
+  const svg=el('svg',{role:'img','aria-label':spec.aria||'Flowchart'});
+  const defs=el('defs',{},svg);
+  const m=el('marker',{id:'ah'+(renderFlow.n=(renderFlow.n||0)+1),viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+  el('path',{d:'M0,0 L10,5 L0,10 z',class:'arrowhead'},m);
+  const mid=m.getAttribute('id');
+  const byId={};spec.nodes.forEach(n=>byId[n.id]=n);
+  let minX=Infinity,maxX=-Infinity,maxY=0;
+  spec.nodes.forEach(n=>{const g=geom(n);minX=Math.min(minX,g.cx-g.w/2);maxX=Math.max(maxX,g.cx+g.w/2);maxY=Math.max(maxY,g.cy+g.h/2);});
+  spec.edges.forEach(e=>{if(e.lane!==undefined){minX=Math.min(minX,e.lane-10);maxX=Math.max(maxX,e.lane+10);}});
+  const pad=30;
+  const vbW=maxX-minX+2*pad;
+  svg.setAttribute('viewBox',`${minX-pad} 0 ${vbW} ${maxY+pad}`);
+  svg.style.width=Math.round(vbW*1.15)+'px';
+  const eg=el('g',{},svg);
+  spec.edges.forEach(e=>{
+    const gf=geom(byId[e.from]), gt=geom(byId[e.to]);
+    const r=route(e,gf,gt);
+    el('polyline',{points:r.pts.map(p=>p.x+','+p.y).join(' '),class:'edge','marker-end':`url(#${mid})`},eg);
+    const lab = opts.labelFor ? opts.labelFor(e) : e.label;
+    if(lab){
+      let lx=r.s.x,ly=r.s.y,anchor='start';
+      if(r.exit==='bottom'){lx+=8;ly+=15;}
+      else if(r.exit==='right'){lx+=8;ly-=8;}
+      else {lx-=8;ly-=8;anchor='end';}
+      el('text',{x:lx,y:ly,class:'elabel','text-anchor':anchor},eg).textContent=lab;
+    }
+  });
+  spec.nodes.forEach(n=>{
+    const g=geom(n);
+    const info=opts.textFor?opts.textFor(n):{text:n.text,cls:''};
+    const state=opts.stateFor?opts.stateFor(n):'';
+    const clickable=opts.clickable?opts.clickable(n):false;
+    const grp=el('g',{class:`fnode ${info.cls||''} ${state||''} ${clickable?'click':''}`},svg);
+    drawShape(g,n.draw||n.type,grp);
+    const max=n.wrap||(n.type==='dec'?22:24);
+    const lines=wrap(info.text,max), lh=16;
+    lines.forEach((ln,i)=>{
+      const t=el('text',{x:g.cx,y:g.cy+(i-(lines.length-1)/2)*lh,'text-anchor':'middle',class:info.textCls||''},grp);
+      t.textContent=ln;
+    });
+    if(clickable){
+      grp.setAttribute('tabindex','0');grp.setAttribute('role','button');
+      grp.setAttribute('aria-label',info.aria||info.text);
+      grp.addEventListener('click',()=>opts.onClick(n));
+      grp.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();opts.onClick(n);}});
+    }
+    if(opts.onDrop && clickable){
+      grp.addEventListener('dragover',ev=>{ev.preventDefault();grp.classList.add('drop');});
+      grp.addEventListener('dragleave',()=>grp.classList.remove('drop'));
+      grp.addEventListener('drop',ev=>{ev.preventDefault();grp.classList.remove('drop');opts.onDrop(n,ev.dataTransfer.getData('text/plain'));});
+    }
+  });
+  host.appendChild(svg);
+}
+
+
+/* ================= CODE ================= */
+const LIN1=['Declare LinearSearch1(items, searchItem)','    foundIndex, current is integer','    set foundIndex = -1','    for current = 0 to len(items) - 1','        if items[current] = searchItem','            set foundIndex = current','            output "Found item at index ", foundIndex','        end if','    next current','    if foundIndex = -1','        output "Item not found in the array"','    end if','End Subroutine'];
+const LIN2=['Declare LinearSearch2(items, searchItem)','    foundIndex, current is integer','    found is Boolean','    set foundIndex = -1','    set current = 0','    set found = FALSE','    while current < len(items) AND found = FALSE','        if items[current] = searchItem','            set foundIndex = current','            set found = TRUE','        end if','        set current = current + 1','    end while','    if foundIndex = -1','        output "Item not found in the array"','    end if','End Subroutine'];
+const BIN=['Declare BinarySearch(items, searchItem)','    first, last, midpoint, foundIndex is integer','    found is Boolean','    set found = FALSE','    set foundIndex = -1','    set first = 0','    set last = len(items) - 1','    while first <= last AND found = FALSE','        set midpoint = (first + last) DIV 2','        if items[midpoint] = searchItem','            set foundIndex = midpoint','            set found = TRUE','        else if items[midpoint] < searchItem','            set first = midpoint + 1','        else','            set last = midpoint - 1','        end if','    end while','    if found = FALSE','        output "Item not found"','    else','        output "Item found at index ", foundIndex','    end if','End Subroutine'];
+const REC=['Declare BinarySearchRec(items, searchItem, first, last)','    midpoint is integer','    if first > last','        return -1','    else','        set midpoint = (first + last) DIV 2','        if items[midpoint] = searchItem','            return midpoint','        else if searchItem > items[midpoint]','            set first = midpoint + 1','            return call BinarySearchRec(items, searchItem, first, last)','        else','            set last = midpoint - 1','            return call BinarySearchRec(items, searchItem, first, last)','        end if','    end if','End Subroutine'];
+
+/* ================= TRACE STEP GENERATORS ================= */
+function genLin1(items,t){
+  const st=[],rows=[];let fi=-1;const out=[];
+  const P=(o)=>st.push(Object.assign({rows:rows.map(r=>r.slice()),out:out.slice(),vars:{foundIndex:fi}},o));
+  P({line:2,text:`foundIndex starts at -1, meaning "not found yet". Searching for ${t}.`,ask:{type:'num',q:'Before you start: how many comparisons will version 1 make?',ans:items.length,why:`A for loop always runs ${items.length} times, once for every item, even after a match.`}});
+  for(let c=0;c<items.length;c++){
+    const m=items[c]===t;
+    rows.push([c,items[c],m?'Yes':'No',m?c:fi]);
+    if(m)fi=c;
+    P({line:4,cur:c,check:[c],vars:{current:c,foundIndex:fi},text:`current = ${c}. Is items[${c}] (${items[c]}) = ${t}? ${m?'Yes':'No'}.`,
+      ask:m?{type:'yn',q:'A match! Does the for loop stop now?',ans:false,why:'No. A for loop runs a fixed number of times, so version 1 carries on checking every remaining item.'}:null});
+    if(m){out.push(`Found item at index ${c}`);P({line:6,cur:c,found:[c],vars:{current:c,foundIndex:fi},text:`foundIndex = ${c}, and "Found item at index ${c}" is output. The loop continues.`});}
+  }
+  P({line:9,vars:{foundIndex:fi},text:fi===-1?`The loop has finished and foundIndex is still -1, so "Item not found in the array" is output.`:`The loop has finished after ${items.length} comparisons. foundIndex = ${fi}${out.length>1?': the LAST match, because each match overwrote the one before':''}.`,
+    ask:{type:'num',q:'What is foundIndex at the end?',ans:fi,why:fi===-1?'Nothing matched, so it is still -1.':(out.length>1?`Each match overwrites foundIndex, so it ends on the last match: ${fi}.`:`The only match was at ${fi}.`)}});
+  if(fi===-1)out.push('Item not found in the array');
+  P({line:12,vars:{foundIndex:fi},text:`Finished: ${items.length} comparisons.`,end:true});
+  return {steps:st,cols:['current','items[current]','match?','foundIndex'],code:LIN1};
+}
+function genLin2(items,t){
+  const st=[],rows=[],out=[];let fi=-1,c=0,found=false;
+  const P=(o)=>st.push(Object.assign({rows:rows.map(r=>r.slice()),out:out.slice()},o));
+  const firstIdx=items.indexOf(t);const exp=firstIdx===-1?items.length:firstIdx+1;
+  P({line:5,vars:{current:0,found:'FALSE',foundIndex:-1},text:`current = 0, found = FALSE, foundIndex = -1. Searching for ${t}.`,ask:{type:'num',q:'Before you start: how many comparisons will version 2 make?',ans:exp,why:firstIdx===-1?`${t} is not in the list, so every item must be checked: ${items.length}.`:`The while loop stops as soon as ${t} is found at index ${firstIdx}: ${exp} comparison${exp===1?'':'s'}.`}});
+  while(true){
+    const go=c<items.length&&!found;
+    P({line:6,cur:c<items.length?c:null,vars:{current:c,found:found?'TRUE':'FALSE',foundIndex:fi},text:`Is current (${c}) < ${items.length} AND found = FALSE? ${go?'Yes, so the loop runs.':'No, so the loop ends.'}`,
+      ask:found?{type:'yn',q:'found is now TRUE. Will the loop run again?',ans:false,why:'No. Raising the found flag makes the while condition false, so the loop stops straight away.'}:null});
+    if(!go)break;
+    const m=items[c]===t;rows.push([c,items[c],m?'Yes':'No',m?'TRUE':'FALSE']);
+    P({line:7,cur:c,check:[c],vars:{current:c,found:found?'TRUE':'FALSE',foundIndex:fi},text:`Is items[${c}] (${items[c]}) = ${t}? ${m?'Yes: foundIndex = '+c+' and found = TRUE.':'No.'}`});
+    if(m){fi=c;found=true;}
+    c++;
+    P({line:11,cur:c-1,found:m?[c-1]:null,vars:{current:c,found:found?'TRUE':'FALSE',foundIndex:fi},text:`current = current + 1, so current is now ${c}.`});
+  }
+  if(fi===-1)out.push('Item not found in the array');
+  P({line:13,vars:{current:c,found:found?'TRUE':'FALSE',foundIndex:fi},text:fi===-1?'foundIndex is still -1, so "Item not found in the array" is output.':`foundIndex = ${fi}: the FIRST match. Finished after ${rows.length} comparison${rows.length===1?'':'s'}.`,end:true});
+  return {steps:st,cols:['current','items[current]','match?','found'],code:LIN2};
+}
+function genBin(items,t){
+  const st=[],rows=[],out=[];let first=0,last=items.length-1,found=false,fi=-1,mid=null;
+  const P=(o)=>st.push(Object.assign({rows:rows.map(r=>r.slice()),out:out.slice(),range:[first,last],vars:{first,last,midpoint:mid??'–',found:found?'TRUE':'FALSE'}},o));
+  P({line:6,text:`first = 0 and last = ${items.length-1}: the whole list is in range. Searching for ${t}.`});
+  while(true){
+    const go=first<=last&&!found;
+    P({line:7,text:`Is first (${first}) <= last (${last}) AND found = FALSE? ${go?'Yes, so the loop runs.':first>last?'No: first > last, so there is nothing left in range and the loop ends.':'No: found is TRUE, so the loop ends.'}`});
+    if(!go)break;
+    const m=Math.floor((first+last)/2);
+    P({line:8,text:`Work out the midpoint of first (${first}) and last (${last}).`,ask:{type:'cell',q:`What is the next midpoint? Click the cell. (first = ${first}, last = ${last})`,ans:m,why:`(${first} + ${last}) DIV 2 = ${m}.`}});
+    mid=m;
+    const v=items[m];const act=v===t?'found':v<t?'right':'left';
+    P({line:9,mid:m,text:`midpoint = (${first} + ${last}) DIV 2 = ${m}. Compare items[${m}] (${v}) with ${t}.`,
+      ask:{type:'choice',q:`items[${m}] = ${v}. What happens next?`,opts:[['found',`${t} is found`],['right',`Discard the LEFT half (first = ${m} + 1)`],['left',`Discard the RIGHT half (last = ${m} - 1)`]],ans:act,
+        why:act==='found'?`${v} = ${t}, so it is found at index ${m}.`:act==='right'?`${v} < ${t}, so ${t} can only be to the right: first = ${m+1}.`:`${v} > ${t}, so ${t} can only be to the left: last = ${m-1}.`}});
+    if(act==='found'){found=true;fi=m;rows.push([first,last,m,v,'found']);P({line:11,mid:m,found:[m],text:`${v} = ${t}: foundIndex = ${m} and found = TRUE.`});}
+    else if(act==='right'){rows.push([first,last,m,v,`first = ${m+1}`]);first=m+1;P({line:13,mid:m,text:`${v} < ${t}, so first = midpoint + 1 = ${first}. The midpoint and everything to its left are discarded.`});}
+    else {rows.push([first,last,m,v,`last = ${m-1}`]);last=m-1;P({line:15,mid:m,text:`${v} > ${t}, so last = midpoint - 1 = ${last}. The midpoint and everything to its right are discarded.`});}
+  }
+  out.push(found?`Item found at index ${fi}`:'Item not found');
+  P({line:found?21:19,found:found?[fi]:null,end:true,text:found?`Found at index ${fi} after ${rows.length} comparison${rows.length===1?'':'s'}.`:`Not found after ${rows.length} comparisons: first (${first}) > last (${last}).`});
+  return {steps:st,cols:['first','last','midpoint','items[midpoint]','action'],code:BIN};
+}
+function genRec(items,t){
+  const st=[],rows=[],stack=[];let result=null;
+  const P=(o)=>st.push(Object.assign({rows:rows.map(r=>r.slice()),out:[],stack:stack.map(f=>Object.assign({},f))},o));
+  function call(first,last,caller){
+    const f={label:`BinarySearchRec(…, ${first}, ${last})`,first,last,pend:''};stack.push(f);
+    P({line:0,range:[first,last],vars:{first,last},text:`BinarySearchRec is called with first = ${first} and last = ${last}. A new frame is pushed onto the call stack.`});
+    const base=first>last;
+    P({line:2,range:[first,last],vars:{first,last},text:`Is first (${first}) > last (${last})? ${base?'Yes: this is the BASE CASE. The range is empty.':'No, so this is not the base case.'}`,
+      ask:{type:'yn',q:`first = ${first}, last = ${last}. Is this the base case?`,ans:base,why:base?'first > last means the range is empty: there is nowhere left to look.':'first <= last, so there is still at least one item to check.'}});
+    if(base){f.state='base';P({line:3,range:[first,last],vars:{first,last},text:'Return -1: the item is not in the list.'});stack.pop();return -1;}
+    const m=Math.floor((first+last)/2),v=items[m];
+    P({line:5,range:[first,last],vars:{first,last},text:`Work out the midpoint.`,ask:{type:'cell',q:`What is the midpoint? Click the cell. (first = ${first}, last = ${last})`,ans:m,why:`(${first} + ${last}) DIV 2 = ${m}.`}});
+    const act=v===t?'found':t>v?'right':'left';
+    P({line:6,range:[first,last],mid:m,vars:{first,last,midpoint:m},text:`midpoint = ${m}. Compare items[${m}] (${v}) with ${t}.`,
+      ask:{type:'choice',q:`items[${m}] = ${v}. What happens next?`,opts:[['found','Return midpoint: found'],['right','Call itself on the RIGHT half'],['left','Call itself on the LEFT half']],ans:act,
+        why:act==='found'?`${v} = ${t}: return ${m}, with no more calls.`:act==='right'?`${t} > ${v}: call again with first = ${m+1}.`:`${t} < ${v}: call again with last = ${m-1}.`}});
+    let r;
+    if(act==='found'){rows.push([first,last,m,v,'return '+m]);P({line:7,range:[first,last],mid:m,found:[m],vars:{first,last,midpoint:m},text:`Found: return ${m}. No further calls are made.`});r=m;}
+    else if(act==='right'){rows.push([first,last,m,v,'call right half']);f.pend=`waiting for (…, ${m+1}, ${last})`;P({line:10,range:[first,last],mid:m,vars:{first:m+1,last,midpoint:m},text:`first = ${m+1}. Call BinarySearchRec on the right half and wait for its answer.`});r=call(m+1,last);}
+    else {rows.push([first,last,m,v,'call left half']);f.pend=`waiting for (…, ${first}, ${m-1})`;P({line:13,range:[first,last],mid:m,vars:{first,last:m-1,midpoint:m},text:`last = ${m-1}. Call BinarySearchRec on the left half and wait for its answer.`});r=call(first,m-1);}
+    if(act!=='found'){f.pend='';P({line:act==='right'?10:13,range:[first,last],vars:{first,last},text:`The call below returned ${r}, so this call returns ${r} too.`});}
+    stack.pop();return r;
+  }
+  result=call(0,items.length-1);
+  P({line:16,end:true,found:result>=0?[result]:null,text:result>=0?`The first call returns ${result}: found at index ${result}.`:'The first call returns -1: not found.',out:[result>=0?`Returned ${result}`:'Returned -1']});
+  return {steps:st,cols:['first','last','midpoint','items[midpoint]','action'],code:REC};
+}
+
+/* ================= STATE ================= */
+const SORTED=[4,8,15,23,27,32,41,55,63,70,88];
+const PRESETS={
+ lin1:[['27,8,41,15,63,4,32','Unsorted list',63],['7,3,7,9','Duplicates [7, 3, 7, 9]',7]],
+ lin2:[['27,8,41,15,63,4,32','Unsorted list',63],['7,3,7,9','Duplicates [7, 3, 7, 9]',7]],
+ bin:[[SORTED.join(','),'Sorted, 11 items',55],[SORTED.join(','),'Sorted, 11 items (not found)',50],['3,9,14,22,27,31,38,44,52,57,63,70,78,85,91','Sorted, 15 items',91]],
+ rec:[[SORTED.join(','),'Sorted, 11 items',55],[SORTED.join(','),'Sorted, 11 items (not found)',50]],
+};
+const ALGS=[['lin1','Linear: version 1 (for)'],['lin2','Linear: version 2 (while)'],['bin','Binary: iterative'],['rec','Binary: recursive']];
+const S={tab:0,tr:{alg:'bin',preset:0,i:0,mode:'watch',ans:{},score:0,total:0},fc:{i:0,st:{}},al:{i:0,ans:{}},race:{n:1000,where:'last',hist:[],pred:{},anim:null},build:null};
+let TG=null;
+function regen(){const T=S.tr,p=PRESETS[T.alg][T.preset];const items=p[0].split(',').map(Number);
+  TG={items,target:p[2],...({lin1:genLin1,lin2:genLin2,bin:genBin,rec:genRec}[T.alg])(items,p[2])};T.i=0;}
+regen();
+
+/* ================= TRACE VIEW ================= */
+function cellsView(s,opts={}){
+  const row=h('div',{class:'arr'});
+  TG.items.forEach((v,i)=>{
+    const inR=!s.range||(i>=s.range[0]&&i<=s.range[1]);
+    let cls='cell';if(!inR)cls+=' out';
+    if(s.check&&s.check.includes(i))cls+=' test';
+    if(s.mid===i)cls+=' midc';
+    if(s.found&&s.found.includes(i))cls+=' final';
+    if(opts.pick)cls+=' pick';
+    if(opts.mark&&opts.mark[i])cls+=' '+opts.mark[i];
+    const c=h('div',{class:cls,role:opts.pick?'button':null,tabindex:opts.pick?'0':null,'aria-label':`Position ${i}, value ${v}`},String(v));
+    if(opts.pick){c.addEventListener('click',()=>opts.pick(i));c.addEventListener('keydown',e=>{if(e.key==='Enter')opts.pick(i);});}
+    let top='',bot='';
+    if(s.range&&!s.end){if(i===s.range[0])top='first';if(i===s.range[1])top=top?'first / last':'last';}
+    if(s.mid===i)bot='midpoint';if(s.cur===i)bot='current';
+    row.appendChild(h('div',{class:'slot'},h('div',{class:'mk lo'},top),c,h('div',{class:'ix'},String(i)),h('div',{class:'mk hi'},bot)));
+  });
+  const ext=s.range&&s.range[0]>s.range[1]?h('div',{class:'small',style:'text-align:center'},`first = ${s.range[0]}, last = ${s.range[1]}: first > last, the range is empty`):null;
+  return h('div',{class:'arrwrap'},row,ext);
+}
+function traceView(){
+  const T=S.tr,st=TG.steps,s=st[T.i],key=`${T.alg}:${T.preset}:${T.i}`,a=s.ask,done=T.ans[key];
+  const blocked=T.mode==='predict'&&a&&!done;
+  const mark=(ok,txt,extra={})=>{if(T.ans[key])return;T.ans[key]=Object.assign({ok,txt},extra);T.total++;if(ok)T.score++;render();};
+  let pick=null,markCells={};
+  if(T.mode==='predict'&&a&&a.type==='cell'&&!done)pick=i=>mark(i===a.ans,(i===a.ans?'Correct. ':'Not quite. ')+a.why,{pick:i});
+  if(done&&done.pick!==undefined){markCells[done.pick]=done.ok?'right':'wrong';if(!done.ok)markCells[a.ans]='right';}
+  let askEl=null;
+  if(T.mode==='predict'&&a){
+    if(done)askEl=h('div',{class:'fb '+(done.ok?'ok':'bad')},done.txt);
+    else if(a.type==='cell')askEl=h('div',{class:'ask'},h('b',{},'Predict: '),a.q);
+    else if(a.type==='yn')askEl=h('div',{class:'ask'},h('b',{},'Predict: '),a.q,h('div',{class:'row'},...[true,false].map(v=>h('button',{class:v?'btn primary':'btn ghost',onclick:()=>mark(v===a.ans,(v===a.ans?'Correct. ':'Not quite. ')+a.why)},v?'Yes':'No'))));
+    else if(a.type==='choice')askEl=h('div',{class:'ask'},h('b',{},'Predict: '),a.q,h('div',{class:'row'},...a.opts.map(([k,t])=>h('button',{class:'btn ghost',onclick:()=>mark(k===a.ans,(k===a.ans?'Correct. ':'Not quite. ')+a.why)},t))));
+    else if(a.type==='num'){const inp=h('input',{type:'number',class:'numin','aria-label':'Your answer'});
+      askEl=h('div',{class:'ask'},h('b',{},'Predict: '),a.q,h('div',{class:'row'},inp,h('button',{class:'btn primary',onclick:()=>{if(inp.value==='')return;const ok=Number(inp.value)===a.ans;mark(ok,(ok?'Correct. ':`Not quite: the answer is ${a.ans}. `)+a.why);}},'Check')));}
+  }
+  const table=h('div',{class:'twrap'},h('table',{class:'tt'},h('thead',{},h('tr',{},...TG.cols.map(c=>h('th',{},c)))),
+    h('tbody',{},...(s.rows.length?s.rows.map(r=>h('tr',{},...r.map(c=>h('td',{},String(c))))):[h('tr',{},h('td',{colspan:String(TG.cols.length),class:'small'},'Rows appear as each comparison is made.'))]))));
+  const vars=h('div',{class:'vars'},h('span',{class:'var pv'},`searchItem = ${TG.target}`),...Object.entries(s.vars||{}).map(([k,v])=>h('span',{class:'var'},`${k} = ${v}`)));
+  const stackEl=T.alg==='rec'?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Call stack'),h('div',{class:'stack'},...(s.stack.length?s.stack.map((f,i)=>h('div',{class:'frame '+(i===s.stack.length-1?(f.state==='base'?'base':'active'):'waiting')},h('b',{},f.label),f.pend?h('div',{class:'small'},f.pend):null)):[h('div',{class:'small',style:'text-align:center'},'The call stack is empty')]))):null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Trace It'),h('div',{class:'seg'},
+      h('button',{'aria-pressed':String(T.mode==='watch'),onclick:()=>{T.mode='watch';render();}},'Watch'),
+      h('button',{'aria-pressed':String(T.mode==='predict'),onclick:()=>{T.mode='predict';render();}},'Predict (challenge)'))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Step through each search line by line. The trace table fills in as each comparison is made. In Predict mode the tool stops and asks you what happens next.'),
+    h('div',{class:'controls'},
+      sel('Algorithm',T.alg,ALGS,v=>{T.alg=v;T.preset=0;regen();render();}),
+      sel('Data',T.preset,PRESETS[T.alg].map((p,i)=>[i,`${p[1]}: find ${p[2]}`]),v=>{T.preset=Number(v);regen();render();}),
+      h('button',{class:'btn ghost',disabled:T.i===0||null,onclick:()=>{T.i--;render();}},'← Back'),
+      h('button',{class:'btn primary',disabled:(T.i>=st.length-1||blocked)||null,onclick:()=>{T.i++;render();}},'Step →'),
+      h('button',{class:'btn ghost',onclick:()=>{T.i=0;render();}},'Restart'),
+      h('div',{class:'stats'},T.mode==='predict'?h('div',{class:'stat'},h('b',{},`${T.score}/${T.total}`),'predictions right'):null)),
+    h('div',{class:'grid'},
+      h('div',{},cellsView(s,{pick,mark:markCells}),vars,
+        h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${T.i+1} of ${st.length}`),h('p',{},s.text)),
+        askEl,
+        s.out&&s.out.length?h('div',{class:'outbox'},h('span',{class:'small'},'Output'),...s.out.map(o=>h('div',{},o))):null,
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Trace table'),table)),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Pseudo-code'),h('ol',{class:'code'},TG.code.map((c,i)=>h('li',{class:i===s.line?'cur':null},c)))),stackEl)));
+}
+
+/* ================= FIX THE FLOWCHART ================= */
+function baseFlow(over={}){
+  const nodes=[
+    {id:'s',type:'term',text:'Start',row:0},
+    {id:'a',type:'io',text:'Input searchItem',row:1},
+    {id:'b',type:'proc',text:'first = 0, last = len(items) - 1, found = FALSE',row:2.2,w:250,h:56,wrap:30},
+    {id:'d1',type:'dec',text:'first <= last AND found = FALSE?',row:3.7,w:300,h:80,wrap:24},
+    {id:'m',type:'proc',text:'midpoint = (first + last) DIV 2',row:5.15,w:250,wrap:34},
+    {id:'d2',type:'dec',text:'items[midpoint] = searchItem?',row:6.5,w:290,h:76,wrap:24},
+    {id:'f',type:'proc',text:'found = TRUE, foundIndex = midpoint',row:6.5,col:1,w:220,h:56,wrap:22},
+    {id:'d3',type:'dec',text:'items[midpoint] < searchItem?',row:8,w:290,h:76,wrap:24},
+    {id:'u1',type:'proc',text:'first = midpoint + 1',row:8,col:1,w:220},
+    {id:'u2',type:'proc',text:'last = midpoint - 1',row:9.4,w:220},
+    {id:'o',type:'io',text:'Output foundIndex or "Not found"',row:3.7,col:1,w:240,h:56,wrap:22},
+    {id:'t',type:'term',text:'Stop',row:5.0,col:1},
+  ].map(n=>Object.assign({},n,over[n.id]||{}));
+  const edges=[{from:'s',to:'a'},{from:'a',to:'b'},{from:'b',to:'d1'},
+    {from:'d1',to:'m',label:'Yes'},{from:'d1',to:'o',exit:'right',enter:'left',label:'No'},{from:'o',to:'t'},
+    {from:'m',to:'d2'},{from:'d2',to:'f',exit:'right',enter:'left',label:'Yes'},{from:'d2',to:'d3',label:'No'},
+    {from:'d3',to:'u1',exit:'right',enter:'left',label:'Yes'},{from:'d3',to:'u2',label:'No'},
+    {from:'u2',to:'d1',exit:'left',enter:'left',lane:-230},
+    {from:'f',to:'d1',exit:'right',enter:'top',lane:540},{from:'u1',to:'d1',exit:'right',enter:'top',lane:540}];
+  return {nodes,edges};
+}
+const FIX=[
+ {title:'The pointer that never moves on',prompt:'This binary search sometimes never finishes. One shape contains an error. Click it, then choose the fix.',
+  over:{u1:{text:'first = midpoint'}},error:'u1',
+  opts:[['first = midpoint + 1',1,'Correct. The midpoint has already been checked, so the new range starts just after it.'],['first = first + 1',0,'This only moves one place at a time: it works, but it is a linear search, not a binary search.'],['last = midpoint + 1',0,'This moves the wrong pointer, and in the wrong direction.']],
+  explain:'With first = midpoint, when first and last are next to each other the midpoint is first again, so first never changes and the loop can run forever.',
+  pseudo:['set first = midpoint + 1','set first = midpoint','first = midpoint + 1 + 1']},
+ {title:'The wrong comparison',prompt:'This binary search looks in the wrong half. One shape contains an error. Click it, then choose the fix.',
+  over:{d3:{text:'items[midpoint] > searchItem?'}},error:'d3',
+  opts:[['Change it to items[midpoint] < searchItem?',1,'Correct. If the middle item is SMALLER than the search item, the item must be to the right, so first moves up.'],['Change the Yes branch to last = midpoint - 1',1,'Also correct: swapping what each branch does fixes the logic too. Both are valid fixes.'],['Change it to items[midpoint] = searchItem?',0,'That test has already been done in the decision above.']],
+  explain:'As drawn, when the middle item is BIGGER than the search item it moves first up, so it throws away the half that contains the item.',
+  pseudo:['else if items[midpoint] < searchItem','else if items[midpoint] > searchItem','if items[midpoint] < searchItem then first = midpoint']},
+ {title:'The last item that is never checked',prompt:'This binary search says "Not found" for some items that ARE in the list. One shape contains an error. Click it, then choose the fix.',
+  over:{d1:{text:'first < last AND found = FALSE?'}},error:'d1',
+  opts:[['Change it to first <= last AND found = FALSE?',1,'Correct. When first = last there is still ONE item left to check, so the loop must keep going.'],['Change it to first > last AND found = FALSE?',0,'This would stop the loop straight away, because first starts below last.'],['Remove "AND found = FALSE"',0,'Without that, the loop would carry on after the item is found.']],
+  explain:'With <, the loop stops as soon as first = last, so the final remaining item is never compared.',
+  pseudo:['while first <= last AND found = FALSE','while first < last AND found = FALSE','while first <= last OR found = FALSE']},
+ {title:'The midpoint that is not a whole number',prompt:'This binary search crashes on some lists. One shape contains an error. Click it, then choose the fix.',
+  over:{m:{text:'midpoint = (first + last) / 2'}},error:'m',
+  opts:[['midpoint = (first + last) DIV 2',1,'Correct. DIV gives a whole number, so midpoint is always a valid index.'],['midpoint = first + last DIV 2',0,'Without brackets, last DIV 2 is worked out first, which gives the wrong position.'],['midpoint = (first + last) * 2',0,'This is far past the end of the list.']],
+  explain:'(0 + 3) / 2 = 1.5, which is not a valid array index. The mark scheme gives a mark for using DIV or INT here.',
+  pseudo:['set midpoint = (first + last) DIV 2','set midpoint = (first + last) / 2','set midpoint = first + last DIV 2']},
+];
+function fixView(){
+  const F=S.fc,ex=FIX[F.i],st=F.st[F.i]||(F.st[F.i]={sel:null,wrong:0,solved:false,chosen:{},pseudo:null});
+  const spec=baseFlow(ex.over);
+  const host=h('div',{class:'flowwrap'});
+  renderFlow(host,spec,{clickable:()=>!st.solved,stateFor:n=>n.id===st.sel?(n.id===ex.error?(st.solved?'ok':'sel'):'bad'):'',
+    onClick:n=>{st.sel=n.id;if(n.id!==ex.error){st.wrong++;st.msg={ok:false,t:`"${n.text}" is correct as drawn. ${st.wrong>=2?'Hint: trace it with a small sorted list and a target near one end.':'Try another shape.'}`};}else st.msg={ok:true,t:`Yes, "${n.text}" contains the error. Now choose the fix.`};render();}});
+  const side=[];
+  if(st.msg)side.push(h('div',{class:'fb '+(st.msg.ok?'ok':'bad')},st.msg.t));
+  if(st.sel===ex.error){
+    side.push(h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Choose the fix'),h('div',{class:'opts'},...ex.opts.map(([t,ok,why],oi)=>{
+      const cls=st.chosen[oi]?(ok?' ok':' bad'):'';return h('button',{class:'opt'+cls,onclick:()=>{st.chosen[oi]=1;if(ok)st.solved=true;render();}},t);})),
+      ...ex.opts.map(([t,ok,why],oi)=>st.chosen[oi]?h('div',{class:'fb '+(ok?'ok':'bad')},why):null)));
+  }
+  if(st.solved){
+    side.push(h('div',{class:'fb ok'},h('b',{},'Why it was wrong: '),ex.explain));
+    side.push(h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Now write it: which pseudo-code line matches the FIXED shape?'),h('div',{class:'opts'},...seeded(ex.pseudo.map((p,k)=>[p,k===0]),F.i+3).map(([p,ok])=>{
+      const cls=st.pseudo!==null&&st.pseudo===p?(ok?' ok':' bad'):(st.pseudo!==null&&ok?' ok':'');return h('button',{class:'opt mono'+cls,disabled:st.pseudo!==null||null,onclick:()=>{st.pseudo=p;render();}},p);}))));
+  }
+  const dots=h('div',{class:'dots'},FIX.map((_,j)=>h('button',{class:'dot'+(F.st[j]&&F.st[j].solved?' done':''),'aria-current':String(j===F.i),onclick:()=>{F.i=j;render();}},String(j+1))));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Fix the flowchart: ${ex.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),ex.prompt,' Then pick the pseudo-code line that matches your fix.'),
+    h('div',{class:'grid'},h('div',{},host),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'How to find it'),h('p',{style:'margin:0'},'Trace the flowchart with a small sorted list, for example [3, 8, 12, 20] searching for 20. Write down first, last and midpoint as you follow the arrows.')),
+        ...side,
+        h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{F.st[F.i]=null;render();}},'Reset'),
+          F.i<FIX.length-1?h('button',{class:'btn ghost',onclick:()=>{F.i++;render();}},'Next flowchart →'):null))));
+}
+
+/* ================= ALTER IT ================= */
+const ALTER=[
+ {title:'Stop at the first match',task:'Version 1 keeps searching after it finds the item. Which alteration makes it stop as soon as the item is found?',
+  base:LIN1.join('\n'),
+  cands:[
+   ['set current = 0\nset found = FALSE\nwhile current < len(items) AND found = FALSE\n    if items[current] = searchItem\n        set foundIndex = current\n        set found = TRUE\n    end if\n    set current = current + 1\nend while',1,'Correct. The while condition checks the found flag, so the loop ends after the first match.'],
+   ['set current = 0\nset found = FALSE\nwhile current < len(items) AND found = FALSE\n    if items[current] = searchItem\n        set foundIndex = current\n        set found = TRUE\n    end if\nend while',0,'current never increases, so if items[0] is not the search item the loop runs forever.'],
+   ['for current = 0 to len(items) - 1\n    if items[current] = searchItem\n        set foundIndex = current\n        set found = TRUE\n    end if\nnext current',0,'Setting found = TRUE does nothing here: a for loop always runs a fixed number of times.']]},
+ {title:'Count the matches',task:'Alter the linear search so it counts how many times searchItem appears in the list.',
+  base:LIN1.join('\n'),
+  cands:[
+   ['set count = 0\nfor current = 0 to len(items) - 1\n    set count = count + 1\n    if items[current] = searchItem\n        set foundIndex = current\n    end if\nnext current\noutput count',0,'count goes up for EVERY item, so this outputs the length of the list.'],
+   ['set count = 0\nfor current = 0 to len(items) - 1\n    if items[current] = searchItem\n        set count = count + 1\n    end if\nnext current\noutput count',1,'Correct. count only goes up when an item matches. Here the for loop is the right choice, because every item must be checked.'],
+   ['for current = 0 to len(items) - 1\n    if items[current] = searchItem\n        set count = 1\n    end if\nnext current\noutput count',0,'count is set to 1 on each match instead of being increased, so it can never be more than 1.']]},
+ {title:'Stop early on an ordered list',task:'The list is sorted in ascending order. Alter the linear search so it stops as soon as it passes the place where searchItem would be (the 2017 Q11a idea).',
+  base:LIN2.join('\n'),
+  cands:[
+   ['set current = 0\nwhile current < len(items) AND items[current] > searchItem\n    set current = current + 1\nend while\nif current < len(items) AND items[current] = searchItem\n    output "Found at index ", current\nelse\n    output "Not found"\nend if',0,'On an ascending list items[0] is the smallest value, so this loop usually stops straight away at index 0.'],
+   ['set current = 0\nwhile current < len(items) AND items[current] < searchItem\n    set current = current + 1\nend while\nif items[current] = searchItem\n    output "Found at index ", current\nelse\n    output "Not found"\nend if',0,'If searchItem is bigger than every item, current ends at len(items), and items[current] is outside the array.'],
+   ['set current = 0\nwhile current < len(items) AND items[current] < searchItem\n    set current = current + 1\nend while\nif current < len(items) AND items[current] = searchItem\n    output "Found at index ", current\nelse\n    output "Not found"\nend if',1,'Correct. The loop moves past smaller items only, and stops at the first item that is not smaller. The final check makes sure current is still inside the array.']]},
+ {title:'Binary search on a descending list',task:'The list is now sorted in DESCENDING order (biggest first). Which alteration to the binary search still works?',
+  base:BIN.join('\n'),
+  cands:[
+   ['else if items[midpoint] < searchItem\n    set first = midpoint + 1\nelse\n    set last = midpoint - 1\nend if',0,'This is the original code. On a descending list it throws away the wrong half.'],
+   ['else if items[midpoint] > searchItem\n    set first = midpoint + 1\nelse\n    set last = midpoint - 1\nend if',1,'Correct. In a descending list, if the middle item is BIGGER than the search item, the item must be further right.'],
+   ['else if items[midpoint] > searchItem\n    set last = midpoint + 1\nelse\n    set first = midpoint - 1\nend if',0,'The pointers move the wrong way: last should go DOWN and first should go UP.']]},
+];
+function alterView(){
+  const A=S.al,ex=ALTER[A.i],ans=A.ans[A.i];
+  const dots=h('div',{class:'dots'},ALTER.map((_,j)=>h('button',{class:'dot'+(A.ans[j]!==undefined?(ALTER[j].cands[A.ans[j]][1]?' done':' baddot'):''),'aria-current':String(j===A.i),onclick:()=>{A.i=j;render();}},String(j+1))));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Alter it: ${ex.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),ex.task),
+    h('div',{class:'grid2'},
+      h('div',{class:'panel'},h('h3',{},'Starting algorithm'),h('pre',{class:'pre'},ex.base)),
+      h('div',{},h('h3',{style:'color:var(--navy);margin-bottom:8px;font-size:18px'},'Which alteration works?'),
+        ...ex.cands.map(([c,ok,why],ci)=>{let cls='cand';if(ans!==undefined){if(ok)cls+=' ok';else if(ans===ci)cls+=' bad';}
+          return h('div',{},h('button',{class:cls,disabled:ans!==undefined||null,onclick:()=>{A.ans[A.i]=ci;render();}},h('span',{class:'cl'},`Option ${'ABC'[ci]}`),h('pre',{class:'pre'},c)),
+            ans!==undefined&&(ok||ans===ci)?h('div',{class:'fb '+(ok?'ok':'bad')},why):null);}),
+        h('div',{class:'actions'},h('button',{class:'btn ghost',disabled:A.i===0||null,onclick:()=>{A.i--;render();}},'← Previous'),h('button',{class:'btn primary',disabled:A.i===ALTER.length-1||null,onclick:()=>{A.i++;render();}},'Next →')))));
+}
+
+/* ================= RACE ================= */
+const SIZES=[[10,'10'],[100,'100'],[1000,'1,000'],[100000,'100,000'],[1000000,'1,000,000']];
+function binCount(n,pos){let f=0,l=n-1,c=0;while(f<=l){const m=Math.floor((f+l)/2);c++;if(m===pos)return c;if(m<pos)f=m+1;else l=m-1;}return c;}
+function raceView(){
+  const R=S.race;
+  const pos=R.where==='last'?R.n-1:R.where==='first'?0:R.where==='middle'?Math.floor((R.n-1)/2):-1;
+  const lin=pos===-1?R.n:pos+1;
+  const bin=pos===-1?binCount(R.n,R.n):binCount(R.n,pos);
+  const shown=R.anim?R.anim:null;
+  const predIn=(k)=>{const i=h('input',{type:'number',class:'numin',value:R.pred[k]??'','aria-label':'Prediction'});i.addEventListener('input',()=>{R.pred[k]=i.value;});return i;};
+  const go=()=>{
+    if(R.timer)clearInterval(R.timer);let t=0;const steps=40;
+    R.anim={l:0,b:0};R.timer=setInterval(()=>{t++;R.anim={l:Math.round(lin*Math.min(1,t/steps)),b:Math.min(bin,Math.ceil(bin*t/steps*3))};
+      if(t>=steps){clearInterval(R.timer);R.timer=null;R.anim=null;R.hist.unshift({n:R.n,where:R.where,lin,bin,pl:R.pred.l,pb:R.pred.b});R.pred={};}render();},40);render();};
+  const L=shown?shown.l:(R.hist[0]&&R.hist[0].n===R.n&&R.hist[0].where===R.where?lin:0);
+  const B=shown?shown.b:(R.hist[0]&&R.hist[0].n===R.n&&R.hist[0].where===R.where?bin:0);
+  const lane=(name,v,max,cls)=>h('div',{class:'lane'},h('div',{class:'lname'},name),h('div',{class:'ltrack'},h('div',{class:'lfill '+cls,style:`width:${max?Math.max(v>0?0.6:0,v/max*100):0}%`})),h('b',{class:'lnum'},v.toLocaleString()));
+  const WH=[['first','first item'],['middle','middle item'],['last','last item'],['absent','not in the list']];
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Race: linear vs binary')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Both searches look through the same SORTED list. Predict how many comparisons each will need, then race them. Make the list bigger each time.'),
+    h('div',{class:'controls'},
+      sel('Items',R.n,SIZES,v=>{R.n=Number(v);render();}),
+      sel('Target is the',R.where,WH,v=>{R.where=v;render();}),
+      h('label',{},'Predict linear',predIn('l')),h('label',{},'Predict binary',predIn('b')),
+      h('button',{class:'btn accent',onclick:go,disabled:R.timer?'':null},'Race!')),
+    h('div',{class:'panel'},lane('Linear search',L,Math.max(lin,1),'l'),lane('Binary search',B,Math.max(lin,1),'b'),
+      h('p',{class:'small',style:'margin:6px 0 0'},'Both bars use the same scale, so the binary bar is often too small to see on large lists.')),
+    R.hist.length?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Results'),h('div',{class:'twrap'},h('table',{class:'tt'},
+      h('thead',{},h('tr',{},...['Items','Target','Linear','Your prediction','Binary','Your prediction'].map(t=>h('th',{},t)))),
+      h('tbody',{},...R.hist.map(x=>h('tr',{},h('td',{},x.n.toLocaleString()),h('td',{},WH.find(w=>w[0]===x.where)[1]),h('td',{},x.lin.toLocaleString()),h('td',{},x.pl||'–'),h('td',{},String(x.bin)),h('td',{},x.pb||'–'))))))):null,
+    R.hist.length>=3?h('div',{class:'disc'},h('h3',{},'What do you notice?'),h('ul',{},
+      h('li',{},'When the list gets 10 times bigger, what happens to the number of comparisons for each search?'),
+      h('li',{},'Binary search needs at most 20 comparisons for a million items. How does halving explain that?'),
+      h('li',{},'Linear search wins when the target is the first item. Why is that not much comfort on a big list?'),
+      h('li',{},'Binary search needs sorted data. When might linear search still be the better choice?'),
+      h('li',{},'Coming later: in 3.10.1 you will describe this growth using Big O notation.'))):null);
+}
+
+/* ================= BUILD IT ================= */
+const MARKS=[['m1','Declare and initialise the variables'],['m2','Use an outer loop'],['m3','Correct condition in the outer loop'],['m4','Use DIV or INT so the midpoint is a whole number'],['m5','Correct calculation of the midpoint'],['m6','Set first using the midpoint'],['m7','Set last using the midpoint'],['m8','Output the position']];
+const B1=[[1,'first, last, midpoint, foundIndex is integer'],[1,'found is Boolean'],[1,'set found = FALSE'],[1,'set foundIndex = -1'],[1,'set first = 0'],[1,'set last = len(items) - 1']];
+const B2=[[1,'while first <= last AND found = FALSE'],[2,'set midpoint = (first + last) DIV 2']];
+const B3=[[2,'if items[midpoint] = searchItem'],[3,'set foundIndex = midpoint'],[3,'set found = TRUE'],[2,'else if items[midpoint] < searchItem'],[3,'set first = midpoint + 1'],[2,'else'],[3,'set last = midpoint - 1'],[2,'end if']];
+const B4=[[1,'end while'],[1,'if found = FALSE'],[2,'output "Item not found"'],[1,'else'],[2,'output "Item found at index ", foundIndex'],[1,'end if']];
+const LINB=LIN2.slice(1,-1).map(l=>{const m=l.match(/^( *)/)[1].length/4;return [m,l.trim()];});
+const swapP=(arr,i,j)=>{const b=arr.slice();[b[i],b[j]]=[b[j],b[i]];return b;};
+const STAGES=[
+ {name:'Warm-up: linear',warm:true,marks:[],head:'Declare LinearSearch2(items, searchItem)',before:[],after:['End Subroutine'],solutions:[LINB],
+  prompt:'Warm-up (optional): build the while-loop linear search. It must stop as soon as the item is found.',
+  dis:[['for current = 0 to len(items) - 1','A for loop always checks every item. This version must stop early, so it uses a while loop with a found flag.'],['set current = current - 1','current must move forward through the list, so it goes up by 1.']]},
+ {name:'Set up',marks:['m1'],head:'Declare BinarySearch(items, searchItem)',before:[],after:['    … the loop goes here …','End Subroutine'],solutions:[B1,swapP(B1,4,5),swapP(B1,2,3)],
+  prompt:'Declare the variables and set first and last to each end of the list.',
+  dis:[['set last = len(items)','The last index is len(items) - 1. len(items) is one past the end of the array.'],['set first = 1','Arrays start at index 0, so first = 0.']]},
+ {name:'Loop and midpoint',marks:['m2','m3','m4','m5'],head:null,before:['    set last = len(items) - 1'],after:['        … compare and narrow goes here …','    end while','End Subroutine'],solutions:[B2],
+  prompt:'Start the outer loop and work out the midpoint.',
+  dis:[['while first < last AND found = FALSE','With <, the loop stops when first = last, so the last remaining item is never checked.'],['set midpoint = (first + last) / 2','/ can give a decimal such as 1.5, which is not a valid index. Use DIV.'],['set midpoint = first + last DIV 2','Without brackets, last DIV 2 is worked out first. Use (first + last) DIV 2.']]},
+ {name:'Compare and narrow',marks:['m6','m7'],head:null,before:['        set midpoint = (first + last) DIV 2'],after:['    end while','End Subroutine'],solutions:[B3],
+  prompt:'Compare the middle item with searchItem: found, or move first or last past the midpoint.',
+  dis:[['set first = midpoint','The midpoint has already been checked. Without + 1 the search can get stuck and loop forever.'],['set last = midpoint + 1','last must move to just BEFORE the midpoint: midpoint - 1.']]},
+ {name:'Output',marks:['m8'],head:null,before:['        end if'],after:['End Subroutine'],solutions:[B4],
+  prompt:'End the loop and output the result.',
+  dis:[['output "Item found at index ", first','first is the start of the search range, not the position of the item. Output foundIndex.']]},
+ {name:'Put it together',marks:MARKS.map(m=>m[0]),extension:true,head:'Declare BinarySearch(items, searchItem)',before:[],after:['End Subroutine'],solutions:[[...B1,...B2,...B3,...B4]],
+  prompt:'Extension: build the whole binary search in one go. This is a full answer to WJEC 2022 Q4 [8].',
+  dis:[['while first < last AND found = FALSE','The last remaining item would never be checked. Use <=.'],['set first = midpoint','Without + 1 the search can loop forever.'],['set midpoint = (first + last) / 2','Use DIV so the midpoint is a whole number.']]},
+];
+STAGES.forEach((st,si)=>{const base=st.solutions[0].map(([,t])=>t);st.bank=seeded([...base.map(t=>({text:t})),...st.dis.map(([t,why])=>({text:t,dis:true,why}))],71+si*13);});
+function buildInit(){S.build={stage:0,st:STAGES.map(()=>({answer:[],marks:null,fb:null,solved:false,revealed:false})),earned:new Set()};}
+buildInit();
+function buildView(){
+  const B=S.build,si=B.stage,st=STAGES[si],P=B.st[si];
+  const unlocked=i=>i<=1||B.st[i-1].solved||B.st[i-1].revealed;
+  const used=new Set(P.answer.map(a=>a.b));
+  const defInd=si===3?2:1;
+  const bank=h('div',{class:'bank'},st.bank.map((it,bi)=>h('button',{class:'chip',disabled:used.has(bi)||null,onclick:()=>{P.answer.push({b:bi,indent:defInd});P.marks=null;P.fb=null;render();}},it.text)));
+  const ol=h('ol',{class:'answer'});
+  const fixed=t=>h('li',{class:'fixed'},h('span',{class:'txt'},t),h('span',{class:'small'},'given'));
+  if(st.head)ol.appendChild(fixed(st.head));st.before.forEach(t=>ol.appendChild(fixed(t)));
+  const chg=()=>{P.marks=null;P.fb=null;render();};
+  const mv=(j,d)=>{const t=j+d;if(t<0||t>=P.answer.length)return;[P.answer[j],P.answer[t]]=[P.answer[t],P.answer[j]];chg();};
+  P.answer.forEach((a,j)=>{const it=st.bank[a.b];
+    ol.appendChild(h('li',{class:P.marks?(P.marks[j]?'ok':'bad'):null},h('span',{class:'txt'},'    '.repeat(a.indent)+it.text),
+      h('span',{class:'ctl'},h('button',{'aria-label':'Outdent',onclick:()=>{a.indent=Math.max(0,a.indent-1);chg();}},'←'),h('button',{'aria-label':'Indent',onclick:()=>{a.indent=Math.min(5,a.indent+1);chg();}},'→'),
+        h('button',{'aria-label':'Move up',onclick:()=>mv(j,-1)},'↑'),h('button',{'aria-label':'Move down',onclick:()=>mv(j,1)},'↓'),h('button',{'aria-label':'Remove',onclick:()=>{P.answer.splice(j,1);chg();}},'×'))));});
+  if(!P.answer.length)ol.appendChild(h('li',{class:'slotline'},h('span',{class:'txt',style:'font-family:Calibri,Arial,sans-serif'},'Click lines in the bank to add them here.')));
+  st.after.forEach(t=>ol.appendChild(fixed(t)));
+  const check=()=>{
+    const ans=P.answer.map(a=>({t:st.bank[a.b].text,ind:a.indent,it:st.bank[a.b]}));
+    let best=null,bs=-1;st.solutions.forEach(sol=>{let sc=0;ans.forEach((a,j)=>{if(sol[j]&&sol[j][1]===a.t&&sol[j][0]===a.ind)sc++;});if(sc>bs){bs=sc;best=sol;}});
+    const items=[];P.marks=ans.map((a,j)=>{const s=best[j];if(s&&s[1]===a.t&&s[0]===a.ind)return true;
+      if(a.it.dis)items.push(`"${a.t}": ${a.it.why}`);else if(s&&s[1]===a.t)items.push(`"${a.t}" is in the right place but the indentation is wrong.`);else items.push(`"${a.t}" is in the wrong position.`);return false;});
+    if(ans.length<best.length)items.push(`${best.length-ans.length} line(s) still missing.`);
+    const ok=bs===best.length&&ans.length===best.length;
+    if(ok&&!P.revealed){P.solved=true;st.marks.forEach(m=>B.earned.add(m));}
+    P.fb={ok,items,summary:ok?(P.revealed?'Correct, but the answer was revealed. Reset and try from memory to earn the marks.':st.marks.length?`Correct. ${st.marks.length} mark point${st.marks.length>1?'s':''} ticked off.`:'Correct. Now build the binary search.'):`${bs} of ${best.length} lines correct.`};render();};
+  const reveal=()=>{P.revealed=true;const u=new Set();P.answer=st.solutions[0].map(([ind,t])=>{const bi=st.bank.findIndex((x,k)=>x.text===t&&!u.has(k));u.add(bi);return {b:bi,indent:ind};});P.marks=null;P.fb={ok:true,items:st.dis.map(([t,w])=>`Not used, "${t}": ${w}`),summary:'Answer revealed. Revealed stages do not earn marks.'};render();};
+  const got=MARKS.filter(([k])=>B.earned.has(k)).length;
+  const meter=h('div',{class:'panel meter'},h('h3',{},'Mark-scheme meter'),h('div',{style:'display:flex;align-items:baseline;gap:8px;margin-bottom:6px'},h('span',{class:'mscore'},`${got} / 8`)),
+    h('p',{class:'small',style:'margin:0 0 8px'},'WJEC 2022 Q4: "Write a Binary Search algorithm to search for a value in an array… and output its position." [8]'),
+    h('ul',{class:'mlist'},MARKS.map(([k,t])=>h('li',{class:B.earned.has(k)?'got':null},h('span',{class:'bx'},B.earned.has(k)?'✓':''),t))));
+  const bar=h('div',{class:'stages'},STAGES.map((x,i)=>{const S2=B.st[i],lock=!unlocked(i);
+    return h('button',{class:'stg'+(i===si?' cur':'')+(S2.solved?' done':''),disabled:lock||null,onclick:()=>{B.stage=i;render();}},
+      h('span',{class:'sn'},S2.solved?'✓':String(i)),h('span',{},h('b',{},x.name),h('br'),h('small',{},lock?'locked':x.warm?'optional':x.extension?'extension':S2.solved?'complete':'to do')));}));
+  const next=(P.solved||P.revealed)&&si<STAGES.length-1?h('button',{class:'btn accent',onclick:()=>{B.stage++;render();}},`Next: ${STAGES[si+1].name} →`):null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Build it: binary search'),h('button',{class:'btn ghost',onclick:()=>{buildInit();render();}},'Start again')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Build the binary search in stages. Each stage ticks off mark-scheme points for 2022 Q4. Stage 0 is an optional linear search warm-up.'),
+    bar,h('div',{class:'prompt',style:'background:var(--panel)'},h('b',{},`Stage ${si}: ${st.name}. `),st.prompt),
+    h('div',{class:'pgrid'},h('div',{class:'panel'},h('h3',{},'Line bank'),bank),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Your pseudo-code'),ol),
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:!P.answer.length||null,onclick:check},'Check'),
+          h('button',{class:'btn ghost',onclick:()=>{const k=P.solved;B.st[si]={answer:[],marks:null,fb:null,solved:k,revealed:false};render();}},'Reset'),
+          h('button',{class:'btn ghost',onclick:reveal},'Show answer'),next),
+        P.fb?h('div',{class:'fb '+(P.fb.ok?'ok':'bad')},h('b',{},P.fb.summary),P.fb.items.length?h('ul',{},...P.fb.items.map(t=>h('li',{},t))):null):null),
+      meter));
+}
+
+/* ================= SHELL ================= */
+const TABS=[['Trace It',traceView],['Fix the flowchart',fixView],['Alter it',alterView],['Race',raceView],['Build it',buildView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+document.addEventListener('keydown',e=>{if(S.tab!==0||['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;const T=S.tr,s=TG.steps[T.i],blocked=T.mode==='predict'&&s.ask&&!T.ans[`${T.alg}:${T.preset}:${T.i}`];
+  if(e.key==='ArrowRight'&&T.i<TG.steps.length-1&&!blocked){T.i++;render();}else if(e.key==='ArrowLeft'&&T.i>0){T.i--;render();}});
+render();
+
+</script>
+</body>
+</html>
