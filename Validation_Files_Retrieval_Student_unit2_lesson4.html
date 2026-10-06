@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4 — Student Reference</title>
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --code-comment:#7C8FAE;
+    --code-string:#8FD6C6;
+    --code-kw:#E8A659;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  .layout{
+    display:flex;
+    min-height:100vh;
+    align-items:flex-start;
+  }
+
+  .sidebar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    width:250px;
+    flex-shrink:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .eyebrow{
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .sidebar h1{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  .sidebar .meta{
+    font-size:13px;
+    color:#A9B7D1;
+    margin-bottom:28px;
+  }
+  .navlist{list-style:none;margin:0;padding:0;}
+  .navlist li{margin-bottom:4px;}
+  .navlist a{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    text-decoration:none;
+    color:#D7DFEC;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14.5px;
+    font-weight:600;
+    transition:background .15s ease;
+  }
+  .navlist a:hover{background:rgba(255,255,255,.08);}
+  .navlist .time{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--orange);
+    background:rgba(224,123,38,.15);
+    padding:2px 7px;
+    border-radius:20px;
+  }
+  .sidebar .pacing{
+    margin-top:32px;
+    padding:14px 14px;
+    background:rgba(46,158,158,.15);
+    border-radius:10px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#CDE9E7;
+  }
+  .sidebar .pacing strong{color:#fff;display:block;margin-bottom:4px;font-size:13px;}
+
+  main{padding:40px 48px 80px;max-width:880px;flex:1;min-width:0;}
+  .page-head{margin-bottom:36px;}
+  .page-head .kicker{
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  .page-head h2{
+    font-family:Cambria, Georgia, serif;
+    font-size:30px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .page-head p{
+    font-size:15px;
+    color:var(--muted);
+    max-width:640px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  section.block{margin-bottom:52px;scroll-margin-top:24px;}
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:2px solid #E4E8EE;
+    padding-bottom:10px;
+    margin-bottom:22px;
+  }
+  .block-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:23px;
+    margin:0;
+    color:var(--navy);
+  }
+  .block-head .duration{
+    font-size:13px;
+    font-weight:700;
+    color:var(--orange);
+    background:var(--orange-light);
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  .beat{
+    background:var(--card);
+    border:1px solid #E7EAF0;
+    border-radius:12px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .beat + .beat{margin-top:18px;}
+  .beat-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--teal);
+    margin:0 0 8px;
+  }
+  .prompt{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .prompt strong{color:var(--navy);}
+
+  pre.code{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:9px;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.6;
+    overflow-x:auto;
+    margin:0 0 14px;
+  }
+  pre.code .kw{color:var(--code-kw);}
+  pre.code .str{color:var(--code-string);}
+  pre.code .cm{color:var(--code-comment);font-style:italic;}
+
+  .output{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--teal-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#1B4B4B;
+  }
+  .output .tag{
+    font-weight:700;
+    color:var(--teal);
+    white-space:nowrap;
+    margin-right:8px;
+  }
+  .output code{
+    font-family:Consolas, "Courier New", monospace;
+    background:rgba(255,255,255,.6);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  .discuss{
+    background:var(--orange-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#7A4415;
+  }
+  .discuss .tag{font-weight:700;color:var(--orange);margin-right:6px;}
+
+  .warn{
+    background:#FBEAE5;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#8A3520;
+    margin-top:14px;
+  }
+  .warn .tag{font-weight:700;color:#C0472C;margin-right:6px;}
+
+  footer.note{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid #E4E8EE;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  @media print{
+    .sidebar{position:static;height:auto;}
+    .layout{display:block;}
+    main{padding:0 20px;}
+  }
+
+  @media (max-width:760px){
+    .layout{display:block;}
+    .sidebar{position:static;height:auto;width:auto;}
+    main{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar"><p class="eyebrow">AS UNIT 2 &mdash; LESSON 4</p><h1>Validation, Files<br>&amp; Retrieval</h1><p class="meta">Use alongside the lesson, or anytime</p><ul class="navlist"><li><a href="#validation"><span>Upgrading Validation</span></a></li><li><a href="#withopen"><span>Context Managers</span></a></li><li><a href="#retrieve"><span>Retrieving a Record</span></a></li><li><a href="#further"><span>Going Further</span></a></li></ul><div class="pacing"><strong>How to use this</strong>Everything below goes inside your add_record() and retrieve_record(). Type each example yourself before checking the expected result.</div></nav>
+<main><div class="page-head"><p class="kicker">Your reference &mdash; use it, don't just read it</p><h2>Student Reference</h2><p>The new validation pattern, saving with <code>with open</code>, and finding a record in your file. If you finish early, "Going Further" has two extras.</p></div>
+<section class="block" id="validation"><div class="block-head"><h3>Upgrading Validation</h3><span class="duration">2 examples</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; THE PATTERN</p><p class="prompt">One flag, one loop and one if/elif chain per field. The field is only valid when every rule has passed, and each broken rule prints its own message.</p><pre class="code">valid = <span class="kw">False</span>
+<span class="kw">while</span> valid == <span class="kw">False</span>:
+    name = input(<span class="str">"Name: "</span>)
+    <span class="kw">if</span> name == <span class="str">""</span>:
+        print(<span class="str">"Name cannot be empty."</span>)
+    <span class="kw">elif</span> len(name) &gt; 20:
+        print(<span class="str">"Name must be 20 characters or fewer."</span>)
+    <span class="kw">else</span>:
+        valid = <span class="kw">True</span></pre><div class="output"><span class="tag">Expect:</span><span>Blank input prints the empty message; 25 letters prints the length message; a normal name moves on.</span></div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; MORE RULES, SAME LOOP</p><p class="prompt">To add a rule, add an <code>elif</code>. Keep the order: empty first, then type or format, then length.</p><pre class="code">valid = <span class="kw">False</span>
+<span class="kw">while</span> valid == <span class="kw">False</span>:
+    date = input(<span class="str">"Hire date (dd/mm/yyyy): "</span>)
+    <span class="kw">if</span> date == <span class="str">""</span>:
+        print(<span class="str">"Date cannot be empty."</span>)
+    <span class="kw">elif</span> date.count(<span class="str">"/"</span>) != 2:
+        print(<span class="str">"Date must be in the format dd/mm/yyyy."</span>)
+    <span class="kw">elif</span> len(date) &gt; 10:
+        print(<span class="str">"Date must be 10 characters or fewer."</span>)
+    <span class="kw">else</span>:
+        valid = <span class="kw">True</span></pre><div class="output"><span class="tag">Expect:</span><span>Each broken rule shows its own message; only a valid date ends the loop.</span></div><div class="discuss"><span class="tag">Think:</span> Why must the maximum length match your .ljust() width?</div><div class="warn"><span class="tag">Common slip:</span> Forgetting <code>valid = False</code> before the next field's loop — the loop never runs because the flag is still True.</div></div></section><section class="block" id="withopen"><div class="block-head"><h3>Context Managers</h3><span class="duration">2 examples</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; WITH OPEN</p><p class="prompt">The file closes itself when the <code>with</code> block ends, even if something goes wrong. There is no <code>file.close()</code> to forget.</p><pre class="code"><span class="kw">with</span> open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"a"</span>) <span class="kw">as</span> file:
+    file.write(record + <span class="str">"\n"</span>)
+
+print(<span class="str">"Saved"</span>, name, <span class="str">"to kayak_hires.txt"</span>)</pre><div class="output"><span class="tag">Expect:</span><span>Two records give two lines in kayak_hires.txt, and the confirmation says what was saved and where.</span></div><div class="discuss"><span class="tag">Remember:</span> Append mode creates the file if it doesn't exist yet. A descriptive confirmation message earns its own mark.</div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; THE OLDER STYLE (IN THE EXAM)</p><p class="prompt">The starter code in 'complete the code' does the same job like this. You need to be able to read it and fill in the gaps.</p><pre class="code">fileObject = open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"a"</span>)
+fileObject.write(record + <span class="str">"\n"</span>)
+fileObject.close()</pre><pre class="code"><span class="kw">try</span>:
+    fileObject = open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"r"</span>)
+<span class="kw">except</span> IOError:
+    print(<span class="str">"No file to read"</span>)
+<span class="kw">else</span>:
+    <span class="kw">while</span> <span class="kw">True</span>:
+        record = fileObject.readline()
+        <span class="kw">if</span> record == <span class="str">""</span>:
+            fileObject.close()
+            <span class="kw">break</span>
+        <span class="cm"># ...check the fields in record here...</span></pre><div class="output"><span class="tag">Expect:</span><span>Open, read a line at a time, stop when readline() returns an empty string, close.</span></div></div></section><section class="block" id="retrieve"><div class="block-head"><h3>Retrieving a Record</h3><span class="duration">3 steps</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; READ AND SLICE</p><p class="prompt">Read the file one line at a time, slice out the name, <code>.strip()</code> the padding and compare it to your search key.</p><pre class="code">search_name = input(<span class="str">"Visitor name: "</span>)
+found = <span class="kw">False</span>
+
+<span class="kw">with</span> open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> file:
+    <span class="kw">for</span> line <span class="kw">in</span> file:
+        <span class="kw">if</span> line[0:20].strip() == search_name:
+            print(<span class="str">"Name:"</span>, line[0:20].strip())
+            print(<span class="str">"Kayak:"</span>, line[20:35].strip())
+            print(<span class="str">"Date:"</span>, line[35:45].strip())
+            found = <span class="kw">True</span></pre><div class="output"><span class="tag">Expect:</span><span>A record saved once prints once; saved twice prints twice, each with labelled fields.</span></div><div class="discuss"><span class="tag">Think:</span> Where do 0, 20, 35 and 45 come from? Check them against your own .ljust() widths.</div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; WHEN NOTHING MATCHES</p><p class="prompt">If <code>found</code> is still False after the loop, nothing matched, so tell the user.</p><pre class="code"><span class="kw">if</span> found == <span class="kw">False</span>:
+    print(<span class="str">"No matching hire found."</span>)</pre><div class="output"><span class="tag">Expect:</span><span>A name that isn't in the file prints the message once, after the whole file has been checked.</span></div></div><div class="beat"><p class="beat-label">BEAT 3 &middot; WHEN THERE IS NO FILE</p><p class="prompt">Opening a file that doesn't exist crashes with <code>FileNotFoundError</code>. Wrap the read in try/except.</p><pre class="code"><span class="kw">try</span>:
+    <span class="kw">with</span> open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> file:
+        <span class="kw">for</span> line <span class="kw">in</span> file:
+            ...   <span class="cm"># same loop as before</span>
+
+    <span class="kw">if</span> found == <span class="kw">False</span>:
+        print(<span class="str">"No matching hire found."</span>)
+<span class="kw">except</span> FileNotFoundError:
+    print(<span class="str">"No hires saved yet."</span>)</pre><div class="output"><span class="tag">Expect:</span><span>With the file missing: "No hires saved yet." With the file present: normal results or "No matching hire found."</span></div><div class="warn"><span class="tag">Common slip:</span> Putting the found check <em>after</em> the try/except prints two messages when the file is missing. Keep it inside the try.</div></div></section><section class="block" id="further"><div class="block-head"><h3>Going Further</h3><span class="duration">extension</span></div><div class="beat"><p class="beat-label">COUNT THE MATCHES</p><p class="prompt">Count how many hires match and print the total.</p><pre class="code">count = 0
+
+<span class="kw">with</span> open(<span class="str">"kayak_hires.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> file:
+    <span class="kw">for</span> line <span class="kw">in</span> file:
+        <span class="kw">if</span> line[0:20].strip() == search_name:
+            count += 1
+
+print(count, <span class="str">"hire(s) found for"</span>, search_name)</pre><div class="output"><span class="tag">Expect:</span><span>"2 hire(s) found for Aled" when that name has been saved twice.</span></div></div><div class="beat"><p class="beat-label">IGNORE UPPER / LOWER CASE</p><p class="prompt">Make the search case-insensitive by lowering both sides of the comparison.</p><pre class="code"><span class="kw">if</span> line[0:20].strip().lower() == search_name.lower():</pre><div class="output"><span class="tag">Expect:</span><span>Searching for "aled" finds "Aled".</span></div></div></section><footer class="note">AS Unit 2 &mdash; Lesson 4 &middot; Student Reference &middot; ask if anything doesn't match what you expected.</footer>
+</main>
+</div>
+</body>
+</html>

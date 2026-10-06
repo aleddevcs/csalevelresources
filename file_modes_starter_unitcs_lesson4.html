@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>File Modes: What Happens?</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📂</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  .hint{font-size:13px;color:var(--muted);margin:0 0 20px;}
+
+  .columns{
+    display:flex;
+    gap:18px;
+  }
+  .columns > div{flex:1;min-width:0;}
+  .col-head{
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  .col-head.right{color:var(--orange);}
+
+  .item{
+    background:var(--card);
+    border:2px solid var(--card-border);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    cursor:pointer;
+    font-size:14.5px;
+    position:relative;
+    box-shadow:var(--shadow);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    user-select:none;
+  }
+  .item:hover{border-color:var(--teal);}
+  .item.selected{border-color:var(--orange);background:var(--orange-light);}
+  .item.paired{border-color:var(--navy);}
+  .item.correct{border-color:var(--good);background:var(--good-bg);}
+  .item.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+
+  .tagnum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .item-inner{display:flex;align-items:center;}
+
+  .reflect{
+    margin-top:26px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .columns{flex-direction:column;}
+    header h1{font-size:22px;}
+  }
+
+  .q{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:18px 20px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
+  }
+  .q-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .q-num{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;flex-shrink:0;
+  }
+  .q-context{font-size:13px;font-weight:700;color:var(--teal);letter-spacing:.02em;}
+  pre.snippet{
+    background:#16233F;color:#DCE6F2;
+    padding:13px 16px;border-radius:9px;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:13.5px;line-height:1.55;overflow-x:auto;margin:0 0 12px;
+  }
+  .q-text{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink);}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opt{
+    text-align:left;
+    background:var(--card);
+    color:var(--ink);
+    border:2px solid var(--card-border);
+    border-radius:9px;
+    padding:11px 14px;
+    font-size:14.5px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  .opt:hover{border-color:var(--teal);opacity:1;}
+  .opt.selected{border-color:var(--orange);background:var(--orange-light);}
+  .opt.correct{border-color:var(--good);background:var(--good-bg);}
+  .opt.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+  .why{
+    display:none;margin-top:12px;
+    background:var(--teal-light);
+    border-radius:9px;padding:11px 14px;
+    font-size:13.5px;line-height:1.5;color:var(--ink);
+  }
+  .why.show{display:block;}
+  .why strong{color:var(--teal);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 4 STARTER</p>
+    <h1>File Modes: What Happens?</h1>
+    <p>Read each bit of code and pick what you think happens. Then check your answers &mdash; we'll go over them together as a class. Two of them crash the program: which ones, and why?</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="status" id="status">0 of 5 answered</div>
+    <div class="btns">
+      <button class="btn-secondary" id="resetBtn">&#8635; Reset</button>
+      <button class="btn-primary" id="checkBtn">&#10003; Check my answers</button>
+      <button class="btn-ghost" id="revealBtn">Reveal all</button>
+    </div>
+  </div>
+  <p class="hint">Three modes: <code>"r"</code> reads, <code>"w"</code> writes (and wipes), <code>"a"</code> appends.</p>
+
+  <div id="questions"></div>
+
+  <div class="reflect">
+    <p class="tag">BE READY TO EXPLAIN</p>
+    <p>Which two scenarios crash the program, and what error does each one give? Which mode would you use to add a record, and which to read one back?</p>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Lesson 4 &middot; sets up today's reading and retrieving</footer>
+</div>
+
+<script>
+  var QUESTIONS = [{"context": "kayak_hires.txt already holds 3 records", "code": "with open(\"kayak_hires.txt\", \"w\") as file:\n    file.write(record + \"\\n\")", "q": "What does kayak_hires.txt contain afterwards?", "options": ["The 3 old records plus the new one", "Only the new record", "Nothing \u2014 the program crashes"], "answer": 1, "why": "\"w\" wipes the file the moment it opens. Only the new record survives \u2014 which is why we use \"a\" to add records."}, {"context": "kayak_hires.txt does not exist yet", "code": "with open(\"kayak_hires.txt\", \"a\") as file:\n    file.write(record + \"\\n\")", "q": "What happens?", "options": ["It crashes with FileNotFoundError", "The file is created and the record is written", "Nothing happens and no file is made"], "answer": 1, "why": "Append mode creates the file if it isn't there. That's the \"creates a data file\" mark in the exam."}, {"context": "kayak_hires.txt does not exist yet", "code": "with open(\"kayak_hires.txt\", \"r\") as file:\n    for line in file:\n        print(line)", "q": "What happens?", "options": ["It crashes with FileNotFoundError", "It creates an empty file and prints nothing", "It prints one blank line"], "answer": 0, "why": "\"r\" never creates a file. Opening one that doesn't exist raises FileNotFoundError \u2014 which is why retrieve_record() needs try/except."}, {"context": "kayak_hires.txt holds 3 records", "code": "with open(\"kayak_hires.txt\", \"r\") as file:\n    file.write(record + \"\\n\")", "q": "What happens?", "options": ["The record is added to the end", "It crashes \u2014 the file isn't open for writing", "It overwrites the first record"], "answer": 1, "why": "A file opened with \"r\" is read-only. Python raises an error (io.UnsupportedOperation: not writable) and the file is unchanged."}, {"context": "an error happens part-way through the block", "code": "with open(\"kayak_hires.txt\", \"a\") as file:\n    file.write(record + \"\\n\")\n    x = 1 / 0      # crashes here", "q": "After the crash, is the file still closed properly?", "options": ["Yes \u2014 the with block closes it automatically", "No \u2014 it stays open until the program ends", "Only if you had written file.close()"], "answer": 0, "why": "The with block closes the file even when something goes wrong inside it. That's one reason it's safer than open() and close()."}];
+
+  var order = [];       // per question: the shuffled order of option indexes
+  var chosen = [];      // per question: the option index the student picked (or -1)
+  var checked = false;
+  var revealed = false;
+
+  function shuffled(n) {
+    var a = [];
+    for (var i = 0; i < n; i++) a.push(i);
+    for (var j = a.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var t = a[j]; a[j] = a[k]; a[k] = t;
+    }
+    return a;
+  }
+
+  function reset() {
+    order = QUESTIONS.map(function (q) { return shuffled(q.options.length); });
+    chosen = QUESTIONS.map(function () { return -1; });
+    checked = false;
+    revealed = false;
+    render();
+    updateStatus();
+  }
+
+  function render() {
+    var box = document.getElementById("questions");
+    box.innerHTML = "";
+    QUESTIONS.forEach(function (q, qi) {
+      var card = document.createElement("div");
+      card.className = "q";
+
+      var head = document.createElement("div");
+      head.className = "q-head";
+      var num = document.createElement("div");
+      num.className = "q-num";
+      num.textContent = qi + 1;
+      var ctx = document.createElement("div");
+      ctx.className = "q-context";
+      ctx.textContent = q.context;
+      head.appendChild(num);
+      head.appendChild(ctx);
+      card.appendChild(head);
+
+      var pre = document.createElement("pre");
+      pre.className = "snippet";
+      pre.textContent = q.code;
+      card.appendChild(pre);
+
+      var qt = document.createElement("p");
+      qt.className = "q-text";
+      qt.textContent = q.q;
+      card.appendChild(qt);
+
+      var opts = document.createElement("div");
+      opts.className = "opts";
+      order[qi].forEach(function (oi) {
+        var b = document.createElement("button");
+        b.className = "opt";
+        b.textContent = q.options[oi];
+        b.dataset.oi = oi;
+        if (chosen[qi] === oi) b.classList.add("selected");
+        if (checked || revealed) {
+          if (oi === q.answer && (revealed || chosen[qi] === oi)) {
+            b.classList.remove("selected");
+            b.classList.add("correct");
+          } else if (chosen[qi] === oi && oi !== q.answer) {
+            b.classList.remove("selected");
+            b.classList.add("incorrect");
+          }
+        }
+        b.addEventListener("click", function () {
+          if (revealed) return;
+          chosen[qi] = oi;
+          checked = false;
+          render();
+          updateStatus();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+
+      var why = document.createElement("div");
+      why.className = "why";
+      if (revealed || (checked && chosen[qi] !== -1)) why.classList.add("show");
+      why.innerHTML = "<strong>Why:</strong> ";
+      why.appendChild(document.createTextNode(q.why));
+      card.appendChild(why);
+
+      box.appendChild(card);
+    });
+  }
+
+  function answeredCount() {
+    return chosen.filter(function (c) { return c !== -1; }).length;
+  }
+
+  function updateStatus() {
+    document.getElementById("status").innerHTML = "<strong>" + answeredCount() + " of " + QUESTIONS.length + "</strong> answered";
+  }
+
+  document.getElementById("resetBtn").addEventListener("click", reset);
+
+  document.getElementById("checkBtn").addEventListener("click", function () {
+    checked = true;
+    revealed = false;
+    render();
+    var correct = QUESTIONS.filter(function (q, i) { return chosen[i] === q.answer; }).length;
+    var answered = answeredCount();
+    var el = document.getElementById("status");
+    if (answered === 0) {
+      el.innerHTML = "Pick an answer for each scenario first";
+    } else if (correct === QUESTIONS.length) {
+      el.innerHTML = "<strong>All " + QUESTIONS.length + " correct!</strong>";
+    } else {
+      el.innerHTML = "<strong>" + correct + " of " + QUESTIONS.length + "</strong> correct" + (answered < QUESTIONS.length ? " so far" : "");
+    }
+  });
+
+  document.getElementById("revealBtn").addEventListener("click", function () {
+    revealed = true;
+    checked = true;
+    render();
+    document.getElementById("status").innerHTML = "Answers revealed \u2014 discuss as a class";
+  });
+
+  reset();
+</script>
+</body>
+</html>
