@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Click Log In</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #5f7076; --faint: #8fa0a4;
+    --surface: #f4f8f8; --raised: #ffffff; --sunken: #ebf1f0; --border: #d6e1df;
+    --accent: #0b7a85; --accent-soft: #d9eff0; --accent-ink: #ffffff;
+    --good: #1f7d56; --good-soft: #d9f0e5;
+    --warn: #a3491b; --warn-soft: #f8e3d6;
+    --focus: #2b6f8f;
+    --t-html: #a8480f; --t-html-soft: #f7e3d4;
+    --t-css: #1f6a8c; --t-css-soft: #dcebf2;
+    --t-js: #7d6200; --t-js-soft: #f5ecc9;
+    --t-php: #5c4b8a; --t-php-soft: #e8e3f5;
+    --t-sql: #9c3b54; --t-sql-soft: #f6dfe5;
+    --t-tool: #3c4c53; --t-tool-soft: #e3eaea;
+    --p-browser: #0b7a85; --p-server: #1f7d56; --p-db: #44558a;
+    --shadow: 0 1px 2px rgba(22,35,42,.06), 0 6px 20px rgba(22,35,42,.06);
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --codebg: #0f2a2e; --codeink: #d6efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+      --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+      --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+      --good: #4fbb8c; --good-soft: #153626;
+      --warn: #e5975f; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --t-html: #ec9d70; --t-html-soft: #3a2517;
+      --t-css: #6cb6d8; --t-css-soft: #16262c;
+      --t-js: #e3c04d; --t-js-soft: #342c10;
+      --t-php: #b3a3e8; --t-php-soft: #2b2440;
+      --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+      --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+      --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --codebg: #0a1517; --codeink: #cfeae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+    --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+    --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+    --good: #4fbb8c; --good-soft: #153626;
+    --warn: #e5975f; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --t-html: #ec9d70; --t-html-soft: #3a2517;
+    --t-css: #6cb6d8; --t-css-soft: #16262c;
+    --t-js: #e3c04d; --t-js-soft: #342c10;
+    --t-php: #b3a3e8; --t-php-soft: #2b2440;
+    --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+    --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+    --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --codebg: #0a1517; --codeink: #cfeae4;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--raised); }
+  .topbar b { font-size: 17px; }
+  .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 70ch; margin: 0 0 22px; }
+  .panel { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink);
+    font: 500 13.5px var(--sans); cursor: pointer; }
+  .btn:hover { background: var(--sunken); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
+  .t-html { background: var(--t-html-soft); color: var(--t-html); }
+  .t-css { background: var(--t-css-soft); color: var(--t-css); }
+  .t-js { background: var(--t-js-soft); color: var(--t-js); }
+  .t-php { background: var(--t-php-soft); color: var(--t-php); }
+  .t-sql { background: var(--t-sql-soft); color: var(--t-sql); }
+  .t-tool { background: var(--t-tool-soft); color: var(--t-tool); }
+  .p-browser { background: var(--accent-soft); color: var(--p-browser); }
+  .p-server { background: var(--good-soft); color: var(--p-server); }
+  .p-db { background: var(--sunken); color: var(--p-db); }
+  .fb { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-top: 12px; }
+  .fb.good { background: var(--good-soft); color: var(--ink); border: 1px solid var(--good); }
+  .fb.warn { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn); }
+  .fb.info { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+  .fb b { font-weight: 600; }
+  .code { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 13px/1.7 var(--mono);
+    overflow-x: auto; white-space: pre; margin: 0; }
+  .progress { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft);
+    font: 500 13px var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 560px) { .wrap { padding: 20px 16px 60px; } .topbar { padding: 12px 16px; } h1 { font-size: 23px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+
+  .twoc { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 800px) { .twoc { grid-template-columns: 1fr; } }
+  .login { background: var(--codebg); border-color: var(--codebg); color: var(--codeink); position: sticky; top: 76px; }
+  @media (max-width: 800px) { .login { position: static; } }
+  .login .lh { font-size: 20px; font-weight: 700; margin-bottom: 14px; color: #fff; }
+  .login label { display: block; font-size: 12px; margin: 10px 0 4px; color: #9fc7c9; }
+  .login input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #2a5559; background: #123a3f; color: #fff; font: 14px var(--sans); }
+  .login .btn.primary { width: 100%; margin-top: 16px; padding: 11px; background: #fff; border-color: #fff; color: #0f2a2e; }
+  .then { margin-top: 14px; font: italic 600 18px var(--sans); color: #8fe3d4; text-align: center; min-height: 28px; }
+  .qb { margin-bottom: 14px; }
+  .qb h2 { font-size: 16px; margin: 0 0 4px; }
+  .qb .qn { font: 600 11px var(--mono); color: var(--muted); letter-spacing: .06em; margin-bottom: 4px; }
+  .choices { display: grid; gap: 6px; margin-top: 10px; }
+  .ch { display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; }
+  .ch:hover { background: var(--sunken); }
+  .ch .box { flex: none; width: 18px; height: 18px; border: 2px solid var(--faint); background: var(--raised); display: inline-flex; align-items: center; justify-content: center; font: 700 12px var(--mono); color: var(--accent-ink); }
+  .ch .box.rad { border-radius: 50%; }
+  .ch .box.sq { border-radius: 4px; }
+  .ch[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .ch[aria-pressed="true"] .box { border-color: var(--accent); background: var(--accent); }
+  .qlist { display: grid; gap: 8px; margin: 12px 0; }
+  .qrow { padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--raised); font-size: 14px; }
+  .qrow .qq { font-weight: 600; }
+  .qrow .you { color: var(--ink-soft); margin-top: 2px; }
+  .qrow .really { margin-top: 2px; }
+  .qrow .why { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .qrow.match { border-color: var(--good); background: var(--good-soft); }
+  .qrow.miss { border-color: var(--warn); background: var(--warn-soft); }
+  .qrow.new { border-color: var(--accent); background: var(--accent-soft); }
+  .badge2 { font: 700 11px var(--mono); letter-spacing: .05em; margin-right: 8px; }
+  .match .badge2 { color: var(--good); } .miss .badge2 { color: var(--warn); } .new .badge2 { color: var(--accent); }
+  .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: s; }
+  .steps li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--raised); font-size: 14px; counter-increment: s; }
+  .steps li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 12px var(--mono); display: inline-flex; align-items: center; justify-content: center; }
+  textarea.sk { width: 100%; min-height: 110px; margin-top: 8px; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px/1.5 var(--sans); resize: vertical; }
+  .mine { white-space: pre-wrap; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 9px; font-size: 14px; background: var(--raised); margin-top: 8px; }
+  .gate { display: flex; align-items: center; gap: 10px; margin: 12px 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .gate input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .hint { font-size: 13px; color: var(--muted); }
+
+</style>
+</head>
+<body>
+<div class="topbar"><b>Click Log In</b><span class="tag">Unit 5 NEA · Investigation · Lesson 6</span></div>
+<div class="wrap">
+<h1>What happens when you click Log in?</h1>
+<p class="lede">Predict first, learn second. Choose what you think happens between pressing Sign in and seeing your account page. You will come back and compare after the technology tour.</p>
+
+<div class="twoc">
+  <div class="panel login" id="login">
+    <div class="lh">CAVC Library</div>
+    <label for="s-email">Email address</label>
+    <input id="s-email" type="text" placeholder="you@example.com" autocomplete="off">
+    <label for="s-pw">Password</label>
+    <input id="s-pw" type="password" placeholder="Password" autocomplete="off">
+    <button class="btn primary" id="signin" type="button">Sign in</button>
+    <div class="then" id="then" aria-live="polite"></div>
+  </div>
+  <div id="stage"></div>
+</div>
+
+</div>
+<script>
+var QS = [{"id": "q1", "t": "Where is the password checked?", "kind": "one", "opts": [["browser", "In my browser"], ["server", "On the web server, by code the site's owner wrote"], ["db", "Inside the database itself"], ["unsure", "Not sure yet"]], "a": "server", "real": "On the web server, by PHP code", "why": "In this system PHP does the checking. The database only hands over the stored record, and the browser cannot be trusted with the decision."}, {"id": "q2", "t": "Where are the user accounts kept?", "kind": "one", "opts": [["device", "On my own device"], ["file", "In a file on the web server"], ["db", "In a table in a database"], ["unsure", "Not sure yet"]], "a": "db", "real": "In a table in a database", "why": "A users table holds one row per account: email, first name, surname, password and an admin flag."}, {"id": "q3", "t": "What is stored for your password?", "kind": "one", "opts": [["plain", "The password exactly as you typed it"], ["hash", "A scrambled version (a hash) that cannot be turned back"], ["none", "Nothing, the browser remembers it"], ["unsure", "Not sure yet"]], "a": "hash", "real": "A scrambled version, called a hash", "why": "PHP's password_verify() compares what you typed with the stored hash, so a stolen table does not reveal anyone's password."}, {"id": "q4", "t": "Which of these are involved in a login? Tick every one you think is.", "kind": "many", "opts": [["browser", "Your browser"], ["server", "A web server (Apache, running on UWAMP)"], ["php", "PHP code"], ["db", "The database"]], "a": ["browser", "server", "php", "db"], "real": "All four", "why": "The browser sends the request, the web server receives it and runs the PHP, and the PHP asks the database."}, {"id": "q5", "t": "The form refuses a blank password in the browser before anything is sent. Does the server still need to check?", "kind": "one", "opts": [["no", "No, the browser has already checked"], ["yes", "Yes, because browser checks can be skipped or edited"], ["unsure", "Not sure yet"]], "a": "yes", "real": "Yes, the server must check too", "why": "Browser checks save a trip and help the user. Only the server's checks are security. signin.php checks for empty fields itself."}];
+var JOURNEY = [["browser", "You press Sign in. Your browser packs the email and password into a request and sends it to the server."], ["server", "The web server (Apache on UWAMP) receives the request and hands it to signin.php."], ["php", "signin.php checks both fields are filled in, then asks the database for the row with that email."], ["db", "The database looks in the users table and sends back the matching row, or nothing."], ["php", "PHP uses password_verify() to compare what you typed with the stored hash."], ["php", "Match: PHP starts your session and sends you to the account page. No match: it saves an error message and sends you back to the login page."]];
+var ZONES = {"browser": ["Browser", "p-browser"], "server": ["Web server", "p-server"], "php": ["PHP", "t-php"], "db": ["Database", "p-db"]};
+
+var $ = function(id){ return document.getElementById(id); };
+var ans = {}, steps = "", phase = "predict";
+function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+function labelFor(q, key){ var o = q.opts.filter(function(o){ return o[0] === key; })[0]; return o ? o[1] : ""; }
+function answered(){
+  return QS.every(function(q){ return q.kind === "many" ? (ans[q.id] && ans[q.id].length) : !!ans[q.id]; });
+}
+function count(){ return QS.filter(function(q){ return q.kind === "many" ? (ans[q.id] && ans[q.id].length) : ans[q.id]; }).length; }
+function yourText(q){
+  if (q.kind === "many") return (ans[q.id] || []).map(function(k){ return labelFor(q, k); }).join("; ");
+  return labelFor(q, ans[q.id]);
+}
+function verdict(q){
+  if (q.kind === "many"){
+    var got = ans[q.id] || [];
+    var all = q.a.every(function(k){ return got.indexOf(k) > -1; }) && got.length === q.a.length;
+    return all ? "match" : "miss";
+  }
+  if (ans[q.id] === "unsure") return "new";
+  return ans[q.id] === q.a ? "match" : "miss";
+}
+function render(){
+  var st = $("stage"); st.innerHTML = "";
+  if (phase === "predict") renderPredict(st);
+  else if (phase === "locked") renderLocked(st);
+  else renderCompare(st);
+}
+function renderPredict(st){
+  var intro = el("div", "panel qb");
+  intro.appendChild(el("div", "qn", "STEP 1 OF 3 · PREDICT"));
+  intro.appendChild(el("h2", "", "You click Sign in. Then what?"));
+  var p = el("p", "hint", "Nothing here is marked and you are not expected to know yet. Choose what you think happens. After the technology tour you will compare.");
+  p.style.margin = "4px 0 0"; intro.appendChild(p);
+  st.appendChild(intro);
+  QS.forEach(function(q, qi){
+    var card = el("div", "panel qb");
+    card.appendChild(el("div", "qn", "PREDICTION " + (qi + 1) + " OF " + QS.length));
+    card.appendChild(el("h2", "", q.t));
+    var box = el("div", "choices");
+    q.opts.forEach(function(o){
+      var b = el("button", "ch"); b.type = "button";
+      var on = q.kind === "many" ? (ans[q.id] || []).indexOf(o[0]) > -1 : ans[q.id] === o[0];
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      var mark = el("span", "box " + (q.kind === "many" ? "sq" : "rad"), on && q.kind === "many" ? "✓" : "");
+      b.appendChild(mark); b.appendChild(el("span", "", o[1]));
+      b.onclick = function(){
+        if (q.kind === "many"){
+          var cur = ans[q.id] || [], i = cur.indexOf(o[0]);
+          if (i > -1) cur.splice(i, 1); else cur.push(o[0]);
+          ans[q.id] = cur;
+        } else ans[q.id] = o[0];
+        keepScroll();
+      };
+      box.appendChild(b);
+    });
+    card.appendChild(box); st.appendChild(card);
+  });
+  var sk = el("div", "panel qb");
+  sk.appendChild(el("div", "qn", "OPTIONAL"));
+  sk.appendChild(el("h2", "", "Write the journey in your own words"));
+  sk.appendChild(el("p", "hint", "List the steps between pressing Sign in and seeing your account page, as far as you can."));
+  var ta = el("textarea", "sk"); ta.id = "s-steps"; ta.placeholder = "1. ...\n2. ..."; ta.value = steps;
+  ta.setAttribute("aria-label", "Your steps"); ta.oninput = function(){ steps = ta.value; };
+  sk.appendChild(ta); st.appendChild(sk);
+  var row = el("div", "row");
+  var lock = el("button", "btn primary", "Lock in my predictions"); lock.type = "button"; lock.disabled = !answered();
+  lock.onclick = function(){ phase = "locked"; render(); window.scrollTo(0, 0); };
+  row.appendChild(lock);
+  row.appendChild(el("span", "hint", answered() ? "Ready to lock in." : count() + " of " + QS.length + " answered. Answer them all to lock in."));
+  st.appendChild(row);
+}
+function keepScroll(){ var y = window.scrollY; render(); window.scrollTo(0, y); }
+function renderLocked(st){
+  var p = el("div", "panel qb");
+  p.appendChild(el("div", "qn", "STEP 2 OF 3 · LOCKED IN"));
+  p.appendChild(el("h2", "", "Predictions locked"));
+  var h = el("p", "hint", "Keep this tab open. Go on with the technology tour, then come back and compare.");
+  h.style.margin = "4px 0 0"; p.appendChild(h);
+  var list = el("div", "qlist");
+  QS.forEach(function(q){
+    var r = el("div", "qrow"); r.appendChild(el("div", "qq", q.t)); r.appendChild(el("div", "you", "You predicted: " + yourText(q))); list.appendChild(r);
+  });
+  p.appendChild(list);
+  if (steps.trim()){ p.appendChild(el("div", "hint", "Your steps:")); p.appendChild(el("div", "mine", steps)); }
+  st.appendChild(p);
+  var g = el("div", "panel qb");
+  g.appendChild(el("h2", "", "After the tour"));
+  var lab = el("label", "gate"); var cb = el("input"); cb.type = "checkbox"; cb.id = "s-gate";
+  lab.appendChild(cb); lab.appendChild(el("span", "", "The technology tour is finished. Show me the real journey."));
+  g.appendChild(lab);
+  var row = el("div", "row");
+  var go = el("button", "btn primary", "Compare with the real journey"); go.type = "button"; go.disabled = true;
+  cb.onchange = function(){ go.disabled = !cb.checked; };
+  go.onclick = function(){ phase = "compare"; render(); window.scrollTo(0, 0); };
+  var back = el("button", "btn", "Change my answers"); back.type = "button";
+  back.onclick = function(){ phase = "predict"; render(); };
+  row.appendChild(go); row.appendChild(back); g.appendChild(row); st.appendChild(g);
+}
+function renderCompare(st){
+  var matched = QS.filter(function(q){ return verdict(q) === "match"; }).length;
+  var head = el("div", "panel qb");
+  head.appendChild(el("div", "qn", "STEP 3 OF 3 · COMPARE"));
+  head.appendChild(el("h2", "", "You matched " + matched + " of " + QS.length));
+  var n = el("p", "hint", "This is not a mark. Anything you missed is exactly what the tour was for, and it is what your technical justification will explain.");
+  n.style.margin = "4px 0 0"; head.appendChild(n);
+  var list = el("div", "qlist");
+  QS.forEach(function(q){
+    var v = verdict(q);
+    var r = el("div", "qrow " + v);
+    var top = el("div", "qq"); top.appendChild(el("span", "badge2", v === "match" ? "MATCH" : v === "new" ? "NEW TO YOU" : "MISSED")); top.appendChild(document.createTextNode(q.t));
+    r.appendChild(top);
+    r.appendChild(el("div", "you", "You predicted: " + yourText(q)));
+    r.appendChild(el("div", "really", "What happens: " + q.real));
+    r.appendChild(el("div", "why", q.why));
+    list.appendChild(r);
+  });
+  head.appendChild(list); st.appendChild(head);
+  var j = el("div", "panel qb");
+  j.appendChild(el("h2", "", "The real journey"));
+  var ol = el("ol", "steps");
+  JOURNEY.forEach(function(s){
+    var li = el("li"); var wrap = el("div"); var pill = el("span", "pill " + ZONES[s[0]][1], ZONES[s[0]][0]);
+    wrap.appendChild(pill); wrap.appendChild(document.createElement("br")); wrap.appendChild(document.createTextNode(s[1])); li.appendChild(wrap); ol.appendChild(li);
+  });
+  j.appendChild(ol); st.appendChild(j);
+  if (steps.trim()){
+    var m = el("div", "panel qb"); m.appendChild(el("h2", "", "Your own steps"));
+    m.appendChild(el("p", "hint", "Tick off what you got right and add what you missed."));
+    m.appendChild(el("div", "mine", steps)); st.appendChild(m);
+  }
+  var row = el("div", "row");
+  var again = el("button", "btn", "Start again"); again.type = "button";
+  again.onclick = function(){ ans = {}; steps = ""; phase = "predict"; $("then").textContent = ""; render(); window.scrollTo(0, 0); };
+  row.appendChild(again); st.appendChild(row);
+}
+$("signin").onclick = function(){ $("then").textContent = "…then what?"; var s = $("stage"); if (s.scrollIntoView && window.innerWidth < 800) s.scrollIntoView({behavior: "smooth"}); };
+render();
+
+</script>
+</body>
+</html>

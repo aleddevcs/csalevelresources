@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 6 Toolkit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #5f7076; --faint: #8fa0a4;
+    --surface: #f4f8f8; --raised: #ffffff; --sunken: #ebf1f0; --border: #d6e1df;
+    --accent: #0b7a85; --accent-soft: #d9eff0; --accent-ink: #ffffff;
+    --good: #1f7d56; --good-soft: #d9f0e5;
+    --warn: #a3491b; --warn-soft: #f8e3d6;
+    --focus: #2b6f8f;
+    --t-html: #a8480f; --t-html-soft: #f7e3d4;
+    --t-css: #1f6a8c; --t-css-soft: #dcebf2;
+    --t-js: #7d6200; --t-js-soft: #f5ecc9;
+    --t-php: #5c4b8a; --t-php-soft: #e8e3f5;
+    --t-sql: #9c3b54; --t-sql-soft: #f6dfe5;
+    --t-tool: #3c4c53; --t-tool-soft: #e3eaea;
+    --p-browser: #0b7a85; --p-server: #1f7d56; --p-db: #44558a;
+    --shadow: 0 1px 2px rgba(22,35,42,.06), 0 6px 20px rgba(22,35,42,.06);
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --codebg: #0f2a2e; --codeink: #d6efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+      --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+      --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+      --good: #4fbb8c; --good-soft: #153626;
+      --warn: #e5975f; --warn-soft: #3a2413;
+      --focus: #6cb6d8;
+      --t-html: #ec9d70; --t-html-soft: #3a2517;
+      --t-css: #6cb6d8; --t-css-soft: #16262c;
+      --t-js: #e3c04d; --t-js-soft: #342c10;
+      --t-php: #b3a3e8; --t-php-soft: #2b2440;
+      --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+      --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+      --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --codebg: #0a1517; --codeink: #cfeae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+    --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+    --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+    --good: #4fbb8c; --good-soft: #153626;
+    --warn: #e5975f; --warn-soft: #3a2413;
+    --focus: #6cb6d8;
+    --t-html: #ec9d70; --t-html-soft: #3a2517;
+    --t-css: #6cb6d8; --t-css-soft: #16262c;
+    --t-js: #e3c04d; --t-js-soft: #342c10;
+    --t-php: #b3a3e8; --t-php-soft: #2b2440;
+    --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+    --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+    --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --codebg: #0a1517; --codeink: #cfeae4;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--raised); }
+  .topbar b { font-size: 17px; }
+  .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 70ch; margin: 0 0 22px; }
+  .panel { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink);
+    font: 500 13.5px var(--sans); cursor: pointer; }
+  .btn:hover { background: var(--sunken); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
+  .t-html { background: var(--t-html-soft); color: var(--t-html); }
+  .t-css { background: var(--t-css-soft); color: var(--t-css); }
+  .t-js { background: var(--t-js-soft); color: var(--t-js); }
+  .t-php { background: var(--t-php-soft); color: var(--t-php); }
+  .t-sql { background: var(--t-sql-soft); color: var(--t-sql); }
+  .t-tool { background: var(--t-tool-soft); color: var(--t-tool); }
+  .p-browser { background: var(--accent-soft); color: var(--p-browser); }
+  .p-server { background: var(--good-soft); color: var(--p-server); }
+  .p-db { background: var(--sunken); color: var(--p-db); }
+  .fb { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-top: 12px; }
+  .fb.good { background: var(--good-soft); color: var(--ink); border: 1px solid var(--good); }
+  .fb.warn { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn); }
+  .fb.info { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+  .fb b { font-weight: 600; }
+  .code { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 13px/1.7 var(--mono);
+    overflow-x: auto; white-space: pre; margin: 0; }
+  .progress { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft);
+    font: 500 13px var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 560px) { .wrap { padding: 20px 16px 60px; } .topbar { padding: 12px 16px; } h1 { font-size: 23px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+
+  .mtabs { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; overflow-x: auto; background: var(--surface);
+    border-bottom: 1px solid var(--border); padding: 0 24px; scrollbar-width: thin; }
+  .mtab { flex: none; padding: 14px 16px 12px; border: 0; border-bottom: 3px solid transparent; background: transparent;
+    color: var(--muted); font: 600 14px var(--sans); cursor: pointer; white-space: nowrap; }
+  .mtab:hover { color: var(--ink); }
+  .mtab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .phase { display: inline-block; margin-bottom: 12px; }
+  .tool > h1 { margin-top: 0; }
+  @media (max-width: 560px) { .mtabs { padding: 0 8px; } .mtab { padding: 12px 12px 10px; font-size: 13px; } }
+
+#t-0 .twoc { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 800px) {#t-0 .twoc { grid-template-columns: 1fr; }}
+#t-0 .login { background: var(--codebg); border-color: var(--codebg); color: var(--codeink); position: sticky; top: 76px; }
+@media (max-width: 800px) {#t-0 .login { position: static; }}
+#t-0 .login .lh { font-size: 20px; font-weight: 700; margin-bottom: 14px; color: #fff; }
+#t-0 .login label { display: block; font-size: 12px; margin: 10px 0 4px; color: #9fc7c9; }
+#t-0 .login input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #2a5559; background: #123a3f; color: #fff; font: 14px var(--sans); }
+#t-0 .login .btn.primary { width: 100%; margin-top: 16px; padding: 11px; background: #fff; border-color: #fff; color: #0f2a2e; }
+#t-0 .then { margin-top: 14px; font: italic 600 18px var(--sans); color: #8fe3d4; text-align: center; min-height: 28px; }
+#t-0 .qb { margin-bottom: 14px; }
+#t-0 .qb h2 { font-size: 16px; margin: 0 0 4px; }
+#t-0 .qb .qn { font: 600 11px var(--mono); color: var(--muted); letter-spacing: .06em; margin-bottom: 4px; }
+#t-0 .choices { display: grid; gap: 6px; margin-top: 10px; }
+#t-0 .ch { display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; }
+#t-0 .ch:hover { background: var(--sunken); }
+#t-0 .ch .box { flex: none; width: 18px; height: 18px; border: 2px solid var(--faint); background: var(--raised); display: inline-flex; align-items: center; justify-content: center; font: 700 12px var(--mono); color: var(--accent-ink); }
+#t-0 .ch .box.rad { border-radius: 50%; }
+#t-0 .ch .box.sq { border-radius: 4px; }
+#t-0 .ch[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+#t-0 .ch[aria-pressed="true"] .box { border-color: var(--accent); background: var(--accent); }
+#t-0 .qlist { display: grid; gap: 8px; margin: 12px 0; }
+#t-0 .qrow { padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--raised); font-size: 14px; }
+#t-0 .qrow .qq { font-weight: 600; }
+#t-0 .qrow .you { color: var(--ink-soft); margin-top: 2px; }
+#t-0 .qrow .really { margin-top: 2px; }
+#t-0 .qrow .why { color: var(--muted); font-size: 13px; margin-top: 4px; }
+#t-0 .qrow.match { border-color: var(--good); background: var(--good-soft); }
+#t-0 .qrow.miss { border-color: var(--warn); background: var(--warn-soft); }
+#t-0 .qrow.new { border-color: var(--accent); background: var(--accent-soft); }
+#t-0 .badge2 { font: 700 11px var(--mono); letter-spacing: .05em; margin-right: 8px; }
+#t-0 .match .badge2 { color: var(--good); }
+#t-0 .miss .badge2 { color: var(--warn); }
+#t-0 .new .badge2 { color: var(--accent); }
+#t-0 .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: s; }
+#t-0 .steps li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--raised); font-size: 14px; counter-increment: s; }
+#t-0 .steps li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 12px var(--mono); display: inline-flex; align-items: center; justify-content: center; }
+#t-0 textarea.sk { width: 100%; min-height: 110px; margin-top: 8px; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px/1.5 var(--sans); resize: vertical; }
+#t-0 .mine { white-space: pre-wrap; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 9px; font-size: 14px; background: var(--raised); margin-top: 8px; }
+#t-0 .gate { display: flex; align-items: center; gap: 10px; margin: 12px 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+#t-0 .gate input { width: 18px; height: 18px; accent-color: var(--accent); }
+#t-0 .hint { font-size: 13px; color: var(--muted); }
+#t-1 .phases { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+#t-1 .zones { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+#t-1 .zone { border: 2px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--raised); transition: border-color .2s, background .2s; min-height: 118px; }
+#t-1 .zone h3 { margin: 0 0 2px; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; font-family: var(--mono); }
+#t-1 .zone small { color: var(--muted); display: block; margin-bottom: 8px; font-size: 12px; }
+#t-1 .zone .pills { display: flex; gap: 5px; flex-wrap: wrap; }
+#t-1 .zone.z-browser h3 { color: var(--p-browser); }
+#t-1 .zone.z-server h3 { color: var(--p-server); }
+#t-1 .zone.z-db h3 { color: var(--p-db); }
+#t-1 .zone.on.z-browser { border-color: var(--p-browser); background: var(--accent-soft); }
+#t-1 .zone.on.z-server { border-color: var(--p-server); background: var(--good-soft); }
+#t-1 .zone.on.z-db { border-color: var(--p-db); background: var(--sunken); }
+#t-1 .zone .badge { display: none; margin-top: 8px; font: 600 11px var(--mono); }
+#t-1 .zone.on .badge { display: block; }
+#t-1 .stephead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+#t-1 .stepn { font: 600 12px var(--mono); color: var(--muted); }
+#t-1 .stephead h2 { margin: 0; }
+#t-1 .dots { display: flex; gap: 6px; margin: 14px 0 4px; flex-wrap: wrap; }
+#t-1 .dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--raised); color: var(--muted); font: 600 12px var(--mono); cursor: pointer; }
+#t-1 .dot.seen { color: var(--accent); border-color: var(--accent); }
+#t-1 .dot[aria-current="step"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+#t-1 .vis { font-size: 13px; margin: 10px 0 0; color: var(--ink-soft); }
+#t-1 .pool,#t-1 .order { display: grid; gap: 8px; }
+#t-1 .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) {#t-1 .zones { grid-template-columns: 1fr; }
+#t-1 .twocol { grid-template-columns: 1fr; }}
+#t-1 .card { text-align: left; width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; display: flex; gap: 10px; align-items: center; }
+#t-1 .card:hover { background: var(--sunken); }
+#t-1 .card .num { font: 600 12px var(--mono); min-width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--sunken); color: var(--muted); flex: none; }
+#t-1 .card.ok { border-color: var(--good); background: var(--good-soft); }
+#t-1 .card.bad { border-color: var(--warn); background: var(--warn-soft); }
+#t-1 .slot-empty { border: 1px dashed var(--border); border-radius: 9px; padding: 10px 12px; color: var(--faint); font-size: 13px; display: flex; gap: 10px; align-items: center; }
+#t-1 .qopt { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 10px 14px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; }
+#t-1 .qopt:hover:not(:disabled) { background: var(--sunken); }
+#t-1 .qopt.right { border-color: var(--good); background: var(--good-soft); }
+#t-1 .qopt.wrong { border-color: var(--warn); background: var(--warn-soft); }
+#t-1 .q { margin-bottom: 20px; }
+#t-1 .q p { margin: 0 0 4px; font-weight: 600; }
+:root { --d-html: #ec9d70; --d-css: #6cb6d8; --d-js: #e3c04d; --d-php: #b3a3e8; --d-sql: #e58aa3; }
+#t-2 .modebar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+#t-2 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 99px; overflow: hidden; background: var(--raised); }
+#t-2 .seg button { padding: 7px 14px; border: 0; background: transparent; color: var(--ink-soft); font: 500 13px var(--sans); cursor: pointer; }
+#t-2 .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+#t-2 .filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+#t-2 .filters .lbl { font-size: 12.5px; color: var(--muted); margin-right: 4px; }
+#t-2 .fchip { border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft); border-radius: 99px; padding: 4px 11px; font: 600 11.5px var(--mono); cursor: pointer; }
+#t-2 .fchip[aria-pressed="true"] { outline: 2px solid var(--accent); }
+#t-2 .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 820px) {#t-2 .layout { grid-template-columns: 1fr; }}
+#t-2 .filenote { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
+#t-2 .codebox { background: var(--codebg); border-radius: 12px; padding: 10px 0; overflow-x: auto; }
+#t-2 .ln { display: flex; align-items: baseline; gap: 10px; width: 100%; min-width: max-content; text-align: left; background: transparent; border: 0; color: var(--codeink); font: 13px/1.75 var(--mono); padding: 0 16px 0 10px; white-space: pre; }
+#t-2 button.ln { cursor: pointer; }
+#t-2 button.ln:hover { background: rgba(255,255,255,.07); }
+#t-2 .ln.sel { background: rgba(92,201,209,.22); }
+#t-2 .ln.dim { opacity: .28; }
+#t-2 .ln .no { color: #6f8d90; min-width: 22px; text-align: right; font-size: 11px; user-select: none; }
+#t-2 .ln .dotc { width: 8px; height: 8px; border-radius: 50%; flex: none; align-self: center; background: transparent; }
+#t-2 .ln.k-html .dotc { background: var(--d-html); }
+#t-2 .ln.k-css .dotc { background: var(--d-css); }
+#t-2 .ln.k-js .dotc { background: var(--d-js); }
+#t-2 .ln.k-php .dotc { background: var(--d-php); }
+#t-2 .ln.k-sql .dotc { background: var(--d-sql); }
+#t-2 .testing .dotc { background: transparent !important; }
+#t-2 .side { position: sticky; top: 70px; }
+#t-2 .side h2 { font-size: 15px; }
+#t-2 .sidecode { font: 12.5px/1.5 var(--mono); background: var(--sunken); border-radius: 8px; padding: 8px 10px; margin: 0 0 10px; white-space: pre-wrap; word-break: break-word; }
+#t-2 .lbl2 { font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 12px 0 3px; }
+#t-2 .optbtns { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+#t-2 .optbtns button { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 12.5px var(--mono); cursor: pointer; }
+#t-2 .optbtns button:hover:not(:disabled) { background: var(--sunken); }
+#t-2 .optbtns button.right { border-color: var(--good); background: var(--good-soft); }
+#t-2 .optbtns button.wrong { border-color: var(--warn); background: var(--warn-soft); }
+#t-2 .legend { display: flex; gap: 10px 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 12px; }
+#t-3 .qcard { margin-bottom: 14px; }
+#t-3 .qnum { font: 600 12px var(--mono); color: var(--muted); margin-bottom: 6px; }
+#t-3 .qtext { font-size: 20px; font-weight: 600; margin: 0 0 16px; text-wrap: balance; }
+#t-3 .opts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+@media (max-width: 700px) {#t-3 .opts { grid-template-columns: 1fr 1fr; }}
+@media (max-width: 440px) {#t-3 .opts { grid-template-columns: 1fr; }}
+#t-3 .opt { padding: 12px 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 13.5px var(--sans); cursor: pointer; text-align: center; }
+#t-3 .opt:hover:not(:disabled) { background: var(--sunken); }
+#t-3 .opt.right { border-color: var(--good); background: var(--good-soft); }
+#t-3 .opt.wrong { border-color: var(--warn); background: var(--warn-soft); opacity: .8; }
+#t-3 .res { display: grid; gap: 8px; margin: 14px 0; }
+#t-3 .resrow { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--raised); font-size: 14px; }
+#t-3 .mark { font: 700 13px var(--mono); min-width: 52px; }
+#t-3 .mark.ok { color: var(--good); }
+#t-3 .mark.re { color: var(--warn); }
+#t-4 .qnum { font: 600 12px var(--mono); color: var(--muted); margin-bottom: 6px; }
+#t-4 .quote { font-size: 17px; margin: 0 0 6px; padding: 12px 16px; background: var(--sunken); border-radius: 10px; }
+#t-4 .techtag { margin-bottom: 10px; }
+#t-4 .rate { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+@media (max-width: 480px) {#t-4 .rate { grid-template-columns: 1fr; }}
+#t-4 .rate button { padding: 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 14px var(--sans); cursor: pointer; }
+#t-4 .rate button:hover:not(:disabled) { background: var(--sunken); }
+#t-4 .rate button.right { border-color: var(--good); background: var(--good-soft); }
+#t-4 .rate button.picked { border-color: var(--warn); background: var(--warn-soft); }
+#t-4 .parts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+@media (max-width: 480px) {#t-4 .parts { grid-template-columns: 1fr; }}
+#t-4 .part { border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; font-size: 13px; background: var(--raised); }
+#t-4 .part b { display: block; font: 700 12px var(--mono); margin-bottom: 2px; }
+#t-4 .part.y { border-color: var(--good); background: var(--good-soft); }
+#t-4 .part.n { border-color: var(--warn); background: var(--warn-soft); }
+#t-4 textarea { width: 100%; min-height: 120px; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 15px/1.5 var(--sans); resize: vertical; }
+#t-4 .chk { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; font-size: 14px; }
+#t-4 .pickrow { display: grid; gap: 8px; margin: 12px 0; }
+#t-4 .pickbtn { text-align: left; padding: 10px 14px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; }
+#t-4 .pickbtn[aria-pressed="true"] { outline: 2px solid var(--accent); background: var(--accent-soft); }
+#t-5 .steps { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+#t-5 .layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.5fr); gap: 16px; align-items: start; }
+@media (max-width: 820px) {#t-5 .layout { grid-template-columns: 1fr; }}
+#t-5 .list { display: grid; gap: 7px; }
+#t-5 .feat { text-align: left; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; width: 100%; }
+#t-5 .feat:hover { background: var(--sunken); }
+#t-5 .feat.sel { outline: 2px solid var(--accent); background: var(--accent-soft); }
+#t-5 .feat.ok { border-color: var(--good); background: var(--good-soft); }
+#t-5 .feat.bad { border-color: var(--warn); background: var(--warn-soft); }
+#t-5 .buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 520px) {#t-5 .buckets { grid-template-columns: 1fr; }}
+#t-5 .bucket { border: 2px dashed var(--border); border-radius: 12px; padding: 10px; background: var(--raised); text-align: left; cursor: pointer; font: inherit; color: inherit; min-height: 110px; }
+#t-5 .bucket:hover { border-color: var(--accent); }
+#t-5 .bucket h3 { margin: 0 0 6px; font: 600 13px var(--mono); color: var(--accent); }
+#t-5 .bucket .chips { display: grid; gap: 5px; }
+#t-5 .bucket.armed { border-color: var(--accent); background: var(--accent-soft); }
+#t-5 .bucket.gap { border-color: var(--warn); border-style: solid; }
+#t-5 .mini { font-size: 12.5px; padding: 6px 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--sunken); text-align: left; }
+#t-5 .mini.ok { border-color: var(--good); background: var(--good-soft); }
+#t-5 .mini.bad { border-color: var(--warn); background: var(--warn-soft); }
+#t-5 .hint { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+#t-5 .gapopt { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 10px 14px; border-radius: 9px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); cursor: pointer; }
+#t-5 .gapopt[aria-pressed="true"] { outline: 2px solid var(--accent); background: var(--accent-soft); }
+#t-5 .gapopt.ok { border-color: var(--good); background: var(--good-soft); outline: none; }
+#t-5 .gapopt.bad { border-color: var(--warn); background: var(--warn-soft); outline: none; }
+#t-6 .qnum { font: 600 12px var(--mono); color: var(--muted); margin-bottom: 6px; }
+#t-6 .vague { font-size: 22px; font-weight: 600; margin: 4px 0 4px; text-wrap: balance; }
+#t-6 .ask { color: var(--ink-soft); margin: 0 0 14px; font-size: 14.5px; }
+#t-6 .opt { display: block; width: 100%; text-align: left; margin: 8px 0; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 15px var(--sans); cursor: pointer; }
+#t-6 .opt:hover:not(:disabled) { background: var(--sunken); }
+#t-6 .opt.right { border-color: var(--good); background: var(--good-soft); }
+#t-6 .opt.wrong { border-color: var(--warn); background: var(--warn-soft); }
+#t-6 .opt .why { display: block; margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
+#t-6 .stem { margin-top: 18px; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="topbar"><b>Lesson 6 Toolkit</b><span class="tag">Unit 5 NEA · Investigation · Lesson 6</span></div>
+<nav class="mtabs" role="tablist" aria-label="Lesson 6 tools"><button class="mtab" role="tab" id="mt-t-0" data-t="t-0" data-slug="click-log-in" aria-controls="t-0" aria-selected="true" tabindex="0">Click Log In</button><button class="mtab" role="tab" id="mt-t-1" data-t="t-1" data-slug="follow-the-request" aria-controls="t-1" aria-selected="false" tabindex="-1">Follow the Request</button><button class="mtab" role="tab" id="mt-t-2" data-t="t-2" data-slug="code-model-explorer" aria-controls="t-2" aria-selected="false" tabindex="-1">Code Model Explorer</button><button class="mtab" role="tab" id="mt-t-3" data-t="t-3" data-slug="which-tech-does-the-job" aria-controls="t-3" aria-selected="false" tabindex="-1">Which Tech Does the Job?</button><button class="mtab" role="tab" id="mt-t-4" data-t="t-4" data-slug="reason-or-reputation" aria-controls="t-4" aria-selected="false" tabindex="-1">Reason or Reputation?</button><button class="mtab" role="tab" id="mt-t-5" data-t="t-5" data-slug="break-it-down" aria-controls="t-5" aria-selected="false" tabindex="-1">Break It Down</button><button class="mtab" role="tab" id="mt-t-6" data-t="t-6" data-slug="make-it-measurable" aria-controls="t-6" aria-selected="false" tabindex="-1">Make It Measurable</button></nav>
+<div class="wrap">
+<section class="tool" id="t-0" role="tabpanel" aria-labelledby="mt-t-0"><span class="tag phase">Starter</span><h1>What happens when you click Log in?</h1><p class="lede">Predict first, learn second. Choose what you think happens between pressing Sign in and seeing your account page. You will come back and compare after the technology tour.</p>
+<div class="twoc">
+  <div class="panel login" id="login">
+    <div class="lh">CAVC Library</div>
+    <label for="s-email">Email address</label>
+    <input id="s-email" type="text" placeholder="you@example.com" autocomplete="off">
+    <label for="s-pw">Password</label>
+    <input id="s-pw" type="password" placeholder="Password" autocomplete="off">
+    <button class="btn primary" id="signin" type="button">Sign in</button>
+    <div class="then" id="then" aria-live="polite"></div>
+  </div>
+  <div id="stage"></div>
+</div>
+</section>
+<section class="tool" id="t-1" role="tabpanel" aria-labelledby="mt-t-1" hidden><span class="tag phase">Technology tour</span><h1>What happens when you press Sign in?</h1><p class="lede">Step through a login request from the browser to the database and back. Then rebuild the journey in order, and test what you have understood.</p>
+<div class="phases" role="tablist" aria-label="Activity parts">
+  <button class="tab" role="tab" id="tab1" aria-selected="true" data-p="1">1  Walk through</button>
+  <button class="tab" role="tab" id="tab2" aria-selected="false" data-p="2">2  Put it in order</button>
+  <button class="tab" role="tab" id="tab3" aria-selected="false" data-p="3">3  Quick checks</button>
+</div>
+
+<section id="p1">
+  <div class="zones" id="zones"></div>
+  <div class="panel">
+    <div class="stephead"><span class="stepn" id="stepn"></span><h2 id="steptitle"></h2></div>
+    <p id="steptext" style="margin:6px 0 10px;font-size:15px"></p>
+    <div class="row" id="steptech" style="margin-bottom:8px"></div>
+    <p class="vis" id="stepvis"></p>
+    <details id="codebox" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600;font-size:14px">Show the code behind this step</summary>
+      <pre class="code" id="stepcode" style="margin-top:10px"></pre>
+      <p style="font-size:12px;color:var(--muted);margin:6px 0 0">Simplified from the CAVC Library shop example.</p>
+    </details>
+    <div class="dots" id="dots" aria-label="Steps"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="back">Back</button>
+      <button class="btn primary" id="next">Next step</button>
+      <span class="spacer"></span>
+      <button class="btn" id="to2" style="display:none">Now try it in order →</button>
+    </div>
+  </div>
+</section>
+
+<section id="p2" hidden>
+  <div class="panel">
+    <p style="margin:0 0 12px;font-size:15px">Tap the steps in the order they happen. Tap a placed step to take it back out.</p>
+    <div class="twocol">
+      <div><h2>Steps</h2><div class="pool" id="pool"></div></div>
+      <div><h2>Your order</h2><div class="order" id="order"></div></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" id="check">Check my order</button>
+      <button class="btn" id="reset">Start again</button>
+      <button class="btn" id="reveal">Show me the answer</button>
+    </div>
+    <div id="orderfb" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="p3" hidden>
+  <div class="panel" id="quiz"></div>
+</section>
+</section>
+<section class="tool" id="t-2" role="tabpanel" aria-labelledby="mt-t-2" hidden><span class="tag phase">Technology tour</span><h1>Read the login system, line by line</h1><p class="lede">Click any line to see which technology it is, where it runs and why it is there. Then switch to Test yourself and see whether you can tell the technologies apart.</p>
+<div class="modebar">
+  <div class="seg" role="group" aria-label="Mode">
+    <button id="mExplore" aria-pressed="true">Explore</button>
+    <button id="mTest" aria-pressed="false">Test yourself</button>
+  </div>
+  <span id="score" style="font:600 13px var(--mono);color:var(--muted)"></span>
+</div>
+<div class="tabs" id="filetabs" role="tablist" aria-label="Files"></div>
+<div class="filters" id="filters"></div>
+<div class="layout">
+  <div>
+    <p class="filenote" id="filenote"></p>
+    <div class="codebox" id="code"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="side panel" id="side" aria-live="polite"></div>
+</div>
+</section>
+<section class="tool" id="t-3" role="tabpanel" aria-labelledby="mt-t-3" hidden><span class="tag phase">Practice</span><h1>Match each task to the technology that does it</h1><p class="lede">Ten real tasks from a shop website. Choose the technology that does the job. If you're wrong, the feedback tells you why and you can try again.</p>
+<div class="progress" aria-hidden="true"><i id="bar" style="width:0"></i></div>
+<div style="height:14px"></div>
+<div class="panel qcard" id="card"></div>
+<div id="summary"></div>
+</section>
+<section class="tool" id="t-4" role="tabpanel" aria-labelledby="mt-t-4" hidden><span class="tag phase">Technical justification</span><h1>Is it a reason, or just a reputation?</h1><p class="lede">Read each justification and rate it: weak, partial or strong. The feedback shows which of the three parts are there. Then rewrite a weak one in your own words.</p>
+<div class="progress" aria-hidden="true"><i id="bar" style="width:0"></i></div>
+<div style="height:14px"></div>
+<div class="panel" id="card"></div>
+<div id="rewrite" hidden style="margin-top:18px"></div>
+</section>
+<section class="tool" id="t-5" role="tabpanel" aria-labelledby="mt-t-5" hidden><span class="tag phase">Decompose the system</span><h1>Break the shop into its areas</h1><p class="lede">A big system is easier to specify, build and test as smaller areas. Sort twelve features into the area they belong to, then spot the area the list forgot.</p>
+<section id="s1">
+  <div class="panel" style="margin-bottom:14px">
+    <b>1.</b> Tap a feature. <b>2.</b> Tap the area it belongs to. Tap a placed feature to move it back.
+    <span id="count" style="float:right;font:600 13px var(--mono);color:var(--muted)"></span>
+  </div>
+  <div class="layout">
+    <div><h2>Features to place</h2><div class="list" id="list"></div></div>
+    <div><h2>Areas</h2><div class="buckets" id="buckets"></div></div>
+  </div>
+  <div class="row" style="margin:16px 0 0">
+    <button class="btn primary" id="check">Check my areas</button>
+    <button class="btn" id="reveal">Show the answers</button>
+    <button class="btn" id="reset">Start again</button>
+  </div>
+  <div id="fb1" aria-live="polite"></div>
+</section>
+<section id="s2" hidden style="margin-top:22px">
+  <div class="panel">
+    <h2>Spot the gap</h2>
+    <p id="gaptext" style="margin:0 0 10px;font-size:15px"></p>
+    <div id="gapopts"></div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="gapcheck">Check</button></div>
+    <div id="fb2" aria-live="polite"></div>
+  </div>
+</section>
+<section id="s3" hidden style="margin-top:22px">
+  <div class="panel">
+    <h2>Now your own system</h2>
+    <p style="margin:0 0 8px;font-size:15px">Open your Lesson 5 DFD. Each main process is a candidate area.</p>
+    <ul style="margin:0;padding-left:20px;font-size:15px">
+      <li>List 3 to 5 areas and give each a one-line aim.</li>
+      <li>Check for a gap, like the one you just found. Is there something your system must do that isn't in any area?</li>
+      <li>Then move on to writing objectives for your first area.</li>
+    </ul>
+  </div>
+</section>
+</section>
+<section class="tool" id="t-6" role="tabpanel" aria-labelledby="mt-t-6" hidden><span class="tag phase">Objectives and success criteria</span><h1>Pick the rewrite a tester could check</h1><p class="lede">Each round starts with a vague success criterion. Choose the rewrite that has a number, a limit or a named behaviour. If you pick a vague one, the feedback tells you what is still missing.</p>
+<div class="progress" aria-hidden="true"><i id="bar" style="width:0"></i></div>
+<div style="height:14px"></div>
+<div class="panel" id="card"></div>
+<div id="summary"></div>
+<div class="stem">Stem to aim for: <b>When [condition], the system [does X] [measure].</b></div>
+</section>
+</div>
+<script>
+(function(){
+var QS = [{"id": "q1", "t": "Where is the password checked?", "kind": "one", "opts": [["browser", "In my browser"], ["server", "On the web server, by code the site's owner wrote"], ["db", "Inside the database itself"], ["unsure", "Not sure yet"]], "a": "server", "real": "On the web server, by PHP code", "why": "In this system PHP does the checking. The database only hands over the stored record, and the browser cannot be trusted with the decision."}, {"id": "q2", "t": "Where are the user accounts kept?", "kind": "one", "opts": [["device", "On my own device"], ["file", "In a file on the web server"], ["db", "In a table in a database"], ["unsure", "Not sure yet"]], "a": "db", "real": "In a table in a database", "why": "A users table holds one row per account: email, first name, surname, password and an admin flag."}, {"id": "q3", "t": "What is stored for your password?", "kind": "one", "opts": [["plain", "The password exactly as you typed it"], ["hash", "A scrambled version (a hash) that cannot be turned back"], ["none", "Nothing, the browser remembers it"], ["unsure", "Not sure yet"]], "a": "hash", "real": "A scrambled version, called a hash", "why": "PHP's password_verify() compares what you typed with the stored hash, so a stolen table does not reveal anyone's password."}, {"id": "q4", "t": "Which of these are involved in a login? Tick every one you think is.", "kind": "many", "opts": [["browser", "Your browser"], ["server", "A web server (Apache, running on UWAMP)"], ["php", "PHP code"], ["db", "The database"]], "a": ["browser", "server", "php", "db"], "real": "All four", "why": "The browser sends the request, the web server receives it and runs the PHP, and the PHP asks the database."}, {"id": "q5", "t": "The form refuses a blank password in the browser before anything is sent. Does the server still need to check?", "kind": "one", "opts": [["no", "No, the browser has already checked"], ["yes", "Yes, because browser checks can be skipped or edited"], ["unsure", "Not sure yet"]], "a": "yes", "real": "Yes, the server must check too", "why": "Browser checks save a trip and help the user. Only the server's checks are security. signin.php checks for empty fields itself."}];
+var JOURNEY = [["browser", "You press Sign in. Your browser packs the email and password into a request and sends it to the server."], ["server", "The web server (Apache on UWAMP) receives the request and hands it to signin.php."], ["php", "signin.php checks both fields are filled in, then asks the database for the row with that email."], ["db", "The database looks in the users table and sends back the matching row, or nothing."], ["php", "PHP uses password_verify() to compare what you typed with the stored hash."], ["php", "Match: PHP starts your session and sends you to the account page. No match: it saves an error message and sends you back to the login page."]];
+var ZONES = {"browser": ["Browser", "p-browser"], "server": ["Web server", "p-server"], "php": ["PHP", "t-php"], "db": ["Database", "p-db"]};
+
+var ROOT = document.getElementById("t-0"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+var ans = {}, steps = "", phase = "predict";
+function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+function labelFor(q, key){ var o = q.opts.filter(function(o){ return o[0] === key; })[0]; return o ? o[1] : ""; }
+function answered(){
+  return QS.every(function(q){ return q.kind === "many" ? (ans[q.id] && ans[q.id].length) : !!ans[q.id]; });
+}
+function count(){ return QS.filter(function(q){ return q.kind === "many" ? (ans[q.id] && ans[q.id].length) : ans[q.id]; }).length; }
+function yourText(q){
+  if (q.kind === "many") return (ans[q.id] || []).map(function(k){ return labelFor(q, k); }).join("; ");
+  return labelFor(q, ans[q.id]);
+}
+function verdict(q){
+  if (q.kind === "many"){
+    var got = ans[q.id] || [];
+    var all = q.a.every(function(k){ return got.indexOf(k) > -1; }) && got.length === q.a.length;
+    return all ? "match" : "miss";
+  }
+  if (ans[q.id] === "unsure") return "new";
+  return ans[q.id] === q.a ? "match" : "miss";
+}
+function render(){
+  var st = $("stage"); st.innerHTML = "";
+  if (phase === "predict") renderPredict(st);
+  else if (phase === "locked") renderLocked(st);
+  else renderCompare(st);
+}
+function renderPredict(st){
+  var intro = el("div", "panel qb");
+  intro.appendChild(el("div", "qn", "STEP 1 OF 3 · PREDICT"));
+  intro.appendChild(el("h2", "", "You click Sign in. Then what?"));
+  var p = el("p", "hint", "Nothing here is marked and you are not expected to know yet. Choose what you think happens. After the technology tour you will compare.");
+  p.style.margin = "4px 0 0"; intro.appendChild(p);
+  st.appendChild(intro);
+  QS.forEach(function(q, qi){
+    var card = el("div", "panel qb");
+    card.appendChild(el("div", "qn", "PREDICTION " + (qi + 1) + " OF " + QS.length));
+    card.appendChild(el("h2", "", q.t));
+    var box = el("div", "choices");
+    q.opts.forEach(function(o){
+      var b = el("button", "ch"); b.type = "button";
+      var on = q.kind === "many" ? (ans[q.id] || []).indexOf(o[0]) > -1 : ans[q.id] === o[0];
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      var mark = el("span", "box " + (q.kind === "many" ? "sq" : "rad"), on && q.kind === "many" ? "✓" : "");
+      b.appendChild(mark); b.appendChild(el("span", "", o[1]));
+      b.onclick = function(){
+        if (q.kind === "many"){
+          var cur = ans[q.id] || [], i = cur.indexOf(o[0]);
+          if (i > -1) cur.splice(i, 1); else cur.push(o[0]);
+          ans[q.id] = cur;
+        } else ans[q.id] = o[0];
+        keepScroll();
+      };
+      box.appendChild(b);
+    });
+    card.appendChild(box); st.appendChild(card);
+  });
+  var sk = el("div", "panel qb");
+  sk.appendChild(el("div", "qn", "OPTIONAL"));
+  sk.appendChild(el("h2", "", "Write the journey in your own words"));
+  sk.appendChild(el("p", "hint", "List the steps between pressing Sign in and seeing your account page, as far as you can."));
+  var ta = el("textarea", "sk"); ta.id = "s-steps"; ta.placeholder = "1. ...\n2. ..."; ta.value = steps;
+  ta.setAttribute("aria-label", "Your steps"); ta.oninput = function(){ steps = ta.value; };
+  sk.appendChild(ta); st.appendChild(sk);
+  var row = el("div", "row");
+  var lock = el("button", "btn primary", "Lock in my predictions"); lock.type = "button"; lock.disabled = !answered();
+  lock.onclick = function(){ phase = "locked"; render(); window.scrollTo(0, 0); };
+  row.appendChild(lock);
+  row.appendChild(el("span", "hint", answered() ? "Ready to lock in." : count() + " of " + QS.length + " answered. Answer them all to lock in."));
+  st.appendChild(row);
+}
+function keepScroll(){ var y = window.scrollY; render(); window.scrollTo(0, y); }
+function renderLocked(st){
+  var p = el("div", "panel qb");
+  p.appendChild(el("div", "qn", "STEP 2 OF 3 · LOCKED IN"));
+  p.appendChild(el("h2", "", "Predictions locked"));
+  var h = el("p", "hint", "Keep this tab open. Go on with the technology tour, then come back and compare.");
+  h.style.margin = "4px 0 0"; p.appendChild(h);
+  var list = el("div", "qlist");
+  QS.forEach(function(q){
+    var r = el("div", "qrow"); r.appendChild(el("div", "qq", q.t)); r.appendChild(el("div", "you", "You predicted: " + yourText(q))); list.appendChild(r);
+  });
+  p.appendChild(list);
+  if (steps.trim()){ p.appendChild(el("div", "hint", "Your steps:")); p.appendChild(el("div", "mine", steps)); }
+  st.appendChild(p);
+  var g = el("div", "panel qb");
+  g.appendChild(el("h2", "", "After the tour"));
+  var lab = el("label", "gate"); var cb = el("input"); cb.type = "checkbox"; cb.id = "s-gate";
+  lab.appendChild(cb); lab.appendChild(el("span", "", "The technology tour is finished. Show me the real journey."));
+  g.appendChild(lab);
+  var row = el("div", "row");
+  var go = el("button", "btn primary", "Compare with the real journey"); go.type = "button"; go.disabled = true;
+  cb.onchange = function(){ go.disabled = !cb.checked; };
+  go.onclick = function(){ phase = "compare"; render(); window.scrollTo(0, 0); };
+  var back = el("button", "btn", "Change my answers"); back.type = "button";
+  back.onclick = function(){ phase = "predict"; render(); };
+  row.appendChild(go); row.appendChild(back); g.appendChild(row); st.appendChild(g);
+}
+function renderCompare(st){
+  var matched = QS.filter(function(q){ return verdict(q) === "match"; }).length;
+  var head = el("div", "panel qb");
+  head.appendChild(el("div", "qn", "STEP 3 OF 3 · COMPARE"));
+  head.appendChild(el("h2", "", "You matched " + matched + " of " + QS.length));
+  var n = el("p", "hint", "This is not a mark. Anything you missed is exactly what the tour was for, and it is what your technical justification will explain.");
+  n.style.margin = "4px 0 0"; head.appendChild(n);
+  var list = el("div", "qlist");
+  QS.forEach(function(q){
+    var v = verdict(q);
+    var r = el("div", "qrow " + v);
+    var top = el("div", "qq"); top.appendChild(el("span", "badge2", v === "match" ? "MATCH" : v === "new" ? "NEW TO YOU" : "MISSED")); top.appendChild(document.createTextNode(q.t));
+    r.appendChild(top);
+    r.appendChild(el("div", "you", "You predicted: " + yourText(q)));
+    r.appendChild(el("div", "really", "What happens: " + q.real));
+    r.appendChild(el("div", "why", q.why));
+    list.appendChild(r);
+  });
+  head.appendChild(list); st.appendChild(head);
+  var j = el("div", "panel qb");
+  j.appendChild(el("h2", "", "The real journey"));
+  var ol = el("ol", "steps");
+  JOURNEY.forEach(function(s){
+    var li = el("li"); var wrap = el("div"); var pill = el("span", "pill " + ZONES[s[0]][1], ZONES[s[0]][0]);
+    wrap.appendChild(pill); wrap.appendChild(document.createElement("br")); wrap.appendChild(document.createTextNode(s[1])); li.appendChild(wrap); ol.appendChild(li);
+  });
+  j.appendChild(ol); st.appendChild(j);
+  if (steps.trim()){
+    var m = el("div", "panel qb"); m.appendChild(el("h2", "", "Your own steps"));
+    m.appendChild(el("p", "hint", "Tick off what you got right and add what you missed."));
+    m.appendChild(el("div", "mine", steps)); st.appendChild(m);
+  }
+  var row = el("div", "row");
+  var again = el("button", "btn", "Start again"); again.type = "button";
+  again.onclick = function(){ ans = {}; steps = ""; phase = "predict"; $("then").textContent = ""; render(); window.scrollTo(0, 0); };
+  row.appendChild(again); st.appendChild(row);
+}
+$("signin").onclick = function(){ $("then").textContent = "…then what?"; var s = $("stage"); if (s.scrollIntoView && window.innerWidth < 800) s.scrollIntoView({behavior: "smooth"}); };
+render();
+
+})();
+(function(){
+
+var STEPS = [
+  {z:["browser"], title:"You press Sign in", short:"You press Sign in", tech:[["HTML","t-html"],["CSS (Bootstrap)","t-css"]], vis:"Visible to the user: yes. This is all in the browser.",
+   text:"You've typed your email and password into the form on login.php. The form is HTML, styled by Bootstrap. Nothing has left your computer yet.",
+   code:'<button class="btn btn-lg btn-light rounded-pill"\n        type="submit">Sign in</button>'},
+  {z:["browser"], title:"The browser checks the fields", short:"The browser checks the fields", tech:[["HTML5 validation","t-html"],["JavaScript (optional)","t-js"]], vis:"Visible to the user: yes. The user could edit or skip this.",
+   text:"The attributes required and type=\"email\" make the browser refuse an empty field or a badly formed email address. This is quick feedback. On the sign-up form, JavaScript can add more checks.",
+   code:'<input type="email" name="email" required>'},
+  {z:["browser","server"], title:"The browser sends a request", short:"The browser sends the form to the server", tech:[["HTML form (POST)","t-html"]], vis:"Visible to the user: the request is, but the data is kept out of the URL.",
+   text:"The browser packages the fields and POSTs them to signin.php on the server. POST keeps them out of the web address. On your own PC the server is UWAMP and the address is localhost.",
+   code:'<form action="signin.php" method="POST">'},
+  {z:["server"], title:"PHP reads the form data", short:"PHP reads the form data", tech:[["PHP","t-php"]], vis:"Visible to the user: no. Only the server ever sees this code.",
+   text:"signin.php runs on the server. PHP picks up the email and password the browser sent. The user never sees this code, only the page it produces.",
+   code:"$email    = trim($_POST['email']);\n$password = trim($_POST['password']);"},
+  {z:["server","db"], title:"PHP asks the database", short:"PHP sends an SQL query to the database", tech:[["PHP","t-php"],["SQL","t-sql"]], vis:"Visible to the user: no.",
+   text:"PHP uses the connection from connection.php to send an SQL query asking for the row with this email. The ? placeholder (a prepared statement) stops SQL injection.",
+   code:'$stmt = $connection->prepare(\n  "SELECT * FROM users WHERE email=?");\n$stmt->bind_param("s", $email);\n$stmt->execute();'},
+  {z:["db"], title:"The database answers", short:"The database returns the user's row", tech:[["SQL (MySQL)","t-sql"]], vis:"Visible to the user: no. HeidiSQL lets you see this data while you build.",
+   text:"MySQL finds the matching row in the users table and hands it back to PHP. The password in that row is a hash, not the plain text.",
+   code:"users row:\n  email      sam@example.com\n  firstName  Sam\n  surname    Jones\n  password   $2y$10$...(a hash, not the password)\n  admin      0"},
+  {z:["server"], title:"PHP checks the password", short:"PHP checks the password against the stored hash", tech:[["PHP","t-php"]], vis:"Visible to the user: no. This is why it must be PHP and not JavaScript.",
+   text:"password_verify compares what you typed with the stored hash. This check has to run on the server, where users can't edit or skip it.",
+   code:'if (password_verify($password, $user["password"])) {\n  // credentials are valid\n}'},
+  {z:["server","browser"], title:"The server sends a page back", short:"The server sends a page back", tech:[["PHP","t-php"]], vis:"Visible to the user: the new page is, but not the PHP that chose it.",
+   text:"If the check passed, PHP stores your details in the session and redirects you to account.php. If not, it stores an error message and sends you back to login.php.",
+   code:'$_SESSION["user_email"] = $user["email"];\nheader("Location: ../account.php");\n// or on failure:\n$_SESSION["error"] = "Invalid password. Please try again.";'},
+  {z:["browser"], title:"The browser shows the result", short:"The browser shows the result", tech:[["HTML","t-html"],["CSS (Bootstrap)","t-css"]], vis:"Visible to the user: yes.",
+   text:"The browser receives ordinary HTML, CSS and JavaScript and displays it. It never receives the PHP or the SQL.",
+   code:"What arrives in the browser:\n  HTML  CSS  JavaScript\nWhat stays on the server:\n  PHP  SQL queries  the hashed password"}
+];
+var ZONES = {
+  browser:{cls:"z-browser", name:"The browser", sub:"the user's device", pills:[["HTML","t-html"],["CSS / Bootstrap","t-css"],["JavaScript","t-js"]]},
+  server:{cls:"z-server", name:"The server", sub:"UWAMP (Apache + PHP)", pills:[["PHP","t-php"]]},
+  db:{cls:"z-db", name:"The database", sub:"MySQL, viewed in HeidiSQL", pills:[["SQL","t-sql"]]}
+};
+var cur = 0, seen = {0:true};
+var ROOT = document.getElementById("t-1"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+
+function buildZones(){
+  var h = "";
+  ["browser","server","db"].forEach(function(k){
+    var z = ZONES[k];
+    h += '<div class="zone '+z.cls+'" id="zone-'+k+'"><h3>'+z.name+'</h3><small>'+z.sub+'</small><div class="pills">'+
+      z.pills.map(function(p){return '<span class="pill '+p[1]+'">'+p[0]+'</span>';}).join("")+'</div><div class="badge">&#9679; the request is here</div></div>';
+  });
+  $("zones").innerHTML = h;
+}
+function showStep(){
+  var s = STEPS[cur];
+  $("stepn").textContent = "STEP "+(cur+1)+" OF "+STEPS.length;
+  $("steptitle").textContent = s.title;
+  $("steptext").textContent = s.text;
+  $("stepvis").textContent = s.vis;
+  $("steptech").innerHTML = s.tech.map(function(t){return '<span class="pill '+t[1]+'">'+t[0]+'</span>';}).join("");
+  $("stepcode").textContent = s.code;
+  ["browser","server","db"].forEach(function(k){ $("zone-"+k).classList.toggle("on", s.z.indexOf(k) >= 0); });
+  seen[cur] = true;
+  var d = "";
+  for (var i=0;i<STEPS.length;i++){
+    d += '<button class="dot'+(seen[i]?' seen':'')+'" data-i="'+i+'" aria-label="Step '+(i+1)+'"'+(i===cur?' aria-current="step"':'')+'>'+(i+1)+'</button>';
+  }
+  $("dots").innerHTML = d;
+  $("back").disabled = cur === 0;
+  $("next").disabled = cur === STEPS.length-1;
+  $("to2").style.display = cur === STEPS.length-1 ? "inline-block" : "none";
+}
+$("dots").addEventListener("click", function(e){ var b = e.target.closest(".dot"); if(b){ cur = +b.dataset.i; showStep(); } });
+$("back").onclick = function(){ if(cur>0){ cur--; showStep(); } };
+$("next").onclick = function(){ if(cur<STEPS.length-1){ cur++; showStep(); } };
+$("to2").onclick = function(){ setPhase(2); };
+
+function setPhase(n){
+  [1,2,3].forEach(function(i){ $("p"+i).hidden = i!==n; $("tab"+i).setAttribute("aria-selected", i===n ? "true":"false"); });
+}
+[1,2,3].forEach(function(i){ $("tab"+i).onclick = function(){ setPhase(i); }; });
+
+/* ---- ordering ---- */
+var pool = [], placed = [], checks = 0;
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function resetOrder(){
+  var idx = STEPS.map(function(_,i){return i;});
+  do { shuffle(idx); } while (idx.every(function(v,i){return v===i;}));
+  pool = idx; placed = []; checks = 0; $("orderfb").innerHTML = ""; drawOrder();
+}
+function zoneLabel(i){ var z = STEPS[i].z; return z.map(function(k){return ZONES[k].name.replace("The ","");}).join(" → "); }
+function drawOrder(marks){
+  $("pool").innerHTML = pool.map(function(i){
+    return '<button class="card" data-pool="'+i+'"><span>'+STEPS[i].short+'</span></button>';
+  }).join("") || '<p style="color:var(--muted);font-size:13px;margin:0">All steps placed.</p>';
+  var h = "";
+  for (var k=0;k<STEPS.length;k++){
+    if (k < placed.length){
+      var cls = marks ? (marks[k] ? " ok" : " bad") : "";
+      h += '<button class="card'+cls+'" data-placed="'+k+'"><span class="num">'+(k+1)+'</span><span>'+STEPS[placed[k]].short+'</span></button>';
+    } else {
+      h += '<div class="slot-empty"><span class="num" style="min-width:22px;height:22px;border-radius:50%;background:var(--sunken);display:inline-flex;align-items:center;justify-content:center;font:600 12px var(--mono)">'+(k+1)+'</span>empty</div>';
+    }
+  }
+  $("order").innerHTML = h;
+}
+$("pool").addEventListener("click", function(e){
+  var b = e.target.closest("[data-pool]"); if(!b) return;
+  var i = +b.dataset.pool; pool = pool.filter(function(v){return v!==i;}); placed.push(i); $("orderfb").innerHTML=""; drawOrder();
+});
+$("order").addEventListener("click", function(e){
+  var b = e.target.closest("[data-placed]"); if(!b) return;
+  var k = +b.dataset.placed; var i = placed[k]; placed.splice(k,1); pool.push(i); $("orderfb").innerHTML=""; drawOrder();
+});
+$("reset").onclick = resetOrder;
+$("check").onclick = function(){
+  if (placed.length < STEPS.length){ $("orderfb").innerHTML = '<div class="fb info">Place all nine steps first. '+(STEPS.length-placed.length)+' still to go.</div>'; return; }
+  checks++;
+  var marks = placed.map(function(v,k){return v===k;});
+  var n = marks.filter(Boolean).length;
+  drawOrder(marks);
+  if (n === STEPS.length){
+    $("orderfb").innerHTML = '<div class="fb good"><b>All nine in the right order.</b> Now check it against your starter sketch: what did you miss, and what did you get right?</div>';
+  } else {
+    $("orderfb").innerHTML = '<div class="fb warn"><b>'+n+' of 9 in the right place.</b> The red ones are out of position. Hint: the database is only asked once the server has read the form, and the browser only sees the result at the very end.</div>';
+  }
+};
+$("reveal").onclick = function(){
+  placed = STEPS.map(function(_,i){return i;}); pool = [];
+  drawOrder(placed.map(function(){return true;}));
+  $("orderfb").innerHTML = '<div class="fb info">This is the real order. Read it down once, then press Start again and rebuild it from memory.</div>';
+};
+
+/* ---- quick checks ---- */
+var QS = [
+  {q:"Where is the password actually checked?", opts:["In the browser","On the server, by PHP","In the database"], a:1,
+   why:"PHP compares what was typed with the stored hash. The database only holds the hash, and a check in the browser could be edited or skipped."},
+  {q:"Does the browser ever receive the PHP or SQL code?", opts:["Yes, it needs it to show the page","No, only the page PHP builds"], a:1,
+   why:"The browser receives HTML, CSS and JavaScript. PHP runs on the server and SQL runs in the database, so neither is sent."},
+  {q:"A new user registers today. Where is their account kept so it is still there tomorrow?", opts:["In the browser","In the PHP file","In the database"], a:2,
+   why:"The database stores data between visits. PHP files hold instructions, not user records."},
+  {q:"What runs first after you press Sign in?", opts:["A PHP check on the server","The browser's own checks, such as required","An SQL query"], a:1,
+   why:"The browser checks the fields before anything is sent. Then the request goes to the server, then PHP asks the database."}
+];
+(function(){
+  var h = "", done = 0;
+  QS.forEach(function(q,qi){
+    h += '<div class="q" id="q'+qi+'"><p>'+(qi+1)+'. '+q.q+'</p>';
+    q.opts.forEach(function(o,oi){ h += '<button class="qopt" data-q="'+qi+'" data-o="'+oi+'">'+o+'</button>'; });
+    h += '<div class="fbwrap" aria-live="polite"></div></div>';
+  });
+  $("quiz").innerHTML = h;
+  $("quiz").addEventListener("click", function(e){
+    var b = e.target.closest(".qopt"); if(!b || b.disabled) return;
+    var qi = +b.dataset.q, oi = +b.dataset.o, q = QS[qi];
+    var box = $("q"+qi);
+    if (oi === q.a){
+      b.classList.add("right");
+      box.querySelectorAll(".qopt").forEach(function(x){ x.disabled = true; });
+      box.querySelector(".fbwrap").innerHTML = '<div class="fb good"><b>Yes.</b> '+q.why+'</div>';
+    } else {
+      b.classList.add("wrong"); b.disabled = true;
+      box.querySelector(".fbwrap").innerHTML = '<div class="fb warn">Not quite. Have another go.</div>';
+    }
+  });
+})();
+buildZones(); showStep(); resetOrder();
+
+})();
+(function(){
+var FILES = [{"id": "login", "name": "login.php", "note": "The page the user sees. Mostly HTML and Bootstrap, with a little PHP.", "lines": [{"t": "<?php session_start(); ?>", "tech": "php", "what": "Starts a session, so PHP can remember who is logged in and pass messages between pages.", "why": "PHP written between <?php and ?> runs on the server before the page is sent to the browser.", "quiz": true}, {"t": "<link href=\"../css/bootstrap.min.css\" rel=\"stylesheet\">", "tech": "css", "what": "Loads Bootstrap's ready-made styles into the page.", "why": "CSS controls appearance. Bootstrap is a CSS library, so you get layout and styling without writing every rule yourself.", "quiz": true}, {"t": "<script src=\"../js/bootstrap.bundle.min.js\"><\/script>", "tech": "js", "what": "Loads Bootstrap's JavaScript, which powers interactive parts such as a menu that collapses on a phone.", "why": "JavaScript runs in the browser. The script tag is HTML, but what it loads is JavaScript.", "quiz": true}, {"t": "<?php if (isset($_SESSION['error'])) {", "tech": "php", "what": "If signin.php stored an error message, show it.", "why": "The message was saved in the session by PHP on the server during the last request.", "quiz": false}, {"t": "  echo '<p style=\"color:red;\">'. $_SESSION['error'] .'<\/p>';", "tech": "php", "what": "PHP builds a line of HTML containing the message.", "why": "The browser only ever receives the finished paragraph, never this PHP.", "quiz": false}, {"t": "  unset($_SESSION['error']); } ?>", "tech": "php", "what": "Clears the message so it only shows once.", "why": "", "quiz": false}, {"t": "<form action=\"signin.php\" method=\"POST\">", "tech": "html", "what": "A form. When it is submitted, the browser sends the fields to signin.php. POST keeps them out of the web address.", "why": "This is HTML: it defines the structure and where the data goes.", "quiz": true}, {"t": "  <input type=\"email\" name=\"email\" required>", "tech": "html", "what": "An email box. type=\"email\" and required make the browser refuse an empty or badly formed address.", "why": "HTML5 validation runs in the browser. It is quick feedback, but a user could skip it, so PHP checks again.", "quiz": true}, {"t": "  <input type=\"password\" name=\"password\" required>", "tech": "html", "what": "A password box. The characters are hidden as you type, and the field can't be left empty.", "why": "", "quiz": false}, {"t": "  <button class=\"btn btn-lg btn-light rounded-pill\" type=\"submit\">Sign in<\/button>", "tech": "css", "what": "The button is HTML, but the class names btn, btn-lg, btn-light and rounded-pill are Bootstrap's CSS. They style it without any CSS written by hand.", "why": "Bootstrap classes are how you get a good-looking, responsive page quickly.", "quiz": false}, {"t": "<\/form>", "tech": "none", "what": "", "why": "", "quiz": false}]}, {"id": "register", "name": "register.php", "note": "The sign-up form, plus the browser-side check. The JavaScript here is a simplified illustration written for this activity, not a copy of main.js.", "lines": [{"t": "<form action=\"signup.php\" onsubmit=\"return validateForm()\" method=\"post\">", "tech": "js", "what": "onsubmit runs validateForm() before anything is sent. If it returns false, the form is not submitted.", "why": "The form tag is HTML, but the onsubmit attribute hands control to JavaScript in the browser.", "quiz": false}, {"t": "  <input type=\"text\" name=\"forename\" required maxlength=\"50\">", "tech": "html", "what": "required stops an empty name. maxlength=\"50\" stops the browser accepting more than 50 characters.", "why": "These are HTML attributes, so they run in the browser.", "quiz": false}, {"t": "  <input type=\"email\" name=\"email\" maxlength=\"100\" required>", "tech": "html", "what": "An email box limited to 100 characters.", "why": "", "quiz": false}, {"t": "  <input type=\"password\" name=\"password\" required>", "tech": "html", "what": "The password box.", "why": "", "quiz": false}, {"t": "  <input type=\"password\" name=\"passwordRepeat\" required>", "tech": "html", "what": "The repeat box. validateForm() compares it with the first one.", "why": "", "quiz": false}, {"t": "  <small id=\"passwordError\" class=\"text-danger\"><\/small>", "tech": "html", "what": "An empty placeholder. JavaScript writes the error message into it. The class text-danger is Bootstrap's red text.", "why": "The id is how JavaScript finds this element.", "quiz": false}, {"t": "  <input type=\"checkbox\" name=\"terms\" required>", "tech": "html", "what": "The terms box. required means it has to be ticked.", "why": "", "quiz": false}, {"t": "// Illustrative example, simplified", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "function validateForm() {", "tech": "js", "what": "A JavaScript function. It runs in the browser when the form is submitted.", "why": "JavaScript is optional in your project. It is useful for instant feedback and small interactive touches.", "quiz": true}, {"t": "  var pw = document.getElementById(\"passwordInput\").value;", "tech": "js", "what": "Reads what has been typed in the password box.", "why": "", "quiz": false}, {"t": "  var repeat = document.getElementById(\"passwordRepeatInput\").value;", "tech": "js", "what": "Reads what has been typed in the repeat box.", "why": "", "quiz": false}, {"t": "  if (pw !== repeat) {", "tech": "js", "what": "Compares the two passwords.", "why": "", "quiz": false}, {"t": "    document.getElementById(\"passwordError\").textContent = \"Passwords do not match.\";", "tech": "js", "what": "Writes the message into the placeholder, without reloading the page.", "why": "Changing the page after it has loaded, without asking the server, is something only JavaScript does here.", "quiz": true}, {"t": "    return false;   // stops the form being sent", "tech": "js", "what": "Returning false cancels the submit, so nothing is sent to the server.", "why": "", "quiz": false}, {"t": "  }", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "  return true;", "tech": "js", "what": "No problem found: let the form go.", "why": "", "quiz": false}, {"t": "}", "tech": "none", "what": "", "why": "", "quiz": false}]}, {"id": "signin", "name": "signin.php", "note": "The server-side check. This code never reaches the browser. Simplified from the real file.", "lines": [{"t": "<?php", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "$email = trim($_POST['email']);", "tech": "php", "what": "Reads the email the browser sent. trim removes spaces at either end.", "why": "$_POST holds the form fields, and only PHP on the server can read it.", "quiz": true}, {"t": "$password = trim($_POST['password']);", "tech": "php", "what": "Reads the password the browser sent.", "why": "", "quiz": false}, {"t": "if ($email && $password) {", "tech": "php", "what": "Both fields must have something in them before the database is asked.", "why": "The browser already checked this, but the server checks again because browser checks can be skipped.", "quiz": false}, {"t": "  $stmt = $connection->prepare(\"SELECT * FROM users WHERE email=?\");", "tech": "sql", "what": "SQL inside a PHP string: asks the database for the row with this email. The ? is a placeholder (a prepared statement), which prevents SQL injection.", "why": "SELECT reads data from a table. The statement is written in SQL, and it runs in the database.", "quiz": true}, {"t": "  $stmt->bind_param(\"s\", $email);", "tech": "php", "what": "Fills the ? with the email. \"s\" means a string. The value is never pasted into the SQL text.", "why": "", "quiz": false}, {"t": "  $stmt->execute();", "tech": "php", "what": "Sends the query to the database to run.", "why": "", "quiz": false}, {"t": "  $result = $stmt->get_result();", "tech": "php", "what": "Collects the rows the database sent back.", "why": "", "quiz": false}, {"t": "  if ($user = $result->fetch_assoc()) {", "tech": "php", "what": "Takes the first row. If there is no row, nobody has registered with this email.", "why": "", "quiz": false}, {"t": "    if (password_verify($password, $user[\"password\"])) {", "tech": "php", "what": "Compares what was typed with the stored hash. The plain password is never stored, so it can't be compared directly.", "why": "This check must be PHP. If it were JavaScript, users could edit it or skip it.", "quiz": true}, {"t": "      $_SESSION[\"user_email\"] = $user[\"email\"];", "tech": "php", "what": "Remembers who is logged in, by saving their details in the session.", "why": "", "quiz": false}, {"t": "      header(\"Location: ../account.php\");", "tech": "php", "what": "Tells the browser to go to account.php next.", "why": "", "quiz": false}, {"t": "      exit();", "tech": "php", "what": "Stops the script here so nothing else runs.", "why": "", "quiz": false}, {"t": "    } else {", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "      $_SESSION[\"error\"] = \"Invalid password. Please try again.\";", "tech": "php", "what": "Stores an error message. The login page shows it after the redirect.", "why": "", "quiz": false}, {"t": "    }", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "  }", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "}", "tech": "none", "what": "", "why": "", "quiz": false}]}, {"id": "signup", "name": "signup.php", "note": "The server-side checks for registration. Simplified from the real file.", "lines": [{"t": "if (!isset($_POST['terms'])) {", "tech": "php", "what": "The terms box must be ticked. HTML required checks this in the browser, and PHP checks it again.", "why": "Browser checks are convenience. Server checks are security, because users can't edit PHP.", "quiz": true}, {"t": "  $_SESSION[\"error\"] = \"You must agree to the terms and conditions.\";", "tech": "php", "what": "Stores the message to show on the form.", "why": "", "quiz": false}, {"t": "  header(\"Location: ../register.php\"); exit();", "tech": "php", "what": "Sends the user back to the form.", "why": "", "quiz": false}, {"t": "}", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "if ($_POST['password'] !== $_POST['passwordRepeat']) {", "tech": "php", "what": "The two passwords must match before anything is hashed.", "why": "This repeats the check JavaScript made in the browser.", "quiz": false}, {"t": "  $_SESSION[\"error\"] = \"Passwords do not match.\";", "tech": "php", "what": "", "why": "", "quiz": false}, {"t": "  header(\"Location: ../register.php\"); exit();", "tech": "php", "what": "", "why": "", "quiz": false}, {"t": "}", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "if (strlen($_POST['forename']) > 50) {", "tech": "php", "what": "A name over 50 characters is refused. This matches the length of the database column.", "why": "maxlength in HTML does the same job in the browser, but PHP is the check that can't be bypassed.", "quiz": false}, {"t": "  $_SESSION[\"error\"] = \"First name must be 50 characters or less.\";", "tech": "php", "what": "", "why": "", "quiz": false}, {"t": "  header(\"Location: ../register.php\"); exit();", "tech": "php", "what": "", "why": "", "quiz": false}, {"t": "}", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "$hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);", "tech": "php", "what": "Turns the password into a hash. The plain password is never written to the database.", "why": "If the database were ever leaked, hashed passwords are far harder to misuse than plain ones.", "quiz": true}, {"t": "$stmt = $connection->prepare(\"INSERT INTO users(email,firstName,surname,password,admin) VALUES (?,?,?,?,'0')\");", "tech": "sql", "what": "SQL: INSERT adds a new row to the users table. admin is set to '0', so a new account is never an admin.", "why": "INSERT writes data into a table. This runs in the database.", "quiz": true}, {"t": "$stmt->bind_param(\"ssss\", $_POST['email'], $_POST['forename'], $_POST['surname'], $hashedPassword);", "tech": "php", "what": "Fills the four ? placeholders, in order, with four strings.", "why": "", "quiz": false}, {"t": "if ($stmt->execute()) {", "tech": "php", "what": "Runs the INSERT. True means the database accepted it.", "why": "", "quiz": false}, {"t": "  header('Location: ../account.php'); exit();", "tech": "php", "what": "Success: go to the account page.", "why": "", "quiz": false}, {"t": "} else if (strpos($stmt->error, \"Duplicate entry\") !== false) {", "tech": "php", "what": "The database refuses a second row with the same email. PHP turns that refusal into a friendly message.", "why": "", "quiz": false}, {"t": "  $_SESSION[\"error\"] = \"This email address already exists. Please use a different email.\";", "tech": "php", "what": "", "why": "", "quiz": false}, {"t": "}", "tech": "none", "what": "", "why": "", "quiz": false}]}, {"id": "connection", "name": "connection.php", "note": "The door to the database. Every page that needs data includes this file.", "lines": [{"t": "<?php", "tech": "none", "what": "", "why": "", "quiz": false}, {"t": "$server = \"localhost\";", "tech": "php", "what": "The database is on the same machine. In development that is your own PC, because UWAMP runs MySQL there.", "why": "", "quiz": false}, {"t": "$username = \"root\";", "tech": "php", "what": "The database account PHP logs in with. Fine on a local development server, never on a published site.", "why": "", "quiz": false}, {"t": "$password = \"root\";", "tech": "php", "what": "The password for that account, again for development only.", "why": "", "quiz": false}, {"t": "$database = \"shopdatabase\";", "tech": "php", "what": "Which database inside MySQL to use. You can see it in HeidiSQL.", "why": "", "quiz": false}, {"t": "$connection = new mysqli($server, $username, $password, $database);", "tech": "php", "what": "Opens the connection. Pages include this file, then use $connection to send SQL.", "why": "PHP is what talks to the database. The browser never connects to it directly.", "quiz": true}, {"t": "?>", "tech": "none", "what": "", "why": "", "quiz": false}]}];
+
+var TECH = {html:["HTML","t-html"], css:["CSS (Bootstrap)","t-css"], js:["JavaScript","t-js"], php:["PHP","t-php"], sql:["SQL","t-sql"]};
+var RUNS = {html:["Runs in: the browser","p-browser"], css:["Runs in: the browser","p-browser"], js:["Runs in: the browser","p-browser"], php:["Runs on: the server","p-server"], sql:["Runs in: the database","p-db"]};
+var ROOT = document.getElementById("t-2"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+var state = {file:0, sel:-1, filter:"all", mode:"explore"};
+var quiz = {qs:[], i:0, score:0, answered:false};
+
+function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt!==undefined) e.textContent = txt; return e; }
+
+function buildTabs(){
+  var t = $("filetabs"); t.innerHTML = "";
+  FILES.forEach(function(f,i){
+    var b = el("button","tab",f.name); b.setAttribute("role","tab"); b.setAttribute("aria-selected", i===state.file ? "true":"false");
+    b.onclick = function(){ if(state.mode==="explore"){ state.file=i; state.sel=firstSel(); render(); } };
+    t.appendChild(b);
+  });
+}
+function buildFilters(){
+  var f = $("filters"); f.innerHTML = "";
+  if (state.mode !== "explore"){ return; }
+  var l = el("span","lbl","Highlight:"); f.appendChild(l);
+  [["all","All"],["html","HTML"],["css","CSS"],["js","JS"],["php","PHP"],["sql","SQL"]].forEach(function(p){
+    var b = el("button","fchip",p[1]); b.setAttribute("aria-pressed", state.filter===p[0] ? "true":"false");
+    if (p[0] !== "all"){ b.className += " " + TECH[p[0]][1]; }
+    b.onclick = function(){ state.filter = p[0]; render(); };
+    f.appendChild(b);
+  });
+}
+function firstSel(){
+  var lines = FILES[state.file].lines;
+  for (var i=0;i<lines.length;i++){ if (lines[i].tech !== "none") return i; }
+  return -1;
+}
+function buildLegend(){
+  var g = $("legend"); g.innerHTML = "";
+  if (state.mode !== "explore") return;
+  ["html","css","js","php","sql"].forEach(function(k){
+    var s = el("span","pill "+TECH[k][1], TECH[k][0]); g.appendChild(s);
+  });
+  g.appendChild(el("span","", "Click a line to see what it does. Dots mark the technology."));
+}
+function buildCode(){
+  var f = FILES[state.file], c = $("code"); c.innerHTML = "";
+  c.className = "codebox" + (state.mode==="test" ? " testing" : "");
+  f.lines.forEach(function(ln,i){
+    var clickable = ln.tech !== "none" && state.mode === "explore";
+    var row = el(clickable ? "button" : "div", "ln" + (ln.tech!=="none" ? " k-"+ln.tech : ""));
+    if (clickable){ row.type = "button"; }
+    if (i === state.sel) row.className += " sel";
+    if (state.mode==="explore" && state.filter!=="all" && ln.tech !== state.filter) row.className += " dim";
+    row.appendChild(el("span","no",String(i+1)));
+    row.appendChild(el("span","dotc"));
+    row.appendChild(el("span","tx", ln.t === "" ? " " : ln.t));
+    if (clickable) row.onclick = function(){ state.sel = i; render(); };
+    c.appendChild(row);
+  });
+}
+function buildSide(){
+  var s = $("side"); s.innerHTML = "";
+  if (state.mode === "test"){ buildQuizSide(s); return; }
+  var ln = FILES[state.file].lines[state.sel];
+  if (!ln){ s.appendChild(el("p","", "Click a line of code to see what it does.")); return; }
+  s.appendChild(el("h2","","Line "+(state.sel+1)));
+  s.appendChild(el("pre","sidecode", ln.t));
+  var r = el("div","row");
+  r.appendChild(el("span","pill "+TECH[ln.tech][1], TECH[ln.tech][0]));
+  r.appendChild(el("span","pill "+RUNS[ln.tech][1], RUNS[ln.tech][0]));
+  s.appendChild(r);
+  s.appendChild(el("div","lbl2","What it does"));
+  s.appendChild(el("p","", ln.what || "Part of the block above."));
+  if (ln.why){ s.appendChild(el("div","lbl2","Why it matters")); s.appendChild(el("p","", ln.why)); }
+}
+
+/* ---- test yourself ---- */
+function startQuiz(){
+  var all = [];
+  FILES.forEach(function(f,fi){ f.lines.forEach(function(l,li){ if(l.quiz) all.push({f:fi,l:li}); }); });
+  for (var i=all.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=all[i]; all[i]=all[j]; all[j]=t; }
+  quiz = {qs:all.slice(0,10), i:0, score:0, answered:false};
+  showQ();
+}
+function showQ(){
+  if (quiz.i >= quiz.qs.length){ state.sel = -1; render(); return; }
+  var q = quiz.qs[quiz.i]; state.file = q.f; state.sel = q.l; quiz.answered = false; render();
+}
+function buildQuizSide(s){
+  if (quiz.i >= quiz.qs.length){
+    s.appendChild(el("h2","","Finished"));
+    s.appendChild(el("p","","You got "+quiz.score+" of "+quiz.qs.length+" on the first try."));
+    s.appendChild(el("p","", quiz.score >= 8 ? "Strong. You can tell what each line is for." : "Switch to Explore and read the explanations for the lines you missed."));
+    var b = el("button","btn primary","Try ten more"); b.onclick = startQuiz; s.appendChild(b);
+    return;
+  }
+  var q = quiz.qs[quiz.i], ln = FILES[q.f].lines[q.l];
+  s.appendChild(el("h2","","Question "+(quiz.i+1)+" of "+quiz.qs.length));
+  s.appendChild(el("p","","Which technology is the highlighted line (line "+(q.l+1)+" of "+FILES[q.f].name+")?"));
+  var wrap = el("div","optbtns");
+  Object.keys(TECH).forEach(function(k){
+    var b = el("button","",TECH[k][0]); b.dataset.k = k;
+    b.onclick = function(){ answerQ(k, b, wrap, s, ln); };
+    wrap.appendChild(b);
+  });
+  s.appendChild(wrap);
+  s.appendChild(el("div","fbslot"));
+}
+var firstTry = true;
+function answerQ(k, btn, wrap, s, ln){
+  var slot = s.querySelector(".fbslot");
+  if (k === ln.tech){
+    btn.className = "right";
+    wrap.querySelectorAll("button").forEach(function(x){ x.disabled = true; });
+    if (firstTry) quiz.score++;
+    slot.innerHTML = "";
+    var d = el("div","fb good"); d.innerHTML = "<b>Yes, "+TECH[ln.tech][0]+".</b> ";
+    d.appendChild(document.createTextNode(ln.what + (ln.why ? " " + ln.why : "")));
+    slot.appendChild(d);
+    var n = el("button","btn primary", quiz.i === quiz.qs.length-1 ? "See my score" : "Next line");
+    n.style.marginTop = "12px";
+    n.onclick = function(){ quiz.i++; firstTry = true; showQ(); };
+    slot.appendChild(n);
+  } else {
+    firstTry = false;
+    btn.className = "wrong"; btn.disabled = true;
+    slot.innerHTML = '<div class="fb warn">Not that one. Look at where it runs and what it is doing, then try again.</div>';
+  }
+  $("score").textContent = "Score: "+quiz.score+" / "+quiz.qs.length;
+}
+
+function setMode(m){
+  state.mode = m;
+  $("mExplore").setAttribute("aria-pressed", m==="explore" ? "true":"false");
+  $("mTest").setAttribute("aria-pressed", m==="test" ? "true":"false");
+  $("score").textContent = "";
+  if (m === "test"){ firstTry = true; startQuiz(); $("score").textContent = "Score: 0 / "+quiz.qs.length; }
+  else { state.sel = firstSel(); render(); }
+}
+$("mExplore").onclick = function(){ setMode("explore"); };
+$("mTest").onclick = function(){ setMode("test"); };
+
+function render(){
+  buildTabs(); buildFilters(); buildLegend();
+  $("filenote").textContent = state.mode === "test" ? "The line to identify is highlighted. The technology dots are hidden." : FILES[state.file].note;
+  buildCode(); buildSide();
+  var sel = ROOT.querySelector(".ln.sel");
+  if (sel && state.mode==="test" && sel.scrollIntoView) { sel.scrollIntoView({block:"nearest"}); }
+}
+state.sel = firstSel(); render();
+
+})();
+(function(){
+var TASKS = [{"q": "Show a heading, a form and a Sign in button on the page.", "a": "html", "why": "HTML is the structure and content of the page: headings, forms, fields and buttons.", "wrong": {"css": "CSS styles things that already exist. Something has to create the form first.", "js": "JavaScript can add elements, but the basic structure of a page is written in HTML."}}, {"q": "Make the layout shrink and rearrange to fit a phone screen.", "a": "css", "why": "CSS controls layout and appearance. Bootstrap's grid and classes handle responsive layouts without writing every rule yourself.", "wrong": {"html": "HTML holds the content. How it is laid out on different screens is a styling job.", "js": "JavaScript could be made to do it, but CSS (here Bootstrap) is the tool built for layout."}}, {"q": "Show \"Passwords do not match\" under the form before it is sent to the server.", "a": "js", "why": "Changing the page in the browser, before anything is sent, is a job for JavaScript.", "wrong": {"php": "PHP only runs after the form has been sent. To react before sending, the code has to run in the browser.", "html": "HTML can mark a field as required, but comparing two fields and writing a message needs code."}}, {"q": "Check that the password the user typed is correct.", "a": "php", "why": "The check must run on the server, where users can't edit or skip it. PHP compares the typed password with the stored hash.", "wrong": {"js": "Anything in the browser can be edited or skipped by the user, so a password check can't live there.", "sql": "SQL finds and stores the row. It's PHP that compares the typed password with the stored hash."}}, {"q": "Keep a new order so it is still there tomorrow.", "a": "sql", "why": "The database stores data between visits, and SQL (an INSERT) is how the order is written into a table.", "wrong": {"php": "PHP sends the order to the database, but it doesn't keep it. A PHP file holds instructions, not records.", "html": "HTML only describes the page. Nothing in it stores data."}}, {"q": "Find every book written by one author.", "a": "sql", "why": "This is a query: SELECT ... WHERE author = ?. The database finds the matching rows.", "wrong": {"php": "PHP asks for the books and displays them, but the finding is done by an SQL query.", "js": "JavaScript in the browser doesn't have your book table. The data is in the database."}}, {"q": "Decide whether the logged-in user is allowed onto the Admin page.", "a": "php", "why": "Access rules must be enforced on the server. PHP checks the user's admin flag and refuses or allows the page.", "wrong": {"js": "A check in the browser can be bypassed, so access rules have to be enforced on the server.", "sql": "The admin flag is stored in the database, but the decision to allow or refuse is made by PHP."}}, {"q": "Keep a backup of my code online, with a history of every change.", "a": "tool", "why": "GitHub stores your code online with a history of changes. It's one of the optional tools, not a language.", "wrong": {}}, {"q": "Look at the rows in my users table while I test registration.", "a": "tool", "why": "HeidiSQL is the tool for creating tables and viewing the data inside the database.", "wrong": {"sql": "SQL is the language. The tool you use to look at the table is HeidiSQL."}}, {"q": "Run my PHP site on my own PC while I build it.", "a": "tool", "why": "UWAMP is a local web server (Apache, PHP and MySQL). Your site runs at localhost as a development server, not published.", "wrong": {"php": "PHP is the language the site is written in. Something has to run it, and that's the server, UWAMP."}}];
+var OPTS = [["html", "HTML", "t-html"], ["css", "CSS (Bootstrap)", "t-css"], ["js", "JavaScript", "t-js"], ["php", "PHP", "t-php"], ["sql", "SQL", "t-sql"], ["tool", "Tools: UWAMP, HeidiSQL, GitHub", "t-tool"]];
+var RUNS = {"html": ["Runs in: the browser", "p-browser"], "css": ["Runs in: the browser", "p-browser"], "js": ["Runs in: the browser", "p-browser"], "php": ["Runs on: the server", "p-server"], "sql": ["Runs in: the database", "p-db"], "tool": ["Runs on: your own PC", "p-db"]};
+
+var ROOT = document.getElementById("t-3"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+var order, idx, results, tries;
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function start(){
+  order = shuffle(TASKS.map(function(_,i){return i;})); idx = 0; results = []; tries = 0;
+  $("summary").innerHTML = ""; $("card").style.display = ""; show();
+}
+function show(){
+  var t = TASKS[order[idx]];
+  $("bar").style.width = (idx/TASKS.length*100) + "%";
+  var h = '<div class="qnum">TASK '+(idx+1)+' OF '+TASKS.length+'</div><p class="qtext"></p><div class="opts">';
+  OPTS.forEach(function(o){ h += '<button class="opt" data-k="'+o[0]+'">'+o[1]+'</button>'; });
+  h += '</div><div id="fb" aria-live="polite"></div>';
+  $("card").innerHTML = h;
+  $("card").querySelector(".qtext").textContent = t.q;
+  tries = 0;
+  $("card").querySelector(".opts").addEventListener("click", function(e){
+    var b = e.target.closest(".opt"); if(!b || b.disabled) return;
+    answer(b, t);
+  });
+}
+function answer(b, t){
+  var k = b.dataset.k, fb = $("fb");
+  if (k === t.a){
+    b.classList.add("right");
+    $("card").querySelectorAll(".opt").forEach(function(x){ x.disabled = true; });
+    results.push({q:t.q, first: tries === 0, why:t.why});
+    var r = RUNS[t.a];
+    fb.innerHTML = '<div class="fb good"><b>'+(tries===0?'Yes.':'Got it.')+'</b> '+'<span></span><div style="margin-top:8px"><span class="pill '+r[1]+'">'+r[0]+'</span></div></div>';
+    fb.querySelector("span").textContent = t.why;
+    var n = document.createElement("button"); n.className = "btn primary"; n.style.marginTop = "12px";
+    n.textContent = idx === TASKS.length-1 ? "See my results" : "Next task";
+    n.onclick = function(){ idx++; if (idx >= TASKS.length) finish(); else show(); };
+    fb.appendChild(n); n.focus();
+  } else {
+    tries++; b.classList.add("wrong"); b.disabled = true;
+    fb.innerHTML = '<div class="fb warn"><b>Not that one.</b> <span></span></div>';
+    fb.querySelector("span").textContent = t.wrong[k] || "Think about where this runs and what it is for, then try another.";
+  }
+}
+function finish(){
+  $("bar").style.width = "100%"; $("card").style.display = "none";
+  var first = results.filter(function(r){return r.first;}).length;
+  var h = '<div class="panel"><h2>'+first+' of '+TASKS.length+' right on the first try</h2><div class="res">';
+  results.forEach(function(r){
+    h += '<div class="resrow"><span class="mark '+(r.first?'ok':'re')+'">'+(r.first?'FIRST':'RETRY')+'</span><div><div></div><div style="color:var(--muted);font-size:13px;margin-top:2px"></div></div></div>';
+  });
+  h += '</div><p style="margin:0 0 12px;font-size:14px;color:var(--ink-soft)">Note down any you got wrong. They are exactly the reasons you will use in your justification table: what the technology does in your system, and why not the alternative.</p><button class="btn primary" id="again">Go again</button></div>';
+  $("summary").innerHTML = h;
+  var rows = $("summary").querySelectorAll(".resrow");
+  results.forEach(function(r,i){ var d = rows[i].querySelectorAll("div"); d[1].textContent = r.q; d[2].textContent = r.why; });
+  $("again").onclick = start;
+}
+start();
+
+})();
+(function(){
+var ITEMS = [{"tech": "PHP", "t": "I'm using PHP because it's popular.", "p": false, "r": false, "a": false, "c": "Popularity says nothing about your system. It doesn't say what PHP does for you, or why it beats another option."}, {"tech": "SQL", "t": "I will use SQL to store users, books and orders, because the data is related (a user has many orders) and tables with queries suit that. I considered a text file but rejected it because searching it and keeping it consistent would be slow and error-prone.", "p": true, "r": true, "a": true, "c": "All three parts: a job in the system, a reason that fits the project, and a rejected alternative with its own reason."}, {"tech": "Bootstrap", "t": "I will use Bootstrap to make my pages resize for phones, because my users browse on their phones.", "p": true, "r": true, "a": false, "c": "Good purpose and a reason about the users. It stops short of naming an alternative, such as writing all the CSS yourself, and why you rejected it."}, {"tech": "JavaScript", "t": "I'm using JavaScript because I've used it before.", "p": false, "r": false, "a": false, "c": "It doesn't say what JavaScript does in the system. \"I've used it before\" is about you, not the project."}, {"tech": "HeidiSQL", "t": "I will use HeidiSQL to create my tables and check the data my PHP has stored, because I can see the rows straight away when I test registration. I considered only writing SQL inside my PHP files but rejected it because I couldn't easily inspect the results.", "p": true, "r": true, "a": true, "c": "Purpose, a reason tied to testing, and an alternative rejected for a clear reason."}, {"tech": "GitHub", "t": "I will use GitHub because my teacher mentioned it.", "p": false, "r": false, "a": false, "c": "\"My teacher mentioned it\" is not a reason about your project, and the sentence doesn't say what GitHub is for."}, {"tech": "PHP", "t": "I will use PHP to check passwords on the server, because that check must run where users can't edit it.", "p": true, "r": true, "a": false, "c": "A strong purpose and reason. The alternative is missing: say what else you could have used (JavaScript only?) and why not."}, {"tech": "UWAMP", "t": "I will use UWAMP as my development server, because the site is only being built and tested, not published, so a server on my own PC is enough. I considered a paid web host but rejected it because it would add cost and setup time without helping my objectives.", "p": true, "r": true, "a": true, "c": "Purpose, reason and rejected alternative, all about this project."}, {"tech": "JavaScript", "t": "I will use JavaScript to show an error under the sign-up form before it is sent. I considered doing it only in PHP but rejected it.", "p": true, "r": false, "a": true, "c": "It names a purpose and an alternative, but there's no because. The reasons are where the marks are: why show it before sending, and why not PHP alone?"}];
+var MODELS = {"I'm using PHP because it's popular.": "I will use PHP to check passwords and build pages on the server, because that logic must run where users can't edit it. I considered JavaScript only but rejected it because anything in the browser can be changed by the user.", "I'm using JavaScript because I've used it before.": "I will use JavaScript to show a \"Passwords do not match\" message before the sign-up form is sent, because it gives users instant feedback. I considered relying only on PHP but rejected it because the user would have to wait for the page to reload to find out.", "I will use GitHub because my teacher mentioned it.": "I will use GitHub to keep an online backup of my code with a history of changes, because I could lose my work if my PC fails. I considered copying files to a memory stick but rejected it because it doesn't record what changed or when."};
+
+var ROOT = document.getElementById("t-4"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+var TAGS = {PHP:"t-php", SQL:"t-sql", Bootstrap:"t-css", JavaScript:"t-js", HeidiSQL:"t-tool", GitHub:"t-tool", UWAMP:"t-tool"};
+var LABEL = {weak:"Weak", partial:"Partial", strong:"Strong"};
+var order, idx, results;
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function rating(it){ var n = (it.p?1:0)+(it.r?1:0)+(it.a?1:0); return n >= 3 ? "strong" : n === 2 ? "partial" : "weak"; }
+function start(){ order = shuffle(ITEMS.map(function(_,i){return i;})); idx = 0; results = []; $("rewrite").hidden = true; $("card").style.display = ""; show(); }
+function show(){
+  var it = ITEMS[order[idx]];
+  $("bar").style.width = (idx/ITEMS.length*100)+"%";
+  var h = '<div class="qnum">JUSTIFICATION '+(idx+1)+' OF '+ITEMS.length+'</div><div class="techtag"><span class="pill '+TAGS[it.tech]+'">'+it.tech+'</span></div><p class="quote"></p>'+
+    '<p style="margin:10px 0 0;font-size:14px;color:var(--ink-soft)">How strong is this justification?</p>'+
+    '<div class="rate"><button data-k="weak">Weak</button><button data-k="partial">Partial</button><button data-k="strong">Strong</button></div><div id="fb" aria-live="polite"></div>';
+  $("card").innerHTML = h;
+  $("card").querySelector(".quote").textContent = it.t;
+  $("card").querySelector(".rate").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if(!b || b.disabled) return; answer(b.dataset.k, it);
+  });
+}
+function answer(k, it){
+  var right = rating(it);
+  $("card").querySelectorAll(".rate button").forEach(function(b){
+    b.disabled = true;
+    if (b.dataset.k === right) b.classList.add("right");
+    else if (b.dataset.k === k) b.classList.add("picked");
+  });
+  results.push({t:it.t, mine:k, right:right, ok:k===right});
+  function part(label, yes, txt){ return '<div class="part '+(yes?'y':'n')+'"><b>'+(yes?'YES':'MISSING')+'</b>'+label+'</div>'; }
+  var h = '<div class="fb '+(k===right?'good':'warn')+'"><b>'+(k===right?'Agreed: ':'The answer is ')+LABEL[right].toLowerCase()+'.</b> <span></span></div>'+
+    '<div class="parts">'+part("What it does in my system",it.p)+part("A reason about my project",it.r)+part("An alternative I rejected",it.a)+'</div>';
+  $("fb").innerHTML = h;
+  $("fb").querySelector(".fb span").textContent = it.c;
+  var n = document.createElement("button"); n.className = "btn primary"; n.style.marginTop = "12px";
+  n.textContent = idx === ITEMS.length-1 ? "See my results" : "Next one";
+  n.onclick = function(){ idx++; if (idx >= ITEMS.length) finish(); else show(); };
+  $("fb").appendChild(n); n.focus();
+}
+function finish(){
+  $("bar").style.width = "100%"; $("card").style.display = "none";
+  var ok = results.filter(function(r){return r.ok;}).length;
+  var weak = Object.keys(MODELS);
+  var h = '<div class="panel"><h2>'+ok+' of '+ITEMS.length+' rated the same way as the answer key</h2>'+
+    '<p style="margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)">Now rewrite one of the weak ones. Use the stem: I will use [technology] to [purpose in my system] because [reason]. I considered [alternative] but rejected it because [reason].</p>'+
+    '<div class="pickrow" id="pickrow"></div><div id="wbox" hidden>'+
+    '<textarea id="ta" aria-label="Your rewrite" placeholder="Write your improved justification here"></textarea>'+
+    '<div style="margin:10px 0 4px;font-weight:600;font-size:14px">Self-check</div>'+
+    '<label class="chk"><input type="checkbox"> It says what the technology does in the system</label>'+
+    '<label class="chk"><input type="checkbox"> Its reason is about the project, not about me</label>'+
+    '<label class="chk"><input type="checkbox"> It names an alternative and why it was rejected</label>'+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="showm">Show a model rewrite</button></div><div id="model"></div></div>'+
+    '<div class="row" style="margin-top:16px"><button class="btn primary" id="again">Go again</button></div></div>';
+  $("rewrite").innerHTML = h; $("rewrite").hidden = false;
+  var pr = $("pickrow");
+  weak.forEach(function(w){
+    var b = document.createElement("button"); b.className = "pickbtn"; b.setAttribute("aria-pressed","false"); b.textContent = w;
+    b.onclick = function(){
+      pr.querySelectorAll(".pickbtn").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+      b.setAttribute("aria-pressed","true"); $("wbox").hidden = false; $("model").innerHTML = ""; $("ta").value = ""; $("ta").focus(); window._cur = w;
+    };
+    pr.appendChild(b);
+  });
+  $("showm").onclick = function(){
+    var m = document.createElement("div"); m.className = "fb info"; m.innerHTML = "<b>One possible rewrite.</b> <span></span>"; m.querySelector("span").textContent = MODELS[window._cur];
+    $("model").innerHTML = ""; $("model").appendChild(m);
+  };
+  $("again").onclick = start;
+}
+start();
+
+})();
+(function(){
+var AREAS = [["registration", "Registration"], ["login", "Log in"], ["browse", "Browse & search"], ["cart", "Cart & checkout"], ["account", "Account & orders"], ["admin", "Admin"]];
+var FEATS = [["Create an account with a name, email and password", "registration", "This is what a brand-new visitor does, before they have any account."], ["Refuse a sign-up if the email is already registered", "registration", "This protects the system from duplicate accounts at the moment someone joins."], ["Check the email and password when someone signs in", "login", "This is how a returning user proves who they are."], ["Show an error message after a wrong password", "login", "This is the feedback a returning user gets when that check fails."], ["Log out and end the session", "login", "This ends a signed-in visit, so it sits with proving who you are."], ["Search for books by title", "browse", "A visitor looking for something to read."], ["Show a book's details page", "browse", "A visitor looking at one book in detail."], ["Show new releases on the home page", "browse", "What a visitor sees while they look around the shop."], ["Add a book to the cart", "cart", "The start of buying something."], ["Take payment details and confirm the order", "cart", "The end of buying something."], ["Add a new book to the catalogue", "admin", "Only a trusted user should be able to change what the shop sells."], ["Promote a user to administrator", "admin", "Only a trusted user should be able to change who has special powers."]];
+var GAPQ = [["View my past orders", true], ["Edit my profile details", true], ["Hash the password before saving it", false], ["Show a book's details page", false], ["Change the navbar colour", false]];
+var GAPWHY = {"View my past orders": "A signed-in customer looking back at what they bought: it needs its own area, with its own objectives.", "Edit my profile details": "A signed-in customer managing their own information. Nothing in the first twelve features covers it.", "Hash the password before saving it": "That is part of Registration: it happens as the account is created.", "Show a book's details page": "That is already in Browse & search.", "Change the navbar colour": "That is a design choice that applies to every area, so it's a consistency criterion, not an area of its own."};
+
+var ROOT = document.getElementById("t-5"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+var placed, selected, marks, checks, order;
+function areaName(k){ for (var i=0;i<AREAS.length;i++) if (AREAS[i][0]===k) return AREAS[i][1]; return k; }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function init(){
+  placed = {}; selected = -1; marks = {}; checks = 0;
+  order = shuffle(FEATS.map(function(_,i){return i;}));
+  $("fb1").innerHTML = ""; $("s2").hidden = true; $("s3").hidden = true;
+  draw();
+}
+function draw(){
+  var left = order.filter(function(i){ return placed[i] === undefined; });
+  $("list").innerHTML = left.map(function(i){
+    return '<button class="feat'+(i===selected?' sel':'')+'" data-i="'+i+'">'+FEATS[i][0]+'</button>';
+  }).join("") || '<p style="color:var(--muted);margin:0">Everything is placed. Press Check.</p>';
+  var h = "";
+  AREAS.forEach(function(a){
+    var mine = order.filter(function(i){ return placed[i] === a[0]; });
+    h += '<div class="bucket'+(selected>=0?' armed':'')+'" role="button" tabindex="0" data-a="'+a[0]+'"><h3>'+a[1]+'</h3><div class="chips">'+
+      mine.map(function(i){
+        var m = marks[i];
+        return '<div class="mini'+(m===true?' ok':m===false?' bad':'')+'" data-p="'+i+'">'+FEATS[i][0]+(m===false?'<span class="hint">'+FEATS[i][2]+'</span>':'')+'</div>';
+      }).join("")+'</div></div>';
+  });
+  $("buckets").innerHTML = h;
+  $("count").textContent = Object.keys(placed).length + " of " + FEATS.length + " placed";
+}
+$("list").addEventListener("click", function(e){ var b = e.target.closest(".feat"); if(!b) return; selected = (selected === +b.dataset.i) ? -1 : +b.dataset.i; draw(); });
+function dropIn(e){
+  var b = e.target.closest(".bucket"); if (!b) return;
+  if (selected >= 0){
+    placed[selected] = b.dataset.a; delete marks[selected]; selected = -1; $("fb1").innerHTML=""; draw(); return;
+  }
+  var m = e.target.closest(".mini");
+  if (m){ var i = +m.dataset.p; delete placed[i]; delete marks[i]; $("fb1").innerHTML=""; draw(); }
+}
+$("buckets").addEventListener("click", dropIn);
+$("buckets").addEventListener("keydown", function(e){ if ((e.key==="Enter"||e.key===" ") && e.target.classList.contains("bucket")){ e.preventDefault(); dropIn(e); } });
+$("reset").onclick = init;
+$("check").onclick = function(){
+  if (Object.keys(placed).length < FEATS.length){ $("fb1").innerHTML = '<div class="fb info">Place all '+FEATS.length+' features first.</div>'; return; }
+  checks++; var wrong = 0;
+  FEATS.forEach(function(f,i){ marks[i] = (placed[i] === f[1]); if(!marks[i]) wrong++; });
+  draw();
+  if (wrong === 0){
+    $("fb1").innerHTML = '<div class="fb good"><b>All twelve in the right area.</b> But look at the Account &amp; orders box: it is empty.</div>';
+    startGap();
+  } else {
+    $("fb1").innerHTML = '<div class="fb warn"><b>'+(FEATS.length-wrong)+' of '+FEATS.length+' correct.</b> The red ones are in the wrong place. Each has a clue. Tap one to move it.</div>';
+  }
+};
+$("reveal").onclick = function(){
+  FEATS.forEach(function(f,i){ placed[i] = f[1]; marks[i] = true; });
+  draw(); $("fb1").innerHTML = '<div class="fb info">These are the answers. Notice that Account &amp; orders still has nothing in it.</div>'; startGap();
+};
+function startGap(){
+  $("s2").hidden = false;
+  $("gaptext").textContent = "One area has nothing in it. The feature list forgot it. Which of these belong in Account & orders? Select all that apply, then check.";
+  var opts = shuffle(GAPQ.slice());
+  $("gapopts").innerHTML = opts.map(function(o){ return '<button class="gapopt" aria-pressed="false" data-t="'+o[0]+'" data-r="'+o[1]+'">'+o[0]+'</button>'; }).join("");
+  $("fb2").innerHTML = "";
+  var bks = ROOT.querySelectorAll(".bucket"); bks.forEach(function(b){ if (b.dataset.a==="account") b.classList.add("gap"); });
+}
+$("gapopts").addEventListener("click", function(e){ var b = e.target.closest(".gapopt"); if(!b) return; b.setAttribute("aria-pressed", b.getAttribute("aria-pressed")==="true"?"false":"true"); });
+$("gapcheck").onclick = function(){
+  var all = true, h = "";
+  ROOT.querySelectorAll(".gapopt").forEach(function(b){
+    var on = b.getAttribute("aria-pressed")==="true", right = b.dataset.r === "true";
+    var good = (on === right); if(!good) all = false;
+    b.classList.remove("ok","bad"); b.classList.add(good?"ok":"bad");
+    h += '<li><b>'+b.dataset.t+'.</b> '+(right ? '' : 'Not here. ')+GAPWHY[b.dataset.t]+'</li>';
+  });
+  $("fb2").innerHTML = '<div class="fb '+(all?'good':'warn')+'"><b>'+(all?'Right.':'Not quite. Green means you were right about that one, red means look again.')+'</b><ul style="margin:8px 0 0;padding-left:18px">'+h+'</ul></div>';
+  if (all) $("s3").hidden = false;
+};
+init();
+
+})();
+(function(){
+var R = [{"area": "Browse & search", "vague": "Search should be fast.", "type": "Time", "opts": [["Search should respond quickly on all devices.", false, "\"Quickly\" is still vague. How quick, and on which devices?"], ["Search results appear within 2 seconds for a catalogue of 100 books.", true, "A number and a condition. Someone can time it."], ["Search uses the most efficient SQL possible.", false, "That describes how you will build it, not what the system will do. A tester can't check \"most efficient\"."], ["Users should not have to wait long for results.", false, "\"Long\" is vague. Put a number on it."]]}, {"area": "Registration", "vague": "Names must be sensible.", "type": "Count or limit", "opts": [["Names are checked carefully.", false, "\"Carefully\" can't be checked. What exactly is checked, and what happens?"], ["The first name box is big enough for most names.", false, "\"Most\" isn't something a tester can verify. Give a limit."], ["A first name longer than 50 characters is rejected with the message \"First name must be 50 characters or less\".", true, "A limit (50) and a named behaviour (the message). Type in 51 characters and see."], ["Names are validated using strlen in PHP.", false, "That is how, not what. Say what the user sees when a name is too long."]]}, {"area": "Log in", "vague": "Login should handle mistakes properly.", "type": "Error behaviour", "opts": [["Login should show helpful error messages.", false, "\"Helpful\" is a judgement. Say which message appears, and when."], ["A wrong password shows \"Invalid password. Please try again.\" and keeps the user on the login page.", true, "A named failure and the exact behaviour. A tester can enter a wrong password and see."], ["Login errors are stored in a session variable.", false, "That is an implementation detail. The user doesn't see a session variable."], ["Most login mistakes are caught.", false, "\"Most\" can't be tested. Choose a specific mistake and say what happens."]]}, {"area": "Admin", "vague": "Admin pages should be protected.", "type": "Who can do what", "opts": [["Only the right people can get in.", false, "Who are the right people, and what happens to everyone else?"], ["Admin pages check the admin flag in the session.", false, "That is how it will be built. Describe what a normal user experiences."], ["Admin pages are hidden from the menu.", false, "Hiding a link isn't protection. Typing the address would still work, so a tester could get in."], ["A logged-in user without the admin flag who opens the Manage Books page is sent away and cannot see or change any books.", true, "A named user, a named page and a clear outcome. Log in as a normal user and try it."]]}, {"area": "All areas", "vague": "The site should look consistent.", "type": "Consistency", "opts": [["Every page uses the same navbar, logo and the colours listed in my design.", true, "A tester can lay the pages side by side and compare each one against the design."], ["The site should look professional throughout.", false, "\"Professional\" is a judgement. Say what stays the same."], ["All pages are built with Bootstrap.", false, "That is a tool choice. Using Bootstrap doesn't guarantee pages look consistent."], ["Most pages look the same.", false, "\"Most\" isn't checkable. Which pages, and the same in what way?"]]}, {"area": "Cart & checkout", "vague": "The cart should only accept sensible quantities.", "type": "Count or limit", "opts": [["The cart should be hard to break.", false, "\"Hard to break\" is vague. What input, and what happens?"], ["Quantities are checked with an if statement.", false, "That is how. The tester needs to know what is accepted and what is refused."], ["Customers can usually buy what they want.", false, "\"Usually\" can't be tested."], ["A quantity of 0, or more than the stock level, is rejected with a message and the cart total does not change.", true, "Two limits and a named outcome. Easy to try both."]]}, {"area": "Registration", "vague": "Registration should work reliably.", "type": "Error behaviour", "opts": [["Registration works every time.", false, "\"Every time\" can't be proven by a test. Choose a specific case to check."], ["Registration doesn't crash.", false, "What counts as crashing? Say what the user sees in a specific situation."], ["Registration uses a prepared statement.", false, "That is how it is built, not what the user experiences."], ["Registering with an email already in the users table shows an error and creates no new row.", true, "A specific case, a visible outcome and a checkable result in the table."]]}, {"area": "Cart & checkout", "vague": "Checkout should be quick.", "type": "Time", "opts": [["Checkout takes as little time as possible.", false, "\"As little as possible\" has no limit to test against."], ["Customers shouldn't get frustrated at checkout.", false, "Frustration can't be measured directly. Pick something you can time or count."], ["Checkout uses a single PHP file.", false, "That is how, not how well it performs."], ["The order confirmation page appears within 3 seconds of the customer submitting payment details.", true, "A start point, an end point and a time. Easy to measure."]]}];
+
+var ROOT = document.getElementById("t-6"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+var order, idx, results, tries;
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function start(){ order = shuffle(R.map(function(_,i){return i;})); idx = 0; results = []; $("summary").innerHTML = ""; $("card").style.display = ""; show(); }
+function show(){
+  var r = R[order[idx]]; tries = 0;
+  $("bar").style.width = (idx/R.length*100)+"%";
+  $("card").innerHTML = '<div class="qnum">ROUND '+(idx+1)+' OF '+R.length+'</div><div class="row" style="margin-bottom:8px"><span class="pill p-browser">'+r.area+'</span></div>'+
+    '<p class="vague"></p><p class="ask">Which rewrite could a tester actually check?</p><div id="opts"></div><div id="fb" aria-live="polite"></div>';
+  $("card").querySelector(".vague").textContent = "“" + r.vague + "”";
+  var opts = shuffle(r.opts.slice());
+  var box = $("opts");
+  opts.forEach(function(o){
+    var b = document.createElement("button"); b.className = "opt"; b.textContent = o[0];
+    b.onclick = function(){ pick(b, o, r); };
+    box.appendChild(b);
+  });
+}
+function pick(b, o, r){
+  var fb = $("fb");
+  var why = document.createElement("span"); why.className = "why"; why.textContent = o[2];
+  if (o[1]){
+    b.classList.add("right"); b.appendChild(why);
+    ROOT.querySelectorAll("#opts .opt").forEach(function(x){ x.disabled = true; });
+    results.push({v:r.vague, first:tries===0, type:r.type});
+    fb.innerHTML = '<div class="fb good"><b>'+(tries===0?'Yes.':'Got it.')+'</b> This is a <b>'+r.type.toLowerCase()+'</b> criterion.</div>';
+    var n = document.createElement("button"); n.className = "btn primary"; n.style.marginTop = "12px";
+    n.textContent = idx === R.length-1 ? "See my results" : "Next round";
+    n.onclick = function(){ idx++; if (idx >= R.length) finish(); else show(); };
+    fb.appendChild(n); n.focus();
+  } else {
+    tries++; b.classList.add("wrong"); b.disabled = true; b.appendChild(why);
+    fb.innerHTML = '<div class="fb warn">Still not testable. Read what is wrong with that one, then try another.</div>';
+  }
+}
+function finish(){
+  $("bar").style.width = "100%"; $("card").style.display = "none";
+  var first = results.filter(function(r){return r.first;}).length;
+  var types = {}; results.forEach(function(r){ types[r.type] = (types[r.type]||0)+1; });
+  var h = '<div class="panel"><h2>'+first+' of '+R.length+' right on the first try</h2>'+
+    '<p style="margin:0 0 10px;font-size:14.5px;color:var(--ink-soft)">The criteria you picked covered these kinds of measure:</p><div class="row" style="margin-bottom:14px">'+
+    Object.keys(types).map(function(k){ return '<span class="pill p-server">'+k+' × '+types[k]+'</span>'; }).join("")+'</div>'+
+    '<p style="margin:0 0 12px;font-size:14.5px">Now go back to your own objectives. Take the vaguest one and rewrite it using the stem. It needs a number or a named behaviour, and a tester should be able to say yes or no.</p>'+
+    '<button class="btn primary" id="again">Go again</button></div>';
+  $("summary").innerHTML = h; $("again").onclick = start;
+}
+start();
+
+})();
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".mtab"));
+  function show(i, focus){
+    tabs.forEach(function(t, k){
+      var on = k === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.dataset.t).hidden = !on;
+    });
+    var nav = tabs[i].parentNode; nav.scrollLeft = Math.max(0, tabs[i].offsetLeft - 16);
+    if (focus) tabs[i].focus();
+    try { history.replaceState(null, "", "#" + tabs[i].dataset.slug); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener("click", function(){ show(i); });
+    t.addEventListener("keydown", function(e){
+      if (e.key === "ArrowRight") { e.preventDefault(); show((i + 1) % tabs.length, true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); show((i + tabs.length - 1) % tabs.length, true); }
+    });
+  });
+  var h = (location.hash || "").replace("#", "");
+  tabs.forEach(function(t, i){ if (t.dataset.slug === h) show(i); });
+})();
+</script>
+</body>
+</html>
