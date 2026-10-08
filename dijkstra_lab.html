@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dijkstra Lab</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --node:#FFFFFF; --stroke:#003366; --edge:#8A9BAE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --node:#0D1824; --stroke:#9CC2E8; --edge:#5E7A93;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --node:#0D1824; --stroke:#9CC2E8; --edge:#5E7A93;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.stats{display:flex;gap:18px;margin-left:auto}
+.stat{font-size:13px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.gwrap{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:6px}
+.gwrap svg{display:block;width:100%;height:auto;max-height:420px}
+.edge{stroke:var(--edge);stroke-width:4;stroke-linecap:round}
+.edge.hl{stroke:#CC9900;stroke-width:8}
+.edge.path{stroke:#1E7B4A;stroke-width:8}
+.wbox{fill:var(--bg);stroke:var(--edge);stroke-width:1.5}
+.wbox.hl{fill:#CC9900;stroke:#CC9900}
+.wtxt{fill:var(--ink);font:700 16px Calibri,Arial,sans-serif;dominant-baseline:central;text-anchor:middle}
+.wtxt.hl{fill:#1F2A36}
+.nd circle{fill:var(--node);stroke:var(--stroke);stroke-width:3}
+.nd text{fill:var(--navy);font:700 22px Cambria,Georgia,serif;dominant-baseline:central;text-anchor:middle;pointer-events:none}
+.nd.vis circle{fill:#003366;stroke:#003366}
+.nd.vis text{fill:#fff}
+.nd.cur circle{fill:#CC9900;stroke:#CC9900}
+.nd.cur text{fill:#1F2A36}
+.nd.nb circle{stroke:#CC9900;stroke-width:5}
+.nd.pick{cursor:pointer}
+.nd.pick circle{stroke:#CC9900;stroke-dasharray:6 4;stroke-width:4}
+.nd.pick:hover circle{fill:#FBF3DD}
+.badge rect{fill:#FBF3DD;stroke:#CC9900;stroke-width:1.5}
+.badge text{fill:#8A6700;font:700 14px Calibri,Arial,sans-serif;dominant-baseline:central;text-anchor:middle}
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:600px){.lists{grid-template-columns:1fr}}
+table.lt{border-collapse:collapse;width:100%;font-size:15px}
+table.lt th{padding:5px 8px;text-align:left;color:#fff}
+table.lt.un th{background:#003366}
+table.lt.vi th{background:#CC9900;color:#1F2A36}
+table.lt td{border-bottom:1px solid var(--line);padding:5px 8px;background:var(--bg)}
+table.lt td:first-child{font-family:Cambria,Georgia,serif;font-weight:700;color:var(--navy)}
+table.lt tr.chg td{background:var(--soft);font-weight:700}
+table.lt tr.cur td{background:#F3DFA0;color:#1F2A36}
+.ltitle{font-family:Cambria,Georgia,serif;font-weight:700;color:var(--navy);margin-bottom:4px}
+.old{text-decoration:line-through;color:var(--muted);font-weight:400;margin-right:4px}
+.now{background:var(--bg);border:2px solid var(--amber);border-radius:10px;padding:10px 12px;margin-top:12px;min-height:76px}
+.now .ev{font-size:13px;font-weight:700;color:var(--amberText)}
+.now p{margin:2px 0 0}
+.fb{margin-top:12px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.fb ul{margin:4px 0 0;padding-left:20px}
+.ask{background:var(--soft);border:2px dashed #CC9900;border-radius:10px;padding:10px 12px;margin-top:12px}
+.ask b{color:var(--amberText)}
+table.upd{border-collapse:collapse;width:100%;font-size:15px;margin-top:8px}
+table.upd th{background:#003366;color:#fff;padding:5px 8px;text-align:left}
+table.upd td{border-bottom:1px solid var(--line);padding:5px 8px;background:var(--bg)}
+table.upd td.ok{background:var(--okBg)}
+table.upd td.bad{background:var(--badBg)}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:4px 8px;background:var(--bg);color:var(--ink)}
+.selin{border:2px solid #CC9900;border-radius:6px;padding:4px 6px;background:var(--bg);color:var(--ink)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+table.mx{border-collapse:collapse;font-size:16px}
+table.mx th{background:#003366;color:#fff;padding:6px 10px}
+table.mx td{border:1px solid var(--line);padding:4px;text-align:center;background:var(--bg);min-width:58px}
+table.mx td.diag{background:var(--panel);color:var(--muted)}
+table.mx td.mirror{color:var(--muted);font-style:italic}
+table.mx input{width:50px;text-align:center;border:2px solid #CC9900;border-radius:6px;padding:3px;background:var(--bg);color:var(--ink)}
+table.mx input.ok{border-color:var(--ok);background:var(--okBg)}
+table.mx input.bad{border-color:var(--bad);background:var(--badBg)}
+.pathbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.pbtn{width:44px;height:44px;border-radius:50%;border:2px solid var(--navy);background:var(--bg);color:var(--navy);font:700 18px Cambria,Georgia,serif}
+.pbtn:disabled{opacity:.35}
+.pathshow{font-family:"Courier New",monospace;font-weight:700;font-size:20px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:44px}
+.code{list-style:none;margin:0;padding:8px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln;overflow-x:auto}
+.code li{counter-increment:ln;padding:2px 10px 2px 6px;font-family:"Courier New",monospace;font-size:14px;white-space:pre;display:flex;border-radius:4px}
+.code li::before{content:counter(ln);width:24px;flex:none;color:var(--muted);font-size:12px;padding-top:1px}
+.code.pick li{cursor:pointer}
+.code.pick li:hover{background:var(--soft)}
+.code li.ok{background:var(--okBg);outline:2px solid var(--ok);outline-offset:-2px}
+.code li.bad{background:var(--badBg);outline:2px solid var(--bad);outline-offset:-2px}
+.qlist{display:grid;gap:8px}
+.q{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left;color:var(--ink)}
+.q.cur{border-color:#CC9900;background:var(--soft)}
+.q.done{border-color:var(--ok)}
+.q.wrongq{border-color:var(--bad)}
+.q small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Dijkstra Lab</h1><div class="spec">Unit 3 · 3.5.1 · Explain and apply a shortest-path algorithm</div></div>
+    <div class="spec">Keys: <b>→</b> step · <b>←</b> back (Watch)</div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+const sel=(lab,val,opts,on)=>h('label',{},lab,h('select',{onchange:e=>on(e.target.value)},...opts.map(([v,t])=>{const o=h('option',{value:String(v)},t);if(String(v)===String(val))o.selected=true;return o;})));
+const INF='∞';const fmt=v=>v===Infinity?INF:String(v);
+
+/* ================= GRAPHS ================= */
+const GRAPHS={
+ notes:{name:'Notes example (A to E)',start:'A',nodeCost:0,w:560,h:380,
+  nodes:{A:[60,190],B:[230,60],C:[230,320],D:[460,60],E:[460,320]},
+  edges:[['A','B',8],['A','C',5],['B','C',3],['B','D',1],['C','D',6],['C','E',9],['D','E',2]]},
+ exam:{name:'2019 Q6 network (node cost 2)',start:'A',nodeCost:2,w:640,h:340,
+  nodes:{A:[60,170],B:[230,55],C:[230,285],D:[420,170],E:[580,170]},
+  edges:[['A','B',3],['A','C',4],['B','D',12],['C','D',10],['D','E',6]]},
+ six:{name:'Six towns',start:'A',nodeCost:0,w:640,h:380,
+  nodes:{A:[60,190],B:[220,60],C:[220,320],D:[400,190],E:[580,60],F:[580,320]},
+  edges:[['A','B',4],['A','C',2],['B','C',1],['B','D',5],['C','D',8],['C','F',10],['D','E',3],['D','F',6],['E','F',2]]},
+};
+function randomGraph(){
+  const keys=['A','B','C','D','E','F'];const pos={A:[60,190],B:[220,55],C:[220,325],D:[400,190],E:[580,55],F:[580,325]};
+  const cand=[['A','B'],['A','C'],['B','C'],['B','D'],['C','D'],['B','E'],['C','F'],['D','E'],['D','F'],['E','F']];
+  const r=()=>1+Math.floor(Math.random()*12);
+  const chosen=[['A','B'],['A','C'],['B','D'],['D','E'],['D','F']];// spanning tree
+  cand.forEach(e=>{if(!chosen.some(c=>c[0]===e[0]&&c[1]===e[1])&&Math.random()<0.6)chosen.push(e);});
+  return {name:'Random graph',start:'A',nodeCost:0,w:640,h:380,nodes:pos,edges:chosen.map(([a,b])=>[a,b,r()])};
+}
+function adjOf(G){const a={};Object.keys(G.nodes).forEach(k=>a[k]={});G.edges.forEach(([x,y,w])=>{a[x][y]=w;a[y][x]=w;});return a;}
+/* Dijkstra with optional node traversal cost: passing THROUGH a node (not the start) adds nodeCost */
+function viaCost(G,cost,cur,w){return cost[cur]+w+(cur!==G.start?G.nodeCost:0);}
+function runDijkstra(G){
+  const A=adjOf(G),keys=Object.keys(G.nodes).sort();const cost={},prev={};keys.forEach(k=>{cost[k]=Infinity;prev[k]=null;});cost[G.start]=0;
+  const visited=[],un=new Set(keys);const steps=[];
+  const snap=(o)=>steps.push(Object.assign({cost:{...cost},prev:{...prev},visited:visited.slice(),un:[...un]},o));
+  snap({ev:'Step 1',text:`Every node starts with a cost of ∞ and no previous node. The start node ${G.start} has a cost of 0.${G.nodeCost?` Each node passed THROUGH adds ${G.nodeCost}.`:''}`,line:2});
+  while(un.size){
+    const cur=[...un].sort((a,b)=>cost[a]-cost[b]||a.localeCompare(b))[0];
+    snap({ev:'Pick current',cur,text:`${cur} has the lowest cost in the unvisited list (${fmt(cost[cur])}), so ${cur} becomes the current node.`,line:8});
+    const nbs=Object.keys(A[cur]).filter(n=>un.has(n)&&n!==cur).sort();
+    if(!nbs.length)snap({ev:'Neighbours',cur,text:`${cur} has no unvisited neighbours to check.`,line:9});
+    nbs.forEach(nb=>{
+      const nc=viaCost(G,cost,cur,A[cur][nb]);const old=cost[nb];const upd=nc<old;
+      const extra=G.nodeCost&&cur!==G.start?` + ${G.nodeCost} (passing through ${cur})`:'';
+      if(upd){cost[nb]=nc;prev[nb]=cur;}
+      snap({ev:'Check neighbour',cur,nb,old,newc:nc,upd,chg:upd?nb:null,text:`${cur} → ${nb}: ${fmt(cost[cur])} + ${A[cur][nb]}${extra} = ${nc}. ${upd?`${nc} is lower than ${fmt(old)}, so ${nb} becomes ${nc} with previous ${cur}.`:`${nc} is NOT lower than ${fmt(old)}, so ${nb} stays as it is.`}`,line:upd?13:11});
+    });
+    un.delete(cur);visited.push(cur);
+    snap({ev:'Move to visited',cur,moved:cur,text:`All of ${cur}'s unvisited neighbours have been checked. ${cur} moves to the visited list with cost ${fmt(cost[cur])} and previous ${prev[cur]||'none'}.`,line:16});
+  }
+  snap({ev:'Finished',text:'Every node has been visited. The visited list holds the shortest cost from the start to every node, and the previous node on each path.',line:18,done:true});
+  return {steps,cost,prev,visited,adj:A};
+}
+function pathTo(R,start,k){const p=[k];while(p[0]!==start)p.unshift(R.prev[p[0]]);return p;}
+
+/* ================= SVG ================= */
+function graphSVG(G,o={}){
+  const svg=el('svg',{viewBox:`0 0 ${G.w} ${G.h}`,role:'img','aria-label':'Weighted graph'});
+  const on=(set,a,b)=>set&&(set.includes(a+b)||set.includes(b+a));
+  G.edges.forEach(([a,b,w])=>{const [x1,y1]=G.nodes[a],[x2,y2]=G.nodes[b];
+    const hl=on(o.hl,a,b),pt=on(o.path,a,b);
+    el('line',{x1,y1,x2,y2,class:'edge'+(hl?' hl':pt?' path':'')},svg);
+    const mx=(x1+x2)/2,my=(y1+y2)/2;el('rect',{x:mx-17,y:my-13,width:34,height:26,rx:6,class:'wbox'+(hl?' hl':'')},svg);
+    el('text',{x:mx,y:my,class:'wtxt'+(hl?' hl':'')},svg).textContent=String(w);});
+  Object.entries(G.nodes).forEach(([k,[x,y]])=>{
+    let cls='nd';if(o.vis&&o.vis.includes(k))cls+=' vis';if(o.cur===k)cls+=' cur';if(o.nb===k)cls+=' nb';
+    const pick=o.pick&&o.pickable&&o.pickable.includes(k);if(pick)cls+=' pick';
+    const g=el('g',{class:cls},svg);el('circle',{cx:x,cy:y,r:26},g);el('text',{x,y},g).textContent=k;
+    if(pick){g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',`Choose ${k}`);g.addEventListener('click',()=>o.pick(k));g.addEventListener('keydown',e=>{if(e.key==='Enter')o.pick(k);});}
+    if(o.cost){const up=y<G.h/2;const by=up?y-50:y+34;const b=el('g',{class:'badge'},svg);el('rect',{x:x-22,y:by,width:44,height:22,rx:5},b);el('text',{x,y:by+11},b).textContent=fmt(o.cost[k]);}
+  });
+  return h('div',{class:'gwrap'},svg);
+}
+function listsView(st,o={}){
+  const un=st.un.slice().sort((a,b)=>st.cost[a]-st.cost[b]||a.localeCompare(b));
+  const row=(k,isVis)=>{const chg=st.chg===k;const cls=st.cur===k&&!isVis?'cur':chg?'chg':null;
+    return h('tr',{class:cls},h('td',{},k),h('td',{},chg&&st.old!==undefined?h('span',{class:'old'},fmt(st.old)):null,fmt(st.cost[k])),h('td',{},st.prev[k]||'none'));};
+  return h('div',{class:'lists'},
+    h('div',{},h('div',{class:'ltitle'},'Unvisited list'),h('table',{class:'lt un'},h('thead',{},h('tr',{},h('th',{},'Node'),h('th',{},'Cost'),h('th',{},'Previous'))),
+      h('tbody',{},...(un.length?un.map(k=>row(k,false)):[h('tr',{},h('td',{colspan:'3',class:'small'},'(empty)'))])))),
+    h('div',{},h('div',{class:'ltitle',style:'color:var(--amberText)'},'Visited list'),h('table',{class:'lt vi'},h('thead',{},h('tr',{},h('th',{},'Node'),h('th',{},'Cost'),h('th',{},'Previous'))),
+      h('tbody',{},...(st.visited.length?st.visited.map(k=>row(k,true)):[h('tr',{},h('td',{colspan:'3',class:'small'},'(empty)'))])))));
+}
+
+/* ================= STATE ================= */
+const S={tab:0,graphKey:'notes',random:null,watchI:0,run:null,rep:{},path:{k:null,seq:[],cost:'',res:{}},code:{q:0,res:{}}};
+function G(){return S.graphKey==='random'?(S.random||(S.random=randomGraph())):GRAPHS[S.graphKey];}
+let R=runDijkstra(G());
+function setGraph(k){S.graphKey=k;if(k==='random')S.random=randomGraph();R=runDijkstra(G());S.watchI=0;S.run=null;S.path={k:null,seq:[],cost:'',res:{}};S.rep={};}
+const graphSel=(keys=['notes','exam','six','random'])=>sel('Graph',S.graphKey,keys.map(k=>[k,k==='random'?'Random graph (new each time)':GRAPHS[k].name]),v=>{setGraph(v);render();});
+
+/* ================= TAB 1: REPRESENT ================= */
+function repView(){
+  const g=G(),keys=Object.keys(g.nodes).sort(),A=adjOf(g);
+  const st=S.rep;const ans=(a,b)=>A[a][b]!==undefined?String(A[a][b]):'-';
+  const rows=keys.map((r,i)=>h('tr',{},h('th',{},r),...keys.map((c,j)=>{
+    if(i===j)return h('td',{class:'diag'},'0');
+    if(j<i){const v=st[c+r];return h('td',{class:'mirror'},v===undefined||v===''?'':v);}
+    const key=r+c;const inp=h('input',{value:st[key]||'','aria-label':`${r} to ${c}`,class:st.checked?(norm(st[key])===ans(r,c)?'ok':'bad'):null});
+    inp.addEventListener('input',()=>{st[key]=inp.value;st.checked=false;});inp.addEventListener('change',()=>render());
+    return h('td',{},inp);})));
+  const check=()=>{st.checked=true;render();};
+  let fb=null;
+  if(st.checked){let right=0,tot=0;keys.forEach((r,i)=>keys.forEach((c,j)=>{if(j>i){tot++;if(norm(st[r+c])===ans(r,c))right++;}}));
+    fb=h('div',{class:'fb '+(right===tot?'ok':'bad')},right===tot?`All ${tot} cells correct. The bottom half mirrors the top half because the graph is undirected.`:`${right} of ${tot} cells correct. Write the edge weight, or - if there is no direct edge.`);}
+  const edgeTable=h('table',{class:'lt un'},h('thead',{},h('tr',{},h('th',{},'Node'),h('th',{},'Cost'),h('th',{},'Node'))),h('tbody',{},...g.edges.map(([a,b,w])=>h('tr',{},h('td',{},a),h('td',{},String(w)),h('td',{},b)))));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Represent it: the graph as a 2D array')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Fill in the top half of the adjacency matrix: the weight of the edge from the row node to the column node, or - if there is no direct edge. The bottom half fills itself in, because an undirected graph is symmetrical.'),
+    h('div',{class:'controls'},graphSel(['notes','exam','six','random']),h('button',{class:'btn primary',onclick:check},'Check'),h('button',{class:'btn ghost',onclick:()=>{S.rep={};render();}},'Clear'),
+      h('button',{class:'btn ghost',onclick:()=>{keys.forEach((r,i)=>keys.forEach((c,j)=>{if(j>i)st[r+c]=ans(r,c);}));st.checked=true;render();}},'Show answer')),
+    h('div',{class:'grid'},h('div',{},graphSVG(g)),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Adjacency matrix'),h('div',{style:'overflow-x:auto'},h('table',{class:'mx'},h('thead',{},h('tr',{},h('th',{},''),...keys.map(k=>h('th',{},k)))),h('tbody',{},...rows))),fb),
+        st.checked?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'The same graph as an edge table'),edgeTable,
+          h('p',{class:'small',style:'margin:8px 0 0'},'This is the form the 2019 Q6(b)(i) mark scheme used: one row per edge.')):null)));
+}
+function norm(v){return String(v??'').trim().replace(/^[–—]$/,'-').replace(/^none$/i,'-');}
+
+/* ================= TAB 2: WATCH ================= */
+function watchView(){
+  const g=G(),st=R.steps[S.watchI];
+  const hl=st.nb?[st.cur+st.nb]:null;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Watch: Dijkstra step by step')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Step through the algorithm. Watch the current node (amber), the neighbour being checked, and the unvisited and visited lists. Then try it yourself in You run it.'),
+    h('div',{class:'controls'},graphSel(),
+      h('button',{class:'btn ghost',disabled:S.watchI===0||null,onclick:()=>{S.watchI--;render();}},'← Back'),
+      h('button',{class:'btn primary',disabled:S.watchI>=R.steps.length-1||null,onclick:()=>{S.watchI++;render();}},'Step →'),
+      h('button',{class:'btn ghost',onclick:()=>{S.watchI=0;render();}},'Restart')),
+    h('div',{class:'grid'},
+      h('div',{},graphSVG(g,{vis:st.visited,cur:st.cur,nb:st.nb,hl,cost:st.cost,path:st.done?Object.keys(g.nodes).filter(k=>k!==g.start).map(k=>R.prev[k]+k):null}),
+        h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${S.watchI+1} of ${R.steps.length} · ${st.ev}`),h('p',{},st.text))),
+      h('div',{},h('div',{class:'panel'},listsView(st)),
+        st.done?h('div',{class:'fb ok'},'Green edges: the shortest path to every node. Use Find the path to read off a route.'):null)));
+}
+
+/* ================= TAB 3: YOU RUN IT ================= */
+function runInit(){
+  const g=G(),keys=Object.keys(g.nodes).sort(),cost={},prev={};keys.forEach(k=>{cost[k]=Infinity;prev[k]=null;});cost[g.start]=0;
+  S.run={cost,prev,visited:[],un:new Set(keys),phase:'pick',cur:null,inputs:{},res:null,mistakes:0,msg:null,cls:'',chg:null};
+}
+function runView(){
+  const g=G(),A=adjOf(g);if(!S.run)runInit();const U=S.run;
+  const min=Math.min(...[...U.un].map(k=>U.cost[k]));
+  const stLike={cost:U.cost,prev:U.prev,visited:U.visited,un:[...U.un],cur:U.cur,chg:U.chg};
+  const nbs=U.cur?Object.keys(A[U.cur]).filter(n=>U.un.has(n)&&n!==U.cur).sort():[];
+  let panel=null;
+  if(U.phase==='pick'){
+    panel=h('div',{class:'ask'},h('b',{},'Choose the current node: '),'click the node in the UNVISITED list with the lowest cost.');
+  } else if(U.phase==='update'){
+    if(!nbs.length){panel=h('div',{class:'ask'},h('b',{},`${U.cur} has no unvisited neighbours. `),h('div',{class:'actions'},h('button',{class:'btn primary',onclick:moveVisited},`Move ${U.cur} to visited`)));}
+    else{
+      const rows=nbs.map(nb=>{const exp=viaCost(g,U.cost,U.cur,A[U.cur][nb]);const upd=exp<U.cost[nb];
+        const r=U.res&&U.res[nb];
+        const ni=h('input',{class:'numin',type:'number',value:U.inputs[nb+'c']??'','aria-label':`New cost to ${nb}`});ni.addEventListener('input',()=>{U.inputs[nb+'c']=ni.value;});
+        const si=h('select',{class:'selin','aria-label':`Update ${nb}?`},h('option',{value:''},'?'),h('option',{value:'yes'},'Yes: update'),h('option',{value:'no'},'No: keep'));si.value=U.inputs[nb+'u']||'';si.addEventListener('change',()=>{U.inputs[nb+'u']=si.value;});
+        return h('tr',{},h('td',{},h('b',{},nb)),h('td',{},`${U.cur} → ${nb} = ${A[U.cur][nb]}`),h('td',{},fmt(U.cost[nb])),
+          h('td',{class:r?(r.c?'ok':'bad'):null},ni),h('td',{class:r?(r.u?'ok':'bad'):null},si));});
+      const check=()=>{
+        const res={};let all=true;const items=[];
+        nbs.forEach(nb=>{const exp=viaCost(g,U.cost,U.cur,A[U.cur][nb]);const upd=exp<U.cost[nb];
+          const c=Number(U.inputs[nb+'c'])===exp&&U.inputs[nb+'c']!==''&&U.inputs[nb+'c']!==undefined;const u=(U.inputs[nb+'u']==='yes')===upd&&!!U.inputs[nb+'u'];
+          res[nb]={c,u};if(!c||!u){all=false;
+            items.push(`${nb}: ${fmt(U.cost[U.cur])} + ${A[U.cur][nb]}${g.nodeCost&&U.cur!==g.start?` + ${g.nodeCost} (passing through ${U.cur})`:''} = ${exp}. ${upd?`${exp} is lower than ${fmt(U.cost[nb])}, so update.`:`${exp} is NOT lower than ${fmt(U.cost[nb])}, so keep it.`}`);}});
+        U.res=res;
+        if(all){nbs.forEach(nb=>{const exp=viaCost(g,U.cost,U.cur,A[U.cur][nb]);if(exp<U.cost[nb]){U.cost[nb]=exp;U.prev[nb]=U.cur;}});
+          U.msg=`All correct. ${nbs.filter(nb=>U.prev[nb]===U.cur).length?'The lists have been updated. ':''}Now move ${U.cur} to the visited list.`;U.cls='ok';U.phase='move';}
+        else{U.mistakes++;U.msg=h('div',{},h('b',{},'Not quite. Check these and try again:'),h('ul',{},...items.map(t=>h('li',{},t))));U.cls='bad';}
+        render();};
+      panel=h('div',{class:'ask'},h('b',{},`Current node: ${U.cur} (cost ${fmt(U.cost[U.cur])}). `),`For each unvisited neighbour, work out the cost of reaching it via ${U.cur}${g.nodeCost&&U.cur!==g.start?` (remember + ${g.nodeCost} for passing through ${U.cur})`:''}, then decide whether to update it.`,
+        h('table',{class:'upd'},h('thead',{},h('tr',{},...['Neighbour','Edge','Recorded cost',`Cost via ${U.cur}`,'Update?'].map(t=>h('th',{},t)))),h('tbody',{},...rows)),
+        h('div',{class:'actions'},h('button',{class:'btn primary',onclick:check},'Check')));
+    }
+  } else if(U.phase==='move'){
+    panel=h('div',{class:'ask'},h('div',{class:'actions',style:'margin:0'},h('button',{class:'btn primary',onclick:moveVisited},`Move ${U.cur} to visited`)));
+  } else if(U.phase==='done'){
+    const keys=Object.keys(g.nodes).filter(k=>k!==g.start).sort();
+    panel=h('div',{class:'fb ok'},h('b',{},`Finished${U.mistakes?` with ${U.mistakes} mistake${U.mistakes===1?'':'s'} along the way`:' with no mistakes'}! `),'Shortest paths from '+g.start+': ',
+      h('ul',{},...keys.map(k=>h('li',{},`${k}: ${pathTo(U,g.start,k).join(' → ')}, cost ${U.cost[k]}`))));
+  }
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'You run it')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Run Dijkstra\'s algorithm yourself. Pick the current node, work out the new cost to each unvisited neighbour, decide whether to update it, then move the node to visited. The Lab checks every step.'),
+    h('div',{class:'controls'},graphSel(),h('button',{class:'btn ghost',onclick:()=>{runInit();render();}},'Start again'),
+      h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},String(U.visited.length)),'visited'),h('div',{class:'stat'},h('b',{},String(U.mistakes)),'mistakes'))),
+    h('div',{class:'grid'},
+      h('div',{},graphSVG(g,{vis:U.visited,cur:U.phase!=='pick'?U.cur:null,cost:U.cost,pick:U.phase==='pick'?pickNode:null,pickable:U.phase==='pick'?[...U.un]:[],
+          hl:U.phase==='update'&&U.cur?nbs.map(n=>U.cur+n):null,path:U.phase==='done'?Object.keys(g.nodes).filter(k=>k!==g.start).map(k=>U.prev[k]+k):null}),
+        g.nodeCost?h('p',{class:'small',style:'margin:6px 0 0'},`Node traversal cost: ${g.nodeCost} for each node passed THROUGH (not the start, not the end).`):null),
+      h('div',{},h('div',{class:'panel'},listsView(stLike)),panel,U.msg?h('div',{class:'fb '+U.cls,'aria-live':'polite'},U.msg):null)));
+  function pickNode(k){
+    const min2=Math.min(...[...U.un].map(x=>U.cost[x]));
+    if(U.cost[k]!==min2){U.mistakes++;U.msg=`${k} has a cost of ${fmt(U.cost[k])}, but the lowest cost in the unvisited list is ${fmt(min2)}. Always pick the cheapest unvisited node.`;U.cls='bad';render();return;}
+    U.cur=k;U.phase='update';U.inputs={};U.res=null;U.chg=null;U.msg=null;render();
+  }
+  function moveVisited(){U.un.delete(U.cur);U.visited.push(U.cur);U.msg=`${U.cur} moved to the visited list.`;U.cls='';U.cur=null;U.phase=U.un.size?'pick':'done';render();}
+}
+
+/* ================= TAB 4: FIND THE PATH ================= */
+function pathView(){
+  const g=G(),P=S.path,keys=Object.keys(g.nodes).filter(k=>k!==g.start).sort();
+  if(!P.k)P.k=keys[keys.length-1];
+  const fin={cost:R.cost,prev:R.prev,visited:R.visited,un:[]};
+  const correct=pathTo(R,g.start,P.k);const res=P.res[P.k];
+  const check=()=>{const okP=P.seq.join('')===correct.join('');const okC=Number(P.cost)===R.cost[P.k];P.res[P.k]={okP,okC};render();};
+  const ci=h('input',{class:'numin',type:'number',value:P.cost,'aria-label':'Cost'});ci.addEventListener('input',()=>{P.cost=ci.value;});
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Find the path: backtrack through "previous"')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Use the final visited list. Start at the end node and follow "previous" back to the start. Then build the route forwards and give its cost.'),
+    h('div',{class:'controls'},graphSel(),sel('End node',P.k,keys.map(k=>[k,k]),v=>{P.k=v;P.seq=[];P.cost='';render();})),
+    h('div',{class:'grid'},
+      h('div',{},graphSVG(g,{vis:R.visited,cost:R.cost,path:res&&res.okP?correct.slice(1).map((k,i)=>correct[i]+k):null})),
+      h('div',{},h('div',{class:'panel'},h('div',{class:'ltitle',style:'color:var(--amberText)'},'Final visited list'),
+          h('table',{class:'lt vi'},h('thead',{},h('tr',{},h('th',{},'Node'),h('th',{},'Cost'),h('th',{},'Previous'))),h('tbody',{},...R.visited.map(k=>h('tr',{class:k===P.k?'chg':null},h('td',{},k),h('td',{},fmt(R.cost[k])),h('td',{},R.prev[k]||'none')))))),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},`Shortest path from ${g.start} to ${P.k}`),
+          h('div',{class:'small'},'Click the nodes in order, from the start to the end:'),
+          h('div',{class:'pathbar'},...Object.keys(g.nodes).sort().map(k=>h('button',{class:'pbtn',onclick:()=>{P.seq.push(k);P.res[P.k]=undefined;render();}},k)),
+            h('button',{class:'btn ghost',onclick:()=>{P.seq.pop();P.res[P.k]=undefined;render();}},'Undo')),
+          h('div',{class:'pathshow'},P.seq.join(' → ')||' '),
+          h('div',{class:'actions'},h('label',{class:'small',style:'display:flex;gap:6px;align-items:center'},'Cost',ci),h('button',{class:'btn primary',disabled:!P.seq.length||null,onclick:check},'Check')),
+          res?h('div',{class:'fb '+(res.okP&&res.okC?'ok':'bad')},
+            res.okP&&res.okC?'Correct. ':'Not quite. ',
+            `Backtrack: ${correct.slice().reverse().map((k,i,a)=>i<a.length-1?`${k}'s previous is ${a[i+1]}`:'').filter(Boolean).join(', ')}. So the path is ${correct.join(' → ')}, and the cost is ${R.cost[P.k]}, read straight from the visited list.`):null))));
+}
+
+/* ================= TAB 5: READ THE CODE ================= */
+const DCODE=['Declare Dijkstra(graph, startNode)','    for each node in graph','        set cost[node] = ∞','        set previous[node] = none','        add node to unvisited','    next node','    set cost[startNode] = 0','    while unvisited is not empty','        set current = the node in unvisited with the lowest cost','        for each neighbour of current that is not in visited','            set newCost = cost[current] + weight(current, neighbour)','            if newCost < cost[neighbour]','                set cost[neighbour] = newCost','                set previous[neighbour] = current','            end if','        next neighbour','        move current from unvisited to visited','    end while','    return visited','End Subroutine'];
+const CQ=[
+ ['Which line makes every node start with an unknown cost?',[3],'Line 3 sets every cost to ∞ before the search starts.'],
+ ['Which line gives the start node its cost?',[7],'Line 7: the start node costs 0, because you are already there.'],
+ ['Which line decides the next current node?',[9],'Line 9 picks the unvisited node with the LOWEST cost so far.'],
+ ['Which line works out the cost of a route through the current node?',[11],'Line 11 adds the edge weight to the current node\'s cost.'],
+ ['Which line makes sure only cheaper routes are kept?',[12],'Line 12: a neighbour is only updated if the new cost is LOWER than the recorded cost.'],
+ ['Which line records where the route came from?',[14],'Line 14 sets previous, which is what you backtrack through to find the path.'],
+ ['Which line means a visited node is never updated again?',[10,17],'Line 10 only looks at neighbours NOT in visited (and line 17 is what puts a node there).'],
+ ['When does the algorithm stop?',[8],'Line 8: it repeats while there are still unvisited nodes.'],
+];
+function codeView(){
+  const C=S.code,q=CQ[C.q],r=C.res[C.q];
+  const pick=ln=>{if(r)return;const ok=q[1].includes(ln);C.res[C.q]={ln,ok};render();};
+  const right=Object.values(C.res).filter(x=>x.ok).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Read the code'),h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},`${right}/${CQ.length}`),'correct first time'))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'You will not be asked to write this algorithm, but you need to read and trace it. Pick a question, then click the line of code that answers it. One attempt per question.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Dijkstra\'s algorithm'),h('ol',{class:'code'+(r?'':' pick')},DCODE.map((c,i)=>{const ln=i+1;let cls=null;if(r){if(q[1].includes(ln))cls='ok';else if(r.ln===ln)cls='bad';}
+        return h('li',{class:cls,role:r?null:'button',tabindex:r?null:'0',onclick:()=>pick(ln),onkeydown:e=>{if(e.key==='Enter')pick(ln);}},c);}))),
+      h('div',{},h('div',{class:'qlist'},...CQ.map((x,i)=>{const rr=C.res[i];return h('button',{class:'q'+(i===C.q?' cur':'')+(rr?(rr.ok?' done':' wrongq'):''),onclick:()=>{C.q=i;render();}},`${i+1}. ${x[0]}`,rr?h('small',{},rr.ok?'✓ correct':'✗ see the explanation'):null);})),
+        r?h('div',{class:'fb '+(r.ok?'ok':'bad')},h('b',{},r.ok?'Correct. ':'Not quite. '),q[2],C.q<CQ.length-1?h('div',{class:'actions'},h('button',{class:'btn primary',onclick:()=>{C.q++;render();}},'Next question →')):null):null)));
+}
+
+/* ================= SHELL ================= */
+const TABS=[['Represent it',repView],['Watch',watchView],['You run it',runView],['Find the path',pathView],['Read the code',codeView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+document.addEventListener('keydown',e=>{if(S.tab!==1||['INPUT','SELECT'].includes(e.target.tagName))return;
+  if(e.key==='ArrowRight'&&S.watchI<R.steps.length-1){S.watchI++;render();}else if(e.key==='ArrowLeft'&&S.watchI>0){S.watchI--;render();}});
+render();
+</script>
+</body>
+</html>

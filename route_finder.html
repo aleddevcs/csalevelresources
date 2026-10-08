@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Route Finder</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1;
+  --head:#003366; --soft:#FBF3DD; --map:#EAF2E3; --road:#8A9BAE; --node:#FFFFFF; --stroke:#003366;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --head:#001F3F; --soft:#33290E; --map:#132A22; --road:#5E7A93; --node:#0D1824; --stroke:#9CC2E8;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --head:#001F3F; --soft:#33290E; --map:#132A22; --road:#5E7A93; --node:#0D1824; --stroke:#9CC2E8;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1280px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1280px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1280px;margin:0 auto;padding:18px 24px 40px}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;background:var(--soft);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+@media (max-width:760px){.rule{grid-template-columns:1fr}}
+.rule h2{font-size:22px;color:var(--navy);margin-bottom:4px}
+.rule p{margin:0}
+.costbox{background:#003366;color:#fff;border-radius:12px;padding:8px 18px;text-align:center;min-width:120px}
+.costbox small{display:block;font-size:13px;color:#C9D6E3}
+.costbox b{font-family:Cambria,Georgia,serif;font-size:38px;line-height:1.05;color:#FFD966}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:950px){.grid{grid-template-columns:1fr}}
+.mapwrap{background:var(--map);border-radius:14px;border:2px solid var(--line);padding:8px}
+.mapwrap svg{display:block;width:100%;height:auto}
+.road{stroke:var(--road);stroke-width:5;stroke-linecap:round}
+.road.on{stroke:#CC9900;stroke-width:9}
+.road.best{stroke:#1E7B4A;stroke-width:9}
+.wbox{fill:var(--node);stroke:var(--road);stroke-width:1.5}
+.wtxt{fill:var(--ink);font:700 17px Calibri,Arial,sans-serif;dominant-baseline:central;text-anchor:middle}
+.town circle{fill:var(--node);stroke:var(--stroke);stroke-width:3}
+.town text{fill:var(--navy);font:700 22px Cambria,Georgia,serif;dominant-baseline:central;text-anchor:middle;pointer-events:none}
+.town.can{cursor:pointer}
+.town.can circle{stroke:#CC9900;stroke-width:4;stroke-dasharray:6 4}
+.town.can:hover circle{fill:#FBF3DD}
+.town.in circle{fill:#CC9900;stroke:#CC9900}
+.town.in text{fill:#1F2A36}
+.town.end circle{stroke-width:5}
+.town.start circle,.town.goal circle{stroke-width:5}
+.tag{font:700 13px Calibri,Arial,sans-serif;fill:var(--amberText);text-anchor:middle}
+.panel{background:var(--panel);border-radius:12px;padding:14px 16px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.route{font-family:"Courier New",monospace;font-weight:700;font-size:18px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.msg{margin-top:12px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.msg.ok{border-color:var(--ok);background:var(--okBg)}
+.msg.bad{border-color:var(--bad);background:var(--badBg)}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+table.t tr.best td{background:var(--okBg);color:var(--ok);font-weight:700}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+.small{font-size:14px;color:var(--muted)}
+.slider{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+.slider input{width:320px;max-width:100%;accent-color:#CC9900}
+.big{font-family:Cambria,Georgia,serif;font-size:34px;font-weight:700;color:var(--navy)}
+.stat{background:var(--bg);border-radius:10px;padding:10px 14px;border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Route Finder</h1><div class="spec">Unit 3 · 3.5.1 · Method first: find the cheapest route</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+
+const MAPS=[
+ {name:'Small map',start:'A',goal:'E',w:640,h:420,
+  nodes:{A:[70,210],B:[250,70],C:[250,350],D:[480,70],E:[480,350]},
+  edges:[['A','B',8],['A','C',5],['B','C',3],['B','D',1],['C','D',6],['C','E',9],['D','E',2]],
+  rule:'The numbers are travel times in minutes. Click towns to build a route from A to E: each town you click must be joined by a road to the end of your route. Try as many routes as you can and find the quickest.'},
+ {name:'Bigger map',start:'A',goal:'I',w:820,h:460,
+  nodes:{A:[60,230],B:[220,70],C:[220,230],D:[220,390],E:[420,140],F:[420,320],G:[600,60],H:[600,195],I:[770,230]},
+  edges:[['A','B',4],['A','C',7],['A','D',3],['B','C',2],['B','E',6],['C','E',3],['C','F',6],['D','C',4],['D','F',9],['E','F',2],['E','G',5],['E','H',7],['F','H',4],['G','H',3],['G','I',9],['H','I',5],['F','I',13]],
+  rule:'Nine towns this time, from A to I. Same rules: build routes by clicking towns. How sure are you that your best route really is the quickest?'},
+];
+function adj(m){const a={};Object.keys(m.nodes).forEach(k=>a[k]={});m.edges.forEach(([x,y,w])=>{a[x][y]=w;a[y][x]=w;});return a;}
+function allRoutes(m){const A=adj(m),out=[];const dfs=(n,path,cost)=>{if(n===m.goal){out.push({path:path.slice(),cost});return;}
+  Object.entries(A[n]).forEach(([nb,w])=>{if(!path.includes(nb)){path.push(nb);dfs(nb,path,cost+w);path.pop();}});};dfs(m.start,[m.start],0);return out.sort((a,b)=>a.cost-b.cost);}
+MAPS.forEach(m=>{m.adj=adj(m);m.routes=allRoutes(m);m.best=m.routes[0].cost;});
+const S={tab:0,st:MAPS.map(()=>({route:null,tried:[],revealed:false,msg:null,cls:''})),n:10};
+MAPS.forEach((m,i)=>S.st[i].route=[m.start]);
+const costOf=(m,r)=>r.slice(1).reduce((c,n,i)=>c+m.adj[r[i]][n],0);
+
+function mapView(i){
+  const m=MAPS[i],st=S.st[i],r=st.route,end=r[r.length-1],done=end===m.goal;
+  const svg=el('svg',{viewBox:`0 0 ${m.w} ${m.h}`,role:'img','aria-label':'Road map'});
+  const onEdge=(a,b)=>{for(let k=1;k<r.length;k++)if((r[k-1]===a&&r[k]===b)||(r[k-1]===b&&r[k]===a))return true;return false;};
+  const bestPaths=st.revealed?m.routes.filter(x=>x.cost===m.best):[];
+  const onBest=(a,b)=>bestPaths.some(p=>{for(let k=1;k<p.path.length;k++)if((p.path[k-1]===a&&p.path[k]===b)||(p.path[k-1]===b&&p.path[k]===a))return true;return false;});
+  m.edges.forEach(([a,b,w])=>{
+    const [x1,y1]=m.nodes[a],[x2,y2]=m.nodes[b];
+    el('line',{x1,y1,x2,y2,class:'road'+(onEdge(a,b)?' on':(onBest(a,b)?' best':''))},svg);
+    const mx=(x1+x2)/2,my=(y1+y2)/2;
+    el('rect',{x:mx-18,y:my-14,width:36,height:28,rx:6,class:'wbox'},svg);
+    el('text',{x:mx,y:my,class:'wtxt'},svg).textContent=String(w);
+  });
+  Object.entries(m.nodes).forEach(([k,[x,y]])=>{
+    const can=!done&&!r.includes(k)&&m.adj[end][k]!==undefined;
+    const inR=r.includes(k);
+    const g=el('g',{class:'town'+(can?' can':'')+(inR?' in':'')+(k===m.start?' start':'')+(k===m.goal?' goal':'')},svg);
+    el('circle',{cx:x,cy:y,r:28},g);el('text',{x,y},g).textContent=k;
+    if(k===m.start)el('text',{x,y:y+46,class:'tag'},svg).textContent='START';
+    if(k===m.goal)el('text',{x,y:y+46,class:'tag'},svg).textContent='GOAL';
+    if(can||(inR&&k===end&&r.length>1)){
+      g.setAttribute('tabindex','0');g.setAttribute('role','button');
+      g.setAttribute('aria-label',can?`Go to ${k}, ${m.adj[end][k]} minutes`:`Undo ${k}`);
+      const act=()=>{if(can){r.push(k);st.msg=null;if(k===m.goal)finishRoute(i);}else{r.pop();st.msg=null;}render();};
+      g.addEventListener('click',act);g.addEventListener('keydown',e=>{if(e.key==='Enter')act();});
+      if(!can)g.style.cursor='pointer';
+    }
+  });
+  return h('div',{class:'mapwrap'},svg);
+}
+function finishRoute(i){
+  const m=MAPS[i],st=S.st[i],key=st.route.join('→'),c=costOf(m,st.route);
+  const seen=st.tried.find(t=>t.key===key);
+  if(seen){st.msg=`You have already tried ${st.route.join(' → ')} (${c} minutes). Try a different route.`;st.cls='';return;}
+  const prevBest=st.tried.length?Math.min(...st.tried.map(t=>t.cost)):Infinity;
+  st.tried.push({key,route:st.route.slice(),cost:c});
+  st.msg=c<prevBest?`New best: ${st.route.join(' → ')} takes ${c} minutes.`:`${st.route.join(' → ')} takes ${c} minutes. Not better than your best (${prevBest}).`;
+  st.cls=c<prevBest?'ok':'';
+}
+function roundView(i){
+  const m=MAPS[i],st=S.st[i],r=st.route,end=r[r.length-1],done=end===m.goal;
+  const cost=costOf(m,r);
+  const best=st.tried.length?Math.min(...st.tried.map(t=>t.cost)):null;
+  const sorted=st.tried.slice().sort((a,b)=>a.cost-b.cost);
+  const reveal=st.revealed?h('div',{class:'msg '+(best===null?'':best===m.best?'ok':'bad')},
+    h('b',{},`There are ${m.routes.length} possible routes from ${m.start} to ${m.goal} that never visit a town twice. `),
+    `The quickest takes ${m.best} minutes: ${m.routes.filter(x=>x.cost===m.best).map(x=>x.path.join(' → ')).join(' or ')} (shown in green). `,
+    best===null?'':best===m.best?`You found it after trying ${st.tried.length} route${st.tried.length===1?'':'s'}.`:`Your best was ${best} minutes, so you had not found it yet.`):null;
+  return h('div',{},
+    h('div',{class:'rule'},h('div',{},h('h2',{},`${m.name}: ${m.start} to ${m.goal}`),h('p',{},m.rule)),
+      h('div',{class:'costbox'},h('small',{},'This route'),h('b',{},String(cost)),h('small',{},'minutes'))),
+    h('div',{class:'grid'},
+      h('div',{},mapView(i),h('p',{class:'small',style:'margin:6px 0 0'},'Dashed amber towns can be reached from the end of your route. Click the last town on your route to undo it.')),
+      h('div',{},
+        h('div',{class:'panel'},h('h3',{},'Your route'),h('div',{class:'route','aria-live':'polite'},r.join(' → ')+(done?'  ✓':'')),
+          h('div',{class:'actions'},
+            h('button',{class:'btn primary',disabled:!done||null,onclick:()=>{st.route=[m.start];st.msg=null;render();}},'Start a new route'),
+            h('button',{class:'btn ghost',disabled:r.length<2||null,onclick:()=>{r.pop();st.msg=null;render();}},'Undo'),
+            h('button',{class:'btn ghost',onclick:()=>{st.route=[m.start];st.msg=null;render();}},'Clear')),
+          st.msg?h('div',{class:'msg '+st.cls},st.msg):null),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},`Routes you have tried (${st.tried.length})`),
+          st.tried.length?h('table',{class:'t'},h('thead',{},h('tr',{},h('th',{},'Route'),h('th',{},'Minutes'))),
+            h('tbody',{},...sorted.map(t=>h('tr',{class:t.cost===best?'best':null},h('td',{class:'mono'},t.route.join(' → ')),h('td',{},String(t.cost))))))
+          :h('p',{class:'small',style:'margin:0'},'Complete a route to add it here.'),
+          h('div',{class:'actions'},h('button',{class:'btn accent',onclick:()=>{st.revealed=true;render();}},st.revealed?'Answer shown':'I think I have the quickest: check')),
+          reveal),
+        st.revealed?h('div',{class:'disc'},h('h3',{},'Discuss with your partner'),h('ul',{},
+          h('li',{},'How did you choose which routes to try?'),
+          h('li',{},`How could you be CERTAIN a route is the quickest without trying all ${m.routes.length}?`),
+          i===0?h('li',{},'Two routes tie for quickest. Can you spot why?'):h('li',{},'Now look at the "50 towns?" tab.'))):null)));
+}
+function fact(n){let f=1n;for(let i=2n;i<=BigInt(n);i++)f*=i;return f;}
+function routesComplete(n){ // simple paths between two fixed towns when every town is joined to every other
+  const m=n-2;let tot=0n;const mf=fact(m);for(let k=0;k<=m;k++)tot+=mf/fact(m-k);return tot;}
+function fmtBig(b){const s=b.toString();if(s.length<=15)return Number(b).toLocaleString('en-GB');return `${s[0]}.${s.slice(1,3)} × 10^${s.length-1}`;}
+function timeStr(b){const perSec=1000000000n;const secs=b/perSec;if(secs<1n)return 'less than a second';
+  const units=[[31557600n*1000000000n,'billion years'],[31557600n*1000000n,'million years'],[31557600n,'years'],[86400n,'days'],[3600n,'hours'],[60n,'minutes'],[1n,'seconds']];
+  for(const [u,name] of units)if(secs>=u){const v=secs/u;return `about ${v.toString().length>15?fmtBig(v):Number(v).toLocaleString('en-GB')} ${name}`;}return 'less than a second';}
+function bigView(){
+  const n=S.n,r=routesComplete(n);
+  const rows=[5,8,10,15,20,30,50].map(k=>{const x=routesComplete(k);return h('tr',{class:k===n?'best':null},h('td',{},String(k)),h('td',{},fmtBig(x)),h('td',{},timeStr(x)));});
+  const sl=h('input',{type:'range',min:'3',max:'50',value:String(n),'aria-label':'Number of towns'});sl.addEventListener('input',()=>{S.n=Number(sl.value);render();});
+  return h('div',{},
+    h('div',{class:'rule'},h('div',{},h('h2',{},'What if there were 50 towns?'),h('p',{},'Imagine every town has a road to every other town. How many different routes are there between two towns, and how long would a computer take to try them all at 1 billion routes per second?'))),
+    h('div',{class:'panel'},h('div',{class:'slider'},h('b',{},'Towns:'),sl,h('span',{class:'big'},String(n))),
+      h('div',{class:'stats'},
+        h('div',{class:'stat'},h('div',{class:'small'},'Possible routes'),h('div',{class:'big'},fmtBig(r))),
+        h('div',{class:'stat'},h('div',{class:'small'},'Time to try them all'),h('div',{class:'big',style:'font-size:26px'},timeStr(r))),
+        h('div',{class:'stat'},h('div',{class:'small'},'Dijkstra\'s algorithm'),h('div',{class:'big',style:'font-size:26px'},`visits each town once`)))),
+    h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'How fast the number of routes grows'),h('table',{class:'t'},h('thead',{},h('tr',{},h('th',{},'Towns'),h('th',{},'Possible routes'),h('th',{},'Time at 1 billion routes per second'))),h('tbody',{},...rows))),
+    h('div',{class:'disc'},h('h3',{},'So what?'),h('ul',{},
+      h('li',{},'Trying every route (brute force) works for a small map, but the number of routes explodes as the map grows.'),
+      h('li',{},'Sat navs and internet routers need an answer in a fraction of a second.'),
+      h('li',{},'Dijkstra\'s algorithm finds the cheapest route without trying every route: it visits each town once, always choosing the cheapest town found so far.'))));
+}
+const TABS=[['Small map',()=>roundView(0)],['Bigger map',()=>roundView(1)],['50 towns?',bigView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+</script>
+</body>
+</html>
