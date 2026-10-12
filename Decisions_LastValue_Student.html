@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 5 — Student Reference</title>
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --code-bg:#16233F;
+    --code-text:#DCE6F2;
+    --code-comment:#7C8FAE;
+    --code-string:#8FD6C6;
+    --code-kw:#E8A659;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  .layout{
+    display:flex;
+    min-height:100vh;
+    align-items:flex-start;
+  }
+
+  .sidebar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:28px 20px;
+    position:sticky;
+    top:0;
+    width:250px;
+    flex-shrink:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .eyebrow{
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .sidebar h1{
+    font-family:Cambria, Georgia, serif;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  .sidebar .meta{
+    font-size:13px;
+    color:#A9B7D1;
+    margin-bottom:28px;
+  }
+  .navlist{list-style:none;margin:0;padding:0;}
+  .navlist li{margin-bottom:4px;}
+  .navlist a{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    text-decoration:none;
+    color:#D7DFEC;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14.5px;
+    font-weight:600;
+    transition:background .15s ease;
+  }
+  .navlist a:hover{background:rgba(255,255,255,.08);}
+  .navlist .time{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--orange);
+    background:rgba(224,123,38,.15);
+    padding:2px 7px;
+    border-radius:20px;
+  }
+  .sidebar .pacing{
+    margin-top:32px;
+    padding:14px 14px;
+    background:rgba(46,158,158,.15);
+    border-radius:10px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#CDE9E7;
+  }
+  .sidebar .pacing strong{color:#fff;display:block;margin-bottom:4px;font-size:13px;}
+
+  main{padding:40px 48px 80px;max-width:880px;flex:1;min-width:0;}
+  .page-head{margin-bottom:36px;}
+  .page-head .kicker{
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  .page-head h2{
+    font-family:Cambria, Georgia, serif;
+    font-size:30px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .page-head p{
+    font-size:15px;
+    color:var(--muted);
+    max-width:640px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  section.block{margin-bottom:52px;scroll-margin-top:24px;}
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:2px solid #E4E8EE;
+    padding-bottom:10px;
+    margin-bottom:22px;
+  }
+  .block-head h3{
+    font-family:Cambria, Georgia, serif;
+    font-size:23px;
+    margin:0;
+    color:var(--navy);
+  }
+  .block-head .duration{
+    font-size:13px;
+    font-weight:700;
+    color:var(--orange);
+    background:var(--orange-light);
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  .beat{
+    background:var(--card);
+    border:1px solid #E7EAF0;
+    border-radius:12px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .beat + .beat{margin-top:18px;}
+  .beat-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--teal);
+    margin:0 0 8px;
+  }
+  .prompt{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .prompt strong{color:var(--navy);}
+
+  pre.code{
+    background:var(--code-bg);
+    color:var(--code-text);
+    padding:16px 18px;
+    border-radius:9px;
+    font-family:Consolas, "Courier New", monospace;
+    font-size:14px;
+    line-height:1.6;
+    overflow-x:auto;
+    margin:0 0 14px;
+  }
+  pre.code .kw{color:var(--code-kw);}
+  pre.code .str{color:var(--code-string);}
+  pre.code .cm{color:var(--code-comment);font-style:italic;}
+
+  .output{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--teal-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#1B4B4B;
+  }
+  .output .tag{
+    font-weight:700;
+    color:var(--teal);
+    white-space:nowrap;
+    margin-right:8px;
+  }
+  .output code{
+    font-family:Consolas, "Courier New", monospace;
+    background:rgba(255,255,255,.6);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  .discuss{
+    background:var(--orange-light);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#7A4415;
+  }
+  .discuss .tag{font-weight:700;color:var(--orange);margin-right:6px;}
+
+  .warn{
+    background:#FBEAE5;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    color:#8A3520;
+    margin-top:14px;
+  }
+  .warn .tag{font-weight:700;color:#C0472C;margin-right:6px;}
+
+  footer.note{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid #E4E8EE;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  @media print{
+    .sidebar{position:static;height:auto;}
+    .layout{display:block;}
+    main{padding:0 20px;}
+  }
+
+  @media (max-width:760px){
+    .layout{display:block;}
+    .sidebar{position:static;height:auto;width:auto;}
+    main{padding:28px 20px 60px;}
+  }
+
+  table.tests{width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 14px;}
+  table.tests th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:12.5px;}
+  table.tests td{padding:8px 10px;border-bottom:1px solid #E4E8EE;vertical-align:top;}
+  table.tests tr:nth-child(even) td{background:#F5F7FA;}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar"><p class="eyebrow">AS UNIT 2 &mdash; LESSON 5</p><h1>Decisions &amp;<br>the Last Value</h1><p class="meta">Use alongside the lesson, or anytime</p><ul class="navlist"><li><a href="#decisions"><span>Decisions in the Right Order</span></a></li><li><a href="#plan"><span>Plan It First</span></a></li><li><a href="#store"><span>Store and Recall</span></a></li><li><a href="#calc"><span>Mini Calculator</span></a></li><li><a href="#annotate"><span>Annotating</span></a></li><li><a href="#further"><span>Going Further</span></a></li></ul><div class="pacing"><strong>How to use this</strong>Today you write a new program in azsalt.py. Type each example yourself before checking the expected result, and fill in the gaps with your own code.</div></nav>
+<main><div class="page-head"><p class="kicker">Your reference &mdash; use it, don't just read it</p><h2>Student Reference</h2><p>The patterns for today's program: ordering your conditions, a loop that ends on 100, storing and recalling the last value, and annotating. "Going Further" has three extras.</p></div>
+<section class="block" id="decisions"><div class="block-head"><h3>Decisions in the Right Order</h3><span class="duration">3 steps</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; ONLY THE FIRST TRUE CONDITION RUNS</p><p class="prompt">In an if / elif chain, once one condition is true the rest are skipped. So an earlier condition can catch a case that was meant for a later one.</p><pre class="code"><span class="kw">if</span> reading &gt; 6:
+    print(<span class="str">"add water"</span>)
+<span class="kw">elif</span> reading &gt;= 4:
+    print(<span class="str">"stop addition"</span>)
+<span class="kw">elif</span> reading &lt; 2:
+    print(<span class="str">"add salt"</span>)
+<span class="kw">elif</span> reading &lt; 1:
+    print(<span class="str">"double the salt addition"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"salinity within range"</span>)</pre><div class="output"><span class="tag">Expect:</span><span>0.5 prints "add salt" (it should double); 12 prints "add water" (it should be a fault).</span></div><div class="discuss"><span class="tag">Think:</span> What do the two failures have in common?</div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; MOST EXTREME FIRST</p><p class="prompt">Start with the case that has to override everything — the fault. Then work from the extremes inwards.</p><pre class="code"><span class="kw">if</span> reading &lt; 0 <span class="kw">or</span> reading &gt; 10:
+    print(<span class="str">"fault detected"</span>)
+<span class="kw">elif</span> reading &gt; 6:
+    print(<span class="str">"add water"</span>)
+<span class="kw">elif</span> reading &gt;= 4:
+    print(<span class="str">"stop addition"</span>)
+<span class="kw">elif</span> reading &lt; 1:
+    print(<span class="str">"double the salt addition"</span>)
+<span class="kw">elif</span> reading &lt; 2:
+    print(<span class="str">"add salt"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"salinity within range"</span>)</pre><div class="output"><span class="tag">Expect:</span><span>0.5 now doubles; 12 is a fault; exactly 4 and 6 give "stop addition"; exactly 10 gives "add water".</span></div><div class="warn"><span class="tag">Common slip:</span> Putting a range test before a more extreme one, or forgetting the fault check at the top.</div></div><div class="beat"><p class="beat-label">BEAT 3 &middot; A LOOP THAT ENDS ON 100</p><p class="prompt">Take one reading before the loop, test it in the loop condition, and take the next reading at the bottom. <code>float()</code> turns the text from input() into a real number.</p><pre class="code">reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+
+<span class="kw">while</span> reading != 100:
+    ...   <span class="cm"># the if / elif chain</span>
+
+    reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+
+print(<span class="str">"program terminated"</span>)</pre><div class="output"><span class="tag">Expect:</span><span>100 first: the loop never runs and "program terminated" prints at once.</span></div><div class="warn"><span class="tag">Common slip:</span> Leaving out the second <code>input()</code> — the same reading is tested forever and the loop never ends.</div></div></section><section class="block" id="plan"><div class="block-head"><h3>Plan It First</h3><span class="duration">2 steps</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; STEPS, NOT CODE</p><p class="prompt">Pseudocode is the algorithm in plain steps, using words like INPUT, OUTPUT, IF and WHILE. Here is the layout, on an unrelated example:</p><pre class="code">INPUT guess
+WHILE guess is not "open"
+    OUTPUT "wrong - try again"
+    INPUT guess
+END WHILE
+OUTPUT "welcome"</pre><div class="discuss"><span class="tag">Remember:</span> The exam asks for the algorithm in Section A and the code in Section B — so planning first is a real exam skill.</div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; TEST YOUR LOOP AND CHAIN</p><p class="prompt">Before adding any file work, test with these readings:</p><table class="tests"><tr><th>Reading</th><th>Message</th></tr><tr><td>100</td><td>program terminated (immediately)</td></tr><tr><td>12</td><td>fault detected</td></tr><tr><td>-1</td><td>fault detected</td></tr><tr><td>7</td><td>add water</td></tr><tr><td>6</td><td>stop addition</td></tr><tr><td>4</td><td>stop addition</td></tr><tr><td>1.5</td><td>add salt</td></tr><tr><td>0.5</td><td>double the salt addition</td></tr></table><div class="output"><span class="tag">Expect:</span><span>Every reading gives the message in the table. If one doesn't, check the order of your conditions first.</span></div></div></section><section class="block" id="store"><div class="block-head"><h3>Store and Recall the Last Value</h3><span class="duration">3 steps</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; WRITE MODE KEEPS ONLY THE LAST</p><p class="prompt">Records were appended so every one was kept. Here only the most recent reading matters, so use write mode: it replaces whatever was in the file.</p><pre class="code"><span class="kw">with</span> open(<span class="str">"saltResult.txt"</span>, <span class="str">"w"</span>) <span class="kw">as</span> file:
+    file.write(str(reading))
+print(<span class="str">"Stored"</span>, reading, <span class="str">"in saltResult.txt"</span>)</pre><div class="output"><span class="tag">Expect:</span><span>Whatever you enter, the file only ever holds the latest reading.</span></div><div class="discuss"><span class="tag">Remember:</span> This goes inside the loop, after the chain. 100 is the stop signal, not a reading, so it is never stored.</div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; RETRIEVE AFTER THE LOOP</p><p class="prompt">When the loop has ended, read the file back — and plan for there being nothing to read.</p><pre class="code"><span class="kw">try</span>:
+    <span class="kw">with</span> open(<span class="str">"saltResult.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> file:
+        last = file.read()
+    print(<span class="str">"Last reading stored:"</span>, last)
+<span class="kw">except</span> FileNotFoundError:
+    print(<span class="str">"No reading stored yet."</span>)</pre><div class="output"><span class="tag">Expect:</span><span>Readings 5, 12, 0.5 then 100: "Last reading stored: 0.5". Entering 100 straight away: "No reading stored yet."</span></div></div><div class="beat"><p class="beat-label">BEAT 3 &middot; THE STRUCTURE</p><p class="prompt">How the three parts fit together — fill in the gaps with your own code:</p><pre class="code">reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+
+<span class="kw">while</span> reading != 100:
+    ...   <span class="cm"># your if / elif chain</span>
+
+    ...   <span class="cm"># store the reading (write mode) and confirm it</span>
+
+    reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+
+print(<span class="str">"program terminated"</span>)
+
+...       <span class="cm"># retrieve the last reading (with try / except)</span></pre><div class="warn"><span class="tag">Common slip:</span> Forgetting <code>str()</code> — write() only accepts text. And using append mode for a value that should be overwritten.</div></div></section><section class="block" id="calc"><div class="block-head"><h3>Mini Calculator</h3><span class="duration">patterns to reuse</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; THE NUMBERS: TYPE BEFORE RANGE</p><p class="prompt">The numbers must be whole numbers from 0 to 9. Check it's a number first, then convert and check the range — last lesson's rule.</p><pre class="code">valid = <span class="kw">False</span>
+<span class="kw">while</span> valid == <span class="kw">False</span>:
+    first = input(<span class="str">"First number (0-9): "</span>)
+    <span class="kw">if</span> <span class="kw">not</span> first.isdigit():
+        print(<span class="str">"Enter a whole number."</span>)
+    <span class="kw">elif</span> int(first) &gt; 9:
+        print(<span class="str">"Enter a number from 0 to 9."</span>)
+    <span class="kw">else</span>:
+        valid = <span class="kw">True</span>
+first = int(first)</pre><div class="output"><span class="tag">Expect:</span><span>"x", "-3" and "2.5" all give "Enter a whole number."; "10" gives "Enter a number from 0 to 9."</span></div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; THE OPERATOR AND THE ANSWER</p><p class="prompt">Check the operator is one of the allowed choices, then use an if / elif chain to work out the answer.</p><pre class="code">valid_operators = [<span class="str">"+"</span>, <span class="str">"-"</span>, <span class="str">"*"</span>]
+valid = <span class="kw">False</span>
+<span class="kw">while</span> valid == <span class="kw">False</span>:
+    operator = input(<span class="str">"Operator (+, -, *): "</span>)
+    <span class="kw">if</span> operator <span class="kw">not</span> <span class="kw">in</span> valid_operators:
+        print(<span class="str">"Choose +, - or *."</span>)
+    <span class="kw">else</span>:
+        valid = <span class="kw">True</span>
+
+<span class="kw">if</span> operator == <span class="str">"+"</span>:
+    answer = first + second
+<span class="kw">elif</span> operator == <span class="str">"-"</span>:
+    answer = first - second
+<span class="kw">else</span>:
+    answer = first * second
+print(<span class="str">"Answer:"</span>, answer)</pre><div class="output"><span class="tag">Expect:</span><span>3 and 4 with + gives 7; with - gives -1; with * gives 12.</span></div><div class="warn"><span class="tag">Common slip:</span> Forgetting <code>int()</code>: input() gives text, so "3" + "4" is "34", not 7.</div><pre class="code">first = input(<span class="str">"First number: "</span>)     <span class="cm"># "3"</span>
+second = input(<span class="str">"Second number: "</span>)   <span class="cm"># "4"</span>
+print(first + second)               <span class="cm"># 34  - joined as text, not added</span></pre></div><div class="beat"><p class="beat-label">BEAT 3 &middot; STORE AND RECALL THE LAST ANSWER</p><p class="prompt">This is the same pattern as the salinity program: write mode to store, and read it back to recall — with try / except in case there isn't a file yet.</p></div></section><section class="block" id="annotate"><div class="block-head"><h3>Annotating Your Program</h3><span class="duration">2 steps</span></div><div class="beat"><p class="beat-label">BEAT 1 &middot; NAME THE ROUTINE, SAY WHY</p><p class="prompt">Name each routine in the mark scheme's words — input, selection, loop, storing, retrieving — and say why, not just what.</p><pre class="code"><span class="cm"># INPUT: priming read - the first reading, before the loop</span>
+reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+
+<span class="cm"># LOOP: ends when the sentinel value 100 is entered</span>
+<span class="kw">while</span> reading != 100:
+    <span class="cm"># SELECTION: most extreme conditions first</span>
+    <span class="cm"># ASSUMPTION: exactly 4 or 6 counts as "stop addition"</span>
+    ...
+    <span class="cm"># STORING: write mode keeps only the last reading</span>
+    ...</pre><div class="discuss"><span class="tag">Think:</span> Does your comment say what the code does, or why? "Write mode keeps only the last reading" beats "writes to file".</div></div><div class="beat"><p class="beat-label">BEAT 2 &middot; STATE YOUR ASSUMPTIONS</p><p class="prompt">The question's table leaves gaps for real numbers (such as 1.5 or 3.5). Add a comment saying what you decided about exactly 4, exactly 6, and readings between 2 and 4.</p></div></section><section class="block" id="further"><div class="block-head"><h3>Going Further</h3><span class="duration">extension</span></div><div class="beat"><p class="beat-label">CLEAR THE SCREEN</p><p class="prompt">In a text program, "clear the screen" can be as simple as printing a lot of blank lines:</p><pre class="code">print(<span class="str">"\n"</span> * 30)   <span class="cm"># pushes the old output off the screen</span></pre><div class="output"><span class="tag">Expect:</span><span>The earlier output scrolls out of view.</span></div></div><div class="beat"><p class="beat-label">A RUNNING AVERAGE</p><p class="prompt">Output the current reading and the average each time, as in the Section A algorithm:</p><pre class="code">total = 0
+count = 0
+reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+<span class="kw">while</span> reading != 100:
+    total = total + reading
+    count = count + 1
+    average = total / count
+    print(<span class="str">"Current:"</span>, reading, <span class="str">"Average:"</span>, round(average, 1))
+    reading = float(input(<span class="str">"Reading (100 to quit): "</span>))</pre><div class="output"><span class="tag">Expect:</span><span>Readings 4, 6, 5 then 100: "Current: 4.0 Average: 4.0", "Current: 6.0 Average: 5.0", "Current: 5.0 Average: 5.0".</span></div></div><div class="beat"><p class="beat-label">INPUT THAT SURVIVES TEXT</p><p class="prompt">If someone types text instead of a number, float() crashes. Wrap it so the program asks again — use it for each reading:</p><pre class="code">valid = <span class="kw">False</span>
+<span class="kw">while</span> valid == <span class="kw">False</span>:
+    <span class="kw">try</span>:
+        reading = float(input(<span class="str">"Reading (100 to quit): "</span>))
+        valid = <span class="kw">True</span>
+    <span class="kw">except</span> ValueError:
+        print(<span class="str">"Please enter a number."</span>)</pre><div class="output"><span class="tag">Expect:</span><span>"abc" or an empty line prints "Please enter a number." and asks again.</span></div></div></section><footer class="note">AS Unit 2 &mdash; Lesson 5 &middot; Student Reference &middot; ask if anything doesn't match what you expected.</footer>
+</main>
+</div>
+</body>
+</html>

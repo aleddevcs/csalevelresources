@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Which Branch Runs?</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔀</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  .hint{font-size:13px;color:var(--muted);margin:0 0 20px;}
+
+  .columns{
+    display:flex;
+    gap:18px;
+  }
+  .columns > div{flex:1;min-width:0;}
+  .col-head{
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  .col-head.right{color:var(--orange);}
+
+  .item{
+    background:var(--card);
+    border:2px solid var(--card-border);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    cursor:pointer;
+    font-size:14.5px;
+    position:relative;
+    box-shadow:var(--shadow);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    user-select:none;
+  }
+  .item:hover{border-color:var(--teal);}
+  .item.selected{border-color:var(--orange);background:var(--orange-light);}
+  .item.paired{border-color:var(--navy);}
+  .item.correct{border-color:var(--good);background:var(--good-bg);}
+  .item.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+
+  .tagnum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .item-inner{display:flex;align-items:center;}
+
+  .reflect{
+    margin-top:26px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .columns{flex-direction:column;}
+    header h1{font-size:22px;}
+  }
+
+  .q{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:18px 20px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
+  }
+  .q-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .q-num{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;flex-shrink:0;
+  }
+  .q-context{font-size:13px;font-weight:700;color:var(--teal);letter-spacing:.02em;}
+  pre.snippet{
+    background:#16233F;color:#DCE6F2;
+    padding:13px 16px;border-radius:9px;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:13.5px;line-height:1.55;overflow-x:auto;margin:0 0 12px;
+  }
+  .q-text{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink);}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opt{
+    text-align:left;
+    background:var(--card);
+    color:var(--ink);
+    border:2px solid var(--card-border);
+    border-radius:9px;
+    padding:11px 14px;
+    font-size:14.5px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  .opt:hover{border-color:var(--teal);opacity:1;}
+  .opt.selected{border-color:var(--orange);background:var(--orange-light);}
+  .opt.correct{border-color:var(--good);background:var(--good-bg);}
+  .opt.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+  .why{
+    display:none;margin-top:12px;
+    background:var(--teal-light);
+    border-radius:9px;padding:11px 14px;
+    font-size:13.5px;line-height:1.5;color:var(--ink);
+  }
+  .why.show{display:block;}
+  .why strong{color:var(--teal);}
+
+  .top{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+  .top > div{flex:1 1 320px;min-width:0;}
+  .panel-title{font-size:12.5px;font-weight:800;letter-spacing:.03em;margin:0 0 8px;}
+  .panel-title.orange{color:var(--orange);}
+  .panel-title.teal{color:var(--teal);}
+  .rules{
+    background:var(--card);border:1px solid var(--card-border);border-radius:12px;
+    padding:14px 18px;box-shadow:var(--shadow);font-size:14px;line-height:1.7;
+  }
+  .rules .r{display:flex;gap:10px;}
+  .rules .r b{min-width:128px;color:var(--navy);}
+  :root[data-theme="dark"] .rules .r b{color:#fff;}
+  pre.chain{
+    background:#16233F;color:#DCE6F2;margin:0;
+    padding:14px 18px;border-radius:12px;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:13.5px;line-height:1.55;overflow-x:auto;
+  }
+  .opts.optgrid{display:block;}
+  .opts.optgrid .opt{display:inline-block;width:calc(33.333% - 8px);margin:0 8px 8px 0;vertical-align:top;text-align:center;font-size:14px;}
+  @media (max-width:640px){ .opts.optgrid .opt{width:100%;margin-right:0;} }
+  .reading{
+    font-family:Consolas,"Courier New",monospace;
+    font-size:15px;font-weight:700;color:var(--navy);
+    background:var(--teal-light);padding:3px 10px;border-radius:6px;
+  }
+  :root[data-theme="dark"] .reading{color:#fff;}
+  .verdict{font-weight:800;margin-right:6px;}
+  .verdict.ok{color:var(--good);}
+  .verdict.bad{color:var(--bad);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 5 STARTER</p>
+    <h1>Which Branch Runs?</h1>
+    <p>Read the chain from the top. Only the <strong>first</strong> condition that is true runs &mdash; the rest are skipped. For each reading, pick the message that prints, then check. Two of the results aren't what the program is meant to do: can you spot which, and why?</p>
+  </header>
+
+  <div class="top">
+    <div>
+      <p class="panel-title orange">THE CHAIN</p>
+      <pre class="chain" id="chain"></pre>
+    </div>
+    <div>
+      <p class="panel-title teal">WHAT THE PROGRAM IS MEANT TO DO</p>
+      <div class="rules">
+        <div class="r"><b>Fault</b><span>below 0 or above 10</span></div>
+        <div class="r"><b>Add water</b><span>above 6</span></div>
+        <div class="r"><b>Stop addition</b><span>4 or more</span></div>
+        <div class="r"><b>Double the salt</b><span>below 1</span></div>
+        <div class="r"><b>Add salt</b><span>below 2</span></div>
+        <div class="r"><b>Within range</b><span>anything else</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="status" id="status">0 of 6 answered</div>
+    <div class="btns">
+      <button class="btn-secondary" id="resetBtn">&#8635; Reset</button>
+      <button class="btn-primary" id="checkBtn">&#10003; Check my answers</button>
+      <button class="btn-ghost" id="revealBtn">Reveal all</button>
+    </div>
+  </div>
+  <p class="hint">Predict what the <em>chain above</em> prints &mdash; not what it ought to print.</p>
+
+  <div id="questions"></div>
+
+  <div class="reflect">
+    <p class="tag">BE READY TO EXPLAIN</p>
+    <p>What do the two wrong results have in common? How would you reorder the chain, and what would you add, so every reading gets the right message?</p>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Lesson 5 &middot; sets up today's decision logic</footer>
+</div>
+
+<script>
+  var CHAIN = "if reading > 6:\n    print(\"add water\")\nelif reading >= 4:\n    print(\"stop addition\")\nelif reading < 2:\n    print(\"add salt\")\nelif reading < 1:\n    print(\"double the salt addition\")\nelse:\n    print(\"salinity within range\")";
+  var MESSAGES = ["add water", "stop addition", "add salt", "double the salt addition", "salinity within range", "fault detected"];
+  var QUESTIONS = [{"reading": "8", "answer": "add water", "ok": true, "why": "8 is above 6, so the first condition is true and \u201cadd water\u201d prints. The rest of the chain is skipped."}, {"reading": "5", "answer": "stop addition", "ok": true, "why": "5 isn't above 6, but it is 4 or more \u2014 so \u201cstop addition\u201d prints."}, {"reading": "3", "answer": "salinity within range", "ok": true, "why": "3 isn't above 6, isn't 4 or more, isn't below 2 and isn't below 1 \u2014 so it falls through to the else."}, {"reading": "1.5", "answer": "add salt", "ok": true, "why": "1.5 is below 2, so \u201cadd salt\u201d prints. (It isn't below 1, so nothing was missed here.)"}, {"reading": "0.5", "answer": "add salt", "ok": false, "wrong": "It should print \u201cdouble the salt addition\u201d.", "why": "0.5 is below 2 as well as below 1 \u2014 and \u201cbelow 2\u201d comes first. So \u201cadd salt\u201d prints and \u201cbelow 1\u201d is never reached."}, {"reading": "12", "answer": "add water", "ok": false, "wrong": "It should print \u201cfault detected\u201d.", "why": "12 is above 6, so \u201cadd water\u201d prints. There's no fault check at the top, so a reading that's out of range is treated as a normal high one."}];
+
+  var order = [];
+  var chosen = [];
+  var checked = false;
+  var revealed = false;
+
+  document.getElementById("chain").textContent = CHAIN;
+
+  function shuffled(n) {
+    var a = [];
+    for (var i = 0; i < n; i++) a.push(i);
+    for (var j = a.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var t = a[j]; a[j] = a[k]; a[k] = t;
+    }
+    return a;
+  }
+
+  function reset() {
+    order = QUESTIONS.map(function () { return shuffled(MESSAGES.length); });
+    chosen = QUESTIONS.map(function () { return -1; });
+    checked = false;
+    revealed = false;
+    render();
+    updateStatus();
+  }
+
+  function answerIndex(q) { return MESSAGES.indexOf(q.answer); }
+
+  function render() {
+    var box = document.getElementById("questions");
+    box.innerHTML = "";
+    QUESTIONS.forEach(function (q, qi) {
+      var card = document.createElement("div");
+      card.className = "q";
+
+      var head = document.createElement("div");
+      head.className = "q-head";
+      var num = document.createElement("div");
+      num.className = "q-num";
+      num.textContent = qi + 1;
+      var lbl = document.createElement("span");
+      lbl.className = "q-context";
+      lbl.textContent = "reading =";
+      var val = document.createElement("span");
+      val.className = "reading";
+      val.textContent = q.reading;
+      head.appendChild(num);
+      head.appendChild(lbl);
+      head.appendChild(val);
+      card.appendChild(head);
+
+      var qt = document.createElement("p");
+      qt.className = "q-text";
+      qt.textContent = "Which message prints?";
+      card.appendChild(qt);
+
+      var opts = document.createElement("div");
+      opts.className = "opts optgrid";
+      var ai = answerIndex(q);
+      order[qi].forEach(function (oi) {
+        var b = document.createElement("button");
+        b.className = "opt";
+        b.textContent = MESSAGES[oi];
+        if (chosen[qi] === oi) b.classList.add("selected");
+        if (checked || revealed) {
+          if (oi === ai && (revealed || chosen[qi] === oi)) {
+            b.classList.remove("selected");
+            b.classList.add("correct");
+          } else if (chosen[qi] === oi && oi !== ai) {
+            b.classList.remove("selected");
+            b.classList.add("incorrect");
+          }
+        }
+        b.addEventListener("click", function () {
+          if (revealed) return;
+          chosen[qi] = oi;
+          checked = false;
+          render();
+          updateStatus();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+
+      var why = document.createElement("div");
+      why.className = "why";
+      if (revealed || (checked && chosen[qi] !== -1)) why.classList.add("show");
+      var verdict = document.createElement("span");
+      verdict.className = "verdict " + (q.ok ? "ok" : "bad");
+      verdict.textContent = q.ok ? "As intended. " : "Not what we want. ";
+      why.appendChild(verdict);
+      why.appendChild(document.createTextNode(q.why + (q.ok ? "" : " " + q.wrong)));
+      card.appendChild(why);
+
+      box.appendChild(card);
+    });
+  }
+
+  function answeredCount() {
+    return chosen.filter(function (c) { return c !== -1; }).length;
+  }
+
+  function updateStatus() {
+    document.getElementById("status").innerHTML = "<strong>" + answeredCount() + " of " + QUESTIONS.length + "</strong> answered";
+  }
+
+  document.getElementById("resetBtn").addEventListener("click", reset);
+
+  document.getElementById("checkBtn").addEventListener("click", function () {
+    checked = true;
+    revealed = false;
+    render();
+    var correct = QUESTIONS.filter(function (q, i) { return chosen[i] === answerIndex(q); }).length;
+    var answered = answeredCount();
+    var el = document.getElementById("status");
+    if (answered === 0) {
+      el.innerHTML = "Pick a message for each reading first";
+    } else if (correct === QUESTIONS.length) {
+      el.innerHTML = "<strong>All " + QUESTIONS.length + " correct!</strong> Now: which two aren't what we want?";
+    } else {
+      el.innerHTML = "<strong>" + correct + " of " + QUESTIONS.length + "</strong> correct" + (answered < QUESTIONS.length ? " so far" : "");
+    }
+  });
+
+  document.getElementById("revealBtn").addEventListener("click", function () {
+    revealed = true;
+    checked = true;
+    render();
+    document.getElementById("status").innerHTML = "Answers revealed \u2014 discuss as a class";
+  });
+
+  reset();
+</script>
+</body>
+</html>

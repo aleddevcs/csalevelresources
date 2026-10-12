@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build It: Salinity Monitor — Lesson 5</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐠</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --gold-light:#FFF3CD;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --gold-light:#3A331C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --gold-light:#3A331C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 60px;}
+
+  .progress-bar-outer{
+    position:sticky;
+    top:env(safe-area-inset-top,0px);
+    z-index:20;
+    background:var(--paper);
+    padding:14px 0 10px;
+  }
+  .progress-track{
+    background:var(--card-border);
+    border-radius:20px;
+    height:14px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--teal), var(--orange));
+    border-radius:20px;
+    transition:width .35s ease;
+  }
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .progress-label strong{color:var(--navy);font-size:14px;}
+  :root[data-theme="dark"] .progress-label strong{color:#fff;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin:6px 0 22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .info-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .info-row .chip{
+    flex:1;
+    min-width:220px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13.5px;
+  }
+  .info-row .chip strong{display:block;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;}
+  :root[data-theme="dark"] .info-row .chip strong{color:var(--teal);}
+
+  .note{font-size:13px;color:var(--muted);font-style:italic;margin:0 0 26px;}
+
+  section.part{margin-bottom:30px;}
+  .part-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .part-num{
+    width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;
+    flex-shrink:0;
+  }
+  .part-head h2{font-family:Cambria, Georgia, serif;font-size:21px;margin:0;color:var(--navy);}
+  :root[data-theme="dark"] .part-head h2{color:#fff;}
+
+  .part-desc{
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14.5px;
+    line-height:1.55;
+    margin-bottom:14px;
+  }
+  .part-desc p{margin:0 0 8px;}
+  .part-desc p:last-child{margin-bottom:0;}
+
+  ul.checklist{list-style:none;margin:0;padding:0;}
+  ul.checklist li{margin-bottom:8px;}
+  ul.checklist label{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:9px;
+    padding:12px 14px;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  ul.checklist label:hover{border-color:var(--teal);}
+  ul.checklist input[type="checkbox"]{
+    width:19px;height:19px;
+    flex-shrink:0;
+    margin-top:1px;
+    accent-color:var(--teal);
+    cursor:pointer;
+  }
+  ul.checklist li.checked label{
+    background:var(--teal-light);
+    border-color:var(--teal);
+  }
+  ul.checklist li.checked span.text{
+    text-decoration:line-through;
+    color:var(--muted);
+  }
+
+  .callout{
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14px;
+    line-height:1.55;
+    margin-top:14px;
+  }
+  .callout strong.title{display:block;color:var(--navy);font-size:14.5px;margin-bottom:5px;}
+  :root[data-theme="dark"] .callout strong.title{color:#fff;}
+  .callout.gold{background:var(--gold-light);}
+  .callout.teal{background:var(--teal-light);}
+  .callout.warn{background:#FBEAE5;}
+  :root[data-theme="dark"] .callout.warn{background:#3A211C;}
+  .callout.warn strong.title{color:#C0472C;}
+
+  .celebrate{
+    display:none;
+    background:linear-gradient(135deg, var(--navy-deep), var(--navy));
+    color:#fff;
+    border-radius:14px;
+    padding:20px 22px;
+    text-align:center;
+    margin:26px 0;
+  }
+  .celebrate.show{display:block;}
+  .celebrate .big{font-size:28px;margin-bottom:4px;}
+  .celebrate p{margin:0;font-size:14.5px;color:#CFE8E6;}
+
+  footer.note{
+    margin-top:30px;
+    padding-top:18px;
+    border-top:1px solid var(--card-border);
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:480px){
+    header h1{font-size:22px;}
+    .info-row{flex-direction:column;}
+  }
+
+  table.tests{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  table.tests th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:12.5px;}
+  table.tests td{padding:8px 10px;border-bottom:1px solid var(--card-border);vertical-align:top;}
+  table.tests tr:nth-child(even) td{background:rgba(46,158,158,.06);}
+
+  .callout + ul.checklist{margin-top:14px;}
+  .callout + .callout{margin-top:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="progress-bar-outer">
+    <div class="progress-label">
+      <span>Your progress</span>
+      <strong id="progressText">0 of 20 checked</strong>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 5</p>
+    <h1>Build It: Salinity Monitor</h1>
+    <p>Paired coding task &mdash; four parts: plan and code the decisions, store and retrieve the last reading, a mini calculator, then annotate. Tick each box as you complete it.</p>
+  </header>
+
+  <div class="info-row">
+    <div class="chip"><strong>Scenario</strong>Fish tank salinity monitor</div>
+    <div class="chip"><strong>Where</strong>New files: azsalt.py and calculator.py</div>
+  </div>
+
+  <p class="note">Before you start: create an empty file called azsalt.py. This is a new program, separate from your menu shell. The Lesson 5 student reference has every pattern if you need a reminder.</p>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--teal);">1</div>
+      <h2>Plan It, Then Code It</h2>
+    </div>
+    <div class="part-desc" style="background:var(--teal-light);">
+      <p>The monitor asks for a salinity reading again and again until the user enters <strong>100</strong>. For each reading it prints the right message. When 100 is entered it prints &ldquo;program terminated&rdquo;.</p>
+      <p>Write the algorithm as pseudocode first &mdash; plain steps, not Python. Then code the loop and the if / elif chain in azsalt.py. No file work yet.</p>
+    </div>
+    <div class="callout teal">
+      <strong class="title">The rules</strong>
+      <table class="tests"><tr><th>If the reading is…</th><th>Print</th></tr><tr><td>below 0 or above 10</td><td>fault detected</td></tr><tr><td>above 6</td><td>add water</td></tr><tr><td>4 or more</td><td>stop addition</td></tr><tr><td>below 1</td><td>double the salt addition</td></tr><tr><td>below 2</td><td>add salt</td></tr><tr><td>anything else</td><td>salinity within range</td></tr></table>
+      <p style="margin:6px 0 0;font-size:13px;">The rules leave gaps for real numbers, so you decide what happens in between &mdash; and say so in a comment (Part 4).</p>
+    </div>
+    <ul class="checklist" data-group="part1"><li><label><input type="checkbox" data-id="p1-1"><span class="text">I've written the algorithm as <strong>pseudocode first</strong> — steps, not Python</span></label></li><li><label><input type="checkbox" data-id="p1-2"><span class="text">My plan loops until the reading is 100</span></label></li><li><label><input type="checkbox" data-id="p1-3"><span class="text">The first reading is taken <em>before</em> the loop, and the next reading at the <em>bottom</em> of the loop</span></label></li><li><label><input type="checkbox" data-id="p1-4"><span class="text">My if / elif chain has the most extreme conditions first (the fault check at the top)</span></label></li><li><label><input type="checkbox" data-id="p1-5"><span class="text">“program terminated” prints once the loop has ended</span></label></li><li><label><input type="checkbox" data-id="p1-6"><span class="text">I've tested every reading in the test table</span></label></li></ul>
+    <div class="callout teal">
+      <strong class="title">Test plan</strong>
+      <table class="tests"><tr><th>Reading</th><th>You should see</th></tr><tr><td>100 (first)</td><td>program terminated — straight away</td></tr><tr><td>12</td><td>fault detected</td></tr><tr><td>-1</td><td>fault detected</td></tr><tr><td>7</td><td>add water</td></tr><tr><td>6</td><td>stop addition</td></tr><tr><td>4</td><td>stop addition</td></tr><tr><td>1.5</td><td>add salt</td></tr><tr><td>0.5</td><td>double the salt addition</td></tr></table>
+    </div>
+    <div class="callout warn">
+      <strong class="title">Common slips</strong>
+      A range test placed <em>before</em> a more extreme one (0.5 prints &ldquo;add salt&rdquo;), no fault check at the top (12 prints &ldquo;add water&rdquo;), and no second <code>input()</code> at the bottom of the loop &mdash; it never ends.
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--orange);">2</div>
+      <h2>Store, Confirm, Retrieve</h2>
+    </div>
+    <div class="part-desc" style="background:var(--orange-light);">
+      <p>Store each reading (not 100) in <code>saltResult.txt</code>. Only the <strong>last</strong> reading matters, so use write mode. Confirm each save on screen. When the loop has ended, retrieve the last reading and display it.</p>
+    </div>
+    <ul class="checklist" data-group="part2"><li><label><input type="checkbox" data-id="p2-1"><span class="text">Each reading (except 100) is stored in saltResult.txt using <strong>write mode</strong></span></label></li><li><label><input type="checkbox" data-id="p2-2"><span class="text">I use <code>str()</code> when writing the reading</span></label></li><li><label><input type="checkbox" data-id="p2-3"><span class="text">A confirmation says which reading was stored and where</span></label></li><li><label><input type="checkbox" data-id="p2-4"><span class="text">After the loop, the last reading is retrieved from the file and displayed</span></label></li><li><label><input type="checkbox" data-id="p2-5"><span class="text">A missing file is handled with try/except — entering 100 straight away gives a friendly message, not a crash</span></label></li><li><label><input type="checkbox" data-id="p2-6"><span class="text">Tested: several readings then 100 — the file holds only the last one</span></label></li></ul>
+    <div class="callout teal">
+      <strong class="title">Test plan</strong>
+      <table class="tests"><tr><th>Test</th><th>You should see</th></tr><tr><td>Readings 5, 12, 0.5, then 100</td><td>A message and a “stored” line for each, then “program terminated” and the last reading: 0.5</td></tr><tr><td>Open saltResult.txt afterwards</td><td>One value: 0.5 — only the last reading</td></tr><tr><td>Delete the file, then enter 100 straight away</td><td>“program terminated”, then a friendly “no reading stored” message — no crash</td></tr></table>
+    </div>
+    <div class="callout warn">
+      <strong class="title">Common slips</strong>
+      Using append mode (&ldquo;a&rdquo;) &mdash; the readings run together in the file. Forgetting <code>str()</code> &mdash; write() only accepts text and crashes with a TypeError.
+    </div>
+    <div class="callout gold">
+      <strong class="title">Finished early?</strong>
+      The running average comes from the Section A algorithm for this problem; the second one makes your program more robust.
+      <ul class="checklist" data-group="extA" style="margin-top:10px;"><li><label><input type="checkbox" data-id="ext-1"><span class="text">(Extension) Added a running average: the current reading and the average, output each time</span></label></li><li><label><input type="checkbox" data-id="ext-2"><span class="text">(Extension) Text instead of a number no longer crashes the program — it asks again</span></label></li></ul>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--navy);">3</div>
+      <h2>Transfer: Mini Calculator</h2>
+    </div>
+    <div class="part-desc" style="background:var(--teal-light);">
+      <p>Same patterns, new brief &mdash; no worked example this time. In a new file called calculator.py: the user chooses to add, subtract or multiply, enters two whole numbers from 0 to 9, and the answer is displayed. Store the last answer, and add a way to recall it.</p>
+      <p>Which patterns can you reuse? Operator choice is an if / elif chain, and store and recall is the same as Part 2.</p>
+    </div>
+    <ul class="checklist" data-group="part3"><li><label><input type="checkbox" data-id="p3-1"><span class="text">The user chooses +, − or × and enters two whole numbers from 0 to 9</span></label></li><li><label><input type="checkbox" data-id="p3-2"><span class="text">I use <code>int()</code> so the numbers are added, not joined as text</span></label></li><li><label><input type="checkbox" data-id="p3-3"><span class="text">An if / elif chain works out the answer</span></label></li><li><label><input type="checkbox" data-id="p3-4"><span class="text">The answer is displayed, and the last answer is stored in a file using write mode</span></label></li><li><label><input type="checkbox" data-id="p3-5"><span class="text">There is a way to recall the last answer — and no crash if there isn't one yet</span></label></li></ul>
+    <div class="callout teal">
+      <strong class="title">Test plan</strong>
+      <table class="tests"><tr><th>Test</th><th>You should see</th></tr><tr><td>3 + 4</td><td>7</td></tr><tr><td>3 − 4</td><td>-1</td></tr><tr><td>3 × 4</td><td>12</td></tr><tr><td>Recall after calculating</td><td>The last answer</td></tr><tr><td>Recall with no file yet</td><td>A friendly message — not a crash</td></tr></table>
+    </div>
+    <div class="callout warn">
+      <strong class="title">Common slip</strong>
+      Forgetting <code>int()</code>. input() gives text, so &ldquo;3&rdquo; + &ldquo;4&rdquo; is &ldquo;34&rdquo;, not 7.
+    </div>
+    <div class="callout gold">
+      <strong class="title">Finished early?</strong>
+      Validate the numbers the way you did last lesson: check it's a number first, then convert and check the range.
+      <ul class="checklist" data-group="extB" style="margin-top:10px;"><li><label><input type="checkbox" data-id="ext-3"><span class="text">(Extension) Validated the calculator's numbers — type before range</span></label></li><li><label><input type="checkbox" data-id="ext-4"><span class="text">(Extension) Added a ‘clear the screen’ option</span></label></li></ul>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--orange);">4</div>
+      <h2>Annotate: State Your Assumptions</h2>
+    </div>
+    <div class="part-desc" style="background:var(--orange-light);">
+      <p>Annotation is marked in every paper. Add comments to azsalt.py that name each routine in the mark scheme's words, and say <em>why</em> &mdash; not just what the line does.</p>
+      <p>Include one comment stating what you decided about exactly 4, exactly 6, and readings between 2 and 4.</p>
+    </div>
+    <ul class="checklist" data-group="part4"><li><label><input type="checkbox" data-id="p4-1"><span class="text">There's a comment above each routine in azsalt.py: input, selection, loop, storing, retrieving</span></label></li><li><label><input type="checkbox" data-id="p4-2"><span class="text">A comment states my assumption about exactly 4, exactly 6, and readings between 2 and 4</span></label></li><li><label><input type="checkbox" data-id="p4-3"><span class="text">My comments say <em>why</em>, not just what</span></label></li></ul>
+  </section>
+
+  <div class="celebrate" id="celebrate">
+    <div class="big">&#127881;</div>
+    <p><strong>All done!</strong> Save azsalt.py, calculator.py and saltResult.txt. Next lesson is fix the code: reading the exam's own starter files and completing the missing lines.</p>
+  </div>
+
+  <div class="callout teal">
+    <strong class="title">Stuck?</strong>
+    Check the Lesson 5 student reference for each pattern, or ask to see the model answer &mdash; there's no penalty for checking, only for staying stuck.
+  </div>
+
+  <footer class="note">AS Unit 2 &mdash; Lesson 5 &middot; pairs with the Lesson 5 student reference</footer>
+</div>
+
+<script>
+  var REQUIRED_IDS = ["p1-1", "p1-2", "p1-3", "p1-4", "p1-5", "p1-6", "p2-1", "p2-2", "p2-3", "p2-4", "p2-5", "p2-6", "p3-1", "p3-2", "p3-3", "p3-4", "p3-5", "p4-1", "p4-2", "p4-3"];
+  var STORAGE_KEY = "salinity-build-task-l5-v1";
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* storage unavailable - progress just won't persist across reloads */
+    }
+  }
+
+  var state = loadState();
+  var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+  checkboxes.forEach(function (cb) {
+    var id = cb.dataset.id;
+    if (state[id]) {
+      cb.checked = true;
+      cb.closest("li").classList.add("checked");
+    }
+    cb.addEventListener("change", function () {
+      state[id] = cb.checked;
+      cb.closest("li").classList.toggle("checked", cb.checked);
+      saveState(state);
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    var done = REQUIRED_IDS.filter(function (id) { return state[id]; }).length;
+    var total = REQUIRED_IDS.length;
+    var pct = Math.round((done / total) * 100);
+    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressText").textContent = done + " of " + total + " checked";
+    document.getElementById("celebrate").classList.toggle("show", done === total);
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
