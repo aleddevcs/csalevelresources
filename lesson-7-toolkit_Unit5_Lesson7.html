@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 7 Toolkit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #5f7076; --faint: #8fa0a4;
+    --surface: #f4f8f8; --raised: #ffffff; --sunken: #ebf1f0; --border: #d6e1df;
+    --accent: #0b7a85; --accent-soft: #d9eff0; --accent-ink: #ffffff;
+    --good: #1f7d56; --good-soft: #d9f0e5;
+    --warn: #a3491b; --warn-soft: #f8e3d6;
+    --amb: #8a5a00; --amb-soft: #f7ecc8; --bad: #b3392f; --bad-soft: #f8dcd8;
+    --focus: #2b6f8f;
+    --t-html: #a8480f; --t-html-soft: #f7e3d4;
+    --t-css: #1f6a8c; --t-css-soft: #dcebf2;
+    --t-js: #7d6200; --t-js-soft: #f5ecc9;
+    --t-php: #5c4b8a; --t-php-soft: #e8e3f5;
+    --t-sql: #9c3b54; --t-sql-soft: #f6dfe5;
+    --t-tool: #3c4c53; --t-tool-soft: #e3eaea;
+    --p-browser: #0b7a85; --p-server: #1f7d56; --p-db: #44558a;
+    --shadow: 0 1px 2px rgba(22,35,42,.06), 0 6px 20px rgba(22,35,42,.06);
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --codebg: #0f2a2e; --codeink: #d6efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+      --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+      --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+      --good: #4fbb8c; --good-soft: #153626;
+      --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+      --focus: #6cb6d8;
+      --t-html: #ec9d70; --t-html-soft: #3a2517;
+      --t-css: #6cb6d8; --t-css-soft: #16262c;
+      --t-js: #e3c04d; --t-js-soft: #342c10;
+      --t-php: #b3a3e8; --t-php-soft: #2b2440;
+      --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+      --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+      --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --codebg: #0a1517; --codeink: #cfeae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+    --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+    --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+    --good: #4fbb8c; --good-soft: #153626;
+    --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+    --focus: #6cb6d8;
+    --t-html: #ec9d70; --t-html-soft: #3a2517;
+    --t-css: #6cb6d8; --t-css-soft: #16262c;
+    --t-js: #e3c04d; --t-js-soft: #342c10;
+    --t-php: #b3a3e8; --t-php-soft: #2b2440;
+    --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+    --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+    --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --codebg: #0a1517; --codeink: #cfeae4;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--raised); }
+  .topbar b { font-size: 17px; }
+  .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 70ch; margin: 0 0 22px; }
+  .panel { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink);
+    font: 500 13.5px var(--sans); cursor: pointer; }
+  .btn:hover { background: var(--sunken); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
+  .t-html { background: var(--t-html-soft); color: var(--t-html); }
+  .t-css { background: var(--t-css-soft); color: var(--t-css); }
+  .t-js { background: var(--t-js-soft); color: var(--t-js); }
+  .t-php { background: var(--t-php-soft); color: var(--t-php); }
+  .t-sql { background: var(--t-sql-soft); color: var(--t-sql); }
+  .t-tool { background: var(--t-tool-soft); color: var(--t-tool); }
+  .p-browser { background: var(--accent-soft); color: var(--p-browser); }
+  .p-server { background: var(--good-soft); color: var(--p-server); }
+  .p-db { background: var(--sunken); color: var(--p-db); }
+  .fb { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-top: 12px; }
+  .fb.good { background: var(--good-soft); color: var(--ink); border: 1px solid var(--good); }
+  .fb.warn { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn); }
+  .fb.info { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+  .fb b { font-weight: 600; }
+  .code { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 13px/1.7 var(--mono);
+    overflow-x: auto; white-space: pre; margin: 0; }
+  .progress { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft);
+    font: 500 13px var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 560px) { .wrap { padding: 20px 16px 60px; } .topbar { padding: 12px 16px; } h1 { font-size: 23px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  .txt { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); }
+  textarea.txt { resize: vertical; min-height: 64px; line-height: 1.45; }
+  .hint { font-size: 13px; color: var(--muted); margin: 4px 0; }
+  .lab { display: block; font: 600 12px var(--mono); color: var(--muted); letter-spacing: .04em; margin: 12px 0 5px; text-transform: uppercase; }
+  .stack { display: grid; gap: 12px; }
+  .chip { display: inline-block; font: 600 12px var(--sans); padding: 3px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--sunken); color: var(--ink-soft); margin: 2px 6px 2px 0; }
+  .chip.ok { background: var(--good-soft); border-color: var(--good); color: var(--ink); }
+  .chip.gap { background: var(--bad-soft); border-color: var(--bad); color: var(--ink); }
+  .chip.warn { background: var(--amb-soft); border-color: var(--amb); color: var(--ink); }
+  .chip.info { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sg { padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 13px var(--sans); cursor: pointer; }
+  .sg:hover { background: var(--sunken); }
+  .sg[aria-pressed="true"] { color: var(--ink); border-width: 2px; padding: 7px 12px; }
+  .sg.s-good[aria-pressed="true"] { border-color: var(--good); background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"] { border-color: var(--amb); background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"] { border-color: var(--bad); background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .savedp { margin-top: 22px; background: var(--sunken); box-shadow: none; }
+  .del { background: transparent; border: 0; color: var(--muted); font: 600 13px var(--sans); cursor: pointer; text-decoration: underline; padding: 4px; }
+  .sumbar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--sunken); margin: 10px 0 6px; }
+  .sumbar i { display: block; height: 100%; }
+
+
+  .mtabs { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; overflow-x: auto; background: var(--surface);
+    border-bottom: 1px solid var(--border); padding: 0 24px; scrollbar-width: thin; }
+  .mtab { flex: none; padding: 14px 16px 12px; border: 0; border-bottom: 3px solid transparent; background: transparent;
+    color: var(--muted); font: 600 14px var(--sans); cursor: pointer; white-space: nowrap; }
+  .mtab:hover { color: var(--ink); }
+  .mtab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .phase { display: inline-block; margin-bottom: 12px; }
+  .tool > h1 { margin-top: 0; }
+  @media (max-width: 560px) { .mtabs { padding: 0 8px; } .mtab { padding: 12px 12px 10px; font-size: 13px; } }
+
+#t-1 .wa-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); }
+#t-1 .wa-row .nm { font-weight: 600; }
+#t-1 .wa-row .nm span { font: 600 12px var(--mono); color: var(--muted); margin-right: 8px; }
+#t-1 .wa-row .note { grid-column: 1 / -1; }
+@media (max-width: 640px) {#t-1 .wa-row { grid-template-columns: 1fr; }}
+#t-1 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+#t-2 .bc-card { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+#t-2 .bc-card h3 { margin: 0 0 2px; font: 600 12px var(--mono); color: var(--accent); letter-spacing: .05em; text-transform: uppercase; }
+#t-2 .bc-card .q { font-size: 16px; font-weight: 600; margin: 4px 0 8px; font-style: italic; }
+#t-2 .bc-card details { margin: 6px 0 4px; font-size: 13.5px; color: var(--ink-soft); }
+#t-2 .bc-card summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+#t-2 .bc-card details p { margin: 6px 0 0; }
+#t-2 .bc-est { font: 700 26px var(--sans); margin: 4px 0 6px; }
+#t-2 .bc-mode { margin-bottom: 4px; }
+#t-3 .rs-item { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); color: var(--ink); font: 14.5px var(--sans); cursor: pointer; margin-bottom: 8px; }
+#t-3 .rs-item:hover { background: var(--sunken); }
+#t-3 .rs-item i { flex: none; width: 22px; height: 22px; border-radius: 5px; border: 2px solid var(--faint); display: inline-flex; align-items: center; justify-content: center; font: 700 14px var(--mono); font-style: normal; color: var(--accent-ink); }
+#t-3 .rs-item[aria-pressed="true"] { border-color: var(--good); background: var(--good-soft); }
+#t-3 .rs-item[aria-pressed="true"] i { background: var(--good); border-color: var(--good); }
+</style>
+</head>
+<body>
+<div class="topbar"><b>Lesson 7 Toolkit</b><span class="tag">Unit 5 NEA · Investigation · Lesson 7</span></div>
+<nav class="mtabs" role="tablist" aria-label="Lesson 7 tools"><button class="mtab" role="tab" id="mt-t-1" data-t="t-1" data-slug="where-am-i" aria-controls="t-1" aria-selected="true" tabindex="0">Where Am I?</button><button class="mtab" role="tab" id="mt-t-2" data-t="t-2" data-slug="band-3-check" aria-controls="t-2" aria-selected="false" tabindex="-1">Band 3 Check</button><button class="mtab" role="tab" id="mt-t-3" data-t="t-3" data-slug="ready-to-submit" aria-controls="t-3" aria-selected="false" tabindex="-1">Ready to Submit</button></nav>
+<div class="wrap">
+<section class="tool" id="t-1" role="tabpanel" aria-labelledby="mt-t-1"><span class="tag phase">Session A</span><h1>Where am I?</h1><p class="lede">Give each of the 14 checklist items a light: done, part done or missing. Be honest. Your amber and red items become your to-do list for Session B.</p><div id="wa-app" class="stack"></div></section>
+<section class="tool" id="t-2" role="tabpanel" aria-labelledby="mt-t-2" hidden><span class="tag phase">Session B</span><h1>Hold your write-up up to the band</h1><p class="lede">For each descriptor: say where the evidence is, rate it honestly, and write what would move it up. Your provisional band appears once every descriptor is rated.</p><div id="bc-app" class="stack"></div></section>
+<section class="tool" id="t-3" role="tabpanel" aria-labelledby="mt-t-3" hidden><span class="tag phase">Session C</span><h1>Is your Investigation ready to hand in?</h1><p class="lede">Tick each item when it is true, write your sign-off, and save everything to Teams. Hand-in is Friday 16 October.</p><div id="rs-app" class="stack"></div></section>
+</div>
+<script>
+(function(){
+var ITEMS = [[1, "Introduction", "A short overview of the methods you used and why."], [2, "Interview", "Questions, results and a finding written with the sentence stem."], [3, "Questionnaires", "Forms results as graphs, with a finding for each."], [4, "Observation", "What you saw, and what it shows needs improving."], [5, "Desk research", "Two existing systems, and the best features you will borrow."], [6, "Stakeholders", "Who they are, their involvement now, and what they need."], [7, "Inputs", "Everything that goes into the current system."], [8, "Processes", "What the current system does with it."], [9, "Outputs", "Everything it produces."], [10, "DFD", "Your data flow diagram, following the four rules."], [11, "Limitations", "Each problem with its consequence for a stakeholder."], [12, "Working specification", "The purpose, coverage and objectives in summary."], [13, "Technical justification", "Your table: purpose, reason and a rejected alternative for each technology."], [14, "Aims and objectives", "Areas, coded objectives, and success criteria you can test."]];
+
+var ROOT = document.getElementById("t-1"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+
+var L7 = (function(){
+  var P = "inv7:", mem = {}, store = true;
+  function g(k){ try { return window.localStorage.getItem(k); } catch(e){ store = false; return null; } }
+  function s(k, v){ try { window.localStorage.setItem(k, v); return true; } catch(e){ store = false; return false; } }
+  var api = {
+    name: function(){ var n = g(P + "name"); return n === null ? (mem.name || "") : n; },
+    setName: function(n){ n = String(n).trim(); mem.name = n; s(P + "name", n); window.dispatchEvent(new Event("inv7name")); },
+    load: function(sec, d){ var k = P + api.name() + ":" + sec; var raw = g(k); if (raw === null) return mem[k] !== undefined ? mem[k] : d; try { return JSON.parse(raw); } catch(e){ return d; } },
+    save: function(sec, o){ var k = P + api.name() + ":" + sec; mem[k] = o; return s(k, JSON.stringify(o)); },
+    canStore: function(){ return store; },
+    exportAll: function(){
+      var out = { app: "inv7", name: api.name(), sections: {} };
+      ["whereami", "band", "submit"].forEach(function(sec){ var v = api.load(sec, null); if (v) out.sections[sec] = v; });
+      return JSON.stringify(out, null, 2);
+    },
+    importAll: function(text){
+      var o = JSON.parse(text);
+      if (!o || o.app !== "inv7") throw new Error("That is not a Lesson 7 file.");
+      api.setName(o.name || "");
+      Object.keys(o.sections || {}).forEach(function(sec){ api.save(sec, o.sections[sec]); });
+    },
+    download: function(name, text){
+      function plain(){
+        try {
+          var b = new Blob([text], { type: "text/plain" });
+          var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name;
+          document.body.appendChild(a); a.click();
+          setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+          return true;
+        } catch(e){ return false; }
+      }
+      if (window.claude && typeof window.claude.use === "function") {
+        window.claude.use("downloads").then(function(d){
+          if (d) d.save({ filename: name, data: text }).catch(function(){});
+          else plain();
+        }).catch(plain);
+        return true;
+      }
+      return plain();
+    }
+  };
+  return api;
+})();
+function h(tag, a, kids){
+  var e = document.createElement(tag);
+  if (a) Object.keys(a).forEach(function(k){
+    var v = a[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "value") e.value = v;
+    else if (k.slice(0, 2) === "on") e[k] = v;
+    else if (v !== false && v !== null && v !== undefined) e.setAttribute(k, v === true ? "" : v);
+  });
+  (kids || []).forEach(function(c){ if (c === null || c === undefined) return; e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+function nameGate(app, prefix){
+  if (L7.name()) return false;
+  var inp = h("input", { id: prefix + "-name", type: "text", class: "txt", placeholder: "Your name", autocomplete: "off", "aria-label": "Your name" });
+  var go = h("button", { class: "btn primary", type: "button", text: "Start" });
+  function ok(){ if (inp.value.trim()) L7.setName(inp.value); }
+  go.onclick = ok; inp.onkeydown = function(e){ if (e.key === "Enter") ok(); };
+  app.appendChild(h("div", { class: "panel" }, [
+    h("h2", { text: "Whose work is this?" }),
+    h("p", { class: "hint", text: "Type your name. It keeps your work separate if you share a computer. Your work is saved in this browser only." }),
+    h("div", { class: "row" }, [inp, go]),
+  ]));
+  return true;
+}
+function savedPanel(app, prefix){
+  var msg = h("span", { class: "hint", "aria-live": "polite" });
+  var file = h("input", { id: prefix + "-file", type: "file", accept: ".json,application/json", class: "sr" });
+  file.onchange = function(){
+    var f = file.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try { L7.importAll(String(r.result)); msg.textContent = "Loaded. Reload the page if another tab looks out of date."; window.dispatchEvent(new Event("inv7name")); }
+      catch(e){ msg.textContent = "That file could not be read: " + e.message; }
+    };
+    r.readAsText(f);
+  };
+  var save = h("button", { class: "btn", type: "button", text: "Save a copy of all my Lesson 7 work" });
+  save.onclick = function(){ var ok = L7.download("lesson-7-work-" + (L7.name() || "me").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".json", L7.exportAll()); msg.textContent = ok ? "Saved to your downloads." : "Your browser blocked the download."; };
+  var load = h("button", { class: "btn", type: "button", text: "Load a saved copy" });
+  load.onclick = function(){ file.click(); };
+  var change = h("button", { class: "btn", type: "button", text: "Not you? Change name" });
+  change.onclick = function(){ L7.setName(""); };
+  app.appendChild(h("div", { class: "panel savedp" }, [
+    h("div", { class: "hint", text: "Working as " + L7.name() + ". " + (L7.canStore() ? "Your work saves in this browser as you go." : "This browser is not saving your work. Use Save a copy before you close the page.") }),
+    h("div", { class: "row", style: "margin-top:10px" }, [save, load, change, file]),
+    h("div", { style: "margin-top:8px" }, [msg]),
+  ]));
+}
+function debounce(fn, ms){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; }
+
+var STATES = [["done", "Done", "s-good"], ["part", "Part done", "s-amb"], ["miss", "Missing", "s-bad"]];
+var S = null;
+function load(){ S = L7.load("whereami", null) || { r: {}, n: {} }; }
+function persist(){ L7.save("whereami", S); }
+function counts(){
+  var c = { done: 0, part: 0, miss: 0, none: 0 };
+  ITEMS.forEach(function(it){ var v = S.r[it[0]]; if (v) c[v]++; else c.none++; });
+  return c;
+}
+function todoText(){
+  var lines = ["WHERE AM I? Session B to-do list for " + L7.name(), ""];
+  ITEMS.forEach(function(it){
+    var v = S.r[it[0]];
+    if (v === "part" || v === "miss") lines.push((v === "miss" ? "[MISSING] " : "[PART DONE] ") + it[0] + ". " + it[1] + (S.n[it[0]] ? ": " + S.n[it[0]] : ""));
+  });
+  if (lines.length === 2) lines.push("Nothing outstanding.");
+  return lines.join("\n");
+}
+function render(){
+  var app = $("wa-app"); app.innerHTML = "";
+  if (nameGate(app, "wa")) return;
+  load();
+  var sum = h("div", { class: "panel" });
+  var bar = h("div", { class: "sumbar", role: "img", "aria-label": "Progress" });
+  var cnt = h("div", { class: "hint legend" });
+  sum.appendChild(h("h2", { text: "Your progress" }));
+  sum.appendChild(bar); sum.appendChild(cnt);
+  app.appendChild(sum);
+  var todo = h("div", { class: "panel" });
+  var rows = h("div", { class: "stack" });
+  function updateSummary(){
+    var c = counts(), t = ITEMS.length;
+    bar.innerHTML = "";
+    [["done", "var(--good)"], ["part", "var(--amb)"], ["miss", "var(--bad)"]].forEach(function(p){
+      var i = document.createElement("i"); i.style.width = (c[p[0]] / t * 100) + "%"; i.style.background = p[1]; bar.appendChild(i);
+    });
+    cnt.innerHTML = "";
+    [["done", "Done", "var(--good)"], ["part", "Part done", "var(--amb)"], ["miss", "Missing", "var(--bad)"]].forEach(function(p){
+      var s = document.createElement("span"); s.style.marginRight = "16px";
+      var d = document.createElement("i"); d.style.background = p[2]; s.appendChild(d);
+      s.appendChild(document.createTextNode(p[1] + ": " + c[p[0]])); cnt.appendChild(s);
+    });
+    var u = document.createElement("span"); u.textContent = "Not rated: " + c.none; cnt.appendChild(u);
+    todo.innerHTML = "";
+    todo.appendChild(h("h2", { text: "Your to-do list for Session B" }));
+    var list = ITEMS.filter(function(it){ return S.r[it[0]] === "part" || S.r[it[0]] === "miss"; });
+    if (!list.length) {
+      todo.appendChild(h("p", { class: "hint", text: c.none ? "Rate every item and your to-do list appears here." : "Nothing outstanding. On to the Band 3 Check." }));
+    } else {
+      list.forEach(function(it){
+        var v = S.r[it[0]];
+        todo.appendChild(h("div", { style: "margin:6px 0" }, [
+          h("span", { class: "chip " + (v === "miss" ? "gap" : "warn"), text: v === "miss" ? "Missing" : "Part done" }),
+          h("strong", { text: it[0] + ". " + it[1] }),
+          S.n[it[0]] ? h("span", { class: "hint", text: "  " + S.n[it[0]] }) : null,
+        ]));
+      });
+      var dl = h("button", { class: "btn", type: "button", text: "Download my to-do list", style: "margin-top:10px" });
+      dl.onclick = function(){ L7.download("where-am-i-todo.txt", todoText()); };
+      todo.appendChild(dl);
+    }
+  }
+  ITEMS.forEach(function(it){
+    var id = it[0];
+    var row = h("div", { class: "wa-row" });
+    row.appendChild(h("div", {}, [
+      h("div", { class: "nm" }, [h("span", { text: String(id) }), it[1]]),
+      h("div", { class: "hint", text: it[2] }),
+    ]));
+    var seg = h("div", { class: "seg", role: "group", "aria-label": it[1] + " status" });
+    var note = h("input", { class: "txt note", type: "text", placeholder: "What is left to do?", "aria-label": it[1] + " note", value: S.n[id] || "" });
+    note.style.display = (S.r[id] === "part" || S.r[id] === "miss") ? "" : "none";
+    note.oninput = debounce(function(){ S.n[id] = note.value; persist(); updateSummary(); }, 250);
+    var btns = [];
+    STATES.forEach(function(st){
+      var b = h("button", { class: "sg " + st[2], type: "button", text: st[1], "aria-pressed": S.r[id] === st[0] ? "true" : "false" });
+      b.onclick = function(){
+        S.r[id] = st[0]; persist();
+        btns.forEach(function(x, i){ x.setAttribute("aria-pressed", STATES[i][0] === st[0] ? "true" : "false"); });
+        note.style.display = (st[0] === "part" || st[0] === "miss") ? "" : "none";
+        updateSummary();
+      };
+      btns.push(b); seg.appendChild(b);
+    });
+    row.appendChild(seg); row.appendChild(note); rows.appendChild(row);
+  });
+  app.appendChild(rows); app.appendChild(todo);
+  updateSummary();
+  savedPanel(app, "wa");
+}
+window.addEventListener("inv7name", render);
+render();
+
+})();
+(function(){
+var INV = [{"k": "Methods", "items": "Items 1 to 4", "b3": "made full use of a range of appropriate methods to investigate the existing system", "b2": "used several methods to investigate the existing system", "b1": "carried out a limited investigation into the current system", "ask": "Have you used interviews, questionnaires and observation, and said why each was right for its question?"}, {"k": "Current system", "items": "Items 1 to 9", "b3": "completed a thorough investigation of the current system", "b2": "completed an investigation of the current system", "b1": "carried out a limited investigation into the current system", "ask": "Could someone who has never seen the library describe how it works today from your write-up?"}, {"k": "Desk research", "items": "Item 5", "b3": "carried out extensive desk based research into existing solutions to similar problems and identified the best features and facilities of these solutions to include in their solution to their chosen problem", "b2": "carried out desk based research into existing solutions to similar problems and identified features to be included in their solution", "b1": "carried out desk based research and given limited consideration to existing solutions to similar problems", "ask": "Have you named the best features of each system you researched, and said which you will include?"}, {"k": "Stakeholders", "items": "Item 6", "b3": "described the involvement of all stakeholders in the current system and described their requirements for the proposed project", "b2": "identified most stakeholders for the project, described them and identified their roles in the current system and their main requirements for the proposed system", "b1": "identified the main stakeholders for the project and described them and their involvement with the current system", "ask": "For every stakeholder: who they are, what they do in the system now, and what they need from the new one?"}, {"k": "Inputs", "items": "Item 7", "b3": "fully analysed data collected for input", "b2": "analysed the majority of the data that is collected and input into the current system", "b1": "given limited consideration to the data that is collected and input into the existing system", "ask": "Is every piece of data that goes into the current system listed and explained?"}, {"k": "Processing", "items": "Items 8 and 10", "b3": "analysed in detail the processing carried out by the existing system", "b2": "analysed most of the processing needed to carry out the functions of the existing system", "b1": "identified the main processes carried out by the existing system", "ask": "Does your DFD and process write-up cover every process, not just the main ones?"}, {"k": "Outputs", "items": "Item 9", "b3": "given full consideration to all current system outputs", "b2": "given consideration of the current system in terms of the majority of outputs", "b1": "given limited consideration to the data that is output by the existing system", "ask": "Is every output listed, with who receives it and what they use it for?"}, {"k": "Limitations", "items": "Item 11", "b3": "fully considered and explained the limitations of the current system", "b2": "described the limitations of the current system", "b1": "given superficial consideration to the limitations of the current system", "ask": "Does every limitation have a consequence for a stakeholder, and a link to evidence?"}, {"k": "Specification", "items": "Item 12", "b3": "produced a working specification that clearly summarises the purpose of the project", "b2": "produced a specification that summarises the purpose of the project", "b1": "produced a summary of the purpose of the project", "ask": "Could a stranger read your specification and say what the project is for?"}, {"k": "Justification", "items": "Item 13", "b3": "explained, with technical justification, the methods to be used in the solution", "b2": "described the methods to be used in the solution", "b1": "identified a limited number of methods to be used in the solution", "ask": "Does every technology have a purpose, a reason about your project, and a rejected alternative?"}, {"k": "Objectives", "items": "Item 14", "b3": "detailed a range of objectives that include success criteria and clearly define the required performance of the proposed system", "b2": "put forward objectives that include success criteria", "b1": "put forward limited objectives that give some indication of the scope of the proposed solution", "ask": "Does every objective have at least two success criteria that end in a yes or no?"}];
+var DISC = [{"k": "Problem and scope", "items": "Discussion", "b3": "identified a substantial problem that provides sufficient scope for the candidate to access the full range of marks", "b2": "identified a suitable problem that will provide sufficient scope to produce work at the required level", "b1": "identified a problem that may be limited in scope", "ask": "Is the problem big enough to support a whole project, and have you said what it covers?"}, {"k": "Broad aims", "items": "Discussion", "b3": "provided a full description of the broad aims of the project using appropriate subject based technical vocabulary", "b2": "identified the broad aims of the project; provided a realistic description of these aims", "b1": "identified a limited number of broad aims for the chosen project; provided a description of more than one of the identified broad aims", "ask": "Is every aim described, using the right technical words?"}, {"k": "Limitations", "items": "Discussion", "b3": "identified the possible limitations of a solution to the problem and is able to describe these in detail using appropriate technical language", "b2": "identified the main limitations of a solution to the problem and can describe these to a competent third party", "b1": "identified at least one limitation of a solution to the problem", "ask": "Are the limitations of a solution described in detail, not just listed?"}, {"k": "Feedback", "items": "Discussion", "b3": "fully considered feedback from others and, where appropriate, has used this feedback to refine understanding of the problem and proposed solution", "b2": "considered feedback from others and has made use of the feedback to increase understanding of the problem and proposed solution", "b1": "received feedback from others and has made limited use of the advice", "ask": "Can you show what feedback you got and what you changed because of it?"}];
+
+var ROOT = document.getElementById("t-2"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+
+var L7 = (function(){
+  var P = "inv7:", mem = {}, store = true;
+  function g(k){ try { return window.localStorage.getItem(k); } catch(e){ store = false; return null; } }
+  function s(k, v){ try { window.localStorage.setItem(k, v); return true; } catch(e){ store = false; return false; } }
+  var api = {
+    name: function(){ var n = g(P + "name"); return n === null ? (mem.name || "") : n; },
+    setName: function(n){ n = String(n).trim(); mem.name = n; s(P + "name", n); window.dispatchEvent(new Event("inv7name")); },
+    load: function(sec, d){ var k = P + api.name() + ":" + sec; var raw = g(k); if (raw === null) return mem[k] !== undefined ? mem[k] : d; try { return JSON.parse(raw); } catch(e){ return d; } },
+    save: function(sec, o){ var k = P + api.name() + ":" + sec; mem[k] = o; return s(k, JSON.stringify(o)); },
+    canStore: function(){ return store; },
+    exportAll: function(){
+      var out = { app: "inv7", name: api.name(), sections: {} };
+      ["whereami", "band", "submit"].forEach(function(sec){ var v = api.load(sec, null); if (v) out.sections[sec] = v; });
+      return JSON.stringify(out, null, 2);
+    },
+    importAll: function(text){
+      var o = JSON.parse(text);
+      if (!o || o.app !== "inv7") throw new Error("That is not a Lesson 7 file.");
+      api.setName(o.name || "");
+      Object.keys(o.sections || {}).forEach(function(sec){ api.save(sec, o.sections[sec]); });
+    },
+    download: function(name, text){
+      function plain(){
+        try {
+          var b = new Blob([text], { type: "text/plain" });
+          var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name;
+          document.body.appendChild(a); a.click();
+          setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+          return true;
+        } catch(e){ return false; }
+      }
+      if (window.claude && typeof window.claude.use === "function") {
+        window.claude.use("downloads").then(function(d){
+          if (d) d.save({ filename: name, data: text }).catch(function(){});
+          else plain();
+        }).catch(plain);
+        return true;
+      }
+      return plain();
+    }
+  };
+  return api;
+})();
+function h(tag, a, kids){
+  var e = document.createElement(tag);
+  if (a) Object.keys(a).forEach(function(k){
+    var v = a[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "value") e.value = v;
+    else if (k.slice(0, 2) === "on") e[k] = v;
+    else if (v !== false && v !== null && v !== undefined) e.setAttribute(k, v === true ? "" : v);
+  });
+  (kids || []).forEach(function(c){ if (c === null || c === undefined) return; e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+function nameGate(app, prefix){
+  if (L7.name()) return false;
+  var inp = h("input", { id: prefix + "-name", type: "text", class: "txt", placeholder: "Your name", autocomplete: "off", "aria-label": "Your name" });
+  var go = h("button", { class: "btn primary", type: "button", text: "Start" });
+  function ok(){ if (inp.value.trim()) L7.setName(inp.value); }
+  go.onclick = ok; inp.onkeydown = function(e){ if (e.key === "Enter") ok(); };
+  app.appendChild(h("div", { class: "panel" }, [
+    h("h2", { text: "Whose work is this?" }),
+    h("p", { class: "hint", text: "Type your name. It keeps your work separate if you share a computer. Your work is saved in this browser only." }),
+    h("div", { class: "row" }, [inp, go]),
+  ]));
+  return true;
+}
+function savedPanel(app, prefix){
+  var msg = h("span", { class: "hint", "aria-live": "polite" });
+  var file = h("input", { id: prefix + "-file", type: "file", accept: ".json,application/json", class: "sr" });
+  file.onchange = function(){
+    var f = file.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try { L7.importAll(String(r.result)); msg.textContent = "Loaded. Reload the page if another tab looks out of date."; window.dispatchEvent(new Event("inv7name")); }
+      catch(e){ msg.textContent = "That file could not be read: " + e.message; }
+    };
+    r.readAsText(f);
+  };
+  var save = h("button", { class: "btn", type: "button", text: "Save a copy of all my Lesson 7 work" });
+  save.onclick = function(){ var ok = L7.download("lesson-7-work-" + (L7.name() || "me").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".json", L7.exportAll()); msg.textContent = ok ? "Saved to your downloads." : "Your browser blocked the download."; };
+  var load = h("button", { class: "btn", type: "button", text: "Load a saved copy" });
+  load.onclick = function(){ file.click(); };
+  var change = h("button", { class: "btn", type: "button", text: "Not you? Change name" });
+  change.onclick = function(){ L7.setName(""); };
+  app.appendChild(h("div", { class: "panel savedp" }, [
+    h("div", { class: "hint", text: "Working as " + L7.name() + ". " + (L7.canStore() ? "Your work saves in this browser as you go." : "This browser is not saving your work. Use Save a copy before you close the page.") }),
+    h("div", { class: "row", style: "margin-top:10px" }, [save, load, change, file]),
+    h("div", { style: "margin-top:8px" }, [msg]),
+  ]));
+}
+function debounce(fn, ms){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; }
+
+var RATES = [["b3", "Band 3", "s-good"], ["b2", "Band 2", "s-amb"], ["b1", "Band 1", "s-bad"], ["no", "Not there", "s-bad"]];
+var RANK = { no: 0, b1: 1, b2: 2, b3: 3 };
+var S = null, mode = "inv";
+function persist(){ L7.save("band", S); }
+function data(){ return mode === "inv" ? INV : DISC; }
+function sec(){ return mode === "inv" ? S.inv : S.disc; }
+function eff(i){
+  var r = sec()[i] || {};
+  if (!r.rate) return null;
+  if (r.rate === "b3" && !(r.ev || "").trim()) return "b2";
+  return r.rate;
+}
+function estimate(){
+  var d = data(), n3 = 0, low = 0, rated = 0;
+  d.forEach(function(x, i){ var e = eff(i); if (e) { rated++; if (e === "b3") n3++; if (e === "b1" || e === "no") low++; } });
+  if (rated < d.length) return { done: false, rated: rated, total: d.length };
+  var band, marks, note;
+  if (mode === "inv") {
+    if (n3 === 11) { band = "Band 3"; marks = "8 to 10"; note = "Start at 8. Only go higher if you could show a moderator an example for each descriptor."; }
+    else if (n3 >= 8) { band = "Top of Band 2"; marks = "6 to 7"; note = (11 - n3) + " descriptor" + (11 - n3 === 1 ? "" : "s") + " not yet at Band 3. Fix those and re-rate."; }
+    else if (low >= 6) { band = "Band 1"; marks = "1 to 3"; note = "Most descriptors are at Band 1 or missing. Work through your to-do list first."; }
+    else { band = "Band 2"; marks = "4 to 5"; note = "Work towards the top of Band 2 by fixing your weakest descriptors."; }
+  } else {
+    if (n3 === 4) { band = "Band 3"; marks = "4 to 5"; note = "Start at 4. Only go to 5 if each descriptor is clearly met."; }
+    else if (low >= 3) { band = "Band 1"; marks = "1 to 2"; note = "Most descriptors are at Band 1 or missing."; }
+    else { band = "Band 2"; marks = "3"; note = "At least one descriptor is not yet at Band 3."; }
+  }
+  return { done: true, band: band, marks: marks, note: note };
+}
+function weakest(){
+  var d = data(), arr = [];
+  d.forEach(function(x, i){ var e = eff(i); if (e && e !== "b3") arr.push({ i: i, k: x.k, e: e }); });
+  arr.sort(function(a, b){ return RANK[a.e] - RANK[b.e]; });
+  return arr.slice(0, 2);
+}
+function textOut(){
+  var d = data(), est = estimate();
+  var o = [(mode === "inv" ? "INVESTIGATION" : "DISCUSSION") + " BAND 3 CHECK for " + L7.name(), "Provisional only. Your teacher marks one descriptor at a time.", ""];
+  d.forEach(function(x, i){
+    var r = sec()[i] || {};
+    o.push((i + 1) + ". " + x.k + ": " + (r.rate ? RATES.filter(function(t){ return t[0] === r.rate; })[0][1] : "not rated") + (eff(i) !== r.rate && r.rate ? " (counts as Band 2: no evidence located)" : ""));
+    o.push("   Evidence: " + (r.ev || "(none)"));
+    o.push("   To move it up: " + (r.up || "(none)"));
+  });
+  o.push("", est.done ? "Provisional estimate: " + est.band + " (" + est.marks + " marks)" : "Not every descriptor is rated yet (" + est.rated + " of " + est.total + ").");
+  return o.join("\n");
+}
+function render(){
+  var app = $("bc-app"); app.innerHTML = "";
+  if (nameGate(app, "bc")) return;
+  S = L7.load("band", null) || { inv: {}, disc: {} };
+  var head = h("div", { class: "panel" });
+  var seg = h("div", { class: "seg bc-mode", role: "group", "aria-label": "Which section" });
+  [["inv", "Investigation (10 marks)"], ["disc", "Discussion (5 marks, optional)"]].forEach(function(m){
+    var b = h("button", { class: "sg s-acc", type: "button", text: m[1], "aria-pressed": mode === m[0] ? "true" : "false" });
+    b.onclick = function(){ mode = m[0]; render(); };
+    seg.appendChild(b);
+  });
+  head.appendChild(seg);
+  var est = h("div", {});
+  head.appendChild(est);
+  app.appendChild(head);
+  function summary(){
+    var e = estimate(); est.innerHTML = "";
+    if (!e.done) {
+      est.appendChild(h("h2", { style: "margin-top:12px", text: e.rated + " of " + e.total + " descriptors rated" }));
+      est.appendChild(h("p", { class: "hint", text: "Rate every descriptor and your provisional band appears here." }));
+    } else {
+      est.appendChild(h("div", { class: "bc-est", text: e.band + " (" + e.marks + " marks)" }));
+      est.appendChild(h("p", { class: "hint", text: e.note }));
+    }
+    var w = weakest();
+    if (w.length) {
+      est.appendChild(h("p", { style: "margin:10px 0 0;font-size:14px" }, [h("strong", { text: "Fix these first: " }), w.map(function(x){ return x.k; }).join(" and ")]));
+    }
+    est.appendChild(h("p", { class: "hint", text: "This is provisional, and a rule of thumb. Be strict: a descriptor rated Band 3 with no evidence located counts as Band 2." }));
+  }
+  var cards = h("div", { class: "stack" });
+  data().forEach(function(x, i){
+    var s = sec(); s[i] = s[i] || { rate: "", ev: "", up: "" };
+    var r = s[i];
+    var warn = h("div", {});
+    function nudge(){
+      warn.innerHTML = "";
+      if (r.rate === "b3" && !(r.ev || "").trim()) warn.appendChild(h("span", { class: "chip warn", text: "No evidence located, so this counts as Band 2." }));
+      if (r.rate && r.rate !== "b3" && !(r.up || "").trim()) warn.appendChild(h("span", { class: "chip info", text: "What would move it up?" }));
+    }
+    var ev = h("input", { class: "txt", type: "text", placeholder: "Section heading or page, e.g. Limitations, page 6", "aria-label": x.k + " evidence", value: r.ev });
+    ev.oninput = debounce(function(){ r.ev = ev.value; persist(); nudge(); summary(); }, 250);
+    var up = h("textarea", { class: "txt", placeholder: "One sentence, e.g. Add the consequence for the librarian.", "aria-label": x.k + " what would move it up", value: r.up });
+    up.oninput = debounce(function(){ r.up = up.value; persist(); nudge(); }, 250);
+    var btns = [];
+    var rs = h("div", { class: "seg", role: "group", "aria-label": x.k + " rating" });
+    RATES.forEach(function(t){
+      var b = h("button", { class: "sg " + t[2], type: "button", text: t[1], "aria-pressed": r.rate === t[0] ? "true" : "false" });
+      b.onclick = function(){ r.rate = r.rate === t[0] ? "" : t[0]; btns.forEach(function(y, k){ y.setAttribute("aria-pressed", RATES[k][0] === r.rate ? "true" : "false"); }); persist(); nudge(); summary(); };
+      btns.push(b); rs.appendChild(b);
+    });
+    cards.appendChild(h("div", { class: "bc-card" }, [
+      h("h3", { text: (i + 1) + ". " + x.k + "  ·  " + x.items }),
+      h("div", { class: "q", text: "“" + x.b3 + "”" }),
+      h("p", { class: "hint", text: x.ask }),
+      h("details", {}, [h("summary", { text: "See the Band 2 and Band 1 wording" }), h("p", {}, [h("strong", { text: "Band 2: " }), "“" + x.b2 + "”"]), h("p", {}, [h("strong", { text: "Band 1: " }), "“" + x.b1 + "”"])]),
+      h("span", { class: "lab", text: "Where is the evidence?" }), ev,
+      h("span", { class: "lab", text: "Your rating" }), rs,
+      h("span", { class: "lab", text: "What would move it up?" }), up,
+      h("div", { style: "margin-top:8px" }, [warn]),
+    ]));
+    nudge();
+  });
+  app.appendChild(cards);
+  var dl = h("button", { class: "btn primary", type: "button", text: "Download my audit sheet" });
+  dl.onclick = function(){ L7.download((mode === "inv" ? "investigation" : "discussion") + "-band-check.txt", textOut()); };
+  app.appendChild(h("div", {}, [dl]));
+  summary();
+  savedPanel(app, "bc");
+}
+window.addEventListener("inv7name", render);
+render();
+
+})();
+(function(){
+var GROUPS = [{"t": "Your write-up", "items": ["Headings follow the checklist order, items 1 to 14", "Screenshots, charts and my DFD are legible at full size", "Sources for my desk research are named", "Every objective has a code, such as OL1, and at least 2 success criteria", "It is one document, named so my teacher can find it", "My desk research is saved safely for my Evaluation comparison"]}, {"t": "Saved to Teams", "items": ["Final Investigation document", "Audit sheet with my provisional band", "Sign-off statement"]}];
+
+var ROOT = document.getElementById("t-3"); var $ = function(id){ return ROOT.querySelector("#" + id); };
+
+var L7 = (function(){
+  var P = "inv7:", mem = {}, store = true;
+  function g(k){ try { return window.localStorage.getItem(k); } catch(e){ store = false; return null; } }
+  function s(k, v){ try { window.localStorage.setItem(k, v); return true; } catch(e){ store = false; return false; } }
+  var api = {
+    name: function(){ var n = g(P + "name"); return n === null ? (mem.name || "") : n; },
+    setName: function(n){ n = String(n).trim(); mem.name = n; s(P + "name", n); window.dispatchEvent(new Event("inv7name")); },
+    load: function(sec, d){ var k = P + api.name() + ":" + sec; var raw = g(k); if (raw === null) return mem[k] !== undefined ? mem[k] : d; try { return JSON.parse(raw); } catch(e){ return d; } },
+    save: function(sec, o){ var k = P + api.name() + ":" + sec; mem[k] = o; return s(k, JSON.stringify(o)); },
+    canStore: function(){ return store; },
+    exportAll: function(){
+      var out = { app: "inv7", name: api.name(), sections: {} };
+      ["whereami", "band", "submit"].forEach(function(sec){ var v = api.load(sec, null); if (v) out.sections[sec] = v; });
+      return JSON.stringify(out, null, 2);
+    },
+    importAll: function(text){
+      var o = JSON.parse(text);
+      if (!o || o.app !== "inv7") throw new Error("That is not a Lesson 7 file.");
+      api.setName(o.name || "");
+      Object.keys(o.sections || {}).forEach(function(sec){ api.save(sec, o.sections[sec]); });
+    },
+    download: function(name, text){
+      function plain(){
+        try {
+          var b = new Blob([text], { type: "text/plain" });
+          var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name;
+          document.body.appendChild(a); a.click();
+          setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+          return true;
+        } catch(e){ return false; }
+      }
+      if (window.claude && typeof window.claude.use === "function") {
+        window.claude.use("downloads").then(function(d){
+          if (d) d.save({ filename: name, data: text }).catch(function(){});
+          else plain();
+        }).catch(plain);
+        return true;
+      }
+      return plain();
+    }
+  };
+  return api;
+})();
+function h(tag, a, kids){
+  var e = document.createElement(tag);
+  if (a) Object.keys(a).forEach(function(k){
+    var v = a[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "value") e.value = v;
+    else if (k.slice(0, 2) === "on") e[k] = v;
+    else if (v !== false && v !== null && v !== undefined) e.setAttribute(k, v === true ? "" : v);
+  });
+  (kids || []).forEach(function(c){ if (c === null || c === undefined) return; e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+function nameGate(app, prefix){
+  if (L7.name()) return false;
+  var inp = h("input", { id: prefix + "-name", type: "text", class: "txt", placeholder: "Your name", autocomplete: "off", "aria-label": "Your name" });
+  var go = h("button", { class: "btn primary", type: "button", text: "Start" });
+  function ok(){ if (inp.value.trim()) L7.setName(inp.value); }
+  go.onclick = ok; inp.onkeydown = function(e){ if (e.key === "Enter") ok(); };
+  app.appendChild(h("div", { class: "panel" }, [
+    h("h2", { text: "Whose work is this?" }),
+    h("p", { class: "hint", text: "Type your name. It keeps your work separate if you share a computer. Your work is saved in this browser only." }),
+    h("div", { class: "row" }, [inp, go]),
+  ]));
+  return true;
+}
+function savedPanel(app, prefix){
+  var msg = h("span", { class: "hint", "aria-live": "polite" });
+  var file = h("input", { id: prefix + "-file", type: "file", accept: ".json,application/json", class: "sr" });
+  file.onchange = function(){
+    var f = file.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try { L7.importAll(String(r.result)); msg.textContent = "Loaded. Reload the page if another tab looks out of date."; window.dispatchEvent(new Event("inv7name")); }
+      catch(e){ msg.textContent = "That file could not be read: " + e.message; }
+    };
+    r.readAsText(f);
+  };
+  var save = h("button", { class: "btn", type: "button", text: "Save a copy of all my Lesson 7 work" });
+  save.onclick = function(){ var ok = L7.download("lesson-7-work-" + (L7.name() || "me").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".json", L7.exportAll()); msg.textContent = ok ? "Saved to your downloads." : "Your browser blocked the download."; };
+  var load = h("button", { class: "btn", type: "button", text: "Load a saved copy" });
+  load.onclick = function(){ file.click(); };
+  var change = h("button", { class: "btn", type: "button", text: "Not you? Change name" });
+  change.onclick = function(){ L7.setName(""); };
+  app.appendChild(h("div", { class: "panel savedp" }, [
+    h("div", { class: "hint", text: "Working as " + L7.name() + ". " + (L7.canStore() ? "Your work saves in this browser as you go." : "This browser is not saving your work. Use Save a copy before you close the page.") }),
+    h("div", { class: "row", style: "margin-top:10px" }, [save, load, change, file]),
+    h("div", { style: "margin-top:8px" }, [msg]),
+  ]));
+}
+function debounce(fn, ms){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; }
+
+var S = null;
+function persist(){ L7.save("submit", S); }
+function total(){ var n = 0; GROUPS.forEach(function(g){ n += g.items.length; }); return n; }
+function doneCount(){ var n = 0; GROUPS.forEach(function(g, gi){ g.items.forEach(function(t, i){ if (S.c[gi + "-" + i]) n++; }); }); return n; }
+function textOut(){
+  var o = ["SIGN-OFF for " + L7.name(), ""];
+  GROUPS.forEach(function(g, gi){
+    o.push(g.t.toUpperCase());
+    g.items.forEach(function(t, i){ o.push((S.c[gi + "-" + i] ? "[x] " : "[ ] ") + t); });
+    o.push("");
+  });
+  o.push("One thing I am proud of in my Investigation:", S.proud || "(not written yet)", "", "One thing I would still improve:", S.improve || "(not written yet)");
+  return o.join("\n");
+}
+function render(){
+  var app = $("rs-app"); app.innerHTML = "";
+  if (nameGate(app, "rs")) return;
+  S = L7.load("submit", null) || { c: {}, proud: "", improve: "" };
+  var head = h("div", { class: "panel" });
+  var bar = h("div", { class: "progress", "aria-hidden": "true" });
+  var fill = h("i", { style: "width:0" }); bar.appendChild(fill);
+  var line = h("h2", {});
+  var msg = h("div", { class: "fb" });
+  head.appendChild(line); head.appendChild(bar); head.appendChild(msg);
+  app.appendChild(head);
+  function summary(){
+    var d = doneCount(), t = total();
+    fill.style.width = (d / t * 100) + "%";
+    line.textContent = d + " of " + t + " ticked";
+    var signed = (S.proud || "").trim() && (S.improve || "").trim();
+    if (d === t && signed) { msg.className = "fb good"; msg.innerHTML = ""; msg.appendChild(h("b", { text: "Ready to hand in. " })); msg.appendChild(document.createTextNode("Hand-in is Friday 16 October. Well done.")); }
+    else { msg.className = "fb info"; msg.textContent = "Tick every item and write both sign-off sentences. Hand-in is Friday 16 October."; }
+  }
+  GROUPS.forEach(function(g, gi){
+    var p = h("div", { class: "panel" }, [h("h2", { text: g.t })]);
+    g.items.forEach(function(t, i){
+      var key = gi + "-" + i;
+      var b = h("button", { class: "rs-item", type: "button", "aria-pressed": S.c[key] ? "true" : "false" }, [h("i", { text: S.c[key] ? "✓" : "" }), t]);
+      b.onclick = function(){ S.c[key] = !S.c[key]; b.setAttribute("aria-pressed", S.c[key] ? "true" : "false"); b.firstChild.textContent = S.c[key] ? "✓" : ""; persist(); summary(); };
+      p.appendChild(b);
+    });
+    app.appendChild(p);
+  });
+  var so = h("div", { class: "panel" }, [h("h2", { text: "Sign-off" }), h("p", { class: "hint", text: "Two sentences is enough. This tells your teacher what you are confident about and where the work is thinner." })]);
+  [["proud", "One thing I am proud of in my Investigation"], ["improve", "One thing I would still improve"]].forEach(function(f){
+    var ta = h("textarea", { class: "txt", "aria-label": f[1], value: S[f[0]] || "" });
+    ta.oninput = debounce(function(){ S[f[0]] = ta.value; persist(); summary(); }, 250);
+    so.appendChild(h("span", { class: "lab", text: f[1] })); so.appendChild(ta);
+  });
+  app.appendChild(so);
+  var dl = h("button", { class: "btn primary", type: "button", text: "Download my sign-off" });
+  dl.onclick = function(){ L7.download("sign-off.txt", textOut()); };
+  app.appendChild(h("div", {}, [dl]));
+  summary();
+  savedPanel(app, "rs");
+}
+window.addEventListener("inv7name", render);
+render();
+
+})();
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".mtab"));
+  function show(i, focus){
+    tabs.forEach(function(t, k){
+      var on = k === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.dataset.t).hidden = !on;
+    });
+    var nav = tabs[i].parentNode; nav.scrollLeft = Math.max(0, tabs[i].offsetLeft - 16);
+    if (focus) tabs[i].focus();
+    try { history.replaceState(null, "", "#" + tabs[i].dataset.slug); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener("click", function(){ show(i); });
+    t.addEventListener("keydown", function(e){
+      if (e.key === "ArrowRight") { e.preventDefault(); show((i + 1) % tabs.length, true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); show((i + tabs.length - 1) % tabs.length, true); }
+    });
+  });
+  var h = (location.hash || "").replace("#", "");
+  tabs.forEach(function(t, i){ if (t.dataset.slug === h) show(i); });
+})();
+</script>
+</body>
+</html>
