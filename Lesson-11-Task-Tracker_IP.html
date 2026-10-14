@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 11 Task Tracker — Nested Constructs Consolidation</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  .progress-wrap{
+    max-width:900px;
+    margin:-1.5rem auto 0;
+    padding:0 1.5rem;
+  }
+  .progress-card{
+    background:var(--white);
+    border-radius:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    padding:1.1rem 1.4rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  .progress-bar-track{
+    flex:1;
+    height:12px;
+    background:#E3EAEF;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--second);
+    transition:width 0.3s ease;
+  }
+  .progress-label{
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--dark);
+    white-space:nowrap;
+  }
+  main{
+    max-width:900px;
+    margin:2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .recall-note{
+    background:#EAF3F0;
+    border:1px solid #BFE0D4;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#0B5B3C;
+    margin-bottom:1.6rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .recall-note .dot{
+    width:20px;
+    height:20px;
+    background:var(--second);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.7rem;
+    flex-shrink:0;
+  }
+  .task-card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    margin-bottom:1.8rem;
+    overflow:hidden;
+    transition:border-color 0.3s ease;
+  }
+  .task-card.complete{
+    border-color:var(--second);
+  }
+  .task-head{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    padding:1.2rem 1.4rem;
+    border-bottom:1px solid #EEF2F5;
+  }
+  .task-badge{
+    background:var(--primary);
+    color:var(--white);
+    font-size:0.75rem;
+    font-weight:bold;
+    letter-spacing:1px;
+    padding:0.35rem 0.7rem;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-badge{
+    background:var(--second);
+  }
+  .task-head h2{
+    margin:0;
+    font-size:1.3rem;
+    color:var(--dark);
+    flex:1;
+  }
+  .task-check-pill{
+    font-size:0.8rem;
+    color:var(--second);
+    font-weight:bold;
+    display:none;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-check-pill{
+    display:inline;
+  }
+  .task-body{
+    padding:1.3rem 1.4rem 1.5rem;
+  }
+  .filename-note{
+    background:var(--light);
+    border-radius:8px;
+    padding:0.7rem 1rem;
+    font-family: "Courier New", monospace;
+    font-size:0.95rem;
+    color:var(--primary);
+    margin-bottom:1.1rem;
+    display:inline-block;
+  }
+  .scenario-note{
+    background:#FBF0E7;
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#8A4A1E;
+    margin-bottom:1.1rem;
+  }
+  .tip-note{
+    background:#EAF1F8;
+    border:1px solid #BCD3E8;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#1D4F73;
+    margin-bottom:1.1rem;
+  }
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .steps li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.7rem;
+    padding:0.55rem 0;
+    border-bottom:1px dashed #EEF2F5;
+  }
+  .steps li:last-child{
+    border-bottom:none;
+  }
+  .steps input[type=checkbox]{
+    width:20px;
+    height:20px;
+    margin-top:0.1rem;
+    accent-color:var(--second);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .steps label{
+    font-size:1rem;
+    line-height:1.4;
+    cursor:pointer;
+  }
+  .steps li.checked label{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .code{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#CADCFC;
+    padding:0.15rem 0.4rem;
+    border-radius:4px;
+    font-size:0.92rem;
+  }
+  .extension-block{
+    margin-top:1.3rem;
+  }
+  .extension{
+    background:var(--amberbg);
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .extension-head{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-weight:bold;
+    color:#8A4A1E;
+    margin-bottom:0.6rem;
+    font-size:0.95rem;
+  }
+  .extension-head .dot{
+    width:22px;
+    height:22px;
+    background:var(--amber);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.8rem;
+    flex-shrink:0;
+  }
+  .ext-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .ext-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.6rem;
+    padding:0.4rem 0;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .ext-list li input[type=checkbox]{
+    width:18px;
+    height:18px;
+    margin-top:0.15rem;
+    accent-color:var(--amber);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .ext-list li.checked{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .nested-tag{
+    display:inline-block;
+    background:var(--dark);
+    color:#CADCFC;
+    font-size:0.7rem;
+    font-weight:bold;
+    letter-spacing:0.5px;
+    padding:0.1rem 0.45rem;
+    border-radius:4px;
+    margin-left:0.3rem;
+    white-space:nowrap;
+  }
+  .still-going{
+    margin-top:0.9rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .still-going .extension-head{
+    color:#8FD9C4;
+  }
+  .still-going .extension-head .dot{
+    background:var(--second);
+  }
+  .still-going p{
+    margin:0;
+    font-size:0.9rem;
+    color:#CADCFC;
+    line-height:1.5;
+  }
+  footer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  details{
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    margin:0.5rem 0;
+    padding:0.55rem 0.95rem;
+    background:var(--light);
+  }
+  details summary{
+    cursor:pointer;
+    font-weight:bold;
+    color:var(--primary);
+    font-size:0.92rem;
+  }
+  details[open] summary{ margin-bottom:0.5rem; }
+  details p{ margin:0; font-size:0.92rem; line-height:1.5; }
+  .codeblock{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.8rem 1rem;
+    border-radius:8px;
+    font-size:0.86rem;
+    line-height:1.55;
+    white-space:pre;
+    overflow-x:auto;
+    margin:0.4rem 0 0;
+  }
+  .codelabel{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0 0 0.2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 11 task tracker</h1>
+  <p>Finish it, wrap it in a menu, then hunt the bugs</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="progress-label" id="progressLabel">0 / 20 steps</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<main>
+
+  <div class="recall-note">
+    <span class="dot">i</span>
+    <span><b>One project, three parts.</b> Task A finishes your Lesson 10 programme. Task B wraps it in a menu. Task C is a bug hunt — you can start it any time. <b>Save As a new file before you change anything.</b></span>
+  </div>
+
+  <!-- TASK A -->
+  <section class="task-card" id="task1">
+    <div class="task-head">
+      <span class="task-badge">Task A</span>
+      <h2>Finish your Lesson 10 programme</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Your own scenario: records with <b>3+ fields</b>, and your own stop word. Not student results, not library books or media lending, not patient or medical records, not a café.</div>
+      <div class="filename-note">Save As: lesson11_task_a.py</div>
+      <div class="tip-note"><b>Programme frozen?</b> Use the stop button, then check each loop: does the inner (validation) loop re-ask <em>inside</em> itself? That missing line is the most likely culprit.</div>
+      <ul class="steps" data-task="taskA">
+        <li><input type="checkbox" id="tA-1"><label for="tA-1">Choose your scenario — records that each have at least three fields</label></li>
+        <li><input type="checkbox" id="tA-2"><label for="tA-2">Use a sentinel loop to collect records into a nested dictionary</label></li>
+        <li><input type="checkbox" id="tA-3"><label for="tA-3">Inside it, validate at least two numeric fields with validation loops</label></li>
+        <li><input type="checkbox" id="tA-4"><label for="tA-4">After collecting, loop through every record and every field, printing them all</label></li>
+        <li><input type="checkbox" id="tA-5"><label for="tA-5">Inside that loop, use an <span class="code">if</span> to flag one condition (e.g. a value over a limit)</label></li>
+        <li><input type="checkbox" id="tA-6"><label for="tA-6">Keep a running total of one numeric field, and print it with the record count at the end</label></li>
+        <li><input type="checkbox" id="tA-7"><label for="tA-7">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="tA-e1"><label for="tA-e1">Add a presence check (not blank) on a text field, using another validation loop</label></li>
+            <li><input type="checkbox" id="tA-e2"><label for="tA-e2">Calculate an average of one field — and make sure it still works if no records were entered</label></li>
+            <li><input type="checkbox" id="tA-e3"><label for="tA-e3">Swap files with a partner. Before running their code, work out on paper what it will print for three records you choose — then run it and compare</label></li>
+            <li><input type="checkbox" id="tA-e4"><label for="tA-e4">Start Task C (the bug hunt) early — it doesn't need the menu</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK B -->
+  <section class="task-card" id="task2">
+    <div class="task-head">
+      <span class="task-badge">Task B</span>
+      <h2>Wrap your programme in a menu</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Use your own data from Task A. <b>Haven't finished Task A?</b> That's fine and expected — build the menu on the sample dictionary below now, then finish your own collection code and swap your data in afterwards.</div>
+      <details>
+        <summary>Sample dictionary — paste this in place of your collection code</summary>
+        <div class="codelabel">Generic field names, so it works for any menu you build:</div>
+        <div class="codeblock">records = {
+    "R1": {"name": "alpha", "amount": 12, "score": 90},
+    "R2": {"name": "beta", "amount": 7, "score": 45}
+}</div>
+      </details>
+      <div class="filename-note">Save As: lesson11_task_b_menu.py</div>
+      <div class="tip-note"><b>Short of time?</b> The menu loop plus option 1 is a complete, valid result. Options 2 and 3 are the next step on from that.</div>
+      <ul class="steps" data-task="taskB">
+        <li><input type="checkbox" id="tB-1"><label for="tB-1">Show a menu with at least three options plus <span class="code">q</span> to quit</label></li>
+        <li><input type="checkbox" id="tB-2"><label for="tB-2">Write the menu loop with a priming read (ask first, test in the condition, ask again inside)</label></li>
+        <li><input type="checkbox" id="tB-3"><label for="tB-3">Option 1: list every field of every record — move your existing print loops into the branch, indented one level deeper</label></li>
+        <li><input type="checkbox" id="tB-4"><label for="tB-4">Option 2: print the total of one numeric field, with its accumulator started <em>inside</em> the branch</label></li>
+        <li><input type="checkbox" id="tB-5"><label for="tB-5">Option 3: flag records over a limit you choose (an <span class="code">if</span> inside a <span class="code">for</span> inside a branch)</label></li>
+        <li><input type="checkbox" id="tB-6"><label for="tB-6">Add an <span class="code">else</span> branch that handles an invalid choice without crashing</label></li>
+        <li><input type="checkbox" id="tB-7"><label for="tB-7">Test it: choose option 2 twice in a row — is the total the same both times?</label></li>
+        <li><input type="checkbox" id="tB-8"><label for="tB-8">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="tB-e1"><label for="tB-e1">Add an option that looks up one record by its key, using a safe lookup (Lesson 7)</label></li>
+            <li><input type="checkbox" id="tB-e2"><label for="tB-e2">Add an option that shows the record with the highest value of a field</label></li>
+            <li><input type="checkbox" id="tB-e3"><label for="tB-e3">Add an average option that still works if the dictionary is empty</label></li>
+            <li><input type="checkbox" id="tB-e4"><label for="tB-e4">Label every loop and every <span class='code'>if</span> with its level (L1, L2, …) in a comment</label></li>
+            <li><input type="checkbox" id="tB-e5"><label for="tB-e5">Curiosity: move <span class='code'>total = 0</span> above the menu loop. Predict what happens when you choose option 2 twice — then run it</label></li>
+            <li><input type="checkbox" id="tB-e6"><label for="tB-e6">Find two blocks of code you typed more than once, and describe in a comment how you'd tidy them up. Lesson 12 will show you how</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK C -->
+  <section class="task-card" id="task3">
+    <div class="task-head">
+      <span class="task-badge">Task C</span>
+      <h2>Bug hunt</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="filename-note">Open the supplied file: lesson11_task_c_bughunt.py</div>
+      <div class="tip-note"><b>You can start this any time</b> — it doesn't need the menu. Finished Task A early? Start here. There are <b>four bugs</b>, and none of them gives an error message. You find them by comparing what you see with what you expect.</div>
+      <div class="codelabel">Test data to type in, in this order:</div>
+      <div class="codeblock">J1
+Ann
+150
+J2
+Bo
+40
+done</div>
+      <details>
+        <summary>Hint 1 — click only when you're stuck</summary>
+        <p>Check each thing the programme reports, <em>one at a time</em>: the job count, the total, which job is flagged as expensive, and how often each job's "end of job" line appears. Work out what each <em>should</em> be first.</p>
+      </details>
+      <details>
+        <summary>Hint 2 — click only if Hint 1 wasn't enough</summary>
+        <p>One of these bugs is about <em>where a line is indented</em>. And if nothing seems to work however much you type, start with the very first loop.</p>
+      </details>
+      <ul class="steps" data-task="taskC">
+        <li><input type="checkbox" id="tC-1"><label for="tC-1">Run it with the test data above</label></li>
+        <li><input type="checkbox" id="tC-2"><label for="tC-2">Decide what you'd <em>expect</em> to see. Compare it with what you actually get</label></li>
+        <li><input type="checkbox" id="tC-3"><label for="tC-3">Find and fix all four bugs, <b>one at a time</b>, re-running after each fix</label></li>
+        <li><input type="checkbox" id="tC-4"><label for="tC-4">For each bug, write a one-line comment: what was wrong, and how you knew</label></li>
+        <li><input type="checkbox" id="tC-5"><label for="tC-5">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="tC-e1"><label for="tC-e1">Introduce a new bug into your fixed programme, and swap with a partner to find it</label></li>
+            <li><input type="checkbox" id="tC-e2"><label for="tC-e2">Trace the fixed programme by hand on paper for two jobs, then check it against the real output</label></li>
+            <li><input type="checkbox" id="tC-e3"><label for="tC-e3">Write down which bug was the hardest to spot, and why</label></li>
+            <li><input type="checkbox" id="tC-e4"><label for="tC-e4">Curiosity: could any of the four bugs have produced an error message? Which ones were completely silent?</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Lesson 11 · Imperative Programming · Access to HE Applied Computing
+</footer>
+
+<script>
+  const stepBoxes = Array.from(document.querySelectorAll('.steps input[type=checkbox]'));
+  const extBoxes = Array.from(document.querySelectorAll('.ext-list input[type=checkbox]'));
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+
+  function updateProgress(){
+    const total = stepBoxes.length;
+    const checked = stepBoxes.filter(b => b.checked).length;
+    const pct = total ? Math.round((checked/total)*100) : 0;
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = checked + ' / ' + total + ' steps';
+
+    ['task1','task2','task3'].forEach(id => {
+      const card = document.getElementById(id);
+      const boxes = Array.from(card.querySelectorAll('.steps input[type=checkbox]'));
+      const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
+      card.classList.toggle('complete', allChecked);
+    });
+  }
+
+  stepBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+      updateProgress();
+    });
+  });
+
+  extBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+    });
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
