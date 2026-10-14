@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Big O Lab</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Big O Lab</h1><div class="spec">Unit 3 · 3.10.1 · Big O notation: time and space complexity</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+function seeded(arr,seed){const a=arr.slice();let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const fmt=x=>!isFinite(x)?'too big to count':x>=1e15?x.toExponential(1).replace('e+',' × 10^'):Math.round(x).toLocaleString('en-GB');
+
+/* ================= CLASSES ================= */
+const CL=[
+ {k:'O(1)',name:'Constant',c:'#1E7B4A',f:n=>1,shape:t=>0.12,means:'The same amount of work whatever the size of the input.',ex:'Accessing myArray[5]; pushing onto a stack.'},
+ {k:'O(log n)',name:'Logarithmic',c:'#5B8DB8',f:n=>Math.log2(n),shape:t=>0.05+0.28*Math.log2(1+3*t)/2,means:'Halves the problem at each step, so the work grows very slowly.',ex:'Binary search (Lesson 4).'},
+ {k:'O(n)',name:'Linear',c:'#003366',f:n=>n,shape:t=>0.04+0.6*t,means:'The work grows in step with the input: one loop over the data.',ex:'Linear search (Lesson 4).'},
+ {k:'O(n log n)',name:'Linearithmic',c:'#7A5BB8',f:n=>n*Math.log2(n),shape:t=>0.04+0.78*(t*Math.log2(1+15*t)/4),means:'A loop over the data, with a halving step inside.',ex:'Quicksort on average (Lesson 3).'},
+ {k:'O(n²)',name:'Quadratic',c:'#CC9900',f:n=>n*n,shape:t=>0.03+0.97*t*t,means:'Two nested loops over the data: double n, four times the work.',ex:'Bubble sort, insertion sort (Lessons 2–3).'},
+ {k:'O(n³)',name:'Cubic (polynomial)',c:'#D9772B',f:n=>n**3,shape:t=>0.02+0.98*t**3,means:'Three nested loops: double n, eight times the work.',ex:'Copying a 3D array (2022 Q11).'},
+ {k:'O(2ⁿ)',name:'Exponential',c:'#B03A3A',f:n=>2**n,shape:t=>0.02+(2**(10*t)-1)/1023,means:'Doubles with every extra item.',ex:'Recursive Fibonacci (Lesson 1 call tree).'},
+ {k:'O(n!)',name:'Factorial',c:'#6B1E1E',f:n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r;},shape:t=>t<0.35?0.02:Math.min(1,0.02+((t-0.35)/0.65)**6),means:'Tries every possible ordering.',ex:'Checking every route (Route Finder, 50 towns).'},
+];
+function curveSVG(fns,o={}){
+  const W=o.w||560,Hh=o.h||300,L=o.axisL??46,B=o.axisB??34,T=12,R=14;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${Hh}`,role:'img','aria-label':o.aria||'Graph'});
+  el('line',{x1:L,y1:T,x2:L,y2:Hh-B,class:'axis'},svg);el('line',{x1:L,y1:Hh-B,x2:W-R,y2:Hh-B,class:'axis'},svg);
+  if(o.labels!==false){el('text',{x:(L+W-R)/2,y:Hh-8,'text-anchor':'middle',class:'alab'},svg).textContent=o.xl||'Size of data (n)';
+    const t=el('text',{x:16,y:(T+Hh-B)/2,'text-anchor':'middle',class:'alab',transform:`rotate(-90 16 ${(T+Hh-B)/2})`},svg);t.textContent=o.yl||'Time to complete';}
+  fns.forEach(([f,c,lab])=>{const pts=[];for(let i=0;i<=60;i++){const t=i/60;const v=Math.max(0,Math.min(1,f(t)));pts.push(`${L+2+t*(W-L-R-4)},${Hh-B-v*(Hh-B-T)}`);}
+    el('polyline',{points:pts.join(' '),fill:'none',stroke:c,'stroke-width':o.sw||4,'stroke-linejoin':'round'},svg);
+    if(lab){const v=Math.max(0,Math.min(1,f(1)));el('text',{x:W-R-4,y:Math.max(T+14,Hh-B-v*(Hh-B-T)-8),'text-anchor':'end',fill:c,style:'font:700 14px "Courier New",monospace'},svg).textContent=lab;}});
+  return svg;
+}
+const S={tab:0,sel:new Set(['O(1)','O(log n)','O(n)','O(n²)']),focus:'O(n)',cnt:{i:0,st:{}},cls:{},sk:{i:0,st:{}},sp:{}};
+function classesView(){
+  const picked=CL.filter(c=>S.sel.has(c.k));const f=CL.find(c=>c.k===S.focus)||CL[2];
+  const sizes=[10,100,1000,1000000];
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'The complexity classes')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Click a class to read about it. Tick several to compare their shapes on one graph. Then use the table: which classes are still usable when n = 1,000,000?'),
+    h('div',{class:'chips'},...CL.map(c=>h('button',{class:'chip',style:`--c:${c.c}`,'aria-pressed':String(S.sel.has(c.k)),onclick:()=>{S.sel.has(c.k)?S.sel.delete(c.k):S.sel.add(c.k);S.focus=c.k;render();}},c.k))),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Shapes compared'),h('div',{class:'gsvg'},curveSVG(picked.map(c=>[c.shape,c.c,c.k]))),
+        h('p',{class:'small',style:'margin:6px 0 0'},'Shapes only: each curve is scaled to fit. What matters is how steeply it climbs as n grows.'),
+        h('div',{class:'info',style:`--c:${f.c}`},h('b',{},`${f.k}  ${f.name}. `),f.means,h('br'),h('span',{class:'small'},'Example: '+f.ex))),
+      h('div',{class:'panel'},h('h3',{},'Operations for different sizes of n'),h('table',{class:'t'},
+        h('thead',{},h('tr',{},h('th',{},'Big O'),...sizes.map(n=>h('th',{},`n = ${n.toLocaleString('en-GB')}`)))),
+        h('tbody',{},...CL.map(c=>h('tr',{},h('td',{class:'mono',style:`color:${c.c}`},c.k),...sizes.map(n=>{const v=c.f(n);return h('td',{},v>1e30||!isFinite(v)?'astronomical':fmt(v));}))))),
+        h('p',{class:'small',style:'margin:8px 0 0'},'At 1 billion operations per second, anything over about 1,000,000,000,000 operations takes more than 15 minutes.'))));
+}
+
+/* ================= COUNT IT ================= */
+const CNT=[
+ {title:'Sum of a list',code:['set sum = 0','for i = 0 to n - 1','    set sum = sum + A[i]','next i','output sum'],
+  steps:[
+   {q:'How many operations are OUTSIDE the loop?',type:'num',ans:2,why:'set sum = 0 and output sum: 2 operations, each O(1).'},
+   {q:'How many times does the loop run?',type:'choice',opts:['1','log n','n','n²','n³'],ans:'n',why:'i goes from 0 to n - 1: that is n times.'},
+   {q:'How many operations are INSIDE the loop, each time round?',type:'num',ans:1,why:'sum = sum + A[i]: 1 operation.'},
+   {q:'Add them together. What is the total?',type:'choice',opts:['2 + n','2n','n²','2 + n²','3'],ans:'2 + n',why:'2 outside + 1 × n inside = 2 + n.'},
+   {q:'Which is the dominant term?',type:'choice',opts:['2','n','n²'],ans:'n',why:'As n gets very big, n grows and the 2 stays the same.'},
+   {q:'Write the Big O.',type:'choice',opts:['O(1)','O(log n)','O(n)','O(n²)','O(2 + n)'],ans:'O(n)',why:'Drop the constant: O(n), linear time.'}]},
+ {title:'WJEC 2017 Q8: the grid',code:['for i = 0 to N - 1','    for j = 0 to N - 1','        GRID(i,j) = 0','    next j','next i'],
+  steps:[
+   {q:'How many operations are OUTSIDE the loops?',type:'num',ans:0,why:'There is nothing outside the loops.'},
+   {q:'How many times does the i loop run?',type:'choice',opts:['1','N','N²','N³'],ans:'N',why:'i goes from 0 to N - 1: N times. (Mark scheme point 1.)'},
+   {q:'How many times does the j loop run IN TOTAL?',type:'choice',opts:['N','2N','N²','N³'],ans:'N²',why:'N times for each of the N values of i: N × N = N². (Mark scheme point 2.)'},
+   {q:'What is the total number of calculations?',type:'choice',opts:['N + N²','2N','N³','1 + N'],ans:'N + N²',why:'The mark scheme counts N (i loop) + N² (j loop). (Point 3.)'},
+   {q:'Which is the dominant term as N gets very big?',type:'choice',opts:['N','N²'],ans:'N²',why:'N² grows far faster than N. (Point 4.)'},
+   {q:'Write the Big O.',type:'choice',opts:['O(N)','O(N²)','O(N + N²)','O(2N)'],ans:'O(N²)',why:'O(N²), quadratic time.'}]},
+ {title:'Total and biggest',code:['set total = 0','set biggest = A[0]','for i = 0 to n - 1','    set total = total + A[i]','    if A[i] > biggest then','        set biggest = A[i]','    end if','next i','output total, biggest'],
+  steps:[
+   {q:'How many operations are OUTSIDE the loop?',type:'num',ans:3,why:'Two set statements and the output: 3.'},
+   {q:'How many times does the loop run?',type:'choice',opts:['1','log n','n','n²'],ans:'n',why:'Once for each of the n items.'},
+   {q:'How many operations INSIDE the loop each time (worst case)?',type:'num',ans:3,why:'The addition and assignment, the comparison, and setting biggest: 3.'},
+   {q:'What is the total?',type:'choice',opts:['3n + 3','3n','n + 6','3n²'],ans:'3n + 3',why:'3 × n inside + 3 outside = 3n + 3. 2023 Q12 worked the same way, getting 7n + 3.'},
+   {q:'Which is the dominant term?',type:'choice',opts:['3','3n','n²'],ans:'3n',why:'The term with n in it grows; the 3 does not.'},
+   {q:'Write the Big O.',type:'choice',opts:['O(1)','O(n)','O(3n)','O(n²)'],ans:'O(n)',why:'Drop the constant 3: O(n), linear time.'}]},
+ {title:'WJEC 2022 Q11: the 3D array',code:['set i = 0','set j = 0','set k = 0','for i = 0 to n - 1','    for j = 0 to n - 1','        for k = 0 to n - 1','            set myArrayCopy[i,j,k] = myArray[i,j,k]','        next k','    next j','next i'],
+  steps:[
+   {q:'How many operations are OUTSIDE the loops?',type:'num',ans:3,why:'set i, set j and set k: 3.'},
+   {q:'How many times does the i loop run?',type:'choice',opts:['n','n²','n³'],ans:'n',why:'n times. (Mark scheme point 1.)'},
+   {q:'How many times does the k loop run IN TOTAL?',type:'choice',opts:['n','n²','n³','3n'],ans:'n³',why:'n × n × n = n³. The j loop runs n² times in total. (Points 2 and 3.)'},
+   {q:'Which is the dominant term?',type:'choice',opts:['3','n','n²','n³'],ans:'n³',why:'n³ dominates as n gets very big. (Point 4.)'},
+   {q:'Write the Big O.',type:'choice',opts:['O(n)','O(n²)','O(n³)','O(3n)'],ans:'O(n³)',why:'O(n³), polynomial (cubic) time. (Point 5.)'}]},
+ {title:'Halving',code:['set result = 0','set x = n','while x > 1','    set x = x DIV 2','    set result = result + 1','end while','output result'],
+  steps:[
+   {q:'How many operations are OUTSIDE the loop?',type:'num',ans:3,why:'Two set statements and the output: 3.'},
+   {q:'How many times does the loop run?',type:'choice',opts:['n','n / 2','log n','n²'],ans:'log n',why:'x is halved every time, so the loop runs about log₂ n times. For n = 1,024 that is just 10.'},
+   {q:'How many operations INSIDE the loop each time?',type:'num',ans:2,why:'Halving x and adding 1 to result: 2.'},
+   {q:'What is the total?',type:'choice',opts:['2 log n + 3','2n + 3','log n','n²'],ans:'2 log n + 3',why:'2 × log n inside + 3 outside.'},
+   {q:'Write the Big O.',type:'choice',opts:['O(1)','O(log n)','O(n)','O(n log n)'],ans:'O(log n)',why:'Drop the constants: O(log n), logarithmic time. The 2019 Q9 mark scheme said the same about binary search: 2log₂n, so O(log n).'}]},
+ {title:'Mixed: sequence then nested',code:['set x = 5 + (15 * 20)','for i = 1 to n','    output i','next i','for i = 1 to n','    for j = 1 to n','        output i * j','    next j','next i'],
+  steps:[
+   {q:'What is the Big O of the first line on its own?',type:'choice',opts:['O(1)','O(n)','O(n²)'],ans:'O(1)',why:'One calculation: constant time.'},
+   {q:'What is the Big O of the first loop?',type:'choice',opts:['O(1)','O(n)','O(n²)'],ans:'O(n)',why:'One loop of n.'},
+   {q:'What is the Big O of the nested loops?',type:'choice',opts:['O(n)','O(2n)','O(n²)'],ans:'O(n²)',why:'n × n.'},
+   {q:'The three parts run one after another. What do you get?',type:'choice',opts:['O(1) + O(n) + O(n²)','O(1) × O(n) × O(n²)','O(n³)'],ans:'O(1) + O(n) + O(n²)',why:'Sequential parts are ADDED. Only nested parts are multiplied.'},
+   {q:'Write the Big O.',type:'choice',opts:['O(n)','O(n²)','O(n³)','O(1 + n + n²)'],ans:'O(n²)',why:'Keep only the highest-order term: O(n²).'}]},
+];
+function countView(){
+  const C=S.cnt,ex=CNT[C.i];const st=C.st[C.i]||(C.st[C.i]={k:0,res:[],val:''});
+  const done=st.res.length;
+  const answer=(ok,given)=>{st.res.push({ok,given});st.val='';render();};
+  const steps=ex.steps.map((s,j)=>{
+    const r=st.res[j];const cur=j===done;let cls='step'+(r?(r.ok?' ok':' bad'):cur?' cur':' locked');
+    let body=null;
+    if(cur){
+      if(s.type==='num'){const inp=h('input',{class:'numin',type:'number',value:st.val,'aria-label':s.q});inp.addEventListener('input',()=>st.val=inp.value);
+        body=h('div',{class:'opts'},inp,h('button',{class:'btn primary',onclick:()=>{if(st.val==='')return;answer(Number(st.val)===s.ans,st.val);}},'Check'));}
+      else body=h('div',{class:'opts'},...s.opts.map(o=>h('button',{class:'opt',onclick:()=>answer(o===s.ans,o)},o)));
+    } else if(r){body=h('div',{class:'why'},h('b',{},r.ok?'✓ ':`✗ You said ${r.given}. Answer: ${s.ans}. `),s.why);}
+    return h('div',{class:cls},h('h4',{},`Step ${j+1}: ${s.q}`),body);
+  });
+  const got=st.res.filter(r=>r.ok).length;
+  const dots=h('div',{class:'dots'},CNT.map((_,j)=>{const s2=C.st[j];const fin=s2&&s2.res.length===CNT[j].steps.length;return h('button',{class:'dot'+(fin?' done':''),'aria-current':String(j===C.i),onclick:()=>{C.i=j;render();}},String(j+1));}));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Count it: ${ex.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Work through the six-step method one step at a time. In the exam, each of these steps is a mark: the final O(…) on its own earns only one.'),
+    h('div',{class:'grid'},
+      h('div',{},h('div',{class:'panel'},h('h3',{},'The algorithm'),h('pre',{class:'code'},...ex.code.map((l,i)=>[h('span',{class:'ln'},String(i+1).padStart(2,' ')+'  '),l+'\n']))),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Mark-scheme style points'),h('div',{style:'display:flex;align-items:baseline;gap:8px;margin-bottom:6px'},h('span',{class:'mscore'},`${got} / ${ex.steps.length}`)),
+          h('ul',{class:'meter'},...ex.steps.map((s,j)=>{const r=st.res[j];return h('li',{class:r?(r.ok?'got':'miss'):null},h('span',{class:'bx'},r&&r.ok?'✓':''),s.q.replace(/\?$/,''));})))),
+      h('div',{},...steps,
+        done===ex.steps.length?h('div',{class:'fb '+(got===ex.steps.length?'ok':'bad')},h('b',{},`${got} of ${ex.steps.length} right first time. `),C.i<CNT.length-1?'Try the next algorithm.':'All algorithms done!',
+          h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{C.st[C.i]=null;render();}},'Try again'),C.i<CNT.length-1?h('button',{class:'btn primary',onclick:()=>{C.i++;render();}},'Next algorithm →'):null)):null)));
+}
+
+/* ================= CLASSIFY ================= */
+const OPTS=['O(1)','O(log n)','O(n)','O(n log n)','O(n²)','O(n³)'];
+const CLS=[
+ ['output A[5]','O(1)','Accessing one item by its index takes the same time however long the list is.'],
+ ['for i = 1 to 100\n    output i\nnext i','O(1)','Trick question! The loop always runs 100 times, whatever n is. It does not grow with the input.'],
+ ['for i = 1 to n\n    output A[i]\nnext i\nfor j = 1 to n\n    output A[j]\nnext j','O(n)','Two loops one AFTER the other: n + n = 2n, which is O(n). They are not nested.'],
+ ['for i = 1 to n\n    for j = 1 to 5\n        output i * j\n    next j\nnext i','O(n)','The inner loop always runs 5 times: 5n, which is O(n).'],
+ ['for i = 1 to n\n    for j = 1 to n\n        output i * j\n    next j\nnext i','O(n²)','Two nested loops over n: n × n.'],
+ ['set x = n\nwhile x > 1\n    set x = x DIV 2\nend while','O(log n)','x halves every time: about log₂ n steps.'],
+ ['for i = 1 to n\n    set x = n\n    while x > 1\n        set x = x DIV 2\n    end while\nnext i','O(n log n)','A halving loop (log n) inside a loop of n: n × log n.'],
+ ['for i = 1 to n\n  for j = 1 to n\n    for k = 1 to n\n      output i + j + k\n    next k\n  next j\nnext i','O(n³)','Three nested loops: n × n × n.'],
+ ['set i = 0\nset found = FALSE\nwhile i < n AND found = FALSE\n    if A[i] = target then\n        set found = TRUE\n    end if\n    set i = i + 1\nend while','O(n)','Linear search: in the worst case every item is checked.'],
+ ['while first <= last AND found = FALSE\n    set mid = (first + last) DIV 2\n    ...halve the range...\nend while','O(log n)','Binary search halves the range every time.'],
+];
+function classifyView(){
+  const R=S.cls;const right=Object.entries(R).filter(([i,v])=>v===CLS[i][1]).length;const ans=Object.keys(R).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Classify'),h('div',{class:'mscore'},`${right} / ${CLS.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Choose the Big O for each snippet. One attempt each. Watch out: some are trickier than they look.'),
+    h('div',{class:'cards'},...CLS.map(([c,a,why],i)=>{const g=R[i];return h('div',{class:'ccard'+(g?(g===a?' ok':' bad'):'')},h('pre',{class:'code'},c),
+      h('div',{class:'opts'},...OPTS.map(o=>{let cl='opt';if(g){if(o===a)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{R[i]=o;render();}},o);})),
+      g?h('div',{class:'why'},h('b',{},g===a?'✓ ':'✗ '),why):null);})),
+    ans===CLS.length?h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.cls={};render();}},'Try again')):null);
+}
+
+/* ================= SKETCH IT ================= */
+const SHAPES=[['O(1)',CL[0].shape],['O(log n)',CL[1].shape],['O(n)',CL[2].shape],['O(n²)',CL[4].shape],['O(n³)',CL[5].shape]];
+const YL=['','Time to complete','Size of data','Number of loops','Memory used'];
+const XL=['','Size of data','Time to complete','Big O','Speed of computer'];
+const NAMES=['','Constant complexity O(1)','Logarithmic complexity O(log n)','Linear complexity O(n)','Quadratic complexity O(n²)','Polynomial complexity O(n³)'];
+const SK=[
+ {title:'A single loop (like 2023 Q12)',task:'An algorithm has a time performance of 7n + 3. Sketch its graph: pick the shape, label the axes and name the complexity.',shape:'O(n)',name:'Linear complexity O(n)'},
+ {title:'The 3D array (2022 Q11c)',task:'An algorithm has a time performance of O(n³). Pick the shape, label the axes and name the complexity.',shape:'O(n³)',name:'Polynomial complexity O(n³)'},
+ {title:'Binary search',task:'Binary search halves the range each time. Pick the shape, label the axes and name the complexity.',shape:'O(log n)',name:'Logarithmic complexity O(log n)'},
+ {title:'Two searches on one graph (2019 Q9b)',task:'Search_A is O(n) and Search_B is O(log n). Pick the shape for EACH, label the axes, and say which is more efficient.',compare:true},
+];
+function thumb(sh,f,cls,on){const svg=curveSVG([[f,'#CC9900']],{w:200,h:130,labels:false,axisL:12,axisB:12,sw:4});return h('button',{class:'thumb'+cls,'aria-pressed':String(!!on.pressed),'aria-label':sh,onclick:on.click},svg);}
+function sketchView(){
+  const K=S.sk,ex=SK[K.i],st=K.st[K.i]||(K.st[K.i]={a:null,b:null,y:'',x:'',name:'',eff:'',checked:false});
+  const ch=st.checked;
+  const pick=(key,sh)=>{if(ch)return;st[key]=sh;render();};
+  const thumbs=key=>h('div',{class:'thumbs'},...SHAPES.map(([sh,f])=>{const sel=st[key]===sh;let cls='';if(ch){const target=ex.compare?(key==='a'?'O(n)':'O(log n)'):ex.shape;if(sh===target)cls=' ok';else if(sel)cls=' bad';}
+    return thumb(sh,f,cls,{pressed:sel,click:()=>pick(key,sh)});}));
+  const select=(key,opts,lab,correct)=>{const s=h('select',{'aria-label':lab,disabled:ch||null,class:ch?(st[key]===correct?'ok':'bad'):null},...opts.map(o=>{const op=h('option',{value:o},o||'choose…');if(st[key]===o)op.selected=true;return op;}));s.addEventListener('change',()=>st[key]=s.value);return h('label',{},lab,s);};
+  const pts=ch?[['Vertical axis labelled "Time to complete"',st.y==='Time to complete'],['Horizontal axis labelled "Size of data"',st.x==='Size of data'],
+    ...(ex.compare?[['Correct shape for Search_A, O(n)',st.a==='O(n)'],['Correct shape for Search_B, O(log n)',st.b==='O(log n)'],['O(log n) is more efficient (2019 Q9c)',st.eff==='Search_B, O(log n)']]
+      :[['Correct shape (gradient) of the line',st.a===ex.shape],['Complexity named correctly',st.name===ex.name]])]:null;
+  const dots=h('div',{class:'dots'},SK.map((_,j)=>{const s2=K.st[j];return h('button',{class:'dot'+(s2&&s2.checked?' done':''),'aria-current':String(j===K.i),onclick:()=>{K.i=j;render();}},String(j+1));}));
+  let preview=null;
+  if(st.a||st.b){const fs=[];if(st.a)fs.push([SHAPES.find(s=>s[0]===st.a)[1],'#003366',ex.compare?'Search_A':null]);if(st.b)fs.push([SHAPES.find(s=>s[0]===st.b)[1],'#CC9900',ex.compare?'Search_B':null]);
+    preview=curveSVG(fs,{yl:st.y||'?',xl:st.x||'?',w:520,h:280});}
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Sketch it: ${ex.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),ex.task),
+    h('div',{class:'grid'},
+      h('div',{},h('div',{class:'panel'},h('h3',{},ex.compare?'Shape for Search_A':'Choose the shape'),thumbs('a'),
+          ex.compare?h('h3',{style:'margin-top:12px'},'Shape for Search_B'):null,ex.compare?thumbs('b'):null,
+          h('div',{class:'selrow'},select('y',YL,'Vertical axis','Time to complete'),select('x',XL,'Horizontal axis','Size of data'),
+            ex.compare?select('eff',['','Search_A, O(n)','Search_B, O(log n)','They are the same'],'More efficient','Search_B, O(log n)'):select('name',NAMES,'Name the complexity',ex.name)),
+          h('div',{class:'actions'},h('button',{class:'btn primary',disabled:ch||null,onclick:()=>{st.checked=true;render();}},'Check against the mark scheme'),
+            h('button',{class:'btn ghost',onclick:()=>{K.st[K.i]=null;render();}},'Reset')))),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Your sketch'),h('div',{class:'gsvg'},preview||h('p',{class:'small'},'Pick a shape to see your sketch.'))),
+        pts?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},`Mark-scheme points: ${pts.filter(p=>p[1]).length} / ${pts.length}`),
+          h('ul',{class:'meter'},...pts.map(([t,ok])=>h('li',{class:ok?'got':'miss'},h('span',{class:'bx'},ok?'✓':''),t))),
+          K.i<SK.length-1?h('div',{class:'actions'},h('button',{class:'btn primary',onclick:()=>{K.i++;render();}},'Next sketch →')):null):null)));
+}
+
+/* ================= SPACE ================= */
+const SPO=['O(1)','O(log n)','O(n)','O(n²)'];
+const SP=[
+ ['Linear search through a list of n items','O(1)','It only needs a couple of variables (current, foundIndex), however long the list is.'],
+ ['Iterative binary search','O(1)','Just first, last and midpoint, whatever the size of the list.'],
+ ['Recursive binary search','O(log n)','Each call adds a frame to the call stack, and there are about log₂ n calls before the range is empty.'],
+ ['Recursive Factorial(n) from Lesson 1','O(n)','Factorial(n) calls Factorial(n - 1) and so on: n frames on the call stack at once.'],
+ ['Bubble sort','O(1)','It sorts in place. The only extra memory is temp, however many items there are.'],
+ ['Making a copy of a list of n items in a NEW list','O(n)','The new list has n items, so memory grows with n.'],
+ ['Creating a new n × n grid of zeros','O(n²)','The new grid has n × n cells.'],
+ ['WJEC 2022 Q11(b): copying between two 3D arrays that already exist','O(1)','The mark scheme: the algorithm uses the same two data structures throughout and creates nothing new while it runs, so the growth rate for memory is constant, O(1).'],
+];
+function spaceView(){
+  const R=S.sp;const right=Object.entries(R).filter(([i,v])=>v===SP[i][1]).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Space complexity: how does the MEMORY grow?'),h('div',{class:'mscore'},`${right} / ${SP.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Space complexity is about the EXTRA memory an algorithm needs as n grows: new variables, new data structures, and frames on the call stack. Choose the space complexity for each one.'),
+    h('div',{class:'cards'},...SP.map(([t,a,why],i)=>{const g=R[i];return h('div',{class:'ccard'+(g?(g===a?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy);min-height:48px'},t),
+      h('div',{class:'opts'},...SPO.map(o=>{let cl='opt';if(g){if(o===a)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{R[i]=o;render();}},o);})),
+      g?h('div',{class:'why'},h('b',{},g===a?'✓ ':'✗ '),why):null);})),
+    Object.keys(R).length===SP.length?h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.sp={};render();}},'Try again')):null);
+}
+
+const TABS=[['Classes',classesView],['Count it',countView],['Classify',classifyView],['Sketch it',sketchView],['Space',spaceView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+</script>
+</body>
+</html>
