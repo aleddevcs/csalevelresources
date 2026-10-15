@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sorts and Searches: Big O</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.twrap{overflow-x:auto}
+table.t.mt td{vertical-align:middle}
+table.t td.nm{font-family:Cambria,Georgia,serif;font-weight:700;color:var(--navy)}
+table.t select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:150px}
+table.t select.ok{border-color:var(--ok);background:var(--okBg)}
+table.t select.bad{border-color:var(--bad);background:var(--badBg)}
+.olist{display:grid;gap:6px}
+.opt.wide{font-family:Calibri,Arial,sans-serif;font-weight:400;text-align:left;font-size:15px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Sorts and Searches: Big O</h1><div class="spec">Unit 3 · 3.4.4 and 3.5.2 · Comparing algorithms by time and space</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+function curveSVG(fns,o={}){
+  const W=o.w||560,Hh=o.h||300,L=46,B=34,T=12,R=14;const svg=el('svg',{viewBox:`0 0 ${W} ${Hh}`,role:'img','aria-label':'Graph'});
+  el('line',{x1:L,y1:T,x2:L,y2:Hh-B,class:'axis'},svg);el('line',{x1:L,y1:Hh-B,x2:W-R,y2:Hh-B,class:'axis'},svg);
+  el('text',{x:(L+W-R)/2,y:Hh-8,'text-anchor':'middle',class:'alab'},svg).textContent='Size of data (n)';
+  const t=el('text',{x:16,y:(T+Hh-B)/2,'text-anchor':'middle',class:'alab',transform:`rotate(-90 16 ${(T+Hh-B)/2})`},svg);t.textContent='Time to complete';
+  fns.forEach(([f,c,lab])=>{const pts=[];for(let i=0;i<=60;i++){const x=i/60;const v=Math.max(0,Math.min(1,f(x)));pts.push(`${L+2+x*(W-L-R-4)},${Hh-B-v*(Hh-B-T)}`);}
+    el('polyline',{points:pts.join(' '),fill:'none',stroke:c,'stroke-width':4},svg);
+    if(lab){const v=f(1);el('text',{x:W-R-4,y:Math.max(T+14,Hh-B-v*(Hh-B-T)-8),'text-anchor':'end',fill:c,style:'font:700 14px Calibri,Arial,sans-serif'},svg).textContent=lab;}});
+  return svg;}
+const SH={n:t=>0.04+0.75*t,log:t=>0.04+0.28*Math.log2(1+3*t)/2};
+
+/* MATCH */
+const OPTS=['O(1)','O(log n)','O(n)','O(n log n)','O(n²)'];
+const ROWS=[['Bubble sort','O(n²)','O(1)'],['Insertion sort','O(n²)','O(1)'],['Quicksort (average)','O(n log n)','O(log n)'],['Quicksort (worst case)','O(n²)','O(log n)'],['Linear search','O(n)','O(1)'],['Binary search (iterative)','O(log n)','O(1)'],['Binary search (recursive)','O(log n)','O(log n)']];
+const S={tab:0,m:{},mChecked:false,ex:{},cnt:{res:[],val:''},cmp:{a:'',b:'',eff:'',checked:false,sc:{}}};
+function matchView(){
+  const M=S.m;const sel=(key,ans)=>{const s=h('select',{'aria-label':key,disabled:S.mChecked||null,class:S.mChecked?(M[key]===ans?'ok':'bad'):null},h('option',{value:''},'choose…'),...OPTS.map(o=>{const op=h('option',{value:o},o);if(M[key]===o)op.selected=true;return op;}));s.addEventListener('change',()=>M[key]=s.value);return s;};
+  let right=0;ROWS.forEach(([n,t,sp])=>{if(M[n+'t']===t)right++;if(M[n+'s']===sp)right++;});
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Match: time and space complexity')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Choose the Big O time complexity and space complexity for each algorithm, then check. Time = how the number of operations grows; space = how the EXTRA memory grows.'),
+    h('div',{class:'panel'},h('div',{class:'twrap'},h('table',{class:'t mt'},h('thead',{},h('tr',{},h('th',{},'Algorithm'),h('th',{},'Time complexity'),h('th',{},'Space complexity'))),
+      h('tbody',{},...ROWS.map(([n,t,sp])=>h('tr',{},h('td',{class:'nm'},n),h('td',{},sel(n+'t',t)),h('td',{},sel(n+'s',sp))))))),
+      h('div',{class:'actions'},h('button',{class:'btn primary',disabled:S.mChecked||null,onclick:()=>{S.mChecked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{S.m={};S.mChecked=false;render();}},'Reset')),
+      S.mChecked?h('div',{class:'fb '+(right===14?'ok':'bad')},h('b',{},`${right} of 14 correct. `),right===14?'Every algorithm matched.':'Red boxes are wrong. Use the Explain it tab to find out why, then reset and try again.'):null));
+}
+/* EXPLAIN */
+const EX=[
+ ['Why is bubble sort O(n²) time?',['It makes up to n - 1 passes, each comparing up to n - 1 pairs: a loop inside a loop','It halves the list each time','It uses recursion','It only looks at each item once'],0,'Nested loops over the data give n × n, which is O(n²).'],
+ ['Why is bubble sort O(1) space?',['It sorts the data in place, needing only one extra variable (temp), however many items there are','It never swaps any items','It uses the call stack','It copies the data into a new list'],0,'The extra memory does not grow with n.'],
+ ['Why is insertion sort O(n²) time in the worst case?',['Each item may be compared with every sorted item before it, for every item: nested loops','It always makes exactly n comparisons','It splits the data around a pivot','It halves the range each time'],0,'For reversed data, item n is compared with all n - 1 items before it.'],
+ ['Why is quicksort O(n log n) on average?',['About log n levels of partitioning, each looking at all n items','It compares every pair of items','It only ever makes n comparisons','It uses one loop'],0,'n work per level × log n levels.'],
+ ['When does quicksort become O(n²)?',['When the pivot is always the smallest or largest item, so one partition is empty every time','When the pivot is the middle item','When the list has an even number of items','When the data contains duplicates'],0,'There are then n levels instead of log n. Our middle-item pivot makes this unlikely.'],
+ ['Why is quicksort O(log n) space, not O(1)?',['It is recursive: every call adds a frame to the call stack, about log n deep','It copies the list for every partition','It needs a new array for the pivots','It stores every comparison'],0,'The call stack grows with the depth of recursion.'],
+ ['Why is linear search O(n)?',['In the worst case every item is checked once','It halves the list each time','It uses nested loops','It only checks one item'],0,'The work grows in step with the number of items.'],
+ ['Why is recursive binary search O(log n) space when iterative binary search is O(1)?',['Each recursive call adds a stack frame, and there are about log n calls','The recursive version checks more items','The iterative version uses a new array','They are actually the same'],0,'The iterative version only ever needs first, last and midpoint.'],
+];
+function explainView(){
+  const E=S.ex;const right=Object.entries(E).filter(([i,v])=>v===EX[i][2]).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Explain it'),h('div',{class:'mscore'},`${right} / ${EX.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Knowing the Big O is not enough: exam answers need the REASON. Choose the correct reason for each one. One attempt each.'),
+    h('div',{class:'cards'},...EX.map(([q,opts,a,why],i)=>{const order=[[0,1,2,3],[2,0,3,1],[1,3,0,2],[3,0,1,2],[2,3,0,1],[1,0,2,3],[3,2,1,0],[0,2,3,1]][i];const g=E[i];
+      return h('div',{class:'ccard'+(g!==undefined?(g===a?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy);margin-bottom:8px'},q),
+        h('div',{class:'olist'},...order.map(k=>{let cl='opt wide';if(g!==undefined){if(k===a)cl+=' ok';else if(k===g)cl+=' bad';}return h('button',{class:cl,disabled:g!==undefined||null,onclick:()=>{E[i]=k;render();}},opts[k]);})),
+        g!==undefined?h('div',{class:'why'},h('b',{},g===a?'✓ ':'✗ '),why):null);})));
+}
+/* COUNT 2019 */
+const CSTEPS=[
+ {q:'What happens to the number of items still in range each time round the loop?',type:'choice',opts:['It goes down by 1','It halves','It doubles','It stays the same'],ans:'It halves',mark:'Each iteration halves the number of elements until 1 is left',why:'The midpoint is checked and half the range is discarded every time.'},
+ {q:'For n items, how many times does the loop run (worst case)?',type:'choice',opts:['n','n / 2','log₂ n','n²'],ans:'log₂ n',mark:'For n values, halving until one value is left takes log₂ n steps',why:'Halving n until 1 is left takes log₂ n steps: 10 for 1,024 items, 20 for about a million.'},
+ {q:'How many instructions are inside the loop?',type:'num',ans:2,mark:'Two instructions in the loop, so 2 log₂ n',why:'Line 4 (the midpoint) and line 5 (compare and update): 2, giving 2 log₂ n.'},
+ {q:'Which term dominates, and what is the Big O?',type:'choice',opts:['2: O(1)','log₂ n: O(log n)','n: O(n)','2 log₂ n: O(2 log n)'],ans:'log₂ n: O(log n)',mark:'log₂ n dominates, so the time performance is O(log n) (2 marks)',why:'Drop the constant 2: O(log n), logarithmic time.',marks:2},
+];
+function countView(){
+  const C=S.cnt,done=C.res.length;const answer=(ok,g)=>{C.res.push({ok,g});C.val='';render();};
+  const got=C.res.reduce((t,r,j)=>t+(r.ok?(CSTEPS[j].marks||1):0),0);
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Count it: the 2019 Q9(a) way')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'"Evaluate the efficiency of the binary search and, using Big O notation, determine the growth rate for its time performance." [5] Work through each step: each one is a mark-scheme point.'),
+    h('div',{class:'grid'},
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Binary search'),h('pre',{class:'code'},'1  set first = 0\n2  set last = n - 1\n3  while first <= last AND found = FALSE\n4      set midpoint = (first + last) DIV 2\n5      compare items[midpoint] with the search item:\n          set found, first or last\n6  end while')),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Mark scheme (2019 Q9a)'),h('div',{class:'mscore',style:'margin-bottom:6px'},`${got} / 5`),
+          h('ul',{class:'meter'},...CSTEPS.map((s,j)=>{const r=C.res[j];return h('li',{class:r?(r.ok?'got':'miss'):null},h('span',{class:'bx'},r&&r.ok?'✓':''),s.mark);})))),
+      h('div',{},...CSTEPS.map((s,j)=>{const r=C.res[j],cur=j===done;let body=null;
+        if(cur){if(s.type==='num'){const inp=h('input',{class:'numin',type:'number',value:C.val,'aria-label':s.q});inp.addEventListener('input',()=>C.val=inp.value);body=h('div',{class:'opts'},inp,h('button',{class:'btn primary',onclick:()=>{if(C.val==='')return;answer(Number(C.val)===s.ans,C.val);}},'Check'));}
+          else body=h('div',{class:'opts'},...s.opts.map(o=>h('button',{class:'opt',onclick:()=>answer(o===s.ans,o)},o)));}
+        else if(r)body=h('div',{class:'why'},h('b',{},r.ok?'✓ ':`✗ You said ${r.g}. Answer: ${s.ans}. `),s.why);
+        return h('div',{class:'step'+(r?(r.ok?' ok':' bad'):cur?' cur':' locked')},h('h4',{},`Step ${j+1}: ${s.q}`),body);}),
+        done===CSTEPS.length?h('div',{class:'fb '+(got===5?'ok':'bad')},h('b',{},`${got} out of 5. `),got===5?'Full marks.':'Read the explanations, then try again.',h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.cnt={res:[],val:''};render();}},'Try again'))):null)));
+}
+/* COMPARE */
+const SC=[
+ ['A list of 50 names in no particular order will be searched once.','Linear search','The data is unsorted. Sorting it first would take longer than a single linear search.'],
+ ['A sorted list of 2 million customer IDs is searched thousands of times a day.','Binary search','Large, sorted data searched many times: binary search needs at most about 21 comparisons each time.'],
+ ['A memory-limited device searches a sorted list. You must choose between iterative and recursive binary search.','Iterative binary search','Both are O(log n) time, but the iterative version is O(1) space: no stack frames.'],
+ ['New items are added to the END of a list all day, in no order, and it is searched occasionally.','Linear search','Keeping the list sorted for binary search would cost more than an occasional O(n) search.'],
+];
+const SCOPT=['Linear search','Binary search','Iterative binary search'];
+function compareView(){
+  const C=S.cmp;const shapes=[['','choose…'],['n','straight line rising steadily'],['log','curve that rises quickly then flattens']];
+  const s1=h('select',{'aria-label':'Shape for linear search',disabled:C.checked||null,class:C.checked?(C.a==='n'?'ok':'bad'):null},...shapes.map(([v,t])=>{const o=h('option',{value:v},t);if(C.a===v)o.selected=true;return o;}));s1.addEventListener('change',()=>{C.a=s1.value;render();});
+  const s2=h('select',{'aria-label':'Shape for binary search',disabled:C.checked||null,class:C.checked?(C.b==='log'?'ok':'bad'):null},...shapes.map(([v,t])=>{const o=h('option',{value:v},t);if(C.b===v)o.selected=true;return o;}));s2.addEventListener('change',()=>{C.b=s2.value;render();});
+  const s3=h('select',{'aria-label':'More efficient',disabled:C.checked||null,class:C.checked?(C.eff==='bin'?'ok':'bad'):null},...[['','choose…'],['lin','Linear search, O(n)'],['bin','Binary search, O(log n)']].map(([v,t])=>{const o=h('option',{value:v},t);if(C.eff===v)o.selected=true;return o;}));s3.addEventListener('change',()=>C.eff=s3.value);
+  const fns=[];if(C.a)fns.push([SH[C.a],'#003366','Linear search']);if(C.b)fns.push([SH[C.b],'#CC9900','Binary search']);
+  const sc=C.sc;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Compare: linear vs binary')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Part 1, like 2019 Q9(b) and (c): choose the shape of each search on the graph and say which is more efficient. Part 2: binary search is not ALWAYS the best choice. Pick the right search for each scenario.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Part 1: the graph'),h('div',{class:'selrow'},h('label',{},'Linear search, O(n)',s1),h('label',{},'Binary search, O(log n)',s2),h('label',{},'Which is more efficient?',s3)),
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:C.checked||null,onclick:()=>{C.checked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{S.cmp={a:'',b:'',eff:'',checked:false,sc:C.sc};render();}},'Reset')),
+        C.checked?h('div',{class:'fb '+(C.a==='n'&&C.b==='log'&&C.eff==='bin'?'ok':'bad')},'Linear search is a straight line (O(n)); binary search curves up quickly and then flattens (O(log n)). Binary search is more efficient: for a million items it needs about 20 comparisons, against a million for linear search. Remember to label both axes in the exam.'):null),
+      h('div',{class:'panel'},h('h3',{},'Your graph'),h('div',{class:'gsvg'},fns.length?curveSVG(fns):h('p',{class:'small'},'Choose the shapes to draw the graph.')))),
+    h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Part 2: which search?'),
+      h('div',{class:'cards'},...SC.map(([t,a,why],i)=>{const g=sc[i];return h('div',{class:'ccard'+(g?(g===a?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy);min-height:52px'},t),
+        h('div',{class:'opts'},...SCOPT.map(o=>{let cl='opt';if(g){if(o===a)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{sc[i]=o;render();}},o);})),
+        g?h('div',{class:'why'},h('b',{},g===a?'✓ ':'✗ '),why):null);}))));
+}
+const TABS=[['Match',matchView],['Explain it',explainView],['Count it (2019 Q9)',countView],['Compare',compareView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>

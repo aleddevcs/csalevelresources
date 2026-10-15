@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Logic Lab</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.twrap{overflow-x:auto}
+.mono{font-family:"Courier New",monospace;font-weight:700}
+.switches{display:flex;gap:14px;flex-wrap:wrap}
+.switch{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:40px;padding:8px 16px 8px 8px}
+.switch .knob{width:54px;height:30px;border-radius:15px;background:#C8D4E1;position:relative;flex:none}
+.switch .knob::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.switch.on{border-color:#CC9900}
+.switch.on .knob{background:#CC9900}
+.switch.on .knob::after{left:27px}
+.switch b{font-family:Cambria,Georgia,serif;font-size:20px;color:var(--navy)}
+.switch small{color:var(--muted)}
+.lamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.lamp{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:grid;gap:3px;justify-items:center}
+.lamp .bulb{width:48px;height:48px;border-radius:50%;background:#E3E8EE;color:#5B6B7B;font:700 22px Cambria,Georgia,serif;display:flex;align-items:center;justify-content:center}
+.lamp.lit{border-color:#CC9900}
+.lamp.lit .bulb{background:#FFD966;color:#1F2A36;box-shadow:0 0 18px #FFD966}
+.lamp b{font-family:"Courier New",monospace;color:var(--navy)}
+.lamp small{color:var(--muted);font-size:13px}
+.grow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+.grow.ok{border-color:var(--ok);background:var(--okBg)}
+.grow.bad{border-color:var(--bad);background:var(--badBg)}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.tf{display:flex;gap:6px}
+.tf .opt{font-size:13px;padding:4px 10px}
+.opt.picked{border-color:var(--navy);background:var(--soft)}
+table.tt{border-collapse:collapse;margin:0 auto}
+table.tt th{background:#003366;color:#fff;padding:8px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:nowrap}
+table.tt th.final{background:#CC9900;color:#1F2A36}
+table.tt td{border:1px solid var(--line);padding:4px;text-align:center;background:var(--bg)}
+table.tt td.given{font-family:"Courier New",monospace;font-weight:700;font-size:18px;width:54px}
+table.tt td.fincell{background:var(--soft)}
+.cell{width:52px;height:40px;border:2px solid #CC9900;border-radius:6px;background:var(--bg);color:var(--ink);font:700 18px "Courier New",monospace}
+.cell.ok{border-color:var(--ok);background:var(--okBg)}
+.cell.bad{border-color:var(--bad);background:var(--badBg)}
+.cell:disabled{cursor:default}
+.cards.conds{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
+.cards.conds pre.code{white-space:pre-wrap;min-height:0;font-size:14.5px}
+.vsel{border:2px solid #CC9900;border-radius:6px;padding:6px 8px;background:var(--bg);color:var(--ink);font-size:15px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Logic Lab</h1><div class="spec">Unit 3 · 3.6.1 · Logical operators, including NAND and NOR</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const OPS={AND:(a,b)=>a&b,OR:(a,b)=>a|b,NAND:(a,b)=>1-(a&b),NOR:(a,b)=>1-(a|b)};
+const ROWS=[[0,0],[0,1],[1,0],[1,1]];
+const S={tab:0,A:0,B:0,guess:{},cond:{},tt:{i:0,st:{}},pr:{i:0,st:{}}};
+
+/* ---------- OPERATORS ---------- */
+const GUESS=[['1, 1, 1, 0','NAND'],['1, 0, 0, 0','NOR'],['0, 0, 0, 1','AND'],['0, 1, 1, 1','OR']];
+function opsView(){
+  const sw=(k)=>h('button',{class:'switch'+(S[k]?' on':''),'aria-pressed':String(!!S[k]),onclick:()=>{S[k]=1-S[k];render();}},h('span',{class:'knob'}),h('b',{},`${k} = ${S[k]}`),h('small',{},S[k]?'TRUE':'FALSE'));
+  const lamp=(name,v,expr)=>h('div',{class:'lamp'+(v?' lit':'')},h('div',{class:'bulb'},String(v)),h('b',{},name),h('small',{},expr));
+  const G=S.guess;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Operators: flip the switches')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Flip A and B through all four combinations: 00, 01, 10 and 11. Watch each output. Which two are opposites of each other? When is NAND the only one that is 0? When is NOR the only one that is 1?'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Inputs'),h('div',{class:'switches'},sw('A'),sw('B')),
+        h('h3',{style:'margin-top:14px'},'Outputs'),h('div',{class:'lamps'},
+          lamp('A AND B',OPS.AND(S.A,S.B),'both true'),lamp('A OR B',OPS.OR(S.A,S.B),'at least one true'),lamp('NOT A',1-S.A,'opposite of A'),
+          lamp('A NAND B',OPS.NAND(S.A,S.B),'NOT (A AND B)'),lamp('A NOR B',OPS.NOR(S.A,S.B),'NOT (A OR B)'))),
+      h('div',{class:'panel'},h('h3',{},'Name the operator'),h('p',{class:'small',style:'margin:0 0 8px'},'Each list is the output for the rows 00, 01, 10, 11 in order. Which operator gives it?'),
+        ...GUESS.map(([pat,ans],i)=>{const g=G[i];return h('div',{class:'grow'+(g?(g===ans?' ok':' bad'):'')},h('span',{class:'mono'},pat),
+          h('div',{class:'opts'},...Object.keys(OPS).map(o=>{let cl='opt';if(g){if(o===ans)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{G[i]=o;render();}},o);})));}))));
+}
+
+/* ---------- CONDITIONS IN CODE ---------- */
+const CONDS=[
+ {code:'while current < len(items) AND found = FALSE',vals:'current = 3, len(items) = 7, found = FALSE',parts:[['current < len(items)',1],['found = FALSE',1]],op:'AND',res:1,why:'TRUE AND TRUE = TRUE: the linear search keeps going.'},
+ {code:'while current < len(items) AND found = FALSE',vals:'current = 3, len(items) = 7, found = TRUE',parts:[['current < len(items)',1],['found = FALSE',0]],op:'AND',res:0,why:'TRUE AND FALSE = FALSE: the item has been found, so the loop stops.'},
+ {code:'if age < 16 OR age > 99 then output "Invalid"',vals:'age = 45',parts:[['age < 16',0],['age > 99',0]],op:'OR',res:0,why:'FALSE OR FALSE = FALSE: 45 is in range, so nothing is output.'},
+ {code:'while first <= last AND found = FALSE',vals:'first = 5, last = 4, found = FALSE',parts:[['first <= last',0],['found = FALSE',1]],op:'AND',res:0,why:'FALSE AND TRUE = FALSE: first has passed last, so binary search stops: not found.'},
+ {code:'while pivot < myArray[tmpHi] AND tmpHi > indexLow',vals:'pivot = 11, myArray[tmpHi] = 23, tmpHi = 1, indexLow = 0',parts:[['pivot < myArray[tmpHi]',1],['tmpHi > indexLow',1]],op:'AND',res:1,why:'TRUE AND TRUE = TRUE: tmpHi moves left again.'},
+ {code:'if NOT (username = "" OR password = "") then allow login',vals:'username = "aled", password = "cymru1"',parts:[['username = ""',0],['password = ""',0]],op:'NOR',res:1,why:'NOT (FALSE OR FALSE) = NOT FALSE = TRUE. This is A NOR B: only TRUE when BOTH are false, i.e. both boxes filled in.'},
+ {code:'if NOT (paid = TRUE AND age >= 18) then refuse entry',vals:'paid = TRUE, age = 16',parts:[['paid = TRUE',1],['age >= 18',0]],op:'NAND',res:1,why:'NOT (TRUE AND FALSE) = NOT FALSE = TRUE: entry refused. This is A NAND B.'},
+ {code:'if NOT (paid = TRUE AND age >= 18) then refuse entry',vals:'paid = TRUE, age = 21',parts:[['paid = TRUE',1],['age >= 18',1]],op:'NAND',res:0,why:'NOT (TRUE AND TRUE) = NOT TRUE = FALSE: entry is NOT refused. NAND is only FALSE when both are true.'},
+];
+function condView(){
+  const C=S.cond;let right=0,doneN=0;CONDS.forEach((c,i)=>{const s=C[i];if(s&&s.checked){doneN++;if(s.ok)right++;}});
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Conditions in code'),h('div',{class:'mscore'},`${right} / ${CONDS.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'These conditions come from algorithms you have met. For each one, decide whether each part is TRUE or FALSE, then whether the whole condition is TRUE or FALSE.'),
+    h('div',{class:'cards conds'},...CONDS.map((c,i)=>{const s=C[i]||(C[i]={p:{},r:null,checked:false,ok:false});
+      const tf=(key,cur,set)=>h('div',{class:'tf'},...[[1,'TRUE'],[0,'FALSE']].map(([v,t])=>{let cl='opt';if(cur===v)cl+=' picked';if(s.checked){const corr=key==='r'?c.res:c.parts[key][1];if(v===corr&&cur===v)cl+=' ok';else if(cur===v)cl+=' bad';else if(v===corr)cl+=' ok';}
+        return h('button',{class:cl,disabled:s.checked||null,onclick:()=>{set(v);render();}},t);}));
+      const all=c.parts.every((_,k)=>s.p[k]!==undefined)&&s.r!==null;
+      return h('div',{class:'ccard'+(s.checked?(s.ok?' ok':' bad'):'')},
+        h('pre',{class:'code'},c.code),h('div',{class:'small',style:'margin:6px 0'},h('b',{},'Values: '),c.vals),
+        ...c.parts.map(([p],k)=>h('div',{class:'prow'},h('span',{class:'mono'},p),tf(k,s.p[k],v=>s.p[k]=v))),
+        h('div',{class:'prow'},h('span',{},h('b',{},`Whole condition (${c.op==='NOR'?'NOT (… OR …)':c.op==='NAND'?'NOT (… AND …)':c.op})`)),tf('r',s.r,v=>s.r=v)),
+        s.checked?h('div',{class:'why'},h('b',{},s.ok?'✓ ':'✗ '),c.why):h('button',{class:'btn primary',style:'margin-top:8px',disabled:!all||null,onclick:()=>{s.checked=true;s.ok=c.parts.every((pp,k)=>s.p[k]===pp[1])&&s.r===c.res;render();}},'Check'));})),
+    doneN===CONDS.length?h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.cond={};render();}},'Try again')):null);
+}
+
+/* ---------- TRUTH TABLES ---------- */
+const A_=r=>r[0],B_=r=>r[1];
+const TT=[
+ {title:'NAND',cols:[['A AND B',r=>r[0]&r[1]],['A NAND B',r=>1-(r[0]&r[1])]]},
+ {title:'NOR',cols:[['A OR B',r=>r[0]|r[1]],['A NOR B',r=>1-(r[0]|r[1])]]},
+ {title:'NOT A OR NOT B',cols:[['NOT A',r=>1-r[0]],['NOT B',r=>1-r[1]],['NOT A OR NOT B',r=>(1-r[0])|(1-r[1])]]},
+ {title:'(A AND B) OR NOT A',cols:[['A AND B',r=>r[0]&r[1]],['NOT A',r=>1-r[0]],['(A AND B) OR NOT A',r=>(r[0]&r[1])|(1-r[0])]]},
+ {title:'A NOR (A AND B)',cols:[['A AND B',r=>r[0]&r[1]],['A NOR (A AND B)',r=>1-(r[0]|(r[0]&r[1]))]]},
+];
+function cellBtn(val,state,onclick,disabled){return h('button',{class:'cell'+(state?' '+state:''),disabled:disabled||null,onclick},val===undefined?' ':String(val));}
+function ttView(){
+  const T=S.tt,ex=TT[T.i],st=T.st[T.i]||(T.st[T.i]={v:{},checked:false});
+  const cyc=k=>{if(st.checked)return;const c=st.v[k];st.v[k]=c===undefined?0:c===0?1:0;render();};
+  let right=0,tot=0;
+  const body=ROWS.map((r,ri)=>h('tr',{},h('td',{class:'given'},String(r[0])),h('td',{class:'given'},String(r[1])),...ex.cols.map(([n,f],ci)=>{tot++;const k=ri+':'+ci;const ok=st.v[k]===f(r);if(ok)right++;return h('td',{},cellBtn(st.v[k],st.checked?(ok?'ok':'bad'):null,()=>cyc(k),st.checked));})));
+  const dots=h('div',{class:'dots'},TT.map((_,j)=>h('button',{class:'dot'+(T.st[j]&&T.st[j].checked?' done':''),'aria-current':String(j===T.i),onclick:()=>{T.i=j;render();}},String(j+1))));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Truth tables: ${ex.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Click a cell to set it to 0 or 1 (click again to change it). Work out the earlier columns first: they help with the last one.'),
+    h('div',{class:'panel'},h('div',{class:'twrap'},h('table',{class:'tt'},h('thead',{},h('tr',{},h('th',{},'A'),h('th',{},'B'),...ex.cols.map(([n],ci)=>h('th',{class:ci===ex.cols.length-1?'final':null},n)))),h('tbody',{},...body))),
+      h('div',{class:'actions'},h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{T.st[T.i]=null;render();}},'Reset'),
+        st.checked&&T.i<TT.length-1?h('button',{class:'btn accent',onclick:()=>{T.i++;render();}},'Next table →'):null),
+      st.checked?h('div',{class:'fb '+(right===tot?'ok':'bad')},h('b',{},`${right} of ${tot} cells correct. `),right===tot?'Well done.':'Red cells are wrong. Reset to try again.'):null));
+}
+
+/* ---------- PROVE IT ---------- */
+const PR=[
+ {title:'WJEC 2019 Q8',claim:'A NOR B = NOT A AND NOT B',scheme:'rows',cols:[['A NOR B',r=>1-(r[0]|r[1])],['NOT A',r=>1-r[0]],['NOT B',r=>1-r[1]],['NOT A AND NOT B',r=>(1-r[0])&(1-r[1])]],L:0,R:3,marks:4,
+  note:'Mark scheme: one mark for each correct row. Additional columns accepted.'},
+ {title:'WJEC 2022 Q10',claim:'B AND NOT (A NOR B) = B',scheme:'cols',cols:[['A NOR B',r=>1-(r[0]|r[1])],['NOT (A NOR B)',r=>r[0]|r[1]],['B AND NOT (A NOR B)',r=>r[1]&(r[0]|r[1])]],L:2,R:'B',marks:4,
+  note:'Mark scheme: one mark for each correct column (3), plus one mark for the correct combinations of A and B.'},
+ {title:'Practice',claim:'A NAND B = NOT A OR NOT B',scheme:'rows',cols:[['A NAND B',r=>1-(r[0]&r[1])],['NOT A',r=>1-r[0]],['NOT B',r=>1-r[1]],['NOT A OR NOT B',r=>(1-r[0])|(1-r[1])]],L:0,R:3,marks:4,note:'Marked like 2019 Q8: one mark per correct row.'},
+ {title:'Practice',claim:'A AND (A OR B) = A',scheme:'cols',cols:[['A OR B',r=>r[0]|r[1]],['A AND (A OR B)',r=>r[0]&(r[0]|r[1])]],L:1,R:'A',marks:3,note:'Marked like 2022 Q10: one mark per correct column, plus one for the A and B combinations.'},
+];
+function proveView(){
+  const P=S.pr,ex=PR[P.i],st=P.st[P.i]||(P.st[P.i]={v:{},checked:false,verdict:''});
+  const cyc=k=>{if(st.checked)return;const c=st.v[k];st.v[k]=c===undefined?0:c===0?1:0;render();};
+  const allCols=[['A',r=>r[0]],['B',r=>r[1]],...ex.cols];
+  const ok=(ri,ci)=>st.v[ri+':'+ci]===allCols[ci][1](ROWS[ri]);
+  const body=ROWS.map((r,ri)=>h('tr',{},...allCols.map((c,ci)=>{const k=ri+':'+ci;const fin=ci-2===ex.L||(typeof ex.R==='number'&&ci-2===ex.R)||(ex.R==='A'&&ci===0)||(ex.R==='B'&&ci===1);return h('td',{class:fin?'fincell':null},cellBtn(st.v[k],st.checked?(ok(ri,ci)?'ok':'bad'):null,()=>cyc(k),st.checked));})));
+  let pts=[],got=0;
+  if(st.checked){
+    if(ex.scheme==='rows'){ROWS.forEach((r,ri)=>{const g=allCols.every((_,ci)=>ok(ri,ci));pts.push([`Row ${ri+1} (A = ${r[0]}, B = ${r[1]}) all correct`,g]);});}
+    else{pts.push(['Correct combinations of A and B',ROWS.every((_,ri)=>ok(ri,0)&&ok(ri,1))]);ex.cols.forEach((c,ci)=>pts.push([`Column "${c[0]}" correct`,ROWS.every((_,ri)=>ok(ri,ci+2))]));}
+    got=pts.filter(p=>p[1]).length;
+  }
+  const vsel=h('select',{class:'vsel','aria-label':'Is it proved?',disabled:st.checked||null},...[['','Is it proved?'],['yes','Yes: the final columns match in every row'],['no','No: they differ in at least one row']].map(([v,t])=>{const o=h('option',{value:v},t);if(st.verdict===v)o.selected=true;return o;}));
+  vsel.addEventListener('change',()=>st.verdict=vsel.value);
+  const dots=h('div',{class:'dots'},PR.map((_,j)=>h('button',{class:'dot'+(P.st[j]&&P.st[j].checked?' done':''),'aria-current':String(j===P.i),onclick:()=>{P.i=j;render();}},String(j+1))));
+  const lhs=typeof ex.L==='number'?ex.cols[ex.L][0]:ex.L,rhs=typeof ex.R==='number'?ex.cols[ex.R][0]:ex.R;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Prove it: ${ex.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),`"Draw a truth table to prove the following: ${ex.claim}" [${ex.marks}]. Fill in EVERY cell, including the A and B columns. Then decide whether it is proved, and check against the mark scheme.`),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('div',{class:'twrap'},h('table',{class:'tt'},h('thead',{},h('tr',{},...allCols.map(([n],ci)=>{const fin=ci-2===ex.L||(typeof ex.R==='number'&&ci-2===ex.R)||(ex.R==='A'&&ci===0)||(ex.R==='B'&&ci===1);return h('th',{class:fin?'final':null},n);}))),h('tbody',{},...body))),
+        h('div',{class:'actions'},vsel),
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check against the mark scheme'),h('button',{class:'btn ghost',onclick:()=>{P.st[P.i]=null;render();}},'Reset'))),
+      h('div',{},h('div',{class:'panel'},h('h3',{},`Mark scheme: ${st.checked?got:'?'} / ${ex.marks}`),h('p',{class:'small',style:'margin:0 0 8px'},ex.note),
+          st.checked?h('ul',{class:'meter'},...pts.map(([t,g])=>h('li',{class:g?'got':'miss'},h('span',{class:'bx'},g?'✓':''),t))):h('p',{class:'small'},'Check your table to see the marks.')),
+        st.checked?h('div',{class:'fb '+(st.verdict==='yes'?'ok':'bad')},h('b',{},st.verdict==='yes'?'Proved. ':'Look again. '),`The "${lhs}" column and the "${rhs}" column match in every row, so ${ex.claim}.`,
+          P.i<PR.length-1?h('div',{class:'actions'},h('button',{class:'btn accent',onclick:()=>{P.i++;render();}},'Next proof →')):null):null)));
+}
+
+const TABS=[['Operators',opsView],['Conditions in code',condView],['Truth tables',ttView],['Prove it',proveView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>

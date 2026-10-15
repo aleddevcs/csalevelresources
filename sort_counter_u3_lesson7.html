@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sort Counter</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.cellrow{display:flex;flex-wrap:wrap;gap:4px}
+.cellv{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border:2px solid var(--navy);border-radius:6px;font-family:Cambria,Georgia,serif;font-weight:700;color:var(--navy);background:var(--bg)}
+.twrap{overflow-x:auto}
+table.t td.best{background:var(--okBg);color:var(--ok);font-weight:700}
+table.t td.nm{font-family:Cambria,Georgia,serif;font-weight:700;color:var(--navy)}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Sort Counter</h1><div class="spec">Unit 3 · 3.4.3 · Comparisons, exchanges, passes and storage</div></div>
+  </div>
+</header>
+<main id="main" style="padding-top:22px"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const sel=(lab,val,opts,on)=>h('label',{},lab,h('select',{onchange:e=>on(e.target.value)},...opts.map(([v,t])=>{const o=h('option',{value:String(v)},t);if(String(v)===String(val))o.selected=true;return o;})));
+function makeData(n,order){const a=Array.from({length:n},(_,i)=>i+1);
+  if(order!=='sorted'&&order!=='reversed'){for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+  if(order==='nearly'){a.sort((x,y)=>x-y);const k=Math.max(1,Math.round(n*0.1));for(let t=0;t<k;t++){const i=Math.floor(Math.random()*(n-1));[a[i],a[i+1]]=[a[i+1],a[i]];}}
+  if(order==='reversed')a.reverse();return a;}
+function bubble(a0,early){const a=a0.slice(),n=a.length;let c=0,x=0,p=0;
+  for(let i=0;i<n-1;i++){p++;let sw=false;for(let j=0;j<n-1-i;j++){c++;if(a[j]>a[j+1]){[a[j],a[j+1]]=[a[j+1],a[j]];x++;sw=true;}}if(early&&!sw)break;}
+  return {c,x,p,store:'1 variable (temp)',storeN:1,passName:'passes'};}
+function insertion(a0){const a=a0.slice(),n=a.length;let c=0,x=0;
+  for(let idx=1;idx<n;idx++){const key=a[idx];let pos=idx-1;while(pos>=0){c++;if(a[pos]>key){a[pos+1]=a[pos];x++;pos--;}else break;}a[pos+1]=key;}
+  return {c,x,p:n-1,store:'1 variable (itemToInsert)',storeN:1,passName:'items inserted'};}
+function quick(a0){const a=a0.slice();let c=0,x=0,p=0,d=0,md=0;
+  function qs(lo,hi){p++;d++;md=Math.max(md,d);let tl=lo,th=hi;const piv=a[Math.floor((lo+hi)/2)];
+    while(tl<=th){while(true){c++;if(!(a[tl]<piv&&tl<hi))break;tl++;}while(true){c++;if(!(piv<a[th]&&th>lo))break;th--;}
+      if(tl<=th){if(tl!==th)x++;[a[tl],a[th]]=[a[th],a[tl]];tl++;th--;}}
+    if(lo<th)qs(lo,th);if(tl<hi)qs(tl,hi);d--;}
+  qs(0,a.length-1);return {c,x,p,store:`4 variables × up to ${md} stack frames`,storeN:4*md,depth:md,passName:'partitions'};}
+const S={n:8,order:'random',early:false,data:null,res:null,pred:{c:'',x:''},shown:false,hist:[]};
+function newData(){S.data=makeData(S.n,S.order);S.res={b:bubble(S.data,S.early),i:insertion(S.data),q:quick(S.data)};S.shown=false;S.pred={c:'',x:''};}
+newData();
+const NAMES={b:'Bubble sort',i:'Insertion sort',q:'Quicksort'};
+function run(){S.shown=true;const r=S.res;const best=k=>Object.keys(r).filter(s=>r[s][k]===Math.min(r.b[k],r.i[k],r.q[k])).map(s=>NAMES[s]).join(' & ');
+  S.hist.unshift({n:S.n,order:S.order,early:S.early,b:r.b,i:r.i,q:r.q,bc:best('c'),bx:best('x')});render();}
+function render(){
+  const r=S.res,main=document.getElementById('main');main.innerHTML='';
+  const ORD=[['random','Random'],['nearly','Nearly sorted'],['reversed','Reversed'],['sorted','Already sorted']];
+  const cells=S.n<=30?h('div',{class:'cellrow'},...S.data.map(v=>h('span',{class:'cellv'},String(v)))):h('p',{class:'small'},`${S.n} items: too many to show.`);
+  const predSel=(k,lab)=>sel(lab,S.pred[k],[['','choose…'],['b','Bubble sort'],['i','Insertion sort'],['q','Quicksort']],v=>{S.pred[k]=v;});
+  const min=k=>Math.min(r.b[k],r.i[k],r.q[k]);
+  const row=(k)=>{const x=r[k];return h('tr',{},h('td',{class:'nm'},NAMES[k]),
+    h('td',{class:x.c===min('c')?'best':null},x.c.toLocaleString('en-GB')),h('td',{class:x.x===min('x')?'best':null},x.x.toLocaleString('en-GB')),
+    h('td',{},`${x.p.toLocaleString('en-GB')} ${x.passName}`),h('td',{},x.store));};
+  let predFb=null;
+  if(S.shown&&(S.pred.c||S.pred.x)){const ok=k=>S.pred[k]&&r[S.pred[k]][k]===min(k);
+    predFb=h('div',{class:'fb '+((!S.pred.c||ok('c'))&&(!S.pred.x||ok('x'))?'ok':'bad')},
+      S.pred.c?`Fewest comparisons: you said ${NAMES[S.pred.c]}, ${ok('c')?'correct':'not this time'}. `:'',S.pred.x?`Fewest exchanges: you said ${NAMES[S.pred.x]}, ${ok('x')?'correct':'not this time'}.`:'');}
+  main.append(...[
+    h('div',{class:'top'},h('h2',{},'Sort Counter')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'All three sorts get the same data. Before you run them, predict which sort will make the fewest comparisons and the fewest exchanges. Then run them and compare the four factors that affect efficiency: comparisons, exchanges, passes and extra storage.'),
+    h('div',{class:'controls'},
+      sel('Items',S.n,[[5,'5'],[8,'8'],[15,'15'],[30,'30'],[100,'100'],[1000,'1,000']],v=>{S.n=Number(v);newData();render();}),
+      sel('Starting order',S.order,ORD,v=>{S.order=v;newData();render();}),
+      h('label',{},h('input',{type:'checkbox',checked:S.early||null,onchange:e=>{S.early=e.target.checked;newData();render();}}),'Bubble sort stops early if a pass makes no exchanges'),
+      h('button',{class:'btn ghost',onclick:()=>{newData();render();}},'New data')),
+    h('div',{class:'panel'},h('h3',{},'The data'),cells),
+    h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Predict first'),h('div',{class:'controls',style:'background:transparent;padding:0;margin:0'},predSel('c','Fewest comparisons:'),predSel('x','Fewest exchanges:'),
+      h('button',{class:'btn accent',onclick:run,disabled:S.shown||null},'Run all three sorts')),predFb),
+    S.shown?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Results'),h('div',{class:'twrap'},h('table',{class:'t'},
+      h('thead',{},h('tr',{},...['','Comparisons','Exchanges','Passes','Extra storage'].map(t=>h('th',{},t)))),h('tbody',{},row('b'),row('i'),row('q')))),
+      h('p',{class:'small',style:'margin:8px 0 0'},'Green = fewest. Exchanges are swaps for bubble sort and quicksort, and copies up for insertion sort. For quicksort, a "pass" is one partition (one call), and every call adds a stack frame.')):null,
+    S.hist.length?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Your runs'),h('div',{class:'twrap'},h('table',{class:'t'},
+      h('thead',{},h('tr',{},...['Items','Order','Bubble comps','Insertion comps','Quick comps','Fewest comparisons','Fewest exchanges'].map(t=>h('th',{},t)))),
+      h('tbody',{},...S.hist.map(x=>h('tr',{},h('td',{},x.n.toLocaleString('en-GB')),h('td',{},ORD.find(o=>o[0]===x.order)[1]+(x.early?' (early stop)':'')),
+        h('td',{},x.b.c.toLocaleString('en-GB')),h('td',{},x.i.c.toLocaleString('en-GB')),h('td',{},x.q.c.toLocaleString('en-GB')),h('td',{},x.bc),h('td',{},x.bx))))))):null,
+    S.hist.length>=3?h('div',{class:'disc'},h('h3',{},'What do you notice?'),h('ul',{},
+      h('li',{},'On nearly sorted or already sorted data, which sort needs the fewest comparisons and exchanges? Why?'),
+      h('li',{},'Turn on the early stop. Which factor changes most for bubble sort on sorted data?'),
+      h('li',{},'Make the list bigger (100 or 1,000, random). Which sort wins now?'),
+      h('li',{},'Quicksort is the only one whose extra storage grows. Why?'))):null].filter(Boolean));
+}
+render();
+
+</script>
+</body>
+</html>
