@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 12 Task Tracker — Functions</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  .progress-wrap{
+    max-width:900px;
+    margin:-1.5rem auto 0;
+    padding:0 1.5rem;
+  }
+  .progress-card{
+    background:var(--white);
+    border-radius:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    padding:1.1rem 1.4rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  .progress-bar-track{
+    flex:1;
+    height:12px;
+    background:#E3EAEF;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--second);
+    transition:width 0.3s ease;
+  }
+  .progress-label{
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--dark);
+    white-space:nowrap;
+  }
+  main{
+    max-width:900px;
+    margin:2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .recall-note{
+    background:#EAF3F0;
+    border:1px solid #BFE0D4;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#0B5B3C;
+    margin-bottom:1.6rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .recall-note .dot{
+    width:20px;
+    height:20px;
+    background:var(--second);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.7rem;
+    flex-shrink:0;
+  }
+  .task-card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    margin-bottom:1.8rem;
+    overflow:hidden;
+    transition:border-color 0.3s ease;
+  }
+  .task-card.complete{
+    border-color:var(--second);
+  }
+  .task-head{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    padding:1.2rem 1.4rem;
+    border-bottom:1px solid #EEF2F5;
+  }
+  .task-badge{
+    background:var(--primary);
+    color:var(--white);
+    font-size:0.75rem;
+    font-weight:bold;
+    letter-spacing:1px;
+    padding:0.35rem 0.7rem;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-badge{
+    background:var(--second);
+  }
+  .task-head h2{
+    margin:0;
+    font-size:1.3rem;
+    color:var(--dark);
+    flex:1;
+  }
+  .task-check-pill{
+    font-size:0.8rem;
+    color:var(--second);
+    font-weight:bold;
+    display:none;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-check-pill{
+    display:inline;
+  }
+  .task-body{
+    padding:1.3rem 1.4rem 1.5rem;
+  }
+  .filename-note{
+    background:var(--light);
+    border-radius:8px;
+    padding:0.7rem 1rem;
+    font-family: "Courier New", monospace;
+    font-size:0.95rem;
+    color:var(--primary);
+    margin-bottom:1.1rem;
+    display:inline-block;
+  }
+  .scenario-note{
+    background:#FBF0E7;
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#8A4A1E;
+    margin-bottom:1.1rem;
+  }
+  .tip-note{
+    background:#EAF1F8;
+    border:1px solid #BCD3E8;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#1D4F73;
+    margin-bottom:1.1rem;
+  }
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .steps li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.7rem;
+    padding:0.55rem 0;
+    border-bottom:1px dashed #EEF2F5;
+  }
+  .steps li:last-child{
+    border-bottom:none;
+  }
+  .steps input[type=checkbox]{
+    width:20px;
+    height:20px;
+    margin-top:0.1rem;
+    accent-color:var(--second);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .steps label{
+    font-size:1rem;
+    line-height:1.4;
+    cursor:pointer;
+  }
+  .steps li.checked label{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .code{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#CADCFC;
+    padding:0.15rem 0.4rem;
+    border-radius:4px;
+    font-size:0.92rem;
+  }
+  .extension-block{
+    margin-top:1.3rem;
+  }
+  .extension{
+    background:var(--amberbg);
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .extension-head{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-weight:bold;
+    color:#8A4A1E;
+    margin-bottom:0.6rem;
+    font-size:0.95rem;
+  }
+  .extension-head .dot{
+    width:22px;
+    height:22px;
+    background:var(--amber);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.8rem;
+    flex-shrink:0;
+  }
+  .ext-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .ext-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.6rem;
+    padding:0.4rem 0;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .ext-list li input[type=checkbox]{
+    width:18px;
+    height:18px;
+    margin-top:0.15rem;
+    accent-color:var(--amber);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .ext-list li.checked{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .nested-tag{
+    display:inline-block;
+    background:var(--dark);
+    color:#CADCFC;
+    font-size:0.7rem;
+    font-weight:bold;
+    letter-spacing:0.5px;
+    padding:0.1rem 0.45rem;
+    border-radius:4px;
+    margin-left:0.3rem;
+    white-space:nowrap;
+  }
+  .still-going{
+    margin-top:0.9rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .still-going .extension-head{
+    color:#8FD9C4;
+  }
+  .still-going .extension-head .dot{
+    background:var(--second);
+  }
+  .still-going p{
+    margin:0;
+    font-size:0.9rem;
+    color:#CADCFC;
+    line-height:1.5;
+  }
+  footer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  details{
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    margin:0.5rem 0;
+    padding:0.55rem 0.95rem;
+    background:var(--light);
+  }
+  details summary{
+    cursor:pointer;
+    font-weight:bold;
+    color:var(--primary);
+    font-size:0.92rem;
+  }
+  details[open] summary{ margin-bottom:0.5rem; }
+  details p{ margin:0; font-size:0.92rem; line-height:1.5; }
+  .codeblock{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.8rem 1rem;
+    border-radius:8px;
+    font-size:0.86rem;
+    line-height:1.55;
+    white-space:pre;
+    overflow-x:auto;
+    margin:0.4rem 0 0;
+  }
+  .codelabel{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0 0 0.2rem;
+  }
+
+  table.exp{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.9rem;
+    margin:0.4rem 0 1.1rem;
+  }
+  table.exp th{
+    background:var(--primary);
+    color:#FFFFFF;
+    text-align:left;
+    padding:0.5rem 0.8rem;
+    font-size:0.85rem;
+  }
+  table.exp td{
+    border:1px solid #D8E2E8;
+    padding:0.5rem 0.8rem;
+    vertical-align:top;
+  }
+  table.exp td.fn{ font-family:"Courier New", monospace; color:var(--primary); }
+  table.exp td.res{ font-family:"Courier New", monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 12 task tracker</h1>
+  <p>Functions — define, call, parameters, and return values</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="progress-label" id="progressLabel">0 / 20 steps</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<main>
+
+  <div class="recall-note">
+    <span class="dot">i</span>
+    <span><b>Defining</b> a function doesn't run it — you have to <b>call</b> it. <b>Parameters</b> are what you hand in; <b>return</b> is what you get back. And <span class="code">print</span> shows a value on screen, while <span class="code">return</span> gives it to your programme.</span>
+  </div>
+
+  <!-- TASK 1 -->
+  <section class="task-card" id="task1">
+    <div class="task-head">
+      <span class="task-badge">Task 1</span>
+      <h2>Your first refactor</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="filename-note">Open the supplied file: lesson12_task1_start.py</div>
+      <div class="tip-note"><b>A refactor changes how code is organised — never what it does.</b> Use the same test inputs before and after: <span class="code">1</span>, <span class="code">2</span>, <span class="code">x</span>, <span class="code">q</span>. The output should be identical.</div>
+      <ul class="steps" data-task="task1">
+        <li><input type="checkbox" id="t1-1"><label for="t1-1">Run it and note exactly what it does — this is your <b>before</b></label></li>
+        <li><input type="checkbox" id="t1-2"><label for="t1-2">Write a function <span class="code">show_menu()</span> containing the menu <span class="code">print</span> lines, with a comment above it saying what it does</label></li>
+        <li><input type="checkbox" id="t1-3"><label for="t1-3">Replace <b>both</b> copies of the menu lines with a call to <span class="code">show_menu()</span></label></li>
+        <li><input type="checkbox" id="t1-4"><label for="t1-4">Write a second function, <span class="code">list_jobs()</span>, containing option 1's loop — and call it from option 1</label></li>
+        <li><input type="checkbox" id="t1-5"><label for="t1-5">Run it again with the same inputs. Is the output identical?</label></li>
+        <li><input type="checkbox" id="t1-6"><label for="t1-6">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="t1-e1"><label for="t1-e1">Write a <span class="code">show_goodbye()</span> function and call it at the end of the programme</label></li>
+            <li><input type="checkbox" id="t1-e2"><label for="t1-e2">Add a fourth menu option — and notice you only have to change the menu in one place</label></li>
+            <li><input type="checkbox" id="t1-e3"><label for="t1-e3">Curiosity: move your <span class="code">show_menu()</span> definition to the <em>bottom</em> of the file. Predict what happens, then run it</label></li>
+            <li><input type="checkbox" id="t1-e4"><label for="t1-e4">Try calling <span class="code">list_jobs()</span> on a different dictionary. Does it work? Why not?</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK 2 -->
+  <section class="task-card" id="task2">
+    <div class="task-head">
+      <span class="task-badge">Task 2</span>
+      <h2>Functions that take and return</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="filename-note">Open the supplied file: lesson12_task2_start.py</div>
+      <div class="tip-note"><b>Return, don't print.</b> Your functions should <em>return</em> their answers. It's the test calls — outside the functions — that print the results. If a function prints its answer, you'll get <span class="code">None</span> when you try to use it.</div>
+      <details>
+        <summary>What should a function comment say? An example</summary>
+        <div class="codelabel">Different function, same idea — what it takes in, and what it returns:</div>
+        <div class="codeblock"># Takes in a number. Returns that number doubled.
+def double(number):
+    return number * 2</div>
+      </details>
+      <div class="codelabel">The test calls in the start file should give these results:</div>
+      <table class="exp">
+        <tr><th>Call</th><th>Should give</th></tr>
+        <tr><td class="fn">total_cost(jobs)</td><td class="res">190</td></tr>
+        <tr><td class="fn">is_expensive(150, 100)</td><td class="res">True</td></tr>
+        <tr><td class="fn">is_expensive(40, 100)</td><td class="res">False</td></tr>
+        <tr><td class="fn">make_job("J3", "Cy", "gravel", 75)</td><td class="res">{'id': 'J3', 'customer': 'Cy', 'bike': 'gravel', 'cost': 75}</td></tr>
+      </table>
+      <ul class="steps" data-task="task2">
+        <li><input type="checkbox" id="t2-1"><label for="t2-1">Write <span class="code">total_cost(jobs)</span> — it returns the total of every job's cost (a number)</label></li>
+        <li><input type="checkbox" id="t2-2"><label for="t2-2">Write <span class="code">is_expensive(cost, limit)</span> — it returns <span class="code">True</span> if the cost is over the limit, otherwise <span class="code">False</span></label></li>
+        <li><input type="checkbox" id="t2-3"><label for="t2-3">Write <span class="code">make_job(job_id, customer, bike, cost)</span> — it returns a new job as a dictionary</label></li>
+        <li><input type="checkbox" id="t2-4"><label for="t2-4">Put a comment above each function: what it takes in, and what it returns</label></li>
+        <li><input type="checkbox" id="t2-5"><label for="t2-5">Uncomment the test calls and check each result against the table above</label></li>
+        <li><input type="checkbox" id="t2-6"><label for="t2-6">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="t2-e1"><label for="t2-e1">Write <span class="code">average_cost(jobs)</span> that returns the average — and returns <span class="code">0</span> if there are no jobs</label></li>
+            <li><input type="checkbox" id="t2-e2"><label for="t2-e2">Call one of your functions from inside another (e.g. <span class='code'>average_cost</span> calling <span class='code'>total_cost</span>)</label></li>
+            <li><input type="checkbox" id="t2-e3"><label for="t2-e3"><b>Debug a function:</b> the version below returns 150 instead of 190. Find out why, and fix it</label></li>
+            <li><input type="checkbox" id="t2-e4"><label for="t2-e4">Curiosity: call <span class="code">total_cost(jobs)</span> on a line by itself, without using the result. What happens to the answer?</label></li>
+          </ul>
+          <details>
+            <summary>The buggy function for the debug extension</summary>
+            <div class="codeblock">def total_cost(jobs):
+    total = 0
+    for job_id, details in jobs.items():
+        total = total + details["cost"]
+        return total</div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK 3 -->
+  <section class="task-card" id="task3">
+    <div class="task-head">
+      <span class="task-badge">Task 3</span>
+      <h2>Refactor your own menu programme</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Refactor the menu programme <b>you</b> built in Lesson 11, in your own scenario. <b>Built your menu on the sample dictionary?</b> Refactor that — it counts.</div>
+      <div class="filename-note">Save As: lesson12_task3_functions.py</div>
+      <div class="tip-note"><b>Same rule as Task 1:</b> a refactor never changes what the programme does. Run it with the same inputs before and after, and compare.</div>
+      <ul class="steps" data-task="task3">
+        <li><input type="checkbox" id="t3-1"><label for="t3-1">Run your Lesson 11 programme with a fixed set of inputs and note the output — this is your <b>before</b></label></li>
+        <li><input type="checkbox" id="t3-2"><label for="t3-2">Write <span class="code">show_menu()</span> and replace both copies of the menu lines with a call to it</label></li>
+        <li><input type="checkbox" id="t3-3"><label for="t3-3">Write <b>one function that takes a parameter</b> and prints something (e.g. one that lists every record, taking your dictionary as a parameter)</label></li>
+        <li><input type="checkbox" id="t3-4"><label for="t3-4">Write <b>one function that returns a value</b> (e.g. a total) — and use its result in your menu loop</label></li>
+        <li><input type="checkbox" id="t3-5"><label for="t3-5">Put a comment above every function: what it does, what it takes in, what it returns</label></li>
+        <li><input type="checkbox" id="t3-6"><label for="t3-6">Call your functions from inside the menu loop</label></li>
+        <li><input type="checkbox" id="t3-7"><label for="t3-7">Run it again with the same inputs. Is the output identical to your <b>before</b>?</label></li>
+        <li><input type="checkbox" id="t3-8"><label for="t3-8">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="t3-e1"><label for="t3-e1">Write <span class="code">read_whole_number(prompt)</span>: it asks, keeps asking until the answer is valid, and <em>returns</em> it as an integer. Use it to replace your duplicated validation loops</label></li>
+            <li><input type="checkbox" id="t3-e2"><label for="t3-e2">Write a function that takes <b>two</b> parameters (e.g. a dictionary and a limit) to flag records over the limit</label></li>
+            <li><input type="checkbox" id="t3-e3"><label for="t3-e3">Check that none of your functions reads a global variable it wasn't given — pass in everything it needs</label></li>
+            <li><input type="checkbox" id="t3-e4"><label for="t3-e4">Curiosity: count the lines in your original and your refactored programme. Which is shorter? Which is easier to change?</label></li>
+          </ul>
+        </div>
+        <div class="still-going">
+          <div class="extension-head"><span class="dot">↑</span> Still going?</div>
+          <p>Swap files with a partner. Without running either one, can you tell what each function takes in and what it returns — just from its name and its comment?</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Lesson 12 · Imperative Programming · Access to HE Applied Computing
+</footer>
+
+<script>
+  const stepBoxes = Array.from(document.querySelectorAll('.steps input[type=checkbox]'));
+  const extBoxes = Array.from(document.querySelectorAll('.ext-list input[type=checkbox]'));
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+
+  function updateProgress(){
+    const total = stepBoxes.length;
+    const checked = stepBoxes.filter(b => b.checked).length;
+    const pct = total ? Math.round((checked/total)*100) : 0;
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = checked + ' / ' + total + ' steps';
+
+    ['task1','task2','task3'].forEach(id => {
+      const card = document.getElementById(id);
+      const boxes = Array.from(card.querySelectorAll('.steps input[type=checkbox]'));
+      const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
+      card.classList.toggle('complete', allChecked);
+    });
+  }
+
+  stepBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+      updateProgress();
+    });
+  });
+
+  extBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+    });
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
