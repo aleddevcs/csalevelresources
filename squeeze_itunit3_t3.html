@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Squeeze It</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.pxrow{display:flex;flex-wrap:wrap;gap:2px;margin:6px 0}
+.px{width:28px;height:28px;border:1px solid #8A9BAE;border-radius:3px;display:inline-block}
+.px.badpx{outline:3px solid var(--bad);outline-offset:-1px}
+.codes{font-family:"Courier New",monospace;font-size:13px;color:var(--muted);word-break:break-all;margin-bottom:4px}
+.palette{display:flex;flex-wrap:wrap;gap:8px}
+.colbtn{display:flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 10px;font-weight:700}
+.colbtn.on{border-color:#CC9900;background:var(--soft)}
+.sw{display:inline-block;width:18px;height:18px;border:1px solid #8A9BAE;border-radius:3px}
+.addrow{display:flex;gap:10px;align-items:center;margin-top:10px}
+.tokens{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tok{display:flex;align-items:center;gap:6px;background:var(--bg);border:2px solid var(--navy);border-radius:8px;padding:5px 8px;font-weight:700;color:var(--navy)}
+.tok small{font-family:"Courier New",monospace;color:var(--muted);font-weight:400}
+.tok .x{border:0;background:transparent;color:var(--bad);font-weight:700;font-size:16px;padding:0 2px}
+.meter3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.meter3 div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.meter3 small{display:block;color:var(--muted);font-size:13px}
+.meter3 b{font-family:Cambria,Georgia,serif;font-size:20px;color:var(--navy)}
+.meter3 b.good,td.good{color:var(--ok);font-weight:700}
+.meter3 b.worse,td.worse{color:var(--bad);font-weight:700}
+.words{display:flex;flex-wrap:wrap;gap:5px}
+.word{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;padding:3px 8px;font-family:"Courier New",monospace;font-size:16px}
+.word.indict{border-color:#CC9900;background:var(--soft);color:#8A6700;font-weight:700}
+.word:hover{border-color:var(--navy)}
+td.mono{font-family:"Courier New",monospace;font-weight:700}
+.opt.picked{border-color:var(--navy);background:var(--soft)}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+.reveal{margin-top:14px;background:#003366;color:#fff;border-radius:12px;padding:14px 18px}
+.reveal h3{color:#FFD966;margin-bottom:6px}
+.reveal p{margin:4px 0}
+@media (max-width:700px){.meter3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Squeeze It</h1><div class="spec">Unit 3 · 3.8.1 · Method first: can you make the data smaller and still rebuild it exactly?</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const COL={W:['White','#FFFFFF','00'],B:['Blue','#3A7BD5','01'],G:['Green','#2E9E5B','10'],Y:['Yellow','#F2C94C','11']};
+const ex=s=>s.split(' ').flatMap(t=>Array(Number(t.slice(1))).fill(t[0]));
+const ROWS=[
+ {name:'Sky and grass',px:ex('B10 Y2 B4 G8'),tip:'Look for runs of the same colour.'},
+ {name:'Chessboard',px:ex('W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1'),tip:'Can your shorthand beat the original this time?'},
+ {name:'Big field',px:ex('G20 W4'),tip:'Careful: a count can only go up to 15.'},
+];
+const CB=2,NB=4,MAXC=15;
+const S={tab:0,r:0,tok:ROWS.map(()=>[]),pick:'B',cnt:'',msg:null,dict:new Set(),pred:{},predDone:false};
+function pxRow(px,o={}){return h('div',{class:'pxrow'},...px.map((c,i)=>h('span',{class:'px'+(o.bad&&o.bad[i]?' badpx':''),style:`background:${c?COL[c][1]:'transparent'}`,title:c?COL[c][0]:'missing'})));}
+function pixelView(){
+  const R=ROWS[S.r],T=S.tok[S.r];
+  const dec=T.flatMap(([c,n])=>Array(n).fill(c));const len=Math.max(dec.length,R.px.length);
+  const bad=Array.from({length:len},(_,i)=>dec[i]!==R.px[i]);
+  const exact=dec.length===R.px.length&&bad.every(b=>!b);
+  const orig=R.px.length*CB,comp=T.length*(CB+NB);
+  const add=()=>{const n=Number(S.cnt);if(!n||n<1){S.msg='Enter how many pixels.';render();return;}if(n>MAXC){S.msg=`A count is stored in ${NB} bits, so the biggest count is ${MAXC}. Split it into two tokens.`;render();return;}T.push([S.pick,n]);S.cnt='';S.msg=null;render();};
+  const cnt=h('input',{type:'number',min:'1',max:'15',class:'numin',value:S.cnt,'aria-label':'How many'});cnt.addEventListener('input',()=>S.cnt=cnt.value);cnt.addEventListener('keydown',e=>{if(e.key==='Enter')add();});
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Squeeze a row of pixels'),h('div',{class:'dots'},ROWS.map((r,i)=>h('button',{class:'btn '+(i===S.r?'primary':'ghost'),onclick:()=>{S.r=i;S.msg=null;render();}},r.name)))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Each pixel is stored as a 2-bit colour code. Invent a shorter way to store this row: build it from "tokens" (a colour and how many). Each token costs 2 bits for the colour + 4 bits for the count. Can you rebuild the original EXACTLY, using fewer bits? ',h('i',{},R.tip)),
+    h('div',{class:'panel'},h('h3',{},`Original: ${R.px.length} pixels`),pxRow(R.px),
+      h('div',{class:'codes'},R.px.map(c=>COL[c][2]).join(' ')),
+      h('div',{class:'small'},`${R.px.length} pixels × ${CB} bits = ${orig} bits`)),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Your shorthand'),
+        h('div',{class:'palette'},...Object.entries(COL).map(([k,[nm,hex,code]])=>h('button',{class:'colbtn'+(S.pick===k?' on':''),onclick:()=>{S.pick=k;render();}},h('span',{class:'sw',style:`background:${hex}`}),`${nm} (${code})`))),
+        h('div',{class:'addrow'},h('span',{},'How many?'),cnt,h('button',{class:'btn accent',onclick:add},'Add token')),
+        S.msg?h('div',{class:'fb bad'},S.msg):null,
+        h('div',{class:'tokens'},...(T.length?T.map(([c,n],i)=>h('span',{class:'tok'},h('span',{class:'sw',style:`background:${COL[c][1]}`}),`${COL[c][0]} × ${n}`,h('small',{},`${COL[c][2]} ${n.toString(2).padStart(4,'0')}`),h('button',{class:'x','aria-label':'Remove',onclick:()=>{T.splice(i,1);render();}},'×'))):[h('span',{class:'small'},'No tokens yet.')])),
+        h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.tok[S.r]=[];render();}},'Clear'))),
+      h('div',{class:'panel'},h('h3',{},'Rebuilt from your shorthand'),pxRow(Array.from({length:len},(_,i)=>dec[i]),{bad}),
+        h('div',{class:'meter3'},
+          h('div',{},h('small',{},'Original'),h('b',{},`${orig} bits`)),
+          h('div',{},h('small',{},'Your shorthand'),h('b',{class:comp&&comp<orig?'good':comp>orig?'worse':null},`${comp} bits`)),
+          h('div',{},h('small',{},'Saving'),h('b',{},T.length?`${Math.round((orig-comp)/orig*100)}%`:'–'))),
+        T.length?h('div',{class:'fb '+(exact?(comp<orig?'ok':'bad'):'bad')},exact?(comp<orig?`Exact match, and ${orig-comp} bits smaller. Your shorthand works for this row.`:`Exact match, but it is BIGGER than the original (${comp} vs ${orig} bits). Why?`):`Not an exact copy yet: ${dec.length} of ${R.px.length} pixels, with red marking any mismatches.`):null)),
+    h('div',{class:'disc'},h('h3',{},'Talk about it'),h('ul',{},
+      h('li',{},'Which row squeezed best? Which one got bigger? What is different about them?'),
+      h('li',{},'Why does each token cost 6 bits, not 2?'),
+      h('li',{},'What did you have to do with the run of 20 green pixels?'))));
+}
+/* ---------- TEXT ---------- */
+const TEXT='the cat sat on the mat and the cat saw the rat so the rat ran from the cat and the cat sat on the mat';
+const WORDS=TEXT.split(' ');
+function textView(){
+  const D=[...S.dict];const code=w=>D.indexOf(w);
+  const counts={};WORDS.forEach(w=>counts[w]=(counts[w]||0)+1);
+  const origBits=TEXT.length*8;
+  let comp=0;WORDS.forEach((w,i)=>{comp+=(code(w)>=0?8:w.length*8)+(i<WORDS.length-1?8:0);});
+  const dictBits=D.reduce((t,w)=>t+(w.length+1)*8,0);const total=comp+dictBits;
+  const uniq=[...new Set(WORDS)];
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Squeeze some text')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Each character (including spaces) is stored in 8 bits. Click a word to add it to your dictionary: every copy of it is then replaced by a 1-byte code. But the dictionary must be stored too, or nobody could decode the text! Which words are worth adding?'),
+    h('div',{class:'panel'},h('h3',{},'The text (click words)'),h('div',{class:'words'},...WORDS.map(w=>h('button',{class:'word'+(code(w)>=0?' indict':''),onclick:()=>{S.dict.has(w)?S.dict.delete(w):S.dict.add(w);render();}},code(w)>=0?`#${code(w)}`:w))),
+      h('div',{class:'small',style:'margin-top:6px'},`${TEXT.length} characters × 8 bits = ${origBits} bits`)),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Your dictionary'),D.length?h('table',{class:'t'},h('thead',{},h('tr',{},...['Code','Word','Times used','Storing it costs','Saves','Worth it?'].map(t=>h('th',{},t)))),
+        h('tbody',{},...D.map((w,i)=>{const cost=(w.length+1)*8,save=counts[w]*(w.length-1)*8;return h('tr',{},h('td',{},`#${i}`),h('td',{class:'mono'},w),h('td',{},String(counts[w])),h('td',{},`${cost} bits`),h('td',{},`${save} bits`),h('td',{class:save>cost?'good':'worse'},save>cost?'Yes':'No'));}))):h('p',{class:'small'},'Click words in the text to add them.')),
+      h('div',{class:'panel'},h('h3',{},'Size'),h('div',{class:'meter3'},
+          h('div',{},h('small',{},'Original'),h('b',{},`${origBits} bits`)),
+          h('div',{},h('small',{},'Coded text + dictionary'),h('b',{class:total<origBits?'good':total>origBits?'worse':null},`${comp} + ${dictBits} = ${total} bits`)),
+          h('div',{},h('small',{},'Saving'),h('b',{},`${Math.round((origBits-total)/origBits*100)}%`))),
+        h('div',{class:'small',style:'margin-top:8px'},'Words that appear once: ',uniq.filter(w=>counts[w]===1).join(', ')),
+        h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.dict=new Set();render();}},'Clear dictionary')))),
+    h('div',{class:'disc'},h('h3',{},'Talk about it'),h('ul',{},
+      h('li',{},'Which word saves the most? Why?'),h('li',{},'Is it worth adding "so" or "from"? Why not?'),
+      h('li',{},'Why must the dictionary be stored with the file?'),h('li',{},'What is the best saving your pair can get?'))));
+}
+/* ---------- WHICH SQUEEZES ---------- */
+const DATA=[
+ ['A cartoon logo with large blocks of flat colour','runs','Long runs of identical pixels: the run shorthand squeezes it well.'],
+ ['A photograph of a forest','neither','Neighbouring pixels are all slightly different, so there are few runs and few repeats. (Photos are usually squeezed with LOSSY compression instead.)'],
+ ['A long essay that repeats words like "the", "algorithm" and "data"','words','Repeated words: the dictionary shorthand squeezes it well.'],
+ ['A scanned black-and-white page that is mostly white','runs','Huge runs of white pixels: the run shorthand is ideal.'],
+ ['A file of completely random numbers','neither','No runs and no repeated patterns, so neither shorthand can find anything to remove.'],
+];
+function whichView(){
+  const P=S.pred;const all=DATA.every((_,i)=>P[i]);
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Which data squeezes?')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'For each kind of data, which of your two shorthands would work best: the run shorthand (pixels), the word shorthand (text), or neither? Choose for all five, then check.'),
+    h('div',{class:'cards'},...DATA.map(([t,a,why],i)=>{const g=P[i];let cls='ccard';if(S.predDone)cls+=g===a?' ok':' bad';
+      return h('div',{class:cls},h('div',{style:'font-weight:700;color:var(--navy);min-height:48px'},t),
+        h('div',{class:'opts'},...[['runs','Runs'],['words','Words'],['neither','Neither']].map(([v,l])=>{let cl='opt';if(g===v)cl+=' picked';if(S.predDone){if(v===a)cl+=' ok';else if(v===g)cl+=' bad';}return h('button',{class:cl,disabled:S.predDone||null,onclick:()=>{P[i]=v;render();}},l);})),
+        S.predDone?h('div',{class:'why'},why):null);})),
+    h('div',{class:'actions'},h('button',{class:'btn primary',disabled:!all||S.predDone||null,onclick:()=>{S.predDone=true;render();}},'Check'),S.predDone?h('button',{class:'btn ghost',onclick:()=>{S.pred={};S.predDone=false;render();}},'Try again'):null),
+    S.predDone?h('div',{class:'reveal'},h('h3',{},'You have just invented two real compression algorithms!'),
+      h('p',{},h('b',{},'Your run shorthand '),'is called ',h('b',{},'run-length encoding (RLE)'),'. ',h('b',{},'Your word shorthand '),'is ',h('b',{},'dictionary-based compression'),'.'),
+      h('p',{},'Both are LOSSLESS: the original can be rebuilt exactly. You will look at RLE in detail today, and dictionary-based compression next lesson.')):null);
+}
+const TABS=[['Pixels',pixelView],['Text',textView],['Which data squeezes?',whichView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>

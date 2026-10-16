@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RLE Lab</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.pxrow{display:flex;flex-wrap:wrap;gap:2px;margin:6px 0}
+.px{width:28px;height:28px;border:1px solid #8A9BAE;border-radius:3px;display:inline-block;padding:0}
+button.px{cursor:pointer}
+.px.badpx{outline:3px solid var(--bad);outline-offset:-1px}
+.palkey{display:flex;flex-wrap:wrap;gap:12px;font-family:"Courier New",monospace;font-size:13px;color:var(--muted);margin-top:6px}
+.pk{display:flex;gap:5px;align-items:center}
+.sw{display:inline-block;width:16px;height:16px;border:1px solid #8A9BAE;border-radius:3px}
+.palette{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.colbtn{display:flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 10px;font-weight:700;font-size:14px}
+.colbtn.on{border-color:#CC9900;background:var(--soft)}
+.prow2{display:flex;align-items:center;gap:8px;background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:6px}
+.prow2.ok{border-color:var(--ok);background:var(--okBg)}
+.prow2.bad{border-color:var(--bad);background:var(--badBg)}
+.prow2 select{border:2px solid #CC9900;border-radius:6px;padding:4px 6px;background:var(--bg);color:var(--ink)}
+.x{border:0;background:transparent;color:var(--bad);font-weight:700;font-size:18px;margin-left:auto}
+.binbox{font-family:"Courier New",monospace;font-weight:700;font-size:15px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;word-break:break-word;color:var(--navy);margin-top:4px}
+.binbox.good{color:var(--ok)}
+.meter3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.meter3 div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.meter3 small{display:block;color:var(--muted);font-size:13px}
+.meter3 b{font-family:Cambria,Georgia,serif;font-size:20px;color:var(--navy)}
+.meter3 b.good{color:var(--ok)}
+.meter3 b.worse{color:var(--bad)}
+.textin{width:100%;border:2px solid #CC9900;border-radius:6px;padding:8px 10px;font:700 18px "Courier New",monospace;background:var(--bg);color:var(--ink);margin-top:4px}
+.formula{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:16px}
+.formula b{color:var(--navy)}
+.calcrow{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:8px}
+.calcrow label{display:grid;gap:3px;font-size:13px;color:var(--muted)}
+.ccard{margin-bottom:10px}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+@media (max-width:700px){.meter3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>RLE Lab</h1><div class="spec">Unit 3 · 3.8.1 · Run-length encoding: encode, decode and measure</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const PAL={W:['White','#FFFFFF','000'],P:['Pink','#F4A6C6','001'],B:['Blue','#3A7BD5','010'],M:['Magenta','#C2338F','011'],N:['Navy','#1B2A6B','100']};
+const KEYS=Object.keys(PAL);const CB=3,NB=5;
+const ex=s=>s.split(' ').flatMap(t=>Array(Number(t.slice(1))).fill(t[0]));
+const runs=px=>{const r=[];px.forEach(c=>{if(r.length&&r[r.length-1][0]===c)r[r.length-1][1]++;else r.push([c,1]);});return r;};
+const bin=(n,w)=>n.toString(2).padStart(w,'0');
+const ROWS=[
+ {name:'Notes example: row 6',px:ex('W4 B2 W4 P7 B2 W9')},
+ {name:'A flag',px:ex('N6 W4 M6 W4 N6')},
+ {name:'Sunset',px:ex('M3 P5 W8 P5 M3')},
+ {name:'Random row',random:true},
+];
+function randRow(){const out=[];while(out.length<20){const c=KEYS[Math.floor(Math.random()*KEYS.length)];const n=1+Math.floor(Math.random()*6);for(let i=0;i<n&&out.length<20;i++)out.push(c);}return out;}
+const S={tab:0,er:0,rows:ROWS.map(r=>r.random?randRow():r.px),enc:{},dec:{i:0,st:{}},calc:{},bf:{px:ex('W4 B4 W4 B4'),brush:'B'}};
+function pxRow(px,o={}){return h('div',{class:'pxrow'},...px.map((c,i)=>h(o.click?'button':'span',{class:'px'+(o.bad&&o.bad[i]?' badpx':''),style:`background:${c?PAL[c][1]:'transparent'}`,title:c?PAL[c][0]:'empty','aria-label':o.click?`Pixel ${i+1}, ${c?PAL[c][0]:'empty'}`:null,onclick:o.click?()=>o.click(i):null})));}
+const palKey=()=>h('div',{class:'palkey'},...KEYS.map(k=>h('span',{class:'pk'},h('span',{class:'sw',style:`background:${PAL[k][1]}`}),`${PAL[k][2]} ${PAL[k][0]}`)));
+
+/* ---------- ENCODE ---------- */
+function encView(){
+  const px=S.rows[S.er],R=runs(px);const E=S.enc[S.er]||(S.enc[S.er]={pairs:[['',''],],checked:false});
+  const setP=(i,j,v)=>{E.pairs[i][j]=v;E.checked=false;};
+  const ok=E.pairs.length===R.length&&E.pairs.every((p,i)=>p[0]===R[i][0]&&Number(p[1])===R[i][1]);
+  const rowsEl=E.pairs.map((p,i)=>{const s=h('select',{'aria-label':`Run ${i+1} colour`},h('option',{value:''},'colour…'),...KEYS.map(k=>{const o=h('option',{value:k},`${PAL[k][0]} (${PAL[k][2]})`);if(p[0]===k)o.selected=true;return o;}));
+    s.addEventListener('change',()=>setP(i,0,s.value));const n=h('input',{type:'number',min:'1',class:'numin',value:p[1],'aria-label':`Run ${i+1} count`});n.addEventListener('input',()=>setP(i,1,n.value));
+    let cls='prow2';if(E.checked){const good=R[i]&&p[0]===R[i][0]&&Number(p[1])===R[i][1];cls+=good?' ok':' bad';}
+    return h('div',{class:cls},h('span',{class:'small'},`Run ${i+1}`),s,h('span',{},'×'),n,h('button',{class:'x','aria-label':'Remove',onclick:()=>{E.pairs.splice(i,1);E.checked=false;render();}},'×'));});
+  const origBits=px.length*CB,compBits=R.length*(CB+NB);
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Encode with RLE'),h('div',{class:'dots'},ROWS.map((r,i)=>h('button',{class:'btn '+(i===S.er?'primary':'ghost'),onclick:()=>{S.er=i;if(r.random){S.rows[i]=randRow();S.enc[i]=null;}render();}},r.name)))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Write this row as RLE pairs: a colour and how many times it repeats in that run. Add a row for each run, then check. Then compare the binary: 3-bit colour codes, and 5-bit counts as in the notes.'),
+    h('div',{class:'panel'},h('h3',{},`The row: ${px.length} pixels`),pxRow(px),palKey()),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Your RLE pairs'),...rowsEl,
+        h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{E.pairs.push(['','']);E.checked=false;render();}},'+ Add a run'),h('button',{class:'btn primary',onclick:()=>{E.checked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{S.enc[S.er]=null;render();}},'Reset')),
+        E.checked?h('div',{class:'fb '+(ok?'ok':'bad')},ok?`Correct: ${R.length} runs.`:`Not yet. There are ${R.length} runs in this row: red rows are wrong${E.pairs.length!==R.length?`, and you have ${E.pairs.length}`:''}.`):null),
+      h('div',{class:'panel'},h('h3',{},'In binary'),
+        E.checked&&ok?h('div',{},
+          h('div',{class:'small'},`Uncompressed: ${px.length} × ${CB} bits = ${origBits} bits`),h('div',{class:'binbox'},px.map(c=>PAL[c][2]).join(' ')),
+          h('div',{class:'small',style:'margin-top:8px'},`RLE: ${R.length} runs × (${CB} + ${NB}) bits = ${compBits} bits`),h('div',{class:'binbox good'},R.map(([c,n])=>`${PAL[c][2]} ${bin(n,NB)}`).join('   ')),
+          h('div',{class:'meter3'},h('div',{},h('small',{},'Original'),h('b',{},`${origBits} bits`)),h('div',{},h('small',{},'Compressed'),h('b',{},`${compBits} bits`)),h('div',{},h('small',{},'Ratio (compressed ÷ original)'),h('b',{},(compBits/origBits).toFixed(2)))))
+        :h('p',{class:'small'},'Get the pairs right to see the binary and the bit counts.'))));
+}
+
+/* ---------- DECODE ---------- */
+const DEC=[
+ {kind:'text',q:'A3 B2 C4',ans:'AAABBCCCC',hint:'Write each letter out the number of times shown.'},
+ {kind:'text',q:'W5 B1 W5 B1',ans:'WWWWWBWWWWWB'},
+ {kind:'text',q:'x2 y6 x1 z3',ans:'xxyyyyyyxzzz'},
+ {kind:'pixels',q:'010 00011   000 00010   001 00100   010 00011',ans:ex('B3 W2 P4 B3')},
+ {kind:'pixels',q:'100 00101   011 00010   100 00101',ans:ex('N5 M2 N5')},
+];
+function decView(){
+  const D=S.dec,t=DEC[D.i],st=D.st[D.i]||(D.st[D.i]={val:'',px:Array(t.kind==='pixels'?t.ans.length:0).fill(null),brush:'W',checked:false});
+  let ok=false,body;
+  if(t.kind==='text'){const inp=h('input',{type:'text',class:'textin',value:st.val,'aria-label':'Decoded text',disabled:st.checked||null});inp.addEventListener('input',()=>st.val=inp.value);
+    ok=st.val.replace(/\s/g,'')===t.ans;body=h('div',{},h('div',{class:'small'},'Type the decoded data:'),inp);}
+  else{ok=st.px.every((c,i)=>c===t.ans[i]);
+    body=h('div',{},h('div',{class:'small'},'Choose a colour, then click pixels to paint them. Each pair is a 3-bit colour code then a 5-bit count.'),
+      h('div',{class:'palette'},...KEYS.map(k=>h('button',{class:'colbtn'+(st.brush===k?' on':''),onclick:()=>{st.brush=k;render();}},h('span',{class:'sw',style:`background:${PAL[k][1]}`}),`${PAL[k][0]} ${PAL[k][2]}`))),
+      pxRow(st.px,{click:st.checked?null:i=>{st.px[i]=st.brush;render();},bad:st.checked?st.px.map((c,i)=>c!==t.ans[i]):null}));}
+  const dots=h('div',{class:'dots'},DEC.map((_,j)=>h('button',{class:'dot'+(D.st[j]&&D.st[j].checked?' done':''),'aria-current':String(j===D.i),onclick:()=>{D.i=j;render();}},String(j+1))));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Decode RLE (${D.i+1} of ${DEC.length})`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Decompress the RLE data back to the original. Because RLE is lossless, you should get back exactly what was there before.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Compressed data'),h('div',{class:'binbox'},t.q),t.kind==='pixels'?palKey():null,t.hint?h('p',{class:'small'},t.hint):null),
+      h('div',{class:'panel'},h('h3',{},'Your decoded data'),body,
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{D.st[D.i]=null;render();}},'Reset'),
+          st.checked&&D.i<DEC.length-1?h('button',{class:'btn accent',onclick:()=>{D.i++;render();}},'Next →'):null),
+        st.checked?h('div',{class:'fb '+(ok?'ok':'bad')},ok?'Correct: an exact copy of the original.':(t.kind==='text'?`Not quite. The answer is ${t.ans}.`:'Not quite: red pixels are wrong. Convert each 5-bit count to denary first.')):null)));
+}
+
+/* ---------- CALCULATE ---------- */
+const CALC=[
+ ['The notes example: a row of 84 bits is compressed to 48 bits.',84,48],
+ ['A 400 KB image is compressed to 100 KB.',400,100],
+ ['A 1,200 KB file is compressed to 900 KB.',1200,900],
+ ['A 60-bit row is "compressed" by RLE to 96 bits.',60,96],
+];
+function calcView(){
+  const C=S.calc;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Calculate: ratio and saving')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Work out the compression ratio and the percentage saving. Give the ratio to 2 decimal places and the saving to 1 decimal place.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'The formulas'),
+        h('div',{class:'formula'},h('b',{},'Compression ratio'),' = compressed size ÷ original size',h('div',{class:'small'},'The WJEC 2019 mark-scheme definition. The smaller the ratio, the better the compression.')),
+        h('div',{class:'formula'},h('b',{},'Percentage saving'),' = (original − compressed) ÷ original × 100')),
+      h('div',{},...CALC.map(([t,o,c],i)=>{const st=C[i]||(C[i]={r:'',s:'',checked:false});const ratio=c/o,save=(o-c)/o*100;
+        const r=h('input',{type:'number',step:'0.01',class:'numin',value:st.r,'aria-label':'Ratio',disabled:st.checked||null});r.addEventListener('input',()=>st.r=r.value);
+        const s=h('input',{type:'number',step:'0.1',class:'numin',value:st.s,'aria-label':'Saving',disabled:st.checked||null});s.addEventListener('input',()=>st.s=s.value);
+        const okR=Math.abs(Number(st.r)-ratio)<0.006,okS=Math.abs(Number(st.s)-save)<0.06;
+        return h('div',{class:'ccard'+(st.checked?(okR&&okS?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy)'},t),
+          h('div',{class:'calcrow'},h('label',{},'Ratio',r),h('label',{},'Saving %',s),h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check')),
+          st.checked?h('div',{class:'why'},`Ratio = ${c} ÷ ${o} = ${ratio.toFixed(2)}${okR?' ✓':' ✗'}.  Saving = (${o} − ${c}) ÷ ${o} × 100 = ${save.toFixed(1)}%${okS?' ✓':' ✗'}.${c>o?' A negative saving and a ratio above 1 mean the file got BIGGER.':''}`):null);}))));
+}
+
+/* ---------- BACKFIRE ---------- */
+function bfView(){
+  const B=S.bf,R=runs(B.px);const orig=B.px.length*CB,comp=R.length*(CB+NB);
+  const verdict=comp<orig?['ok',`RLE saves ${orig-comp} bits here.`]:comp===orig?['','RLE makes no difference here.']:['bad',`RLE has made it ${comp-orig} bits BIGGER!`];
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Make RLE backfire')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Paint your own 16-pixel row and watch the sizes change live. Challenge 1: make RLE save as much as possible. Challenge 2: make RLE make the file BIGGER. What is the smallest run length where RLE stops paying off?'),
+    h('div',{class:'panel'},
+      h('div',{class:'palette'},...KEYS.map(k=>h('button',{class:'colbtn'+(B.brush===k?' on':''),onclick:()=>{B.brush=k;render();}},h('span',{class:'sw',style:`background:${PAL[k][1]}`}),PAL[k][0]))),
+      pxRow(B.px,{click:i=>{B.px[i]=B.brush;render();}}),
+      h('div',{class:'actions'},...[['All one colour','W16'],['Two halves','W8 B8'],['Runs of 2','W2 B2 W2 B2 W2 B2 W2 B2'],['Alternating','W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1 W1 B1']].map(([l,p])=>h('button',{class:'btn ghost',onclick:()=>{B.px=ex(p);render();}},l)))),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'RLE pairs'),h('div',{class:'binbox'},R.map(([c,n])=>`${PAL[c][0]}×${n}`).join('  ')),h('div',{class:'binbox'},R.map(([c,n])=>`${PAL[c][2]} ${bin(n,NB)}`).join('  '))),
+      h('div',{class:'panel'},h('h3',{},'Sizes'),h('div',{class:'meter3'},
+          h('div',{},h('small',{},'Uncompressed'),h('b',{},`${orig} bits`),h('small',{},`16 × ${CB}`)),
+          h('div',{},h('small',{},'RLE'),h('b',{class:comp<orig?'good':comp>orig?'worse':null},`${comp} bits`),h('small',{},`${R.length} runs × ${CB+NB}`)),
+          h('div',{},h('small',{},'Ratio'),h('b',{},(comp/orig).toFixed(2)))),
+        h('div',{class:'fb '+verdict[0]},verdict[1]))),
+    h('div',{class:'disc'},h('h3',{},'Think about it'),h('ul',{},
+      h('li',{},`Each run costs ${CB+NB} bits, and each pixel costs ${CB} bits. So a run needs to be at least how long before RLE saves space?`),
+      h('li',{},'Why would RLE work well on a cartoon but badly on a photograph?'),
+      h('li',{},'A run of 40 pixels needs a count of 40. What is the problem with a 5-bit count?'))));
+}
+const TABS=[['Encode',encView],['Decode',decView],['Calculate',calcView],['Make it backfire',bfView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>

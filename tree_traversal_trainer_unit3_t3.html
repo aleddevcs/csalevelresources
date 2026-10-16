@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tree Traversal Trainer</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select,.controls input[type=text]{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.cust{display:flex;gap:8px;align-items:center}
+.cust input{width:240px}
+.stats{display:flex;gap:18px;margin-left:auto}
+.stat{font-size:13px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.twrap{overflow-x:auto}
+.twrap svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.edge{stroke:var(--navy);stroke-width:2.5}
+.edge.ghost{stroke:#CC9900;stroke-dasharray:5 4;stroke-width:2}
+.nd circle{fill:var(--bg);stroke:var(--navy);stroke-width:3}
+.nd text{fill:var(--navy);font:700 15px Cambria,Georgia,serif;dominant-baseline:central;text-anchor:middle;pointer-events:none}
+.nd.click{cursor:pointer}
+.nd.click:hover circle{fill:var(--soft)}
+.nd.vis circle{fill:#003366;stroke:#003366}
+.nd.vis text{fill:#fff}
+.nd.cur circle{fill:#CC9900;stroke:#CC9900}
+.nd.cur text{fill:#1F2A36}
+.nd.bad circle{fill:var(--badBg);stroke:var(--bad)}
+.badge{fill:#CC9900}
+.badget{fill:#1F2A36;font:700 11px Calibri,Arial,sans-serif;dominant-baseline:central;text-anchor:middle}
+.slot{cursor:pointer}
+.slot circle{fill:var(--soft);stroke:#CC9900;stroke-width:2;stroke-dasharray:4 3}
+.slot text{fill:#8A6700;font:700 18px Calibri,Arial,sans-serif;dominant-baseline:central;text-anchor:middle;pointer-events:none}
+.slot:hover circle{fill:#F3DFA0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:16px;padding:3px 10px;font-size:14px;background:var(--bg)}
+.chip.used{opacity:.45;text-decoration:line-through}
+.chip.next{border-color:#CC9900;background:var(--soft);font-weight:700}
+.nextbox{margin-top:12px;background:#003366;color:#fff;border-radius:12px;padding:10px 16px;display:flex;gap:12px;align-items:baseline}
+.nextbox .small{color:#C9D6E3}
+.nextbox b{font-family:Cambria,Georgia,serif;font-size:28px;color:#FFD966}
+.outbox{font-family:"Courier New",monospace;font-weight:700;font-size:20px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:44px;color:var(--navy)}
+.tips{margin:0;padding-left:20px;font-size:15px}
+.now{background:var(--bg);border:2px solid #CC9900;border-radius:10px;padding:10px 12px;margin-top:12px;min-height:70px}
+.now .ev{font-size:13px;font-weight:700;color:var(--amberText)}
+.now p{margin:2px 0 0}
+ol.code{list-style:none;margin:0;padding:8px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln}
+ol.code li{counter-increment:ln;padding:3px 10px 3px 6px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;display:flex}
+ol.code li::before{content:counter(ln);width:24px;flex:none;color:var(--muted);font-size:12px;padding-top:2px}
+ol.code li.outl{font-weight:700}
+ol.code li.cur{background:#F3DFA0;color:#1F2A36;outline:2px solid #CC9900;outline-offset:-2px}
+.stack{display:flex;flex-direction:column;gap:5px}
+.frame{border:2px solid var(--line);border-radius:8px;padding:5px 10px;font-family:"Courier New",monospace;font-weight:700;background:var(--bg);color:var(--ink)}
+.frame.active{border-color:#CC9900;background:var(--soft)}
+.frame.base{border-color:var(--bad);background:var(--badBg)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Tree Traversal Trainer</h1><div class="spec">Unit 3 · 3.7.1 · Building binary trees and traversing them</div></div>
+    <div class="spec">Keys: <b>→</b> step · <b>←</b> back (Watch the recursion)</div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+const sel=(lab,val,opts,on)=>h('label',{},lab,h('select',{onchange:e=>on(e.target.value)},...opts.map(([v,t])=>{const o=h('option',{value:String(v)},t);if(String(v)===String(val))o.selected=true;return o;})));
+
+/* ---------- data ---------- */
+const ANIMALS=['Goat','Duck','Fox','Bear','Ant','Cat','Leopard','Owl','Mayfly','Insect','Jaguar','Emu'];
+const SETS={
+ animals:{name:'WJEC 2018 Q1: animals',items:ANIMALS.map(a=>({label:a[0],full:a,key:a})),cmp:'text'},
+ numbers:{name:'Numbers',items:[50,30,70,20,40,60,80,35,65].map(n=>({label:String(n),full:String(n),key:n})),cmp:'num'},
+ grocery:{name:'Grocery store (2023 Q7)',items:['Cheese','Apples','Tomatoes','Banana','Swede','Milk','Pears','Eggs'].map(a=>({label:a.slice(0,3),full:a,key:a})),cmp:'text'},
+};
+function randomSet(){const s=new Set();while(s.size<9)s.add(10+Math.floor(Math.random()*90));return {name:'Random numbers',items:[...s].map(n=>({label:String(n),full:String(n),key:n})),cmp:'num'};}
+function less(a,b,cmp){return cmp==='num'?a.key<=b.key:String(a.key).localeCompare(String(b.key))<=0;}
+function buildTree(items,cmp){let root=null;const nodes=[];
+  items.forEach((it,i)=>{const n={id:i,item:it,left:null,right:null,parent:null,side:null};nodes.push(n);
+    if(!root){root=n;return;}let c=root;while(true){if(less(it,c.item,cmp)){if(c.left)c=c.left;else{c.left=n;n.parent=c;n.side='L';break;}}else{if(c.right)c=c.right;else{c.right=n;n.parent=c;n.side='R';break;}}}});
+  return {root,nodes};}
+function insertPath(T,it,cmp){const path=[];let c=T.root;if(!c)return {path,parent:null,side:'root'};
+  while(true){const goL=less(it,c.item,cmp);path.push([c,goL]);const nx=goL?c.left:c.right;if(!nx)return {path,parent:c,side:goL?'L':'R'};c=nx;}}
+function layout(root){const pos={};let i=0;const walk=(n,d)=>{if(!n)return;walk(n.left,d+1);pos[n.id]={x:i++,d};walk(n.right,d+1);};walk(root,0);return pos;}
+function order(root,type){const out=[];const f=n=>{if(!n)return;if(type==='pre')out.push(n);f(type==='rev'?n.right:n.left);if(type==='in'||type==='rev')out.push(n);f(type==='rev'?n.left:n.right);if(type==='post')out.push(n);};f(root);return out;}
+const TYPES=[['pre','Pre-order (root, left, right)'],['in','In-order (left, root, right)'],['post','Post-order (left, right, root)'],['rev','Reverse in-order (right, root, left)']];
+const TNAME={pre:'pre-order',in:'in-order',post:'post-order',rev:'reverse in-order'};
+
+/* ---------- state ---------- */
+const S={tab:0,setKey:'animals',set:SETS.animals,custom:'',b:null,t:{type:'pre',seq:[],msg:null,cls:'',wrong:0,done:false},w:{type:'in',i:0},u:{}};
+function fullTree(){return buildTree(S.set.items,S.set.cmp);}
+function resetBuild(){S.b={k:0,T:{root:null,nodes:[]},msg:null,cls:'',wrong:0};}
+function setData(k){S.setKey=k;if(k==='random')S.set=randomSet();else if(k==='custom'){const parts=S.custom.split(',').map(x=>x.trim()).filter(Boolean);if(parts.length){const num=parts.every(p=>!isNaN(Number(p)));S.set={name:'Your data',items:parts.map(p=>({label:p.length>4?p.slice(0,4):p,full:p,key:num?Number(p):p})),cmp:num?'num':'text'};}}
+  else S.set=SETS[k];resetBuild();S.t={type:S.t.type,seq:[],msg:null,cls:'',wrong:0,done:false};S.w.i=0;}
+resetBuild();
+
+/* ---------- drawing ---------- */
+function treeSVG(T,o={}){
+  const pos=layout(T.root);const n=T.nodes.filter(x=>pos[x.id]!==undefined).length||1;const depth=Math.max(0,...Object.values(pos).map(p=>p.d))+(o.slots?1:0);
+  const DX=64,DY=78,R=24,PAD=40;const W=Math.max(340,n*DX+PAD*2),Hh=(depth+1)*DY+PAD;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${Hh}`,role:'img','aria-label':'Binary tree'});
+  const P=id=>[PAD+pos[id].x*DX+DX/2,PAD+pos[id].d*DY];
+  T.nodes.forEach(nd=>{if(pos[nd.id]===undefined)return;[nd.left,nd.right].forEach(c=>{if(c&&pos[c.id]!==undefined){const [x1,y1]=P(nd.id),[x2,y2]=P(c.id);el('line',{x1,y1,x2,y2,class:'edge'},svg);}});});
+  if(o.slots){
+    const slots=[];if(!T.root)slots.push({parent:null,side:'root',x:W/2,y:PAD});
+    T.nodes.forEach(nd=>{if(pos[nd.id]===undefined)return;const [x,y]=P(nd.id);if(!nd.left)slots.push({parent:nd,side:'L',x:x-DX*0.42,y:y+DY*0.75});if(!nd.right)slots.push({parent:nd,side:'R',x:x+DX*0.42,y:y+DY*0.75});});
+    slots.forEach(sl=>{if(sl.parent){el('line',{x1:P(sl.parent.id)[0],y1:P(sl.parent.id)[1],x2:sl.x,y2:sl.y,class:'edge ghost'},svg);}
+      const g=el('g',{class:'slot',tabindex:'0',role:'button','aria-label':sl.parent?`${sl.side==='L'?'Left':'Right'} of ${sl.parent.item.full}`:'Root'},svg);
+      el('circle',{cx:sl.x,cy:sl.y,r:15},g);el('text',{x:sl.x,y:sl.y},g).textContent='+';
+      g.addEventListener('click',()=>o.slots(sl));g.addEventListener('keydown',e=>{if(e.key==='Enter')o.slots(sl);});});
+  }
+  T.nodes.forEach(nd=>{if(pos[nd.id]===undefined)return;const [x,y]=P(nd.id);
+    let cls='nd';if(o.visited&&o.visited.includes(nd.id))cls+=' vis';if(o.cur===nd.id)cls+=' cur';if(o.bad===nd.id)cls+=' bad';if(o.click)cls+=' click';
+    const g=el('g',{class:cls},svg);el('circle',{cx:x,cy:y,r:R},g);el('text',{x,y},g).textContent=nd.item.label;
+    const t=el('title',{},g);t.textContent=nd.item.full;
+    if(o.visited){const k=o.visited.indexOf(nd.id);if(k>=0){el('circle',{cx:x+R*0.8,cy:y-R*0.8,r:10,class:'badge'},svg);const tt=el('text',{x:x+R*0.8,y:y-R*0.8,class:'badget'},svg);tt.textContent=String(k+1);}}
+    if(o.click){g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',nd.item.full);g.addEventListener('click',()=>o.click(nd));g.addEventListener('keydown',e=>{if(e.key==='Enter')o.click(nd);});}
+  });
+  return h('div',{class:'twrap'},svg);
+}
+const dataControls=()=>{const inp=h('input',{type:'text',placeholder:'e.g. 40, 25, 60, 10',value:S.custom,'aria-label':'Your own data'});inp.addEventListener('input',()=>S.custom=inp.value);
+  return h('div',{class:'controls'},sel('Data',S.setKey,[['animals','WJEC 2018 Q1: animals'],['numbers','Numbers'],['grocery','Grocery store (2023 Q7)'],['random','Random numbers'],['custom','Your own data']],v=>{setData(v);render();}),
+    S.setKey==='custom'?h('span',{class:'cust'},inp,h('button',{class:'btn ghost',onclick:()=>{setData('custom');render();}},'Use it')):null,
+    S.setKey==='random'?h('button',{class:'btn ghost',onclick:()=>{setData('random');render();}},'New numbers'):null);};
+
+/* ---------- BUILD ---------- */
+function buildView(){
+  const B=S.b,items=S.set.items,cmp=S.set.cmp,done=B.k>=items.length;const next=items[B.k];
+  const place=sl=>{const ip=insertPath(B.T,next,cmp);const ok=(ip.side==='root'&&sl.side==='root')||(sl.parent===ip.parent&&sl.side===ip.side);
+    const route=ip.path.map(([c,l])=>`${next.full} ${l?(cmp==='text'?'is earlier than or the same as':'≤'):(cmp==='text'?'is later than':'>')} ${c.item.full}, so go ${l?'LEFT':'RIGHT'}`).join('. ');
+    if(ok){const n={id:B.T.nodes.length,item:next,left:null,right:null,parent:ip.parent,side:ip.side};B.T.nodes.push(n);if(ip.side==='root')B.T.root=n;else if(ip.side==='L')ip.parent.left=n;else ip.parent.right=n;B.k++;
+      B.msg=ip.side==='root'?`${next.full} is the first item, so it becomes the root.`:`Correct. ${route}.`;B.cls='ok';}
+    else{B.wrong++;B.msg=`Not there. ${route||'The first item is always the root'}.`;B.cls='bad';}
+    render();};
+  const auto=()=>{const ip=insertPath(B.T,next,cmp);place({parent:ip.parent,side:ip.side});};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Build the tree')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),S.set.cmp==='text'?'Rules (2018 Q1): the left pointer means "earlier or at the same position in the alphabet"; the right pointer means "later in the alphabet". ':'Rules: smaller or equal goes LEFT; bigger goes RIGHT. ','Start at the root each time and compare at every node. Click the + where the next item belongs.'),
+    dataControls(),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},treeSVG(B.T,{slots:done?null:place})),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Items to insert, in order'),h('div',{class:'chips'},...items.map((it,i)=>h('span',{class:'chip'+(i<B.k?' used':i===B.k?' next':'')},it.full)))),
+        !done?h('div',{class:'nextbox'},h('span',{class:'small'},'Next item'),h('b',{},next.full)):h('div',{class:'fb ok'},h('b',{},'Tree complete! '),`${B.wrong} wrong placement${B.wrong===1?'':'s'}. Now traverse it in the next tab.`),
+        B.msg?h('div',{class:'fb '+B.cls,'aria-live':'polite'},B.msg):null,
+        h('div',{class:'actions'},!done?h('button',{class:'btn ghost',onclick:auto},'Show me this one'):null,h('button',{class:'btn ghost',onclick:()=>{resetBuild();render();}},'Start again')))));
+}
+
+/* ---------- TRAVERSE ---------- */
+function travView(){
+  const T=fullTree(),t=S.t,correct=order(T.root,t.type);
+  const click=nd=>{if(t.done)return;const exp=correct[t.seq.length];
+    if(nd.id===exp.id){t.seq.push(nd.id);t.msg=null;t.cls='';if(t.seq.length===correct.length){t.done=true;t.msg=`Complete: ${correct.map(n=>n.item.label).join(' ')}. ${t.wrong} mistake${t.wrong===1?'':'s'}.`;t.cls='ok';}}
+    else{t.wrong++;t.bad=nd.id;t.msg=hint(T,t.type,t.seq,exp,nd);t.cls='bad';setTimeout(()=>{t.bad=null;render();},700);}
+    render();};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Traverse it')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Click the nodes in the order this traversal visits them. Numbers appear as you go. Wrong clicks are explained.'),
+    h('div',{class:'controls'},sel('Traversal',t.type,TYPES,v=>{t.type=v;t.seq=[];t.msg=null;t.wrong=0;t.done=false;render();}),dataControls().children[0],
+      h('button',{class:'btn ghost',onclick:()=>{t.seq=[];t.msg=null;t.wrong=0;t.done=false;render();}},'Restart'),
+      h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},`${t.seq.length}/${correct.length}`),'visited'),h('div',{class:'stat'},h('b',{},String(t.wrong)),'mistakes'))),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},treeSVG(T,{visited:t.seq,click,bad:t.bad})),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Output so far'),h('div',{class:'outbox'},t.seq.map(id=>T.nodes[id].item.label).join(' ')||' ')),
+        t.msg?h('div',{class:'fb '+t.cls,'aria-live':'polite'},t.msg):null,
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Remember'),h('ul',{class:'tips'},
+          h('li',{},h('b',{},'Pre-order: '),'root FIRST, then left subtree, then right subtree.'),
+          h('li',{},h('b',{},'In-order: '),'left subtree, root IN the middle, right subtree.'),
+          h('li',{},h('b',{},'Post-order: '),'left subtree, right subtree, root LAST.'),
+          h('li',{},h('b',{},'Reverse in-order: '),'right, root, left: descending order.'))))));
+}
+function hint(T,type,seq,exp,clicked){
+  const visited=new Set(seq);const lastId=seq.length?seq[seq.length-1]:null;
+  if(type==='pre')return `In pre-order every node is visited BEFORE its children. ${lastId===null?'Start at the root.':`After ${T.nodes[lastId].item.full}, go to its left subtree first if it has one; otherwise go back up to the nearest right subtree not yet visited.`} Next is ${exp.item.full}.`;
+  if(type==='in')return `In-order visits a node only after its WHOLE left subtree. ${clicked.left&&!visited.has(clicked.left.id)?`${clicked.item.full} still has an unvisited left subtree.`:''} Next is ${exp.item.full}.`;
+  if(type==='post')return `Post-order visits a node only after BOTH of its subtrees. ${(clicked.left&&!visited.has(clicked.left.id))||(clicked.right&&!visited.has(clicked.right.id))?`${clicked.item.full} still has unvisited children.`:''} Next is ${exp.item.full}.`;
+  return `Reverse in-order: right subtree, root, left subtree. Next is ${exp.item.full}.`;}
+
+/* ---------- WATCH ---------- */
+const CODE={
+ pre:['Declare PreOrder(node)','    if node <> null','        output node.data','        call PreOrder(node.left)','        call PreOrder(node.right)','    end if','End Subroutine'],
+ in:['Declare InOrder(node)','    if node <> null','        call InOrder(node.left)','        output node.data','        call InOrder(node.right)','    end if','End Subroutine'],
+ post:['Declare PostOrder(node)','    if node <> null','        call PostOrder(node.left)','        call PostOrder(node.right)','        output node.data','    end if','End Subroutine'],
+};
+function steps(T,type){
+  const ev=[],stack=[],out=[];const nm=type==='pre'?'PreOrder':type==='in'?'InOrder':'PostOrder';
+  const P=(o)=>ev.push(Object.assign({stack:stack.slice(),out:out.slice()},o));
+  const call=(n,how)=>{stack.push(n?`${nm}(${n.item.label})`:`${nm}(null)`);
+    if(!n){P({line:1,cur:null,text:`${how}: there is no node here (null). The base case: return straight away.`,nul:true});stack.pop();return;}
+    P({line:0,cur:n.id,text:`${how}: ${nm}(${n.item.full}) is called. A new frame goes on the call stack.`});
+    P({line:1,cur:n.id,text:`${n.item.full} is not null, so carry on.`});
+    const doOut=()=>{out.push(n.id);P({line:type==='pre'?2:type==='in'?3:4,cur:n.id,text:`Output ${n.item.full}.`,outNow:true});};
+    if(type==='pre')doOut();
+    P({line:type==='pre'?3:2,cur:n.id,text:`Call ${nm} on ${n.item.full}'s LEFT child${n.left?` (${n.left.item.full})`:' (null)'}.`});call(n.left,`Left of ${n.item.full}`);
+    if(type==='in')doOut();
+    P({line:type==='post'?3:4,cur:n.id,text:`Back in ${n.item.full}. Call ${nm} on its RIGHT child${n.right?` (${n.right.item.full})`:' (null)'}.`});call(n.right,`Right of ${n.item.full}`);
+    if(type==='post')doOut();
+    P({line:6,cur:n.id,text:`${nm}(${n.item.full}) has finished. Its frame is popped off the stack.`});stack.pop();};
+  call(T.root,'Start');P({line:6,cur:null,text:`Finished. Output: ${out.map(id=>T.nodes[id].item.label).join(' ')}.`,end:true});return ev;}
+function watchView(){
+  const T=fullTree(),W=S.w,ev=steps(T,W.type),s=ev[Math.min(W.i,ev.length-1)];
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Watch the recursion')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Step through the recursive algorithm. Watch the call stack grow and shrink, and notice that the ONLY difference between the three algorithms is where "output node.data" sits.'),
+    h('div',{class:'controls'},sel('Traversal',W.type,TYPES.slice(0,3),v=>{W.type=v;W.i=0;render();}),dataControls().children[0],
+      h('button',{class:'btn ghost',disabled:W.i===0||null,onclick:()=>{W.i--;render();}},'← Back'),
+      h('button',{class:'btn primary',disabled:W.i>=ev.length-1||null,onclick:()=>{W.i++;render();}},'Step →'),
+      h('button',{class:'btn ghost',onclick:()=>{W.i=ev.length-1;render();}},'Skip to end'),
+      h('button',{class:'btn ghost',onclick:()=>{W.i=0;render();}},'Restart')),
+    h('div',{class:'grid'},
+      h('div',{},h('div',{class:'panel'},treeSVG(T,{visited:s.out,cur:s.cur})),
+        h('div',{class:'now','aria-live':'polite'},h('div',{class:'ev'},`Step ${W.i+1} of ${ev.length}`),h('p',{},s.text)),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Output so far'),h('div',{class:'outbox'},s.out.map(id=>T.nodes[id].item.label).join(' ')||' '))),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Pseudo-code'),h('ol',{class:'code'},CODE[W.type].map((c,i)=>h('li',{class:(i===s.line?'cur':'')+(/output/.test(c)?' outl':'')},c)))),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Call stack'),h('div',{class:'stack'},...(s.stack.length?s.stack.slice().reverse().map((f,i)=>h('div',{class:'frame'+(i===0?(s.nul?' base':' active'):'')},f)):[h('div',{class:'small'},'(empty)')]))))));
+}
+document.addEventListener('keydown',e=>{if(S.tab!==2||['INPUT','SELECT'].includes(e.target.tagName))return;const n=steps(fullTree(),S.w.type).length;
+  if(e.key==='ArrowRight'&&S.w.i<n-1){S.w.i++;render();}else if(e.key==='ArrowLeft'&&S.w.i>0){S.w.i--;render();}});
+
+/* ---------- USES ---------- */
+const USES=[
+ ['An online shop wants to back up its product tree by making an exact copy of it.','Pre-order','Pre-order visits each parent before its children, so the copy is built from the root down in the same shape.'],
+ ['The grocery store wants to delete all of its product data from a tree.','Post-order','Post-order visits both children before their parent, so no node is removed while its children still depend on it.'],
+ ['A teacher wants the names in a binary search tree printed in alphabetical order.','In-order','In-order (left, root, right) visits a binary search tree in ascending order.'],
+ ['A leaderboard stored in a binary search tree needs printing from highest score to lowest.','Reverse in-order','Right, root, left visits a binary search tree in descending order.'],
+ ['A customer searches the grocery store tree for an item.','In-order','The 2023 mark scheme gave searching for an item as a use of in-order traversal.'],
+ ['An expression tree needs writing in Reverse Polish (postfix) notation, e.g. 3 4 +.','Post-order','Post-order puts each operator AFTER its two operands.'],
+];
+function usesView(){
+  const U=S.u;const right=Object.entries(U).filter(([i,v])=>v===USES[i][1]).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Which traversal?'),h('div',{class:'mscore'},`${right} / ${USES.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Exam questions ask you to give a USE of each traversal (2018 Q1 and 2023 Q7). Choose the traversal for each job. One attempt each.'),
+    h('div',{class:'cards'},...USES.map(([t,a,why],i)=>{const g=U[i];return h('div',{class:'ccard'+(g?(g===a?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy);min-height:48px'},t),
+      h('div',{class:'opts'},...['Pre-order','In-order','Post-order','Reverse in-order'].map(o=>{let cl='opt';if(g){if(o===a)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{U[i]=o;render();}},o);})),
+      g?h('div',{class:'why'},h('b',{},g===a?'✓ ':'✗ '),why):null);})),
+    Object.keys(U).length===USES.length?h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.u={};render();}},'Try again')):null);
+}
+
+const TABS=[['Build it',buildView],['Traverse it',travView],['Watch the recursion',watchView],['Which traversal?',usesView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>
