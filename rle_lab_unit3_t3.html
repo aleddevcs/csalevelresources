@@ -149,6 +149,9 @@ button.px{cursor:pointer}
 .formula{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:16px}
 .formula b{color:var(--navy)}
 .calcrow{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:8px}
+.numin.wide{width:90px}
+.x1{display:flex;gap:4px;align-items:center;font-weight:700;color:var(--navy)}
+.formula.note{background:var(--soft);border-color:#CC9900}
 .calcrow label{display:grid;gap:3px;font-size:13px;color:var(--muted)}
 .ccard{margin-bottom:10px}
 .disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
@@ -205,7 +208,7 @@ function encView(){
         E.checked&&ok?h('div',{},
           h('div',{class:'small'},`Uncompressed: ${px.length} × ${CB} bits = ${origBits} bits`),h('div',{class:'binbox'},px.map(c=>PAL[c][2]).join(' ')),
           h('div',{class:'small',style:'margin-top:8px'},`RLE: ${R.length} runs × (${CB} + ${NB}) bits = ${compBits} bits`),h('div',{class:'binbox good'},R.map(([c,n])=>`${PAL[c][2]} ${bin(n,NB)}`).join('   ')),
-          h('div',{class:'meter3'},h('div',{},h('small',{},'Original'),h('b',{},`${origBits} bits`)),h('div',{},h('small',{},'Compressed'),h('b',{},`${compBits} bits`)),h('div',{},h('small',{},'Ratio (compressed ÷ original)'),h('b',{},(compBits/origBits).toFixed(2)))))
+          h('div',{class:'meter3'},h('div',{},h('small',{},'Original'),h('b',{},`${origBits} bits`)),h('div',{},h('small',{},'Compressed'),h('b',{},`${compBits} bits`)),h('div',{},h('small',{},'Ratio (original : compressed)'),h('b',{},`${(origBits/compBits).toFixed(2)} : 1`))))
         :h('p',{class:'small'},'Get the pairs right to see the binary and the bit counts.'))));
 }
 
@@ -246,23 +249,26 @@ const CALC=[
  ['A 60-bit row is "compressed" by RLE to 96 bits.',60,96],
 ];
 function calcView(){
-  const C=S.calc;
+  const C=S.calc;const gcd=(a,b)=>b?gcd(b,a%b):a;
   return h('div',{},
     h('div',{class:'top'},h('h2',{},'Calculate: ratio and saving')),
-    h('div',{class:'prompt'},h('b',{},'Task: '),'Work out the compression ratio and the percentage saving. Give the ratio to 2 decimal places and the saving to 1 decimal place.'),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'For each file, give the compression ratio in its simplest whole-number form (e.g. 7:4), then as "x : 1" to 2 decimal places, then the percentage saving to 1 decimal place.'),
     h('div',{class:'grid'},
       h('div',{class:'panel'},h('h3',{},'The formulas'),
-        h('div',{class:'formula'},h('b',{},'Compression ratio'),' = compressed size ÷ original size',h('div',{class:'small'},'The WJEC 2019 mark-scheme definition. The smaller the ratio, the better the compression.')),
-        h('div',{class:'formula'},h('b',{},'Percentage saving'),' = (original − compressed) ÷ original × 100')),
-      h('div',{},...CALC.map(([t,o,c],i)=>{const st=C[i]||(C[i]={r:'',s:'',checked:false});const ratio=c/o,save=(o-c)/o*100;
-        const r=h('input',{type:'number',step:'0.01',class:'numin',value:st.r,'aria-label':'Ratio',disabled:st.checked||null});r.addEventListener('input',()=>st.r=r.value);
+        h('div',{class:'formula'},h('b',{},'Compression ratio'),' = original size : compressed size',h('div',{class:'small'},'Simplify it like any ratio. 2 : 1 means the file is now half its original size. The bigger the first number, the better the compression.')),
+        h('div',{class:'formula'},h('b',{},'As "x : 1"'),': divide both sides by the compressed size',h('div',{class:'small'},'84 : 48 = 7 : 4 = 1.75 : 1')),
+        h('div',{class:'formula'},h('b',{},'Percentage saving'),' = (original − compressed) ÷ original × 100'),
+        h('div',{class:'formula note'},h('b',{},'Watch out: '),'the WJEC 2019 mark scheme describes the ratio the other way round, as compressed size divided by original size (48 ÷ 84 = 0.57). That is the same relationship flipped: 0.57 : 1 is the same as 1 : 1.75.')),
+      h('div',{},...CALC.map(([t,o,c],i)=>{const st=C[i]||(C[i]={q:'',r:'',s:'',checked:false});const g=gcd(o,c),sa=o/g,sb=c/g,ratio=o/c,save=(o-c)/o*100;
+        const q=h('input',{type:'text',class:'numin wide',placeholder:'a:b',value:st.q,'aria-label':'Simplest ratio',disabled:st.checked||null});q.addEventListener('input',()=>st.q=q.value);
+        const r=h('input',{type:'number',step:'0.01',class:'numin',value:st.r,'aria-label':'x : 1',disabled:st.checked||null});r.addEventListener('input',()=>st.r=r.value);
         const s=h('input',{type:'number',step:'0.1',class:'numin',value:st.s,'aria-label':'Saving',disabled:st.checked||null});s.addEventListener('input',()=>st.s=s.value);
+        const m=st.q.replace(/\s/g,'').match(/^(\d+):(\d+)$/);const okQ=!!m&&Number(m[1])===sa&&Number(m[2])===sb;
         const okR=Math.abs(Number(st.r)-ratio)<0.006,okS=Math.abs(Number(st.s)-save)<0.06;
-        return h('div',{class:'ccard'+(st.checked?(okR&&okS?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy)'},t),
-          h('div',{class:'calcrow'},h('label',{},'Ratio',r),h('label',{},'Saving %',s),h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check')),
-          st.checked?h('div',{class:'why'},`Ratio = ${c} ÷ ${o} = ${ratio.toFixed(2)}${okR?' ✓':' ✗'}.  Saving = (${o} − ${c}) ÷ ${o} × 100 = ${save.toFixed(1)}%${okS?' ✓':' ✗'}.${c>o?' A negative saving and a ratio above 1 mean the file got BIGGER.':''}`):null);}))));
+        return h('div',{class:'ccard'+(st.checked?(okQ&&okR&&okS?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy)'},t),
+          h('div',{class:'calcrow'},h('label',{},'Simplest ratio',q),h('label',{},'x : 1',h('span',{class:'x1'},r,' : 1')),h('label',{},'Saving %',s),h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check')),
+          st.checked?h('div',{class:'why'},`Ratio = ${o} : ${c} = ${sa} : ${sb}${okQ?' ✓':' ✗'} = ${ratio.toFixed(2)} : 1${okR?' ✓':' ✗'}.  Saving = (${o} − ${c}) ÷ ${o} × 100 = ${save.toFixed(1)}%${okS?' ✓':' ✗'}.${c>o?' The first number is SMALLER than the second, and the saving is negative: the file got BIGGER.':''}`):null);}))));
 }
-
 /* ---------- BACKFIRE ---------- */
 function bfView(){
   const B=S.bf,R=runs(B.px);const orig=B.px.length*CB,comp=R.length*(CB+NB);
@@ -279,7 +285,7 @@ function bfView(){
       h('div',{class:'panel'},h('h3',{},'Sizes'),h('div',{class:'meter3'},
           h('div',{},h('small',{},'Uncompressed'),h('b',{},`${orig} bits`),h('small',{},`16 × ${CB}`)),
           h('div',{},h('small',{},'RLE'),h('b',{class:comp<orig?'good':comp>orig?'worse':null},`${comp} bits`),h('small',{},`${R.length} runs × ${CB+NB}`)),
-          h('div',{},h('small',{},'Ratio'),h('b',{},(comp/orig).toFixed(2)))),
+          h('div',{},h('small',{},'Ratio (original : compressed)'),h('b',{},`${(orig/comp).toFixed(2)} : 1`))),
         h('div',{class:'fb '+verdict[0]},verdict[1]))),
     h('div',{class:'disc'},h('h3',{},'Think about it'),h('ul',{},
       h('li',{},`Each run costs ${CB+NB} bits, and each pixel costs ${CB} bits. So a run needs to be at least how long before RLE saves space?`),
