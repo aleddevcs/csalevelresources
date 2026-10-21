@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assignment 2 Readiness Check</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --white:#FFFFFF;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  main{
+    max-width:780px;
+    margin:-1.2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    margin-bottom:1.6rem;
+    padding:1.5rem 1.6rem;
+  }
+  .intro{
+    display:flex;
+    align-items:flex-start;
+    gap:0.9rem;
+  }
+  .intro .dot{
+    width:36px;
+    height:36px;
+    background:var(--second);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:1.1rem;
+    flex-shrink:0;
+  }
+  .intro p{
+    margin:0;
+    font-size:0.98rem;
+    line-height:1.5;
+  }
+  .section-title{
+    font-size:1.1rem;
+    font-weight:bold;
+    color:var(--dark);
+    margin:0 0 1rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .section-title .num{
+    background:var(--primary);
+    color:white;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  .part-label{
+    font-size:0.75rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 0.3rem;
+  }
+
+  /* submission check */
+  .status-q{
+    font-size:1rem;
+    margin:0 0 0.9rem;
+  }
+  .status-opts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.6rem;
+  }
+  .status-btn{
+    flex:1;
+    min-width:150px;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.85rem 0.8rem;
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+  }
+  .status-btn:hover{ border-color:var(--second); }
+  .status-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .status-msg{
+    display:none;
+    margin-top:1rem;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.95rem;
+    line-height:1.5;
+  }
+  .status-msg.show{ display:block; }
+  .status-msg.good{ background:var(--greenbg); color:var(--green); }
+  .status-msg.act{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .status-msg b{ display:block; margin-bottom:0.2rem; }
+  .privacy{
+    margin:0.9rem 0 0;
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  /* retrieval */
+  .q{
+    margin-bottom:1.3rem;
+  }
+  .q:last-child{
+    margin-bottom:0;
+  }
+  .q .prompt{
+    font-size:0.98rem;
+    margin-bottom:0.6rem;
+  }
+  .row{
+    display:flex;
+    gap:0.6rem;
+    align-items:center;
+  }
+  .row input[type=text]{
+    flex:1;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.5rem 0.7rem;
+    font-family:"Courier New", monospace;
+    font-size:0.95rem;
+  }
+  .row button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .row button:hover{
+    background:var(--primary);
+  }
+  .answer{
+    display:none;
+    margin-top:0.6rem;
+    padding:0.7rem 0.9rem;
+    border-radius:8px;
+    font-size:0.9rem;
+    background:var(--greenbg);
+    color:var(--green);
+  }
+  .answer.show{
+    display:block;
+  }
+  code{
+    font-family:"Courier New", monospace;
+    background:var(--light);
+    padding:0.05rem 0.3rem;
+    border-radius:4px;
+    font-size:0.9em;
+  }
+  .today-card{
+    background:var(--primary);
+    color:white;
+  }
+  .today-card .section-title{
+    color:white;
+  }
+  .today-card .section-title .num{
+    background:white;
+    color:var(--primary);
+  }
+  .today-card ul{
+    margin:0;
+    padding-left:1.2rem;
+    font-size:0.95rem;
+    line-height:1.9;
+  }
+  footer{
+    max-width:780px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  pre.snippet{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.92rem;
+    line-height:1.6;
+    margin:0 0 0.8rem;
+    overflow-x:auto;
+  }
+  .stage-list{
+    display:flex;
+    flex-direction:column;
+    gap:0.55rem;
+  }
+  .stage-btn{
+    text-align:left;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.8rem 1rem;
+    font-size:0.96rem;
+    color:var(--text);
+    cursor:pointer;
+    display:flex;
+    gap:0.8rem;
+    align-items:flex-start;
+  }
+  .stage-btn .n{
+    font-weight:bold;
+    color:var(--second);
+    min-width:1.2rem;
+  }
+  .stage-btn:hover{ border-color:var(--second); }
+  .stage-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .stage-btn.sel .n{ color:#CADCFC; }
+
+  .pick{
+    display:flex;
+    flex-direction:column;
+    gap:0.3rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:0.8rem;
+    margin:0 0 0.9rem;
+  }
+  .cl{
+    font-family:"Courier New", monospace;
+    font-size:0.92rem;
+    color:#F4F8FA;
+    background:rgba(255,255,255,0.04);
+    border:2px solid transparent;
+    border-radius:6px;
+    padding:0.35rem 0.6rem;
+    text-align:left;
+    white-space:pre;
+    cursor:pointer;
+  }
+  .cl:hover{ border-color:#5B7FA6; }
+  .cl.sel{ border-color:#F9E795; background:rgba(249,231,149,0.14); }
+  .cl.right{ border-color:#6FCF97; background:rgba(111,207,151,0.2); }
+  .cl.missed{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.18); }
+  .cl.wrong{ border-color:#F0997B; background:rgba(240,153,123,0.22); }
+  .cl.locked{ cursor:default; }
+  .pick-actions{
+    display:flex;
+    gap:0.6rem;
+    margin-bottom:0.2rem;
+  }
+  .pick-actions button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1.1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .pick-actions button.secondary{
+    background:var(--light);
+    color:var(--text);
+    border:1px solid #D8E2E8;
+  }
+  .pick-actions button:hover{ background:var(--primary); color:#fff; }
+  .legend-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.9rem;
+    font-size:0.78rem;
+    color:var(--muted);
+    margin:0.5rem 0 0;
+  }
+  .legend-row span::before{
+    content:"";
+    display:inline-block;
+    width:0.8rem;
+    height:0.8rem;
+    border-radius:3px;
+    margin-right:0.35rem;
+    vertical-align:-0.1rem;
+    border:2px solid;
+  }
+  .legend-row .l-right::before{ border-color:#6FCF97; background:rgba(111,207,151,0.35); }
+  .legend-row .l-missed::before{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.3); }
+  .legend-row .l-wrong::before{ border-color:#F0997B; background:rgba(240,153,123,0.4); }
+  .legend-row{ display:none; }
+  .legend-row.show{ display:flex; }
+
+  .tabs{ display:flex; gap:0.6rem; margin:0 0 1.2rem; }
+  .tab-btn{
+    flex:1;
+    background:var(--white);
+    border:1px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.75rem 0.6rem;
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--muted);
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.05);
+  }
+  .tab-btn.active{ background:var(--second); border-color:var(--second); color:#fff; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .scale{ display:flex; flex-direction:column; gap:0.45rem; margin:0; padding:0; list-style:none; font-size:0.92rem; }
+  .scale li{ display:flex; gap:0.7rem; align-items:baseline; }
+  .dot-r,.dot-a,.dot-g{ display:inline-block; width:0.85rem; height:0.85rem; border-radius:50%; flex-shrink:0; transform:translateY(0.12rem); }
+  .dot-r{ background:#D64545; } .dot-a{ background:#E0A030; } .dot-g{ background:#3C9D6B; }
+
+  .skill{ padding:1rem 0; border-bottom:1px solid #EEF2F5; }
+  .skill:last-child{ border-bottom:none; }
+  .skill-top{ display:flex; gap:0.8rem; align-items:flex-start; margin-bottom:0.65rem; }
+  .skill-n{
+    background:var(--primary); color:#fff; width:26px; height:26px; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0;
+  }
+  .skill-text{ flex:1; font-size:0.98rem; line-height:1.45; }
+  .ac{
+    font-size:0.72rem; font-weight:bold; letter-spacing:0.5px; color:var(--primary);
+    background:#E3F0F7; border-radius:5px; padding:0.15rem 0.5rem; white-space:nowrap; margin-left:0.4rem;
+  }
+  .rate{ display:flex; gap:0.5rem; flex-wrap:wrap; padding-left:2.2rem; }
+  .rate button{
+    flex:1; min-width:120px;
+    background:#fff; border:2px solid; border-radius:10px;
+    padding:0.55rem 0.5rem; font-size:0.9rem; font-weight:bold; cursor:pointer; color:var(--text);
+  }
+  .rate .r{ border-color:#D64545; } .rate .a{ border-color:#E0A030; } .rate .g{ border-color:#3C9D6B; }
+  .rate .r:hover{ background:#FBE9E9; } .rate .a:hover{ background:#FCF3E0; } .rate .g:hover{ background:#E4F3EB; }
+  .rate button.sel.r{ background:#D64545; color:#fff; }
+  .rate button.sel.a{ background:#E0A030; color:#1B1B1B; }
+  .rate button.sel.g{ background:#3C9D6B; color:#fff; }
+  .rate button.sel::before{ content:"\2713\00a0"; }
+
+  .prog{ display:flex; align-items:center; gap:1rem; margin:0 0 0.8rem; }
+  .prog .bar-track{ flex:1; height:10px; background:#E3EAEF; border-radius:5px; overflow:hidden; }
+  .prog .bar-fill{ height:100%; width:0; background:var(--second); transition:width .3s ease; }
+  .prog .lab{ font-size:0.9rem; font-weight:bold; color:var(--dark); white-space:nowrap; }
+
+  .plan{ display:none; }
+  .plan.show{ display:block; }
+  .plan h3{ margin:1.1rem 0 0.5rem; font-size:1rem; color:var(--dark); }
+  .plan h3:first-of-type{ margin-top:0; }
+  .item{
+    border-radius:10px; padding:0.75rem 0.95rem; margin-bottom:0.5rem; font-size:0.93rem; line-height:1.45;
+    border:1px solid; 
+  }
+  .item.red{ background:#FDF0F0; border-color:#F0B8B8; }
+  .item.amber{ background:#FEF7E8; border-color:#F0D9A0; }
+  .item b{ display:block; margin-bottom:0.15rem; }
+  .item .where{ color:var(--muted); font-size:0.88rem; }
+  .greens{ font-size:0.92rem; color:var(--green); background:var(--greenbg); border-radius:10px; padding:0.7rem 0.95rem; }
+  .next-note{ margin-top:1rem; padding:0.85rem 1rem; border-radius:10px; background:var(--amberbg); border:1px solid var(--amber); color:#8A4A1E; font-size:0.92rem; line-height:1.5; }
+  .summary{
+    width:100%; min-height:6.2rem; margin-top:0.5rem; border:1px solid #D8E2E8; border-radius:8px;
+    padding:0.6rem 0.75rem; font-family:"Courier New", monospace; font-size:0.82rem; line-height:1.5; resize:vertical;
+    background:#FAFCFD; color:var(--text);
+  }
+  .btn-row{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.6rem; }
+  .btn{
+    background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.55rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .btn.secondary{ background:var(--light); color:var(--text); border:1px solid #D8E2E8; }
+  .btn:hover{ filter:brightness(1.08); }
+  .copied{ font-size:0.85rem; color:var(--green); align-self:center; display:none; }
+  .copied.show{ display:inline; }
+
+  /* teacher tally */
+  .trow{ padding:0.9rem 0; border-bottom:1px solid #EEF2F5; }
+  .trow:last-child{ border-bottom:none; }
+  .trow-top{ display:flex; gap:0.7rem; align-items:flex-start; margin-bottom:0.55rem; font-size:0.95rem; }
+  .counters{ display:flex; gap:0.6rem; flex-wrap:wrap; padding-left:2.1rem; margin-bottom:0.55rem; }
+  .ctr{ display:flex; align-items:center; gap:0.35rem; border:2px solid; border-radius:10px; padding:0.25rem 0.4rem; }
+  .ctr.r{ border-color:#D64545; } .ctr.a{ border-color:#E0A030; } .ctr.g{ border-color:#3C9D6B; }
+  .ctr .lbl{ font-size:0.8rem; font-weight:bold; min-width:3.1rem; }
+  .ctr .num{ font-size:1.05rem; font-weight:bold; min-width:1.6rem; text-align:center; }
+  .ctr button{
+    width:30px; height:30px; border-radius:7px; border:1px solid #D8E2E8; background:#fff; font-size:1.1rem;
+    font-weight:bold; cursor:pointer; line-height:1;
+  }
+  .stack{ display:flex; height:14px; border-radius:7px; overflow:hidden; background:#E3EAEF; margin-left:2.1rem; }
+  .stack span{ display:block; height:100%; transition:width .25s ease; }
+  .stack .sr{ background:#D64545; } .stack .sa{ background:#E0A030; } .stack .sg{ background:#3C9D6B; }
+  .agenda li{ margin-bottom:0.45rem; line-height:1.45; font-size:0.95rem; }
+  .muted{ color:var(--muted); font-size:0.88rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Assignment 2 readiness check</h1>
+  <p>Lesson 13 plenary — six skills, honestly rated</p>
+</header>
+
+<main>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" id="tabMine" role="tab" aria-selected="true" onclick="showTab('mine')">My check</button>
+    <button class="tab-btn" id="tabClass" role="tab" aria-selected="false" onclick="showTab('class')">Class tally (teacher)</button>
+  </div>
+
+  <!-- LEARNER VIEW -->
+  <div class="view active" id="view-mine">
+
+    <div class="card">
+      <p class="section-title"><span class="num">?</span>How to rate yourself</p>
+      <ul class="scale">
+        <li><span class="dot-g"></span><span><b>Green</b> — I could do this on a blank page, without any notes.</span></li>
+        <li><span class="dot-a"></span><span><b>Amber</b> — I could do it with my notes or a reminder card.</span></li>
+        <li><span class="dot-r"></span><span><b>Red</b> — I'd be stuck, or I'm not sure where to start.</span></li>
+      </ul>
+      <p class="privacy">Be honest — a red isn't a failure. It tells your teacher what to cover first. Nothing you click here is sent anywhere.</p>
+    </div>
+
+    <div class="card">
+      <div class="prog"><div class="bar-track"><div class="bar-fill" id="progFill"></div></div><span class="lab" id="progLab">0 of 6 rated</span></div>
+      
+      <div class="skill" data-i="0">
+        <div class="skill-top"><span class="skill-n">1</span><div class="skill-text">I can collect several pieces of information with a sequence of inputs, and display a summary<span class="ac">AC 2.1</span></div></div>
+        <div class="rate" role="group" aria-label="Rate skill 1">
+          <button class="r" data-v="r" aria-pressed="false" aria-label="Red, not yet, skill 1">Red · not yet</button>
+          <button class="a" data-v="a" aria-pressed="false" aria-label="Amber, nearly, skill 1">Amber · nearly</button>
+          <button class="g" data-v="g" aria-pressed="false" aria-label="Green, confident, skill 1">Green · confident</button>
+        </div>
+      </div>
+      <div class="skill" data-i="1">
+        <div class="skill-top"><span class="skill-n">2</span><div class="skill-text">I can store a record as a dictionary inside another dictionary<span class="ac">AC 2.2 · 2.4</span></div></div>
+        <div class="rate" role="group" aria-label="Rate skill 2">
+          <button class="r" data-v="r" aria-pressed="false" aria-label="Red, not yet, skill 2">Red · not yet</button>
+          <button class="a" data-v="a" aria-pressed="false" aria-label="Amber, nearly, skill 2">Amber · nearly</button>
+          <button class="g" data-v="g" aria-pressed="false" aria-label="Green, confident, skill 2">Green · confident</button>
+        </div>
+      </div>
+      <div class="skill" data-i="2">
+        <div class="skill-top"><span class="skill-n">3</span><div class="skill-text">I can validate input with if / elif<span class="ac">AC 2.2</span></div></div>
+        <div class="rate" role="group" aria-label="Rate skill 3">
+          <button class="r" data-v="r" aria-pressed="false" aria-label="Red, not yet, skill 3">Red · not yet</button>
+          <button class="a" data-v="a" aria-pressed="false" aria-label="Amber, nearly, skill 3">Amber · nearly</button>
+          <button class="g" data-v="g" aria-pressed="false" aria-label="Green, confident, skill 3">Green · confident</button>
+        </div>
+      </div>
+      <div class="skill" data-i="3">
+        <div class="skill-top"><span class="skill-n">4</span><div class="skill-text">I can loop through every record and every field with a for loop<span class="ac">AC 2.3 · 2.4</span></div></div>
+        <div class="rate" role="group" aria-label="Rate skill 4">
+          <button class="r" data-v="r" aria-pressed="false" aria-label="Red, not yet, skill 4">Red · not yet</button>
+          <button class="a" data-v="a" aria-pressed="false" aria-label="Amber, nearly, skill 4">Amber · nearly</button>
+          <button class="g" data-v="g" aria-pressed="false" aria-label="Green, confident, skill 4">Green · confident</button>
+        </div>
+      </div>
+      <div class="skill" data-i="4">
+        <div class="skill-top"><span class="skill-n">5</span><div class="skill-text">I can keep asking until the user types a stop word, using a while loop<span class="ac">AC 2.3</span></div></div>
+        <div class="rate" role="group" aria-label="Rate skill 5">
+          <button class="r" data-v="r" aria-pressed="false" aria-label="Red, not yet, skill 5">Red · not yet</button>
+          <button class="a" data-v="a" aria-pressed="false" aria-label="Amber, nearly, skill 5">Amber · nearly</button>
+          <button class="g" data-v="g" aria-pressed="false" aria-label="Green, confident, skill 5">Green · confident</button>
+        </div>
+      </div>
+      <div class="skill" data-i="5">
+        <div class="skill-top"><span class="skill-n">6</span><div class="skill-text">I can comment my code so the purpose of each function and block is clear<span class="ac">AC 2.1</span></div></div>
+        <div class="rate" role="group" aria-label="Rate skill 6">
+          <button class="r" data-v="r" aria-pressed="false" aria-label="Red, not yet, skill 6">Red · not yet</button>
+          <button class="a" data-v="a" aria-pressed="false" aria-label="Amber, nearly, skill 6">Amber · nearly</button>
+          <button class="g" data-v="g" aria-pressed="false" aria-label="Green, confident, skill 6">Green · confident</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card plan" id="plan">
+      <p class="section-title"><span class="num">→</span>Your plan</p>
+      <div id="planBody"></div>
+      <div class="next-note"><b>Tomorrow (Lesson 14)</b> starts with targeted help on your reds. You don't need to fix everything first — Assignment 2 is issued tomorrow, and the reds are what we cover first.</div>
+      <p class="privacy" style="margin-top:1rem;">If your teacher asks you to share your result, copy this and paste it into Teams:</p>
+      <textarea class="summary" id="summary" readonly aria-label="Your results summary"></textarea>
+      <div class="btn-row">
+        <button class="btn" onclick="copySummary()">Copy my results</button>
+        <button class="btn secondary" onclick="resetMine()">Start again</button>
+        <span class="copied" id="copied" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHER VIEW -->
+  <div class="view" id="view-class">
+    <div class="card">
+      <p class="section-title"><span class="num">i</span>Class tally</p>
+      <p class="muted" style="margin:0 0 0.4rem;">Ask for a show of hands on each skill, and tap the counts in. The agenda for Lesson 14 ranks itself below. Counts are saved on this device only.</p>
+    </div>
+    <div class="card">
+      
+      <div class="trow" data-i="0">
+        <div class="trow-top"><span class="skill-n">1</span><div>I can collect several pieces of information with a sequence of inputs, and display a summary<span class="ac">AC 2.1</span></div></div>
+        <div class="counters">
+          <div class="ctr r"><span class="lbl">Red</span><button data-k="r" data-d="-1" aria-label="Fewer red, skill 1">&minus;</button><span class="num" data-n="r">0</span><button data-k="r" data-d="1" aria-label="More red, skill 1">+</button></div>
+          <div class="ctr a"><span class="lbl">Amber</span><button data-k="a" data-d="-1" aria-label="Fewer amber, skill 1">&minus;</button><span class="num" data-n="a">0</span><button data-k="a" data-d="1" aria-label="More amber, skill 1">+</button></div>
+          <div class="ctr g"><span class="lbl">Green</span><button data-k="g" data-d="-1" aria-label="Fewer green, skill 1">&minus;</button><span class="num" data-n="g">0</span><button data-k="g" data-d="1" aria-label="More green, skill 1">+</button></div>
+        </div>
+        <div class="stack" aria-hidden="true"><span class="sr"></span><span class="sa"></span><span class="sg"></span></div>
+      </div>
+      <div class="trow" data-i="1">
+        <div class="trow-top"><span class="skill-n">2</span><div>I can store a record as a dictionary inside another dictionary<span class="ac">AC 2.2 · 2.4</span></div></div>
+        <div class="counters">
+          <div class="ctr r"><span class="lbl">Red</span><button data-k="r" data-d="-1" aria-label="Fewer red, skill 2">&minus;</button><span class="num" data-n="r">0</span><button data-k="r" data-d="1" aria-label="More red, skill 2">+</button></div>
+          <div class="ctr a"><span class="lbl">Amber</span><button data-k="a" data-d="-1" aria-label="Fewer amber, skill 2">&minus;</button><span class="num" data-n="a">0</span><button data-k="a" data-d="1" aria-label="More amber, skill 2">+</button></div>
+          <div class="ctr g"><span class="lbl">Green</span><button data-k="g" data-d="-1" aria-label="Fewer green, skill 2">&minus;</button><span class="num" data-n="g">0</span><button data-k="g" data-d="1" aria-label="More green, skill 2">+</button></div>
+        </div>
+        <div class="stack" aria-hidden="true"><span class="sr"></span><span class="sa"></span><span class="sg"></span></div>
+      </div>
+      <div class="trow" data-i="2">
+        <div class="trow-top"><span class="skill-n">3</span><div>I can validate input with if / elif<span class="ac">AC 2.2</span></div></div>
+        <div class="counters">
+          <div class="ctr r"><span class="lbl">Red</span><button data-k="r" data-d="-1" aria-label="Fewer red, skill 3">&minus;</button><span class="num" data-n="r">0</span><button data-k="r" data-d="1" aria-label="More red, skill 3">+</button></div>
+          <div class="ctr a"><span class="lbl">Amber</span><button data-k="a" data-d="-1" aria-label="Fewer amber, skill 3">&minus;</button><span class="num" data-n="a">0</span><button data-k="a" data-d="1" aria-label="More amber, skill 3">+</button></div>
+          <div class="ctr g"><span class="lbl">Green</span><button data-k="g" data-d="-1" aria-label="Fewer green, skill 3">&minus;</button><span class="num" data-n="g">0</span><button data-k="g" data-d="1" aria-label="More green, skill 3">+</button></div>
+        </div>
+        <div class="stack" aria-hidden="true"><span class="sr"></span><span class="sa"></span><span class="sg"></span></div>
+      </div>
+      <div class="trow" data-i="3">
+        <div class="trow-top"><span class="skill-n">4</span><div>I can loop through every record and every field with a for loop<span class="ac">AC 2.3 · 2.4</span></div></div>
+        <div class="counters">
+          <div class="ctr r"><span class="lbl">Red</span><button data-k="r" data-d="-1" aria-label="Fewer red, skill 4">&minus;</button><span class="num" data-n="r">0</span><button data-k="r" data-d="1" aria-label="More red, skill 4">+</button></div>
+          <div class="ctr a"><span class="lbl">Amber</span><button data-k="a" data-d="-1" aria-label="Fewer amber, skill 4">&minus;</button><span class="num" data-n="a">0</span><button data-k="a" data-d="1" aria-label="More amber, skill 4">+</button></div>
+          <div class="ctr g"><span class="lbl">Green</span><button data-k="g" data-d="-1" aria-label="Fewer green, skill 4">&minus;</button><span class="num" data-n="g">0</span><button data-k="g" data-d="1" aria-label="More green, skill 4">+</button></div>
+        </div>
+        <div class="stack" aria-hidden="true"><span class="sr"></span><span class="sa"></span><span class="sg"></span></div>
+      </div>
+      <div class="trow" data-i="4">
+        <div class="trow-top"><span class="skill-n">5</span><div>I can keep asking until the user types a stop word, using a while loop<span class="ac">AC 2.3</span></div></div>
+        <div class="counters">
+          <div class="ctr r"><span class="lbl">Red</span><button data-k="r" data-d="-1" aria-label="Fewer red, skill 5">&minus;</button><span class="num" data-n="r">0</span><button data-k="r" data-d="1" aria-label="More red, skill 5">+</button></div>
+          <div class="ctr a"><span class="lbl">Amber</span><button data-k="a" data-d="-1" aria-label="Fewer amber, skill 5">&minus;</button><span class="num" data-n="a">0</span><button data-k="a" data-d="1" aria-label="More amber, skill 5">+</button></div>
+          <div class="ctr g"><span class="lbl">Green</span><button data-k="g" data-d="-1" aria-label="Fewer green, skill 5">&minus;</button><span class="num" data-n="g">0</span><button data-k="g" data-d="1" aria-label="More green, skill 5">+</button></div>
+        </div>
+        <div class="stack" aria-hidden="true"><span class="sr"></span><span class="sa"></span><span class="sg"></span></div>
+      </div>
+      <div class="trow" data-i="5">
+        <div class="trow-top"><span class="skill-n">6</span><div>I can comment my code so the purpose of each function and block is clear<span class="ac">AC 2.1</span></div></div>
+        <div class="counters">
+          <div class="ctr r"><span class="lbl">Red</span><button data-k="r" data-d="-1" aria-label="Fewer red, skill 6">&minus;</button><span class="num" data-n="r">0</span><button data-k="r" data-d="1" aria-label="More red, skill 6">+</button></div>
+          <div class="ctr a"><span class="lbl">Amber</span><button data-k="a" data-d="-1" aria-label="Fewer amber, skill 6">&minus;</button><span class="num" data-n="a">0</span><button data-k="a" data-d="1" aria-label="More amber, skill 6">+</button></div>
+          <div class="ctr g"><span class="lbl">Green</span><button data-k="g" data-d="-1" aria-label="Fewer green, skill 6">&minus;</button><span class="num" data-n="g">0</span><button data-k="g" data-d="1" aria-label="More green, skill 6">+</button></div>
+        </div>
+        <div class="stack" aria-hidden="true"><span class="sr"></span><span class="sa"></span><span class="sg"></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="section-title"><span class="num">→</span>Lesson 14 agenda — most reds first</p>
+      <ol class="agenda" id="agenda"></ol>
+      <div class="btn-row"><button class="btn secondary" onclick="clearTally()">Clear all counts</button></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>Lesson 13 · Imperative Programming · Access to HE Applied Computing</footer>
+
+<script>
+  const SKILLS = [{"text": "collect several pieces of information with a sequence of inputs, and display a summary", "ac": "AC 2.1", "short": "sequence of inputs and a summary", "lesson": "Lessons 2 and 5", "res": "Lesson 2 learner notes; Lesson 5 task tracker"}, {"text": "store a record as a dictionary inside another dictionary", "ac": "AC 2.2 \u00b7 2.4", "short": "nested dictionaries", "lesson": "Lesson 7 (and Lesson 10)", "res": "Lesson 7 task tracker; dictionary syntax reminder card"}, {"text": "validate input with if / elif", "ac": "AC 2.2", "short": "validate with if / elif", "lesson": "Lesson 5 (and Lesson 9)", "res": "Lesson 5 validation cheat sheet; operators reminder card"}, {"text": "loop through every record and every field with a for loop", "ac": "AC 2.3 \u00b7 2.4", "short": "loop through every record and field", "lesson": "Lessons 8 and 10", "res": "Lesson 8 loop reminder card; Lesson 10 task tracker and nested constructs reminder card"}, {"text": "keep asking until the user types a stop word, using a while loop", "ac": "AC 2.3", "short": "stop-word while loop", "lesson": "Lesson 9", "res": "while-loop reminder card; Lesson 9 task tracker"}, {"text": "comment my code so the purpose of each function and block is clear", "ac": "AC 2.1", "short": "clear comments", "lesson": "Lessons 6 and 12", "res": "Lesson 12 functions reminder card; your Assignment 1 feedback"}];
+  const LABEL = { r: 'Red', a: 'Amber', g: 'Green' };
+  const mine = Array(SKILLS.length).fill(null);
+
+  function showTab(which){
+    ['mine','class'].forEach(k => {
+      document.getElementById('view-' + k).classList.toggle('active', k === which);
+    });
+    const tm = document.getElementById('tabMine'), tc = document.getElementById('tabClass');
+    tm.classList.toggle('active', which === 'mine'); tc.classList.toggle('active', which === 'class');
+    tm.setAttribute('aria-selected', which === 'mine'); tc.setAttribute('aria-selected', which === 'class');
+  }
+
+  /* ---------- learner view ---------- */
+  document.querySelectorAll('#view-mine .skill').forEach(row => {
+    const i = Number(row.dataset.i);
+    row.querySelectorAll('.rate button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        mine[i] = btn.dataset.v;
+        row.querySelectorAll('.rate button').forEach(b => {
+          const on = b === btn;
+          b.classList.toggle('sel', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        renderMine();
+      });
+    });
+  });
+
+  function renderMine(){
+    const done = mine.filter(v => v).length;
+    document.getElementById('progFill').style.width = Math.round(done / SKILLS.length * 100) + '%';
+    document.getElementById('progLab').textContent = done + ' of ' + SKILLS.length + ' rated';
+    const plan = document.getElementById('plan');
+    if (done < SKILLS.length) { plan.classList.remove('show'); return; }
+
+    const reds = [], ambers = [], greens = [];
+    mine.forEach((v, i) => (v === 'r' ? reds : v === 'a' ? ambers : greens).push(i));
+
+    let html = '';
+    if (reds.length) {
+      html += '<h3>Start here — red</h3>';
+      reds.forEach(i => {
+        html += '<div class="item red"><b>' + (i + 1) + '. ' + SKILLS[i].short + '</b><span class="where">Revise: ' + SKILLS[i].lesson + '. Use: ' + SKILLS[i].res + '.</span></div>';
+      });
+    }
+    if (ambers.length) {
+      html += '<h3>A quick refresh — amber</h3>';
+      ambers.forEach(i => {
+        html += '<div class="item amber"><b>' + (i + 1) + '. ' + SKILLS[i].short + '</b><span class="where">Look again at: ' + SKILLS[i].res + '.</span></div>';
+      });
+    }
+    if (greens.length) {
+      html += '<h3>Secure — green</h3><div class="greens">' + greens.map(i => (i + 1) + '. ' + SKILLS[i].short).join(' &nbsp;·&nbsp; ') + '</div>';
+    }
+    if (!reds.length && !ambers.length) {
+      html = '<div class="greens"><b>All six green.</b> Nice. Watch the next question in Lesson 14 — you may be able to help someone else.</div>';
+    }
+    document.getElementById('planBody').innerHTML = html;
+
+    const lines = ['Assignment 2 readiness (Lesson 13)'];
+    [['r', reds], ['a', ambers], ['g', greens]].forEach(([k, list]) => {
+      lines.push(LABEL[k] + ' (' + list.length + '): ' + (list.length ? list.map(i => (i + 1) + ' ' + SKILLS[i].short).join('; ') : 'none'));
+    });
+    document.getElementById('summary').value = lines.join('\n');
+    plan.classList.add('show');
+  }
+
+  function copySummary(){
+    const ta = document.getElementById('summary');
+    const note = document.getElementById('copied');
+    const ok = () => { note.textContent = 'Copied'; note.classList.add('show'); setTimeout(() => note.classList.remove('show'), 2500); };
+    const fallback = () => {
+      ta.focus(); ta.select();
+      let done = false;
+      try { done = document.execCommand('copy'); } catch (e) {}
+      if (done) ok(); else { note.textContent = 'Select the text and copy it'; note.classList.add('show'); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).then(ok, fallback);
+    } else fallback();
+  }
+
+  function resetMine(){
+    mine.fill(null);
+    document.querySelectorAll('#view-mine .rate button').forEach(b => { b.classList.remove('sel'); b.setAttribute('aria-pressed', 'false'); });
+    document.getElementById('summary').value = '';
+    document.getElementById('copied').classList.remove('show');
+    renderMine();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ---------- teacher tally ---------- */
+  const KEY = 'a2-readiness-tally-lesson13';
+  let tally = SKILLS.map(() => ({ r: 0, a: 0, g: 0 }));
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved && saved.length === SKILLS.length) tally = saved;
+  } catch (e) {}
+  function saveTally(){ try { localStorage.setItem(KEY, JSON.stringify(tally)); } catch (e) {} }
+
+  document.querySelectorAll('#view-class .trow').forEach(row => {
+    const i = Number(row.dataset.i);
+    row.querySelectorAll('.ctr button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const k = btn.dataset.k, d = Number(btn.dataset.d);
+        tally[i][k] = Math.max(0, tally[i][k] + d);
+        saveTally(); renderTally();
+      });
+    });
+  });
+
+  function renderTally(){
+    document.querySelectorAll('#view-class .trow').forEach(row => {
+      const i = Number(row.dataset.i), t = tally[i], sum = t.r + t.a + t.g;
+      ['r','a','g'].forEach(k => { row.querySelector('[data-n="' + k + '"]').textContent = t[k]; });
+      const segs = row.querySelectorAll('.stack span');
+      segs[0].style.width = sum ? (t.r / sum * 100) + '%' : '0%';
+      segs[1].style.width = sum ? (t.a / sum * 100) + '%' : '0%';
+      segs[2].style.width = sum ? (t.g / sum * 100) + '%' : '0%';
+    });
+    const order = SKILLS.map((s, i) => i).filter(i => tally[i].r + tally[i].a > 0)
+      .sort((x, y) => (tally[y].r - tally[x].r) || (tally[y].a - tally[x].a) || (x - y));
+    const ag = document.getElementById('agenda');
+    if (!order.length) {
+      ag.innerHTML = '<li class="muted">Add some counts above and the agenda will appear here.</li>';
+    } else {
+      ag.innerHTML = order.map(i => '<li><b>' + SKILLS[i].short + '</b> — ' + tally[i].r + ' red, ' + tally[i].a + ' amber <span class="muted">(point learners to ' + SKILLS[i].lesson + ')</span></li>').join('');
+    }
+  }
+
+  function clearTally(){
+    if (!confirm('Clear all the class counts?')) return;
+    tally = SKILLS.map(() => ({ r: 0, a: 0, g: 0 }));
+    saveTally(); renderTally();
+  }
+
+  renderMine();
+  renderTally();
+</script>
+
+</body>
+</html>
