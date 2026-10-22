@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Lesson 1 Toolkit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+
+
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #5f7076; --faint: #8fa0a4;
+    --surface: #f4f8f8; --raised: #ffffff; --sunken: #ebf1f0; --border: #d6e1df;
+    --accent: #0b7a85; --accent-soft: #d9eff0; --accent-ink: #ffffff;
+    --good: #1f7d56; --good-soft: #d9f0e5;
+    --warn: #a3491b; --warn-soft: #f8e3d6;
+    --amb: #8a5a00; --amb-soft: #f7ecc8; --bad: #b3392f; --bad-soft: #f8dcd8;
+    --focus: #2b6f8f;
+    --t-html: #a8480f; --t-html-soft: #f7e3d4;
+    --t-css: #1f6a8c; --t-css-soft: #dcebf2;
+    --t-js: #7d6200; --t-js-soft: #f5ecc9;
+    --t-php: #5c4b8a; --t-php-soft: #e8e3f5;
+    --t-sql: #9c3b54; --t-sql-soft: #f6dfe5;
+    --t-tool: #3c4c53; --t-tool-soft: #e3eaea;
+    --p-browser: #0b7a85; --p-server: #1f7d56; --p-db: #44558a;
+    --shadow: 0 1px 2px rgba(22,35,42,.06), 0 6px 20px rgba(22,35,42,.06);
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --codebg: #0f2a2e; --codeink: #d6efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+      --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+      --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+      --good: #4fbb8c; --good-soft: #153626;
+      --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+      --focus: #6cb6d8;
+      --t-html: #ec9d70; --t-html-soft: #3a2517;
+      --t-css: #6cb6d8; --t-css-soft: #16262c;
+      --t-js: #e3c04d; --t-js-soft: #342c10;
+      --t-php: #b3a3e8; --t-php-soft: #2b2440;
+      --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+      --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+      --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --codebg: #0a1517; --codeink: #cfeae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+    --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+    --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+    --good: #4fbb8c; --good-soft: #153626;
+    --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+    --focus: #6cb6d8;
+    --t-html: #ec9d70; --t-html-soft: #3a2517;
+    --t-css: #6cb6d8; --t-css-soft: #16262c;
+    --t-js: #e3c04d; --t-js-soft: #342c10;
+    --t-php: #b3a3e8; --t-php-soft: #2b2440;
+    --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+    --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+    --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --codebg: #0a1517; --codeink: #cfeae4;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--raised); }
+  .topbar b { font-size: 17px; }
+  .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 70ch; margin: 0 0 22px; }
+  .panel { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink);
+    font: 500 13.5px var(--sans); cursor: pointer; }
+  .btn:hover { background: var(--sunken); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
+  .t-html { background: var(--t-html-soft); color: var(--t-html); }
+  .t-css { background: var(--t-css-soft); color: var(--t-css); }
+  .t-js { background: var(--t-js-soft); color: var(--t-js); }
+  .t-php { background: var(--t-php-soft); color: var(--t-php); }
+  .t-sql { background: var(--t-sql-soft); color: var(--t-sql); }
+  .t-tool { background: var(--t-tool-soft); color: var(--t-tool); }
+  .p-browser { background: var(--accent-soft); color: var(--p-browser); }
+  .p-server { background: var(--good-soft); color: var(--p-server); }
+  .p-db { background: var(--sunken); color: var(--p-db); }
+  .fb { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-top: 12px; }
+  .fb.good { background: var(--good-soft); color: var(--ink); border: 1px solid var(--good); }
+  .fb.warn { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn); }
+  .fb.info { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+  .fb b { font-weight: 600; }
+  .code { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 13px/1.7 var(--mono);
+    overflow-x: auto; white-space: pre; margin: 0; }
+  .progress { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft);
+    font: 500 13px var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 560px) { .wrap { padding: 20px 16px 60px; } .topbar { padding: 12px 16px; } h1 { font-size: 23px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  .txt { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); }
+  textarea.txt { resize: vertical; min-height: 64px; line-height: 1.45; }
+  .hint { font-size: 13px; color: var(--muted); margin: 4px 0; }
+  .lab { display: block; font: 600 12px var(--mono); color: var(--muted); letter-spacing: .04em; margin: 12px 0 5px; text-transform: uppercase; }
+  .stack { display: grid; gap: 12px; }
+  .chip { display: inline-block; font: 600 12px var(--sans); padding: 3px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--sunken); color: var(--ink-soft); margin: 2px 6px 2px 0; }
+  .chip.ok { background: var(--good-soft); border-color: var(--good); color: var(--ink); }
+  .chip.gap { background: var(--bad-soft); border-color: var(--bad); color: var(--ink); }
+  .chip.warn { background: var(--amb-soft); border-color: var(--amb); color: var(--ink); }
+  .chip.info { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sg { padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 13px var(--sans); cursor: pointer; }
+  .sg:hover { background: var(--sunken); }
+  .sg[aria-pressed="true"] { color: var(--ink); border-width: 2px; padding: 7px 12px; }
+  .sg.s-good[aria-pressed="true"] { border-color: var(--good); background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"] { border-color: var(--amb); background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"] { border-color: var(--bad); background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .savedp { margin-top: 22px; background: var(--sunken); box-shadow: none; }
+  .del { background: transparent; border: 0; color: var(--muted); font: 600 13px var(--sans); cursor: pointer; text-decoration: underline; padding: 4px; }
+  .sumbar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--sunken); margin: 10px 0 6px; }
+  .sumbar i { display: block; height: 100%; }
+
+
+  .mtabs { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; overflow-x: auto; background: var(--surface);
+    border-bottom: 1px solid var(--border); padding: 0 24px; scrollbar-width: thin; }
+  .mtab { flex: none; padding: 14px 16px 12px; border: 0; border-bottom: 3px solid transparent; background: transparent;
+    color: var(--muted); font: 600 14px var(--sans); cursor: pointer; white-space: nowrap; }
+  .mtab:hover { color: var(--ink); }
+  .mtab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .phase { display: inline-block; margin-bottom: 12px; }
+  .tool > h1 { margin-top: 0; }
+  @media (max-width: 560px) { .mtabs { padding: 0 8px; } .mtab { padding: 12px 12px 10px; font-size: 13px; } }
+
+  .qrow { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); }
+  .qrow.right { border-color: var(--good); }
+  .qrow.wrong { border-color: var(--bad); }
+  .qrow .qt { font-weight: 600; font-size: 15px; }
+  .qrow .qfb { grid-column: 1 / -1; font-size: 13.5px; color: var(--ink-soft); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .sg:disabled { cursor: default; opacity: .8; }
+  .sg:disabled:hover { background: var(--raised); }
+  .sg[aria-pressed="true"]:disabled:hover { background: inherit; }
+  .sg.s-good[aria-pressed="true"]:disabled:hover { background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"]:disabled:hover { background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"]:disabled:hover { background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"]:disabled:hover { background: var(--accent-soft); }
+  .sec { margin-top: 10px; }
+  .sec > h2 { margin: 18px 0 4px; }
+  .stem { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 15px/1.6 var(--sans); }
+  .stem b { color: var(--accent); font-weight: 600; }
+  :root[data-theme="dark"] .stem b { color: #7fe3d0; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 22px; }
+  .scenario { margin: 0 0 6px; color: var(--ink-soft); font-size: 14.5px; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .cols3 { grid-template-columns: 1fr; } }
+  .big { font: 700 24px var(--sans); margin: 2px 0 4px; }
+  [hidden] { display: none !important; }
+
+</style>
+</head>
+<body>
+<div class="topbar"><b>Design Lesson 1 Toolkit</b><span class="tag">Unit 5 NEA · Design · Lesson 1</span></div>
+<nav class="mtabs" role="tablist" aria-label="Design Lesson 1 tools"><button class="mtab" role="tab" id="mt-t-1" data-t="t-1" data-slug="break-the-shop" aria-controls="t-1" aria-selected="true" tabindex="0">Break the Shop</button><button class="mtab" role="tab" id="mt-t-2" data-t="t-2" data-slug="good-module-or-not" aria-controls="t-2" aria-selected="false" tabindex="-1">Good Module or Not?</button><button class="mtab" role="tab" id="mt-t-3" data-t="t-3" data-slug="why-is-it-there" aria-controls="t-3" aria-selected="false" tabindex="-1">Why Is It There?</button></nav>
+<div class="wrap">
+<section class="tool" id="t-1" role="tabpanel" aria-labelledby="mt-t-1"><span class="tag phase">Part 1 · Starter</span><h1>Break the Shop</h1><p class="lede">Sort each item into a job, a page or a table. Only jobs become modules.</p><div id="a1" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 1.</p></section>
+<section class="tool" id="t-2" role="tabpanel" aria-labelledby="mt-t-2" hidden><span class="tag phase">Part 1 · Modules</span><h1>Good module or not?</h1><p class="lede">Three short rounds: judge the module, judge the reason, then write a better one.</p><div id="a2" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 1.</p></section>
+<section class="tool" id="t-3" role="tabpanel" aria-labelledby="mt-t-3" hidden><span class="tag phase">Part 3 · Inputs and outputs</span><h1>Why is it there?</h1><p class="lede">Every output needs a reason. Decide what to keep, then practise writing the reason.</p><div id="a3" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 1.</p></section>
+</div>
+<script>
+function h(tag, a, kids){
+  var e = document.createElement(tag);
+  if (a) Object.keys(a).forEach(function(k){
+    var v = a[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "value") e.value = v;
+    else if (k.slice(0, 2) === "on") e[k] = v;
+    else if (v !== false && v !== null && v !== undefined) e.setAttribute(k, v === true ? "" : v);
+  });
+  (kids || []).forEach(function(c){ if (c === null || c === undefined) return; e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+function chip(cls, text){ return h("span", { class: "chip " + cls, text: text }); }
+function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
+
+/* Generic pick-one quiz: rows of items, one choice each, check, feedback, summary. */
+function quiz(cfg){
+  var wrap = h("div", { class: "stack" });
+  var list = h("div", { class: "stack" });
+  var ans = {}, checked = false, rows = [];
+  var btn = h("button", { class: "btn primary", type: "button" });
+  var sum = h("div");
+  function label(k){ for (var i = 0; i < cfg.options.length; i++) if (cfg.options[i].k === k) return cfg.options[i].label; return k; }
+  cfg.items.forEach(function(it, i){
+    var row = h("div", { class: "qrow" });
+    var left = h("div", {}, [h("div", { class: "qt", text: it.t })]);
+    if (it.sub) left.appendChild(h("div", { class: "hint", text: it.sub }));
+    var seg = h("div", { class: "seg", role: "group", "aria-label": it.t });
+    var bs = cfg.options.map(function(o){
+      var b = h("button", { class: "sg " + o.cls, type: "button", text: o.label, "aria-pressed": "false" });
+      b.onclick = function(){
+        if (checked) return;
+        ans[i] = o.k;
+        bs.forEach(function(x, j){ x.setAttribute("aria-pressed", cfg.options[j].k === o.k ? "true" : "false"); });
+        update();
+      };
+      seg.appendChild(b);
+      return b;
+    });
+    var fb = h("div", { class: "qfb", hidden: true });
+    row.appendChild(left); row.appendChild(seg); row.appendChild(fb);
+    list.appendChild(row);
+    rows.push({ row: row, bs: bs, fb: fb });
+  });
+  function answered(){ return Object.keys(ans).length; }
+  function update(){
+    var n = answered(), t = cfg.items.length;
+    btn.textContent = checked ? "Try again" : "Check my answers (" + n + " of " + t + " chosen)";
+    btn.disabled = !checked && n < t;
+  }
+  btn.onclick = function(){
+    if (checked) { reset(); return; }
+    checked = true;
+    var score = 0;
+    cfg.items.forEach(function(it, i){
+      var r = rows[i], ok = ans[i] === it.a;
+      if (ok) score++;
+      r.row.className = "qrow " + (ok ? "right" : "wrong");
+      r.bs.forEach(function(b){ b.disabled = true; });
+      clear(r.fb);
+      r.fb.appendChild(chip(ok ? "ok" : "gap", ok ? "Right" : "Not quite: " + label(it.a)));
+      r.fb.appendChild(document.createTextNode(it.why));
+      r.fb.hidden = false;
+    });
+    clear(sum); sum.appendChild(cfg.summary(score, cfg.items.length));
+    update();
+    try { sum.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {}
+  };
+  function reset(){
+    ans = {}; checked = false; clear(sum);
+    rows.forEach(function(r){ r.row.className = "qrow"; r.fb.hidden = true; r.bs.forEach(function(b){ b.disabled = false; b.setAttribute("aria-pressed", "false"); }); });
+    update();
+  }
+  wrap.appendChild(list);
+  wrap.appendChild(h("div", { class: "row" }, [btn]));
+  wrap.appendChild(sum);
+  update();
+  return wrap;
+}
+function result(score, total, good, ok, low){
+  var cls = score >= good ? "good" : score >= ok ? "info" : "warn";
+  var msg = score >= good ? low[0] : score >= ok ? low[1] : low[2];
+  return h("div", { class: "fb " + cls }, [h("div", { class: "big", text: score + " out of " + total }), msg]);
+}
+
+/* ---------- Tool 1: Break the Shop ---------- */
+var SHOP = [
+  { t: "Check the password", a: "job", why: "The program compares what was typed with what is stored." },
+  { t: "Home page", a: "page", why: "Something the user sees. The jobs behind it, such as search and show new books, are the modules." },
+  { t: "Orders", a: "table", why: "Something the system remembers. A table stores data and does nothing by itself." },
+  { t: "Work out the order total", a: "job", why: "The program calculates it, and both the cart and the checkout need it." },
+  { t: "Cart page", a: "page", why: "A page shows jobs such as add item and work out the total, but it isn't a job." },
+  { t: "Books", a: "table", why: "Stored data. It is where the shop's books are remembered." },
+  { t: "Add item to basket", a: "job", why: "The program changes the basket." },
+  { t: "Admin dashboard", a: "page", why: "A screen for the admin. The jobs it offers, such as archive a book, are the modules." },
+  { t: "Check there is stock before adding", a: "job", why: "The program decides whether the item can be added." },
+  { t: "Customers", a: "table", why: "Stored data about the people who use the shop." },
+  { t: "Send order confirmation", a: "job", why: "The program sends something out when an order is placed." },
+  { t: "Checkout screen", a: "page", why: "A page. The jobs on it include check the payment details and place the order." },
+  { t: "Search for a book", a: "job", why: "The program finds matching books." },
+  { t: "Order lines", a: "table", why: "Stored data: one row for each item on an order." },
+  { t: "Log in page", a: "page", why: "A page. The jobs behind it are check input, check credentials and start a session." },
+  { t: "Remember who is logged in", a: "job", why: "The program keeps track of the user between pages, which is a job (a session)." },
+];
+function tool1(){
+  var app = document.getElementById("a1");
+  var q = quiz({
+    items: SHOP,
+    options: [{ k: "job", label: "Job", cls: "s-acc" }, { k: "page", label: "Page", cls: "s-acc" }, { k: "table", label: "Table", cls: "s-acc" }],
+    summary: function(score, total){
+      var jobs = SHOP.filter(function(s){ return s.a === "job"; }).map(function(s){ return s.t; });
+      var box = result(score, total, 14, 10, [
+        "Strong. You can tell jobs from pages and tables.",
+        "Good. Look again at the ones marked Not quite.",
+        "Have another go. A job is a verb: check, add, work out, send. A page is what the user sees. A table is what the system remembers."]);
+      box.appendChild(h("p", { class: "hint", style: "margin:10px 0 4px", text: "Only jobs become modules. These are the modules in this shop:" }));
+      jobs.forEach(function(j){ box.appendChild(chip("ok", j)); });
+      box.appendChild(h("p", { style: "margin:12px 0 0", text: "Now do the same to your own list from the starter. Cross out the pages and tables. What is left?" }));
+      return box;
+    }
+  });
+  app.appendChild(q);
+}
+
+/* ---------- Tool 2: Good module or not? ---------- */
+var CANDS = [
+  { t: "Register and log in", a: "split", why: "Two jobs behind one “and”. Registering creates an account and logging in checks one. They fail in different ways, so split them." },
+  { t: "Cart page", a: "no", why: "A page, not a job. Ask what job happens there: add an item, work out the total, remove an item." },
+  { t: "Check the password against the stored hash", a: "good", why: "One job, security-sensitive, and easy to test alone with right and wrong passwords." },
+  { t: "Customers table", a: "no", why: "Data the system remembers. Tables come later in Design, in the entity relationship diagram. They aren't modules." },
+  { t: "Work out the order total", a: "good", why: "One job, used by both the cart and the checkout, and testable on its own with known baskets." },
+  { t: "Admin stuff", a: "split", why: "Too vague to be one job. It hides several: add a book, edit a book, archive a book, manage users. Name each one." },
+  { t: "Check stock and update the stock level", a: "split", why: "Checking happens before the sale and updating happens after it. Two jobs at two moments, so two modules." },
+  { t: "Check every sign-up field before saving", a: "good", why: "One job, and worth keeping separate: the same check must also run on the server, not just in the browser." },
+];
+var REASONS = [
+  { t: "“It handles login.”", a: "weak", why: "That describes the module. It doesn't say why it is separate." },
+  { t: "“It is easier to code on its own.”", a: "weak", why: "“Easier” could be said of any module. A reason has to be about this one." },
+  { t: "“Every page that needs a login uses the same check, so it is written once.”", a: "part", why: "A real reason: it is reused. To reach Band 3 it also needs the objective code. Add “It delivers L1.”" },
+  { t: "“It is security-sensitive, so I can test it alone with right and wrong passwords. It delivers L1.”", a: "strong", why: "A specific reason, a way to test it, and the objective code. This is the pattern to copy." },
+  { t: "“Because the checklist says to have modules.”", a: "weak", why: "That is why you are writing it, not why it is separate." },
+  { t: "“Checking the password and remembering the user are two jobs that can fail separately. It delivers L1 and L2.”", a: "strong", why: "It explains why the split matters and links to the objectives." },
+];
+var WEAKWORDS = /\b(easier|easy|tidier|tidy|neater|everyone|everybody|handles)\b/i;
+var MODEL = "I have made Check credentials separate because it is security-sensitive and I can test it on its own with right and wrong passwords. It delivers L1.";
+function tool2(){
+  var app = document.getElementById("a2");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Round 1: is it a module?" }), h("p", { class: "hint", text: "Good module: one job, easy to test. Split it: more than one job. Not a module: a page or some data." })]);
+  s1.appendChild(quiz({
+    items: CANDS,
+    options: [{ k: "good", label: "Good module", cls: "s-good" }, { k: "split", label: "Split it", cls: "s-amb" }, { k: "no", label: "Not a module", cls: "s-bad" }],
+    summary: function(score, total){
+      return result(score, total, 7, 5, [
+        "Strong. Now check your own table: look for “and” in the module names, and for pages.",
+        "Good start. Look again at the ones marked Not quite. Is there an “and”? Is it a page or some data?",
+        "Go back to the three tests: one job, serves an objective, can be tested alone."]);
+    }
+  }));
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Round 2: is the reason good enough?" }), h("p", { class: "hint", text: "Module: Check credentials (compares the password with the stored hash). Objectives L1 and L2. Rate each justification: Weak, Partial or Strong." })]);
+  s2.appendChild(quiz({
+    items: REASONS,
+    options: [{ k: "weak", label: "Weak", cls: "s-bad" }, { k: "part", label: "Partial", cls: "s-amb" }, { k: "strong", label: "Strong", cls: "s-good" }],
+    summary: function(score, total){
+      return result(score, total, 5, 4, [
+        "Strong. A good justification gives a reason about this module and names the objective it delivers.",
+        "Nearly. Look at the ones marked Not quite. Is the reason about this module? Is there an objective code?",
+        "Check the stem: “I have made [module] separate because [reason]. It delivers objectives [codes].”"]);
+    }
+  }));
+  var s3 = h("div", { class: "sec" }, [h("h2", { text: "Round 3: write a better one" }),
+    h("p", { class: "hint", text: "Rewrite the first weak justification (“It handles login.”) so it would score at Band 3." })]);
+  s3.appendChild(h("div", { class: "stem" }, ["I have made ", h("b", { text: "[module]" }), " separate because ", h("b", { text: "[reason]" }), ". It delivers objectives ", h("b", { text: "[codes]" }), "."]));
+  var ta = h("textarea", { id: "rw-text", class: "txt", style: "margin-top:10px", placeholder: "I have made Check credentials separate because ...", "aria-label": "Your rewritten justification" });
+  var chips = h("div", { style: "margin-top:10px" });
+  function checks(){
+    var v = ta.value;
+    clear(chips);
+    if (!v.trim()) { chips.appendChild(h("span", { class: "hint", text: "Write your justification and three quick checks appear." })); return; }
+    chips.appendChild(chip(/\bbecause\b/i.test(v) ? "ok" : "gap", /\bbecause\b/i.test(v) ? "Gives a reason" : "Add a reason with “because”"));
+    chips.appendChild(chip(/\b[A-Z]{1,3}\d{1,2}\b/.test(v) ? "ok" : "gap", /\b[A-Z]{1,3}\d{1,2}\b/.test(v) ? "Names an objective code" : "Name an objective code, such as L1"));
+    chips.appendChild(chip(WEAKWORDS.test(v) ? "warn" : "ok", WEAKWORDS.test(v) ? "Check words like “easier”, “tidier”, “handles”" : "No weak words"));
+  }
+  ta.oninput = checks; checks();
+  var model = h("div", { class: "fb info", hidden: true }, [h("b", { text: "A model answer: " }), MODEL]);
+  var showBtn = h("button", { class: "btn", type: "button", text: "Show a model answer" });
+  showBtn.onclick = function(){ model.hidden = !model.hidden; showBtn.textContent = model.hidden ? "Show a model answer" : "Hide the model answer"; };
+  s3.appendChild(ta); s3.appendChild(chips);
+  s3.appendChild(h("div", { class: "row", style: "margin-top:10px" }, [showBtn]));
+  s3.appendChild(model);
+  s3.appendChild(h("p", { class: "hint", text: "These checks look for the shape of a good justification. They can't judge whether your reason is true. Show your partner." }));
+  app.appendChild(s1); app.appendChild(s2); app.appendChild(s3);
+}
+
+/* ---------- Tool 3: Why is it there? ---------- */
+var SCEN = [
+  { n: "Order confirmation", intro: "The screen shown after a customer places an order. Which outputs have a reason?", items: [
+    { t: "Order number", a: "keep", why: "The customer quotes it if something goes wrong." },
+    { t: "Items and prices", a: "keep", why: "So they can check the order is right." },
+    { t: "Total", a: "keep", why: "So they know what they are paying." },
+    { t: "Delivery address", a: "keep", why: "So they can spot a mistake before it is dispatched." },
+    { t: "Password hash", a: "cut", why: "Nobody needs it, and showing it is unsafe." },
+    { t: "Date they registered", a: "cut", why: "Nobody acts on it here." },
+    { t: "Internal customer ID", a: "cut", why: "Meaningless to the customer." },
+    { t: "Full card number", a: "cut", why: "Never show it. The last four digits are enough to recognise the card." },
+  ] },
+  { n: "Search results", intro: "The list shown when a customer searches for a book.", items: [
+    { t: "Title", a: "keep", why: "It is how the customer picks the book." },
+    { t: "Author", a: "keep", why: "Helps tell similar titles apart." },
+    { t: "Price", a: "keep", why: "The customer decides whether to buy." },
+    { t: "In stock (yes or no)", a: "keep", why: "Saves them choosing a book they can't buy." },
+    { t: "Supplier cost price", a: "cut", why: "Business information. The customer has no use for it." },
+    { t: "Database row ID", a: "cut", why: "Used by the program, meaningless to the customer." },
+  ] },
+  { n: "Admin user list", intro: "The list an admin sees when managing users.", items: [
+    { t: "Name", a: "keep", why: "The admin needs to know whose account it is." },
+    { t: "Email address", a: "keep", why: "The admin may need to contact the user." },
+    { t: "Admin or not", a: "keep", why: "The admin must see who has admin rights." },
+    { t: "Account status (active or archived)", a: "keep", why: "The admin acts on it, for example restoring an account." },
+    { t: "Password hash", a: "cut", why: "No one should see it, not even the admin." },
+    { t: "Security question answer", a: "cut", why: "Private to the user. The admin has no use for it." },
+  ] },
+];
+function tool3(){
+  var app = document.getElementById("a3");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Part 1: keep it or cut it?" })]);
+  var tabs = h("div", { class: "tabs", role: "tablist", "aria-label": "Screens" });
+  var panes = [], tabEls = [];
+  SCEN.forEach(function(sc, i){
+    var pane = h("div", { class: "stack", hidden: i !== 0 }, [h("p", { class: "scenario", text: sc.intro }), quiz({
+      items: sc.items,
+      options: [{ k: "keep", label: "Keep", cls: "s-good" }, { k: "cut", label: "Cut", cls: "s-bad" }],
+      summary: function(score, total){
+        return result(score, total, total, total - 1, [
+          "Every output has a reason, or a reason to go. That is the Band 3 habit.",
+          "Nearly. Look at the one marked Not quite. Who uses it, and what do they do with it?",
+          "For each output ask: who uses it, and what do they do with it? If nobody does anything with it, cut it."]);
+      }
+    })]);
+    var t = h("button", { class: "tab", type: "button", role: "tab", text: sc.n, "aria-selected": i === 0 ? "true" : "false" });
+    t.onclick = function(){
+      tabEls.forEach(function(x, k){ x.setAttribute("aria-selected", k === i ? "true" : "false"); panes[k].hidden = k !== i; });
+    };
+    tabs.appendChild(t); tabEls.push(t); panes.push(pane);
+  });
+  s1.appendChild(tabs); panes.forEach(function(p){ s1.appendChild(p); });
+
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Part 2: write the reason" }),
+    h("p", { class: "hint", text: "This is the last column of your input/output table. Pick an output from your own first module and fill in the three boxes." })]);
+  var f1 = h("input", { id: "wr-out", class: "txt", type: "text", placeholder: "e.g. Error message beside each field", "aria-label": "Output" });
+  var f2 = h("input", { id: "wr-who", class: "txt", type: "text", placeholder: "e.g. the customer", "aria-label": "Who uses it" });
+  var f3 = h("input", { id: "wr-do", class: "txt", type: "text", placeholder: "e.g. fix the field and try again", "aria-label": "What they do with it" });
+  var out = h("div", { class: "fb info", style: "margin-top:12px" });
+  var chips = h("div", { style: "margin-top:10px" });
+  function build(){
+    var o = f1.value.trim(), w = f2.value.trim(), d = f3.value.trim();
+    clear(out); clear(chips);
+    out.appendChild(document.createTextNode(o && w && d ? "“" + o + "” is needed because " + w + " uses it to " + d + "." : "Fill in all three boxes to build the sentence."));
+    chips.appendChild(chip(w ? "ok" : "gap", w ? "Says who uses it" : "Who uses it?"));
+    chips.appendChild(chip(d ? "ok" : "gap", d ? "Says what they do with it" : "What do they do with it?"));
+    if (o && w && !d) chips.appendChild(h("span", { class: "hint", text: "Nobody can use it for nothing. If you can't say what they do, cut the output." }));
+  }
+  [f1, f2, f3].forEach(function(f){ f.oninput = build; });
+  build();
+  s2.appendChild(h("span", { class: "lab", text: "Output" })); s2.appendChild(f1);
+  s2.appendChild(h("span", { class: "lab", text: "Who uses it?" })); s2.appendChild(f2);
+  s2.appendChild(h("span", { class: "lab", text: "What do they do with it?" })); s2.appendChild(f3);
+  s2.appendChild(out); s2.appendChild(chips);
+  app.appendChild(s1); app.appendChild(s2);
+}
+
+tool1(); tool2(); tool3();
+
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".mtab"));
+  function show(i, focus){
+    tabs.forEach(function(t, k){
+      var on = k === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.dataset.t).hidden = !on;
+    });
+    var nav = tabs[i].parentNode; nav.scrollLeft = Math.max(0, tabs[i].offsetLeft - 16);
+    if (focus) tabs[i].focus();
+    try { history.replaceState(null, "", "#" + tabs[i].dataset.slug); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener("click", function(){ show(i); });
+    t.addEventListener("keydown", function(e){
+      if (e.key === "ArrowRight") { e.preventDefault(); show((i + 1) % tabs.length, true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); show((i + tabs.length - 1) % tabs.length, true); }
+    });
+  });
+  var hh = (location.hash || "").replace("#", "");
+  tabs.forEach(function(t, i){ if (t.dataset.slug === hh) show(i); });
+})();
+
+</script>
+</body>
+</html>
