@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Anatomy Card</title>
+<style>
+  :root{--navy:#1F3864;--navy-deep:#16233F;--teal:#2E9E9E;--orange:#E07B26;--ink:#1B1F24;--muted:#5B6470;--paper:#F7F9FB;--card:#FFFFFF;--line:#E1E6EE;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 20px 50px;}
+  header{background:var(--navy-deep);color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:16px;}
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria,Georgia,serif;font-size:27px;margin:0 0 6px;}
+  header p{font-size:14px;color:#C8D3E8;margin:0;line-height:1.5;}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;}
+  .bar .lbl{font-size:12.5px;font-weight:700;color:var(--muted);margin-right:4px;}
+  .bar button{font-family:inherit;font-size:13px;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:20px;padding:6px 14px;cursor:pointer;}
+  .bar button.on{color:#fff;border-color:transparent;}
+  .bar button[data-f="all"].on{background:var(--navy);}
+  .bar button[data-f="save"].on{background:#2E9E9E;}
+  .bar button[data-f="count"].on{background:#E07B26;}
+  .bar button[data-f="window"].on{background:#2E5395;}
+  .bar button[data-f="main"].on{background:#6B7B93;}
+  .bar .print{margin-left:auto;background:var(--teal);color:#fff;border-color:transparent;}
+  .part{background:var(--card);border:1px solid var(--line);border-left:7px solid var(--c);border-radius:10px;margin-bottom:14px;overflow:hidden;}
+  .phead{background:var(--t);padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+  .pnum{width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .pname{font-weight:800;letter-spacing:.05em;color:var(--c);font-size:15px;}
+  .pfunc{font-family:Consolas,"Courier New",monospace;font-size:13px;color:var(--ink);background:#fff;border-radius:6px;padding:1px 8px;}
+  .pjob{font-size:13px;color:var(--muted);flex:1 1 320px;}
+  table.rows{width:100%;border-collapse:collapse;}
+  table.rows td{vertical-align:top;border-top:1px solid var(--line);padding:6px 12px;}
+  table.rows td.c{width:56%;background:#F5F7FA;}
+  table.rows td.c pre{margin:0;font-family:Consolas,"Courier New",monospace;font-size:12px;line-height:1.45;white-space:pre;overflow-x:auto;}
+  table.rows td.n{font-size:13px;line-height:1.45;color:var(--ink);}
+  .grid{display:flex;flex-wrap:wrap;gap:14px;margin-top:4px;}
+  .grid > div{flex:1 1 440px;min-width:0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:14px;}
+  .card h2{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--teal);margin:0 0 8px;}
+  .card h2.o{color:var(--orange);}
+  .card ul{margin:0;padding:0;list-style:none;}
+  .card li{font-size:13.5px;line-height:1.45;margin-bottom:7px;display:flex;gap:10px;}
+  .card li .gn{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .method{background:#FFF3CD;border-radius:8px;padding:9px 12px;font-size:13.5px;margin-top:8px;}
+  .two{columns:2;column-gap:20px;}
+  .two li{display:list-item;list-style:disc;margin-left:18px;break-inside:avoid;}
+  .chip{display:inline-block;background:#E4F3F2;color:#14595A;border-radius:20px;padding:3px 11px;font-size:12.5px;font-weight:600;margin:0 6px 6px 0;}
+  .slips li{display:list-item;list-style:disc;margin-left:18px;}
+  table.build{width:100%;border-collapse:collapse;font-size:13px;}
+  table.build td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top;}
+  table.build td.bk{font-weight:700;color:var(--navy);width:28%;}
+  table.build code{font-family:Consolas,"Courier New",monospace;font-size:12px;}
+  footer{margin-top:18px;font-size:12px;color:var(--muted);text-align:center;}
+  @media (max-width:640px){ table.rows td.c{width:auto;} .two{columns:1;} }
+  @media print{
+    body{background:#fff;font-size:11px;}
+    .wrap{padding:0;max-width:none;}
+    .bar{display:none;}
+    header{padding:10px 14px;margin-bottom:8px;} header h1{font-size:19px;}
+    .part,.card{break-inside:avoid;margin-bottom:8px;box-shadow:none;}
+    table.rows td.c pre{font-size:9.5px;} table.rows td{padding:3px 8px;} table.rows td.n{font-size:10px;}
+    .card li{font-size:10.5px;margin-bottom:3px;}
+    .part.hidden{display:block !important;}
+  }
+  .part.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; SECTION B &middot; LESSONS 6 &amp; 7</p>
+    <h1>Template Anatomy Card</h1>
+    <p>Every exam starter file is these four parts &mdash; only the field names change. Colour shows which part each line belongs to. Keep this card: it is your cheat sheet for the Lesson 7 simulation.</p>
+  </header>
+
+  <div class="bar" id="bar">
+    <span class="lbl">Show:</span>
+    <button data-f="all" class="on">All parts</button>
+    <button data-f="save">1 Save</button>
+    <button data-f="count">2 Count</button>
+    <button data-f="window">3 Window</button>
+    <button data-f="main">4 Main</button>
+    <button class="print" onclick="window.print()">Print</button>
+  </div>
+
+  <section class="part" id="part-imports" style="--c:#8A94A6;--t:#F1F3F6"><div class="phead"><span class="pnum">0</span><span class="pname">IMPORTS</span><span class="pfunc">top of the file</span><span class="pjob">Brings in tkinter. messagebox has to be imported separately.</span></div><table class="rows"><tr><td class="c"><pre>from tkinter import *
+from tkinter import messagebox</pre></td><td class="n">Everything tkinter offers, plus the pop-up message boxes.</td></tr></table></section>
+  <section class="part" id="part-save" style="--c:#2E9E9E;--t:#E4F3F2"><div class="phead"><span class="pnum">1</span><span class="pname">SAVE</span><span class="pfunc">saveMember()</span><span class="pjob">Copies the text out of the boxes, pads it, appends one line to the file, and shows a message.</span></div><table class="rows"><tr><td class="c"><pre>def saveMember() :</pre></td><td class="n">The routine the Save button calls.</td></tr><tr><td class="c"><pre>    FirstnameSave = FirstnameVar.get()
+    FirstnameSave = FirstnameSave.ljust(50)</pre></td><td class="n">Copy the text out of the box with .get(), then pad it to 50 characters with .ljust(50) — a fixed-length field.</td></tr><tr><td class="c"><pre>    SurnameSave = SurnameVar.get()
+    SurnameSave = SurnameSave.ljust(50)</pre></td><td class="n">The same again for every field — only the names change.</td></tr><tr><td class="c"><pre>    fileObject = open("Member.txt", "a")</pre></td><td class="n">Open the file in append mode — it adds to the end, and creates the file if it doesn't exist.</td></tr><tr><td class="c"><pre>    fileObject.write(FirstnameSave + SurnameSave + "\n")</pre></td><td class="n">Join the padded fields into one string and write it as one line (\n ends the line).</td></tr><tr><td class="c"><pre>    fileObject.close()</pre></td><td class="n">Close the file.</td></tr><tr><td class="c"><pre>    messagebox.showinfo("Saved", "Saved")</pre></td><td class="n">A pop-up message: the title, then the text.</td></tr><tr><td class="c"><pre>    return</pre></td><td class="n">End of the routine.</td></tr></table></section><section class="part" id="part-count" style="--c:#E07B26;--t:#FBE8D6"><div class="phead"><span class="pnum">2</span><span class="pname">COUNT</span><span class="pfunc">countMember()</span><span class="pjob">Works out which boxes were filled in, checks every record in the file, and shows how many matched.</span></div><table class="rows"><tr><td class="c"><pre>def countMember() :</pre></td><td class="n">The routine the Count button calls.</td></tr><tr><td class="c"><pre>    MemberCount = 0
+    CountNeeded = 0
+    FirstnameSave = FirstnameVar.get()
+    SurnameSave = SurnameVar.get()</pre></td><td class="n">Two counters start at 0, then copy the text out of the boxes (no padding this time).</td></tr><tr><td class="c"><pre>    if not FirstnameSave == "" :
+        CountNeeded += 1
+    if not SurnameSave == "" :
+        CountNeeded += 1</pre></td><td class="n">CountNeeded = how many boxes the user filled in.</td></tr><tr><td class="c"><pre>    if CountNeeded == 0 :
+        messagebox.showerror("Error", "Please enter something to count!")
+        return</pre></td><td class="n">Nothing filled in? Show an error and stop.</td></tr><tr><td class="c"><pre>    try:
+        fileObject = open("Member.txt", "r")
+    except IOError:
+        messagebox.showerror("Error", "No file to read")
+    else:</pre></td><td class="n">Open to read. If there's no file, show an error — otherwise the else part runs.</td></tr><tr><td class="c"><pre>        while True:
+            CountGot = 0
+            recordVar = fileObject.readline()</pre></td><td class="n">Read one record at a time. CountGot is reset to 0 for every record.</td></tr><tr><td class="c"><pre>            if recordVar == "" :
+                fileObject.close()
+                break</pre></td><td class="n">An empty string means the end of the file: close it and stop the loop.</td></tr><tr><td class="c"><pre>            if FirstnameSave in recordVar[0:50] and not FirstnameSave == "" :
+                CountGot += 1
+            if SurnameSave in recordVar[50:100] and not SurnameSave == "" :
+                CountGot += 1</pre></td><td class="n">Slice out one field and count it if the text is inside it (a partial match) — but never for an empty box.</td></tr><tr><td class="c"><pre>            if CountGot == CountNeeded :
+                MemberCount += 1</pre></td><td class="n">Every box that was filled in matched — so count this record.</td></tr><tr><td class="c"><pre>        messagebox.showinfo("Found: ", str(MemberCount))
+    return</pre></td><td class="n">Show the total. str() turns the number into text.</td></tr></table></section><section class="part" id="part-window" style="--c:#2E5395;--t:#E3EAF6"><div class="phead"><span class="pnum">3</span><span class="pname">WINDOW</span><span class="pfunc">makeWindow()</span><span class="pjob">Builds the window: the labels, the text boxes, and the Save and Count buttons.</span></div><table class="rows"><tr><td class="c"><pre>def makeWindow() :</pre></td><td class="n">Builds and returns the window.</td></tr><tr><td class="c"><pre>    global FirstnameVar, SurnameVar
+    win = Tk()</pre></td><td class="n">global lets the other routines see the boxes' variables. Tk() creates the window.</td></tr><tr><td class="c"><pre>    frame1 = Frame(win)
+    frame1.pack()</pre></td><td class="n">A frame holds the labels and boxes.</td></tr><tr><td class="c"><pre>    Label(frame1, text="First name").grid(row=1, column=0, sticky=W)
+    FirstnameVar = StringVar()
+    Firstname = Entry(frame1, textvariable=FirstnameVar)
+    Firstname.grid(row=1, column=1, sticky=W)</pre></td><td class="n">One block per field: a label, a StringVar to hold the text, and the Entry box linked to it.</td></tr><tr><td class="c"><pre>    Label(frame1, text="Surname").grid(row=2, column=0, sticky=W)
+    SurnameVar = StringVar()
+    Surname = Entry(frame1, textvariable=SurnameVar)
+    Surname.grid(row=2, column=1, sticky=W)</pre></td><td class="n">Every field repeats the same block — only the names and the row number change.</td></tr><tr><td class="c"><pre>    frame2 = Frame(win)
+    frame2.pack()
+    b1 = Button(frame2, text=" Save ", command=saveMember)
+    b2 = Button(frame2, text=" Count ", command=countMember)
+    b1.pack(side=LEFT); b2.pack(side=LEFT)</pre></td><td class="n">Buttons. command= is the routine's name — with no brackets. pack(side=LEFT) puts them side by side.</td></tr><tr><td class="c"><pre>    return win</pre></td><td class="n">Hand the window back.</td></tr></table></section><section class="part" id="part-main" style="--c:#6B7B93;--t:#EAEEF3"><div class="phead"><span class="pnum">4</span><span class="pname">MAIN</span><span class="pfunc">two lines</span><span class="pjob">Builds the window, then keeps it open until the user closes it.</span></div><table class="rows"><tr><td class="c"><pre>win = makeWindow()</pre></td><td class="n">Build the window.</td></tr><tr><td class="c"><pre>win.mainloop()</pre></td><td class="n">Keep it open and listening for clicks.</td></tr></table></section>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2 class="o">THE GAP DETECTIVE &mdash; FIVE GAP TYPES</h2>
+        <ul><li><span class="gn">1</span><div><b>A name that must match its neighbours</b><br>Copy the pattern from the sibling block: SurnameVar = StringVar()</div></li><li><span class="gn">2</span><div><b>A method name — .get, .ljust, .showinfo</b><br>The same method appears on the lines above and below.</div></li><li><span class="gn">3</span><div><b>A counter increment — CountGot += 1</b><br>The sibling lines use exactly the same counter.</div></li><li><span class="gn">4</span><div><b>A function name that must match command=</b><br>Look at the Button's command=, or the def line.</div></li><li><span class="gn">5</span><div><b>A file name that must match</b><br>Look at where the file was opened for saving.</div></li></ul>
+        <div class="method"><b>The method:</b> find the sibling lines &rarr; copy the pattern &rarr; still stuck? Ctrl+F &mdash; the missing word is almost always somewhere else in the file. If a placeholder sits inside quote marks, a variable name has no quotes.</div>
+      </div>
+      <div class="card">
+        <h2>THE COUNT ROUTINE IN ONE BREATH</h2>
+        <p style="font-size:13.5px;margin:0 0 6px;"><b>CountNeeded</b> = how many boxes were filled in. <b>CountGot</b> = how many of those boxes match this record. A record counts only when they are <b>equal</b>.</p>
+        <ul class="slips">
+          <li>Reset <code>CountGot = 0</code> inside the loop, for every record.</li>
+          <li><code>not X == ""</code> stops an empty box matching every record.</li>
+          <li><code>in</code> is a partial match: "Al" matches "Alun" and "Alys".</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>ANNOTATION &mdash; NAME EVERY ROUTINE</h2>
+        <ul class="two"><li>Setting up the data structure</li><li>Creating the file</li><li>Copying data from the boxes</li><li>Writing to the file</li><li>Retrieving data from the file</li><li>Splitting the record into fields</li><li>Looking for and counting items</li><li>Validation</li></ul>
+        <p style="font-size:13px;margin:8px 0 6px;"><b>Then say what it does</b> with a technical term &mdash; not just what the variable is called:</p>
+        <span class="chip">fixed-length record</span><span class="chip">append mode</span><span class="chip">concatenation</span><span class="chip">sequential access</span><span class="chip">slicing</span><span class="chip">counter</span><span class="chip">partial match</span><span class="chip">end of file</span><span class="chip">validation</span>
+      </div>
+      <div class="card">
+        <h2 class="o">BUILDING YOUR OWN PROGRAM &mdash; THE SAME IDEAS</h2>
+        <table class="build"><tr><td class="bk">Length check</td><td class="bv"><code>elif len(name) &gt; 20:   # inside a valid = False loop</code></td></tr><tr><td class="bk">Fixed-length record</td><td class="bv"><code>record = name.ljust(20) + kayak.ljust(15) + date.ljust(10)</code></td></tr><tr><td class="bk">Save + confirm</td><td class="bv"><code>with open("file.txt", "a") as file:  ...  then print a descriptive message</code></td></tr><tr><td class="bk">Retrieve by key</td><td class="bv"><code>for line in file:  ...  line[0:20].strip() == key  ...  found flag, try / except</code></td></tr><tr><td class="bk">Last value only</td><td class="bv"><code>with open("file.txt", "w") as file:  file.write(str(value))</code></td></tr></table>
+      </div>
+    </div>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Template Anatomy Card &middot; the code is original, in the style of the exam's starter files</footer>
+</div>
+
+<script>
+  var buttons = document.querySelectorAll('#bar button[data-f]');
+  var sections = { imports: document.getElementById('part-imports'), save: document.getElementById('part-save'), count: document.getElementById('part-count'),
+                   window: document.getElementById('part-window'), main: document.getElementById('part-main') };
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var f = b.getAttribute('data-f');
+      buttons.forEach(function (x) { x.classList.toggle('on', x === b); });
+      Object.keys(sections).forEach(function (k) {
+        var show = (f === 'all') || (k === f) || (k === 'imports' && f !== 'all' && false);
+        sections[k].classList.toggle('hidden', !show);
+      });
+    });
+  });
+</script>
+</body>
+</html>

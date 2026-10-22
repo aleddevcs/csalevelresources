@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Model annotation: pupils.py</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  .hint{font-size:13px;color:var(--muted);margin:0 0 20px;}
+
+  .columns{
+    display:flex;
+    gap:18px;
+  }
+  .columns > div{flex:1;min-width:0;}
+  .col-head{
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  .col-head.right{color:var(--orange);}
+
+  .item{
+    background:var(--card);
+    border:2px solid var(--card-border);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    cursor:pointer;
+    font-size:14.5px;
+    position:relative;
+    box-shadow:var(--shadow);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    user-select:none;
+  }
+  .item:hover{border-color:var(--teal);}
+  .item.selected{border-color:var(--orange);background:var(--orange-light);}
+  .item.paired{border-color:var(--navy);}
+  .item.correct{border-color:var(--good);background:var(--good-bg);}
+  .item.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+
+  .tagnum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .item-inner{display:flex;align-items:center;}
+
+  .reflect{
+    margin-top:26px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .columns{flex-direction:column;}
+    header h1{font-size:22px;}
+  }
+
+  .item .code{
+    font-family:Consolas,"Courier New",monospace;
+    font-size:12.5px;line-height:1.5;
+    white-space:pre-wrap;
+    color:var(--ink);
+  }
+  .item .item-inner{align-items:flex-start;}
+  .annot{
+    display:none;margin-top:26px;
+    background:var(--card);border:1px solid var(--card-border);
+    border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);
+  }
+  .annot.show{display:block;}
+  .annot h2{font-size:12.5px;font-weight:800;letter-spacing:.03em;color:var(--teal);margin:0 0 4px;}
+  .annot > p{font-size:13.5px;color:var(--muted);margin:0 0 12px;}
+  .annot .row{padding:10px 0;border-top:1px solid var(--card-border);font-size:14px;line-height:1.5;}
+  .annot .row b{display:block;color:var(--navy);margin-bottom:2px;}
+  :root[data-theme="dark"] .annot .row b{color:#fff;}
+  .annot .row .words{font-weight:700;color:var(--orange);}
+
+  .callrow{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 16px;}
+  .callrow .c{flex:1 1 240px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);}
+  .callrow .c b{display:block;color:var(--navy);margin-bottom:3px;font-size:14px;}
+  :root[data-theme="dark"] .callrow .c b{color:#fff;}
+  .callrow .c span{font-size:13.5px;line-height:1.5;color:var(--ink);}
+  .rcard{background:var(--card);border:1px solid var(--card-border);border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;}
+  .rhead{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--teal-light);}
+  .rnum{margin-right:12px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .rname{font-weight:800;color:var(--navy);font-size:16px;flex:1;}
+  :root[data-theme="dark"] .rname{color:#fff;}
+  .where{font-size:12.5px;color:var(--muted);font-weight:600;}
+  .rbody{padding:14px 18px 16px;}
+  pre.code{background:#16233F;color:#DCE6F2;margin:0 0 12px;padding:12px 16px;border-radius:10px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;line-height:1.55;overflow-x:auto;white-space:pre;}
+  pre.code .ln{display:inline-block;width:34px;color:#7E93B8;user-select:none;}
+  pre.code .gap{color:#7E93B8;margin-left:12px;line-height:1;}
+  pre.code .l{white-space:pre;}
+  textarea.ans{width:100%;min-height:96px;font-family:inherit;font-size:14.5px;line-height:1.5;padding:10px 12px;border:2px solid var(--card-border);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical;}
+  textarea.ans:focus{outline:none;border-color:var(--teal);}
+  .used{min-height:22px;margin-top:6px;font-size:12.5px;color:var(--muted);}
+  .chip{display:inline-block;background:var(--teal-light);color:#14595A;border-radius:20px;padding:2px 10px;font-size:12.5px;font-weight:600;margin:0 5px 4px 0;}
+  .panel{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:14px 18px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .panel h2{font-size:12.5px;font-weight:800;letter-spacing:.03em;color:var(--teal);margin:0 0 6px;}
+  textarea.out{width:100%;min-height:200px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;padding:10px 12px;border:2px solid var(--card-border);border-radius:10px;background:var(--card);color:var(--ink);}
+  .weak{background:#FBE9E5;border-radius:8px;padding:8px 12px;font-size:13.5px;margin:0 0 8px;}
+  .good{background:#E8F6EE;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.55;margin:0 0 8px;}
+  .tagl{display:block;font-size:11.5px;font-weight:800;letter-spacing:.04em;margin-bottom:3px;}
+  .weak .tagl{color:var(--bad);} .good .tagl{color:var(--good);}
+  ul.earn{margin:6px 0 0;padding-left:20px;font-size:13.5px;line-height:1.5;}
+  table.bands{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.bands th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:12.5px;}
+  table.bands td{padding:8px 10px;border-bottom:1px solid #E4E8EE;vertical-align:top;}
+  .result{margin-top:12px;background:#FFF3CD;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:700;color:var(--navy);}
+  label.ck{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:5px 0;}
+  label.ck input{margin-top:3px;width:17px;height:17px;accent-color:var(--teal);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><p class="kicker">AS UNIT 2 &mdash; LESSON 6 &middot; MODEL ANNOTATION</p><h1>Model Annotation: pupils.py</h1><p>For comparing against after the practice sheet. Each routine shows where it is in the code, a weak annotation, a model annotation, and what earns the marks.</p></header>
+
+<div class="panel">
+  <h2>HOW IT IS MARKED (THE 8-MARK VERSION)</h2>
+  <table class="bands">
+    <tr><th>Band</th><th>The candidate has&hellip;</th></tr>
+    <tr><td><b>7&ndash;8 marks</b></td><td>Annotated <b>all eight</b> routines; documented all code beyond self-documenting identifiers (explained the variables); and used appropriate technical terminology confidently and accurately.</td></tr>
+    <tr><td><b>4&ndash;6 marks</b></td><td>Annotated <b>most</b> of the routines (four to six) and used appropriate technical terminology.</td></tr>
+    <tr><td><b>1&ndash;3 marks</b></td><td>Annotated <b>one to three</b> routines with limited technical terminology &mdash; <i>or</i> documented only code that used self-documenting identifiers.</td></tr>
+  </table>
+  <p class="hint" style="margin-top:10px">In some years it is worth 4 marks rather than 8: in 2023 it was one mark for each clear annotation of up to four routines, and in 2025 it was banded to 4. This is my paraphrase of the bands; the official mark scheme is the authority.</p>
+</div>
+
+<div class="panel">
+  <h2>A NOTE ON VALIDATION IN THIS FILE</h2>
+  <p style="margin:0;font-size:14px;line-height:1.55">pupils.py has no format, length or range checks on what is typed in. The nearest things are the presence check in the count routine, the <code>not ... == ""</code> tests, and the <code>try / except</code> that checks the file exists. Students should annotate what is there, and can say so &mdash; rather than inventing a check that isn't in the code.</p>
+</div>
+
+<div class="rcard"><div class="rhead"><span class="rnum">1</span><span class="rname">Setting up a data structure</span><span class="where">pupils.py, lines 28–29, 85, 97, 102, 107</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">28</span>    pupilCount=0</div><div class="l"><span class="ln">29</span>    CountNeeded=0</div><div class="gap">⋮</div><div class="l"><span class="ln">85</span>    global FirstnameVar, SurnameVar, AddressVar</div><div class="gap">⋮</div><div class="l"><span class="ln">97</span>    FirstnameVar=StringVar()</div><div class="gap">⋮</div><div class="l"><span class="ln">102</span>    SurnameVar=StringVar()</div><div class="gap">⋮</div><div class="l"><span class="ln">107</span>    AddressVar=StringVar()</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Makes the variables. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>Each text box on the form has a StringVar — a variable linked to its Entry widget that holds whatever the user types into it. FirstnameVar, SurnameVar and AddressVar are declared global so that the save and count subroutines, which are separate from makeWindow, can read them. pupilCount and CountNeeded are integer counters, initialised to 0 before any counting starts.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Says what a StringVar holds, not just that it &#x27;creates a variable&#x27;.</li><li>Explains why the variables are global.</li><li>Names the counters and says they are initialised to 0.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">2</span><span class="rname">Creating a new blank file</span><span class="where">pupils.py, line 21</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">21</span>    fileObject = open("pupils.txt","a")</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Opens the file. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>The file pupils.txt is opened in append mode (&quot;a&quot;). If it does not exist yet, Python creates a new blank file; if it does, the new record is added to the end without overwriting what is already stored. fileObject is the file handle used by the following lines to write to it.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Names append mode and what it does that write mode would not.</li><li>Says the file is created if it doesn&#x27;t exist.</li><li>Says what fileObject is.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">3</span><span class="rname">Copying data from screen textboxes to data structure</span><span class="where">pupils.py, lines 10, 13, 16</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">10</span>    FirstnameSave = FirstnameVar.get()</div><div class="gap">⋮</div><div class="l"><span class="ln">13</span>    SurnameSave = SurnameVar.get()</div><div class="gap">⋮</div><div class="l"><span class="ln">16</span>    AddressSave = AddressVar.get()</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Gets the first name. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>.get() copies the text currently typed in each box out of its StringVar into an ordinary string variable — FirstnameSave, SurnameSave and AddressSave — so that the program can process it. This is done for every field before anything is written to the file.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Names .get() and where the data comes from (the StringVar) and where it goes (a variable).</li><li>Covers all three fields, not just the first.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">4</span><span class="rname">Writing of data to file</span><span class="where">pupils.py, lines 11, 14, 17, 22–23</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">11</span>    FirstnameSave = FirstnameSave.ljust(50)</div><div class="gap">⋮</div><div class="l"><span class="ln">14</span>    SurnameSave = SurnameSave.ljust(50)</div><div class="gap">⋮</div><div class="l"><span class="ln">17</span>    AddressSave = AddressSave.ljust(50)</div><div class="gap">⋮</div><div class="l"><span class="ln">22</span>    fileObject.write(FirstnameSave + SurnameSave + AddressSave + "\n")</div><div class="l"><span class="ln">23</span>    fileObject.close()</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Saves the data to the file. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>.ljust(50) pads each field with spaces to exactly 50 characters, making a fixed-length record, so every field starts at the same position in every record. The three padded fields are concatenated into one string with a new-line character (\n) and written to the file as one line with write(). close() then saves the file and releases it.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Explains why .ljust(50) is used (fixed-length record).</li><li>Names concatenation and the new-line character.</li><li>Says what close() does.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">5</span><span class="rname">Retrieving data from file</span><span class="where">pupils.py, lines 51–52, 54–55, 57–58, 60–63</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">51</span>    try:</div><div class="l"><span class="ln">52</span>        fileObject=open("pupils.txt","r")</div><div class="gap">⋮</div><div class="l"><span class="ln">54</span>    except IOError:</div><div class="l"><span class="ln">55</span>        messagebox.showerror("Error","No file to read")</div><div class="gap">⋮</div><div class="l"><span class="ln">57</span>    else:</div><div class="l"><span class="ln">58</span>        while True:</div><div class="gap">⋮</div><div class="l"><span class="ln">60</span>            recordVar=fileObject.readline()</div><div class="l"><span class="ln">61</span>            if recordVar=="":</div><div class="l"><span class="ln">62</span>                fileObject.close()</div><div class="l"><span class="ln">63</span>                break</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Reads the file. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>The file is opened for reading inside try / except, so a missing file raises an IOError that is handled with an error message instead of crashing the program. In the else part, readline() reads one record (one line) at a time from the start of the file — sequential access. An empty string means the end of the file has been reached, so the file is closed and break ends the loop.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Names exception handling and what IOError means here.</li><li>Names readline() and sequential access.</li><li>Explains that an empty string signals the end of the file.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">6</span><span class="rname">Splitting into array/textboxes/variables</span><span class="where">pupils.py, lines 66, 68, 70</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">66</span>            if FirstnameSave in recordVar[0:50] and not FirstnameSave=="":</div><div class="gap">⋮</div><div class="l"><span class="ln">68</span>            if SurnameSave in recordVar[50:100] and not SurnameSave =="":</div><div class="gap">⋮</div><div class="l"><span class="ln">70</span>            if AddressSave in recordVar[100:150] and not AddressSave=="":</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Looks at part of the line. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>Each record is split into its fields using slicing: [0:50] is the first name, [50:100] the surname and [100:150] the address. This only works because every field was padded to 50 characters when it was saved, so each field is always in the same position. The in operator then tests whether the text typed is found inside that field — a partial match.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Names slicing and says which field each slice picks out.</li><li>Links it to the fixed-length record.</li><li>Explains what in does.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">7</span><span class="rname">Looking/counting of items required</span><span class="where">pupils.py, lines 40–41, 59, 67, 73–74, 76</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">40</span>    if not FirstnameSave == "" :</div><div class="l"><span class="ln">41</span>        CountNeeded +=1</div><div class="gap">⋮</div><div class="l"><span class="ln">59</span>            CountGot=0</div><div class="gap">⋮</div><div class="l"><span class="ln">67</span>                CountGot +=1</div><div class="gap">⋮</div><div class="l"><span class="ln">73</span>            if CountGot == CountNeeded:</div><div class="l"><span class="ln">74</span>                pupilCount +=1</div><div class="gap">⋮</div><div class="l"><span class="ln">76</span>        messagebox.showinfo("Found: ",str(pupilCount))</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Counts the pupils. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>CountNeeded counts how many boxes the user filled in. For every record, CountGot is reset to 0 and then increased by 1 for each filled-in box that matches its field. If CountGot equals CountNeeded, every box that was filled in matched, so pupilCount is incremented. When the loop ends, the total is displayed in a message box.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Explains the difference between CountNeeded and CountGot.</li><li>Says CountGot is reset for every record.</li><li>Names a counter and incrementing, and the final output.</li></ul></div></div><div class="rcard"><div class="rhead"><span class="rnum">8</span><span class="rname">Validation</span><span class="where">pupils.py, lines 48–50, 54, 66</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">48</span>    if CountNeeded == 0 :</div><div class="l"><span class="ln">49</span>        messagebox.showerror("Error","Please enter something to count!")</div><div class="l"><span class="ln">50</span>        return</div><div class="gap">⋮</div><div class="l"><span class="ln">54</span>    except IOError:</div><div class="gap">⋮</div><div class="l"><span class="ln">66</span>            if FirstnameSave in recordVar[0:50] and not FirstnameSave=="":</div></pre><div class="weak"><span class="tagl">A WEAK ANNOTATION</span>Checks for errors. &mdash; only says what the identifier already says.</div><div class="good"><span class="tagl">A MODEL ANNOTATION</span>A presence check: if CountNeeded is 0 nothing has been entered, so an error message is shown and return ends the routine before the file is read. The not ... == &quot;&quot; tests stop an empty box matching every record, because an empty string is found inside every string. The try / except also checks that the file exists before it is read.</div><b style="font-size:13px;color:var(--navy)">What earns the marks</b><ul class="earn"><li>Names the presence check and says what happens when it fails.</li><li>Explains the not ... == &quot;&quot; tests.</li><li>Notes that this code has no format or range check — it annotates the nearest validation that is there.</li></ul></div></div>
+
+<div class="panel">
+  <h2>SELF-ASSESS: WHICH BAND IS YOUR ANNOTATION IN?</h2>
+  <p class="hint">Tick each routine you annotated clearly, then the two quality points. This is an estimate &mdash; compare it with the model above.</p>
+  <label class="ck"><input type="checkbox" class="rt"> 1. Setting up a data structure</label><label class="ck"><input type="checkbox" class="rt"> 2. Creating a new blank file</label><label class="ck"><input type="checkbox" class="rt"> 3. Copying data from screen textboxes to data structure</label><label class="ck"><input type="checkbox" class="rt"> 4. Writing of data to file</label><label class="ck"><input type="checkbox" class="rt"> 5. Retrieving data from file</label><label class="ck"><input type="checkbox" class="rt"> 6. Splitting into array/textboxes/variables</label><label class="ck"><input type="checkbox" class="rt"> 7. Looking/counting of items required</label><label class="ck"><input type="checkbox" class="rt"> 8. Validation</label>
+  <hr style="border:none;border-top:1px solid var(--card-border);margin:10px 0">
+  <label class="ck"><input type="checkbox" id="beyond"> I explained the code beyond what the variable names say</label>
+  <label class="ck"><input type="checkbox" id="terms"> I used technical terms accurately and confidently</label>
+  <div class="result" id="result">Tick what you did to see an estimated band.</div>
+</div>
+
+<footer>AS Unit 2 &mdash; Lesson 6 &middot; model annotation for pupils.py &middot; keep separate from the practice sheet</footer>
+
+</div>
+
+<script>
+  var rts = Array.prototype.slice.call(document.querySelectorAll('input.rt'));
+  var beyond = document.getElementById('beyond'), terms = document.getElementById('terms'), result = document.getElementById('result');
+  function band() {
+    var n = rts.filter(function (c) { return c.checked; }).length;
+    var b = beyond.checked, t = terms.checked;
+    if (n === 0 && !b && !t) return 'Tick what you did to see an estimated band.';
+    if (n === rts.length && b && t) return 'Estimated band 3: 7\u20138 marks. You covered all eight routines, went beyond the variable names, and used technical terms well.';
+    if (n >= 4 && t) return 'Estimated band 2: 4\u20136 marks (' + n + ' of 8 routines). To reach 7\u20138: ' + (n < rts.length ? 'cover all eight routines' + ((!b) ? ', ' : '') : '') + (!b ? 'explain the code beyond the variable names' : '') + '.';
+    if (n >= 4) return 'Estimated band 2: 4\u20136 marks (' + n + ' of 8 routines), but add technical terms \u2014 they are part of the band.';
+    if (n >= 1) return 'Estimated band 1: 1\u20133 marks (' + n + ' of 8 routines). Cover more routines first \u2014 that is what moves you up a band.';
+    return 'Estimated band: not yet \u2014 annotate at least one routine clearly.';
+  }
+  function upd() { result.textContent = band(); }
+  rts.concat([beyond, terms]).forEach(function (c) { c.addEventListener('change', upd); });
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fix the Code: Answer Keys</title>
+<style>
+  :root{--navy:#1F3864;--navy-deep:#16233F;--teal:#2E9E9E;--orange:#E07B26;--ink:#1B1F24;--muted:#5B6470;--paper:#F7F9FB;--card:#FFFFFF;--line:#E1E6EE;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 20px 50px;}
+  header{background:var(--navy-deep);color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:16px;}
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria,Georgia,serif;font-size:27px;margin:0 0 6px;}
+  header p{font-size:14px;color:#C8D3E8;margin:0;line-height:1.5;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:14px;}
+  .card h2{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--teal);margin:0 0 8px;}
+  .card ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 24px;}
+  .card li{font-size:13px;line-height:1.4;display:flex;gap:9px;flex:1 1 300px;}
+  .tag{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:12px;color:#fff;font-size:12px;font-weight:800;padding:0 7px;flex-shrink:0;}
+  .t1{background:#2E9E9E;}.t2{background:#E07B26;}.t3{background:#2E5395;}.t4{background:#8A5BB5;}.t5{background:#B5527A;}.tO{background:#6B7B93;}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+  .sh{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;padding:12px 18px;background:#EEF2F8;border-bottom:1px solid var(--line);}
+  .sh h2{font-family:Cambria,Georgia,serif;font-size:21px;margin:0 12px 0 0;color:var(--navy);}
+  .ssub{font-size:13px;color:var(--muted);flex:1 1 200px;}
+  .score{font-weight:800;color:var(--navy);background:#fff;border:2px solid var(--teal);border-radius:20px;padding:3px 14px;font-size:14px;}
+  table.keytbl{width:100%;border-collapse:collapse;}
+  table.keytbl th{text-align:left;font-size:12px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);background:#FAFBFD;}
+  table.keytbl td{vertical-align:top;padding:9px 10px;border-top:1px solid var(--line);font-size:13px;line-height:1.45;}
+  table.keytbl tr.got td{background:#EAF6F0;}
+  td.tk{width:48px;text-align:center;}
+  td.tk input{width:18px;height:18px;accent-color:var(--teal);cursor:pointer;}
+  td.num{width:30px;font-weight:800;color:var(--navy);}
+  td.ln{width:50px;color:var(--muted);}
+  td.gp{width:25%;} td.an{width:26%;} td.ty{width:48px;} 
+  code{font-family:Consolas,"Courier New",monospace;font-size:11.5px;background:#F1F4F9;padding:1px 5px;border-radius:4px;word-break:break-word;}
+  .fx{margin-top:5px;} .fx code{background:#E4F3F2;}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 14px;}
+  button{font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;background:var(--teal);color:#fff;}
+  button.sec2{background:#fff;color:var(--navy);border:1px solid var(--line);}
+  #summary{display:none;background:#FFF3CD;border-radius:12px;padding:14px 18px;margin-bottom:14px;font-size:14px;line-height:1.5;}
+  #summary.show{display:block;}
+  #summary h2{margin:0 0 6px;font-size:14px;color:var(--navy);}
+  #summary li{margin-bottom:6px;}
+  .note{font-size:13px;color:var(--muted);line-height:1.5;}
+  footer{margin-top:16px;font-size:12px;color:var(--muted);text-align:center;}
+  @media (max-width:760px){ table.keytbl, table.keytbl tr, table.keytbl td, table.keytbl th{display:block;width:auto !important;} table.keytbl tr:first-child{display:none;} table.keytbl tr{border-top:2px solid var(--line);padding:6px 4px;} }
+  @media print{ .actions{display:none;} body{background:#fff;} .sec,.card{break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 6 &middot; ANSWER KEYS</p>
+    <h1>Fix the Code: Answer Keys</h1>
+    <p>For Stock.py (2022) and Volunteers.py (2024). Release after about 15 minutes, once students have had a proper go. Mark your own work: tick each gap you got right, then press &ldquo;What should I revisit?&rdquo; to see which gap types caught you out.</p>
+  </header>
+
+  <div class="card">
+    <h2>THE GAP TYPES</h2>
+    <ul><li><span class="tag t1">1</span><div><b>A name that must match its neighbours</b><br>Copy the pattern from the sibling lines.</div></li><li><span class="tag t2">2</span><div><b>A method name</b><br>The same method appears on the lines around it.</div></li><li><span class="tag t3">3</span><div><b>A counter increment</b><br>The sibling lines use exactly the same counter.</div></li><li><span class="tag t4">4</span><div><b>A function name that must match command=</b><br>Check the Button's command= and the def line.</div></li><li><span class="tag t5">5</span><div><b>A file name that must match</b><br>Check where the file was opened for saving.</div></li><li><span class="tag tO">O</span><div><b>Other: a standard line</b><br>The template always has it — see where else it appears.</div></li></ul>
+  </div>
+
+  <section class="sec" id="stock"><div class="sh"><h2>Stock.py</h2><span class="ssub">2022 &mdash; 8 gaps</span><span class="score" id="score-stock">0 of 8</span></div><table class="keytbl"><tr><th>Got it</th><th>#</th><th>Line</th><th>The gap</th><th>Answer</th><th>Type</th><th>How to find it</th></tr><tr data-sec="stock" data-i="1" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 1"></td><td class="num">1</td><td class="ln">15</td><td class="gp"><code>. . . = StocknameSave.ljust(50)</code></td><td class="an"><code>StocknameSave</code><div class="fx"><code>StocknameSave = StocknameSave.ljust(50)</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">Lines 11–12 do the same job for StockID: StockIDSave = StockIDSave.ljust(50). The variable on the left is the one being padded — here, StocknameSave.</td></tr><tr data-sec="stock" data-i="2" data-t="2"><td class="tk"><input type="checkbox" aria-label="I got gap 2"></td><td class="num">2</td><td class="ln">18</td><td class="gp"><code>ExpiryDateSave = ExpiryDateSave. . .(50)</code></td><td class="an"><code>.ljust</code><div class="fx"><code>ExpiryDateSave = ExpiryDateSave.ljust(50)</code></div></td><td class="ty"><span class="tag t2">2</span></td><td class="wy">Lines 12 and 15 pad their fields with .ljust(50). The answer includes the full stop before the method name.</td></tr><tr data-sec="stock" data-i="3" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 3"></td><td class="num">3</td><td class="ln">22</td><td class="gp"><code>fileObject.write(StockIDSave + StocknameSave + . . . + "\n")</code></td><td class="an"><code>ExpiryDateSave</code><div class="fx"><code>fileObject.write(StockIDSave + StocknameSave + ExpiryDateSave + "\n")</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">All three padded fields must be joined and written. The third is ExpiryDateSave, created on lines 17–18. With it, every record is 150 characters (3 × 50).</td></tr><tr data-sec="stock" data-i="4" data-t="2"><td class="tk"><input type="checkbox" aria-label="I got gap 4"></td><td class="num">4</td><td class="ln">25</td><td class="gp"><code>messagebox.showinfo(. . .)</code></td><td class="an"><code>"Saved", "Saved"</code><div class="fx"><code>messagebox.showinfo("Saved", "Saved")</code></div></td><td class="ty"><span class="tag t2">2</span></td><td class="wy">showinfo takes a title, then a message — as on line 78: showinfo("Found: ", str(...)). Accept any suitable title and message that tells the user the record was saved.</td></tr><tr data-sec="stock" data-i="5" data-t="O"><td class="tk"><input type="checkbox" aria-label="I got gap 5"></td><td class="num">5</td><td class="ln">27</td><td class="gp"><code>. . .</code></td><td class="an"><code>return</code><div class="fx"><code>return</code></div></td><td class="ty"><span class="tag tO">O</span></td><td class="wy">Every routine in the template ends with return — the count routine does on line 80. The save routine ends here.</td></tr><tr data-sec="stock" data-i="6" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 6"></td><td class="num">6</td><td class="ln">37</td><td class="gp"><code>ExpiryDateSave = . . . .get()</code></td><td class="an"><code>ExpiryDateVar</code><div class="fx"><code>ExpiryDateSave = ExpiryDateVar.get()</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">Lines 33 and 35 use StockIDVar.get() and StocknameVar.get(). ExpiryDateVar is created on line 107 and linked to its box on line 108.</td></tr><tr data-sec="stock" data-i="7" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 7"></td><td class="num">7</td><td class="ln">69</td><td class="gp"><code>if StocknameSave in recordVar[50:100] and not . . . =="" :</code></td><td class="an"><code>StocknameSave</code><div class="fx"><code>if StocknameSave in recordVar[50:100] and not StocknameSave =="" :</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">Lines 67 and 71 show the pattern: the same variable appears both before in and after not. Here that variable is StocknameSave.</td></tr><tr data-sec="stock" data-i="8" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 8"></td><td class="num">8</td><td class="ln">78</td><td class="gp"><code>messagebox.showinfo("Found: ",str(. . .))</code></td><td class="an"><code>StockCount</code><div class="fx"><code>messagebox.showinfo("Found: ",str(StockCount))</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">StockCount is the counter: it is set to 0 on line 30 and goes up on line 76. It is what must be shown.</td></tr></table></section>
+  <section class="sec" id="vol"><div class="sh"><h2>Volunteers.py</h2><span class="ssub">2024 &mdash; 7 gaps</span><span class="score" id="score-vol">0 of 7</span></div><table class="keytbl"><tr><th>Got it</th><th>#</th><th>Line</th><th>The gap</th><th>Answer</th><th>Type</th><th>How to find it</th></tr><tr data-sec="vol" data-i="1" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 1"></td><td class="num">1</td><td class="ln">20</td><td class="gp"><code>AddressSave = . . ..get()</code></td><td class="an"><code>AddressVar</code><div class="fx"><code>AddressSave = AddressVar.get()</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">Every box has a Var: VolunteerIDVar, FirstnameVar, SurnameVar … and AddressVar, which is created on line 131. The placeholder is followed by .get(), so the answer is just the variable.</td></tr><tr data-sec="vol" data-i="2" data-t="3"><td class="tk"><input type="checkbox" aria-label="I got gap 2"></td><td class="num">2</td><td class="ln">85</td><td class="gp"><code>. . . +=1</code></td><td class="an"><code>CountGot</code><div class="fx"><code>CountGot +=1</code></div></td><td class="ty"><span class="tag t3">3</span></td><td class="wy">Each field's test raises CountGot by one — for example line 87. This one is the postcode test, so it is the same counter.</td></tr><tr data-sec="vol" data-i="3" data-t="2"><td class="tk"><input type="checkbox" aria-label="I got gap 3"></td><td class="num">3</td><td class="ln">92</td><td class="gp"><code>message. . ..showinfo("Found: ",str(. . .Count))</code></td><td class="an"><code>box</code><div class="fx"><code>messagebox.showinfo("Found: ",str(VolunteerCount))</code></div></td><td class="ty"><span class="tag t2">2</span></td><td class="wy">First gap: message + box makes messagebox, as on line 62 (messagebox.showerror). The placeholder sits inside the word, so the answer is just box.</td></tr><tr data-sec="vol" data-i="4" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 4"></td><td class="num">4</td><td class="ln">92</td><td class="gp"><code>message. . ..showinfo("Found: ",str(. . .Count))</code></td><td class="an"><code>Volunteer</code><div class="fx"><code>messagebox.showinfo("Found: ",str(VolunteerCount))</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">Second gap, same line: the counter is VolunteerCount — set to 0 at the start of the routine and raised on line 90. The placeholder is the first half of the word.</td></tr><tr data-sec="vol" data-i="5" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 5"></td><td class="num">5</td><td class="ln">112</td><td class="gp"><code>. . .= Entry(frame1, textvariable=VolunteerIDVar)</code></td><td class="an"><code>VolunteerID</code><div class="fx"><code>VolunteerID= Entry(frame1, textvariable=VolunteerIDVar)</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">The next line, 113, says VolunteerID.grid(...), and every other box follows the pattern Firstname= Entry(..., textvariable=FirstnameVar).</td></tr><tr data-sec="vol" data-i="6" data-t="1"><td class="tk"><input type="checkbox" aria-label="I got gap 6"></td><td class="num">6</td><td class="ln">116</td><td class="gp"><code>FirstnameVar=. . .()</code></td><td class="an"><code>StringVar</code><div class="fx"><code>FirstnameVar=StringVar()</code></div></td><td class="ty"><span class="tag t1">1</span></td><td class="wy">Every box's variable is created with StringVar() — compare line 131: AddressVar=StringVar().</td></tr><tr data-sec="vol" data-i="7" data-t="4"><td class="tk"><input type="checkbox" aria-label="I got gap 7"></td><td class="num">7</td><td class="ln">141</td><td class="gp"><code>b2= Button(frame2, text=" Count ", command=. . .)</code></td><td class="an"><code>countVolunteer</code><div class="fx"><code>b2= Button(frame2, text=" Count ", command=countVolunteer)</code></div></td><td class="ty"><span class="tag t4">4</span></td><td class="wy">command= is the name of the routine the button runs, with no brackets. The count routine is def countVolunteer(); the Save button next to it uses command=saveVolunteer.</td></tr></table></section>
+
+  <div class="actions">
+    <button id="sumBtn">What should I revisit?</button>
+    <button id="clearBtn" class="sec2">Clear my ticks</button>
+  </div>
+  <div id="summary"></div>
+
+  <div class="card">
+    <h2>NOTES FOR MARKING</h2>
+    <p class="note"><b>Accept:</b> any suitable title and message for the saved message (Stock.py line 25). Everything else is exact: the answer has to be the name the file already uses. <b>Likely slips:</b> a missing full stop before <code>ljust</code>; quote marks around a variable name; <code>showinfo</code> without the <code>messagebox.</code> in front; and filling both halves of line 92 in Volunteers.py with the whole word.</p>
+    <p class="note"><b>Marks:</b> this key gives the answers and the reasoning, not the mark allocation &mdash; use the official mark scheme for that. Stock.py has 8 gaps; Volunteers.py has 7 gaps on 6 lines, because line 92 has two.</p>
+    <p class="note"><b>Checked:</b> every answer here was applied to a copy of the real file and the completed program run, with tkinter stubbed out. Records saved are 150 characters (Stock.py) and 250 characters (Volunteers.py), and the count routines give the right totals.</p>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Lesson 6 &middot; Fix the Code answer keys</footer>
+</div>
+
+<script>
+  var TYPES = {"1": {"name": "A name that must match its neighbours", "tip": "Copy the pattern from the sibling lines."}, "2": {"name": "A method name", "tip": "The same method appears on the lines around it."}, "3": {"name": "A counter increment", "tip": "The sibling lines use exactly the same counter."}, "4": {"name": "A function name that must match command=", "tip": "Check the Button's command= and the def line."}, "5": {"name": "A file name that must match", "tip": "Check where the file was opened for saving."}, "O": {"name": "Other: a standard line", "tip": "The template always has it \u2014 see where else it appears."}};
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('table.keytbl input[type=checkbox]'));
+  function rowOf(cb) { return cb.closest('tr'); }
+  function updateScores() {
+    ['stock', 'vol'].forEach(function (sec) {
+      var rows = Array.prototype.slice.call(document.querySelectorAll('tr[data-sec="' + sec + '"]'));
+      var got = rows.filter(function (r) { return r.querySelector('input').checked; }).length;
+      document.getElementById('score-' + sec).textContent = got + ' of ' + rows.length;
+    });
+  }
+  boxes.forEach(function (cb) {
+    cb.addEventListener('change', function () { rowOf(cb).classList.toggle('got', cb.checked); updateScores(); });
+  });
+  document.getElementById('clearBtn').addEventListener('click', function () {
+    boxes.forEach(function (cb) { cb.checked = false; rowOf(cb).classList.remove('got'); });
+    document.getElementById('summary').classList.remove('show');
+    updateScores();
+  });
+  document.getElementById('sumBtn').addEventListener('click', function () {
+    var missed = boxes.filter(function (cb) { return !cb.checked; }).map(rowOf);
+    var box = document.getElementById('summary');
+    box.innerHTML = '';
+    var h = document.createElement('h2');
+    if (!missed.length) {
+      h.textContent = 'You got every gap \u2014 nothing to revisit.';
+      box.appendChild(h);
+    } else {
+      var byType = {};
+      missed.forEach(function (r) { var t = r.getAttribute('data-t'); (byType[t] = byType[t] || []).push(r); });
+      h.textContent = 'Gap types to revisit (' + missed.length + ' gap' + (missed.length === 1 ? '' : 's') + ' missed):';
+      box.appendChild(h);
+      var ul = document.createElement('ul');
+      Object.keys(byType).forEach(function (t) {
+        var li = document.createElement('li');
+        var name = TYPES[t].name;
+        var where = byType[t].map(function (r) { return (r.getAttribute('data-sec') === 'stock' ? 'Stock.py' : 'Volunteers.py') + ' gap ' + r.getAttribute('data-i'); }).join(', ');
+        li.textContent = 'Type ' + t + ' \u2014 ' + name + ' (' + where + '). Tip: ' + TYPES[t].tip;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+    box.classList.add('show');
+  });
+  updateScores();
+</script>
+</body>
+</html>

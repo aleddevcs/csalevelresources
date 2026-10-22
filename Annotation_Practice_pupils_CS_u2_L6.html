@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Annotate pupils.py</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  .hint{font-size:13px;color:var(--muted);margin:0 0 20px;}
+
+  .columns{
+    display:flex;
+    gap:18px;
+  }
+  .columns > div{flex:1;min-width:0;}
+  .col-head{
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  .col-head.right{color:var(--orange);}
+
+  .item{
+    background:var(--card);
+    border:2px solid var(--card-border);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    cursor:pointer;
+    font-size:14.5px;
+    position:relative;
+    box-shadow:var(--shadow);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    user-select:none;
+  }
+  .item:hover{border-color:var(--teal);}
+  .item.selected{border-color:var(--orange);background:var(--orange-light);}
+  .item.paired{border-color:var(--navy);}
+  .item.correct{border-color:var(--good);background:var(--good-bg);}
+  .item.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+
+  .tagnum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .item-inner{display:flex;align-items:center;}
+
+  .reflect{
+    margin-top:26px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .columns{flex-direction:column;}
+    header h1{font-size:22px;}
+  }
+
+  .item .code{
+    font-family:Consolas,"Courier New",monospace;
+    font-size:12.5px;line-height:1.5;
+    white-space:pre-wrap;
+    color:var(--ink);
+  }
+  .item .item-inner{align-items:flex-start;}
+  .annot{
+    display:none;margin-top:26px;
+    background:var(--card);border:1px solid var(--card-border);
+    border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);
+  }
+  .annot.show{display:block;}
+  .annot h2{font-size:12.5px;font-weight:800;letter-spacing:.03em;color:var(--teal);margin:0 0 4px;}
+  .annot > p{font-size:13.5px;color:var(--muted);margin:0 0 12px;}
+  .annot .row{padding:10px 0;border-top:1px solid var(--card-border);font-size:14px;line-height:1.5;}
+  .annot .row b{display:block;color:var(--navy);margin-bottom:2px;}
+  :root[data-theme="dark"] .annot .row b{color:#fff;}
+  .annot .row .words{font-weight:700;color:var(--orange);}
+
+  .callrow{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 16px;}
+  .callrow .c{flex:1 1 240px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);}
+  .callrow .c b{display:block;color:var(--navy);margin-bottom:3px;font-size:14px;}
+  :root[data-theme="dark"] .callrow .c b{color:#fff;}
+  .callrow .c span{font-size:13.5px;line-height:1.5;color:var(--ink);}
+  .rcard{background:var(--card);border:1px solid var(--card-border);border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;}
+  .rhead{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--teal-light);}
+  .rnum{margin-right:12px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .rname{font-weight:800;color:var(--navy);font-size:16px;flex:1;}
+  :root[data-theme="dark"] .rname{color:#fff;}
+  .where{font-size:12.5px;color:var(--muted);font-weight:600;}
+  .rbody{padding:14px 18px 16px;}
+  pre.code{background:#16233F;color:#DCE6F2;margin:0 0 12px;padding:12px 16px;border-radius:10px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;line-height:1.55;overflow-x:auto;white-space:pre;}
+  pre.code .ln{display:inline-block;width:34px;color:#7E93B8;user-select:none;}
+  pre.code .gap{color:#7E93B8;margin-left:12px;line-height:1;}
+  pre.code .l{white-space:pre;}
+  textarea.ans{width:100%;min-height:96px;font-family:inherit;font-size:14.5px;line-height:1.5;padding:10px 12px;border:2px solid var(--card-border);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical;}
+  textarea.ans:focus{outline:none;border-color:var(--teal);}
+  .used{min-height:22px;margin-top:6px;font-size:12.5px;color:var(--muted);}
+  .chip{display:inline-block;background:var(--teal-light);color:#14595A;border-radius:20px;padding:2px 10px;font-size:12.5px;font-weight:600;margin:0 5px 4px 0;}
+  .panel{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:14px 18px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .panel h2{font-size:12.5px;font-weight:800;letter-spacing:.03em;color:var(--teal);margin:0 0 6px;}
+  textarea.out{width:100%;min-height:200px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;padding:10px 12px;border:2px solid var(--card-border);border-radius:10px;background:var(--card);color:var(--ink);}
+  .weak{background:#FBE9E5;border-radius:8px;padding:8px 12px;font-size:13.5px;margin:0 0 8px;}
+  .good{background:#E8F6EE;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.55;margin:0 0 8px;}
+  .tagl{display:block;font-size:11.5px;font-weight:800;letter-spacing:.04em;margin-bottom:3px;}
+  .weak .tagl{color:var(--bad);} .good .tagl{color:var(--good);}
+  ul.earn{margin:6px 0 0;padding-left:20px;font-size:13.5px;line-height:1.5;}
+  table.bands{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.bands th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:12.5px;}
+  table.bands td{padding:8px 10px;border-bottom:1px solid #E4E8EE;vertical-align:top;}
+  .result{margin-top:12px;background:#FFF3CD;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:700;color:var(--navy);}
+  label.ck{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:5px 0;}
+  label.ck input{margin-top:3px;width:17px;height:17px;accent-color:var(--teal);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><p class="kicker">AS UNIT 2 &mdash; LESSON 6 &middot; ANNOTATION</p><h1>Annotate pupils.py</h1><p>For each of the eight routines, find the lines shown and write an annotation: name the routine, explain what the code does beyond what the variable names already say, and use technical terms.</p></header>
+
+<div class="callrow">
+  <div class="c"><b>Name every routine</b><span>Eight routines, eight annotations. The band depends first on how many you cover.</span></div>
+  <div class="c"><b>Go beyond the names</b><span>Say what the code does and why &mdash; not just what a variable is called.</span></div>
+  <div class="c"><b>Use technical terms</b><span>Accurately and confidently. A chip appears under each answer for the terms you use.</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="status" id="status">0 of 8 routines started</div>
+  <div class="btns">
+    <button class="btn-secondary" id="clearBtn">&#8635; Clear all</button>
+    <button class="btn-primary" id="showBtn">Show all my answers as text</button>
+  </div>
+</div>
+<p class="hint">Open pupils.py alongside this sheet. The lines shown are where to look. Your answers are saved in this browser as you type.</p>
+
+<div class="rcard"><div class="rhead"><span class="rnum">1</span><span class="rname">Setting up a data structure</span><span class="where">pupils.py, lines 28–29, 85, 97, 102, 107</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">28</span>    pupilCount=0</div><div class="l"><span class="ln">29</span>    CountNeeded=0</div><div class="gap">⋮</div><div class="l"><span class="ln">85</span>    global FirstnameVar, SurnameVar, AddressVar</div><div class="gap">⋮</div><div class="l"><span class="ln">97</span>    FirstnameVar=StringVar()</div><div class="gap">⋮</div><div class="l"><span class="ln">102</span>    SurnameVar=StringVar()</div><div class="gap">⋮</div><div class="l"><span class="ln">107</span>    AddressVar=StringVar()</div></pre><textarea class="ans" data-i="0" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-0"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">2</span><span class="rname">Creating a new blank file</span><span class="where">pupils.py, line 21</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">21</span>    fileObject = open("pupils.txt","a")</div></pre><textarea class="ans" data-i="1" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-1"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">3</span><span class="rname">Copying data from screen textboxes to data structure</span><span class="where">pupils.py, lines 10, 13, 16</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">10</span>    FirstnameSave = FirstnameVar.get()</div><div class="gap">⋮</div><div class="l"><span class="ln">13</span>    SurnameSave = SurnameVar.get()</div><div class="gap">⋮</div><div class="l"><span class="ln">16</span>    AddressSave = AddressVar.get()</div></pre><textarea class="ans" data-i="2" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-2"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">4</span><span class="rname">Writing of data to file</span><span class="where">pupils.py, lines 11, 14, 17, 22–23</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">11</span>    FirstnameSave = FirstnameSave.ljust(50)</div><div class="gap">⋮</div><div class="l"><span class="ln">14</span>    SurnameSave = SurnameSave.ljust(50)</div><div class="gap">⋮</div><div class="l"><span class="ln">17</span>    AddressSave = AddressSave.ljust(50)</div><div class="gap">⋮</div><div class="l"><span class="ln">22</span>    fileObject.write(FirstnameSave + SurnameSave + AddressSave + "\n")</div><div class="l"><span class="ln">23</span>    fileObject.close()</div></pre><textarea class="ans" data-i="3" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-3"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">5</span><span class="rname">Retrieving data from file</span><span class="where">pupils.py, lines 51–52, 54–55, 57–58, 60–63</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">51</span>    try:</div><div class="l"><span class="ln">52</span>        fileObject=open("pupils.txt","r")</div><div class="gap">⋮</div><div class="l"><span class="ln">54</span>    except IOError:</div><div class="l"><span class="ln">55</span>        messagebox.showerror("Error","No file to read")</div><div class="gap">⋮</div><div class="l"><span class="ln">57</span>    else:</div><div class="l"><span class="ln">58</span>        while True:</div><div class="gap">⋮</div><div class="l"><span class="ln">60</span>            recordVar=fileObject.readline()</div><div class="l"><span class="ln">61</span>            if recordVar=="":</div><div class="l"><span class="ln">62</span>                fileObject.close()</div><div class="l"><span class="ln">63</span>                break</div></pre><textarea class="ans" data-i="4" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-4"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">6</span><span class="rname">Splitting into array/textboxes/variables</span><span class="where">pupils.py, lines 66, 68, 70</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">66</span>            if FirstnameSave in recordVar[0:50] and not FirstnameSave=="":</div><div class="gap">⋮</div><div class="l"><span class="ln">68</span>            if SurnameSave in recordVar[50:100] and not SurnameSave =="":</div><div class="gap">⋮</div><div class="l"><span class="ln">70</span>            if AddressSave in recordVar[100:150] and not AddressSave=="":</div></pre><textarea class="ans" data-i="5" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-5"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">7</span><span class="rname">Looking/counting of items required</span><span class="where">pupils.py, lines 40–41, 59, 67, 73–74, 76</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">40</span>    if not FirstnameSave == "" :</div><div class="l"><span class="ln">41</span>        CountNeeded +=1</div><div class="gap">⋮</div><div class="l"><span class="ln">59</span>            CountGot=0</div><div class="gap">⋮</div><div class="l"><span class="ln">67</span>                CountGot +=1</div><div class="gap">⋮</div><div class="l"><span class="ln">73</span>            if CountGot == CountNeeded:</div><div class="l"><span class="ln">74</span>                pupilCount +=1</div><div class="gap">⋮</div><div class="l"><span class="ln">76</span>        messagebox.showinfo("Found: ",str(pupilCount))</div></pre><textarea class="ans" data-i="6" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-6"></div></div></div><div class="rcard"><div class="rhead"><span class="rnum">8</span><span class="rname">Validation</span><span class="where">pupils.py, lines 48–50, 54, 66</span></div><div class="rbody"><pre class="code"><div class="l"><span class="ln">48</span>    if CountNeeded == 0 :</div><div class="l"><span class="ln">49</span>        messagebox.showerror("Error","Please enter something to count!")</div><div class="l"><span class="ln">50</span>        return</div><div class="gap">⋮</div><div class="l"><span class="ln">54</span>    except IOError:</div><div class="gap">⋮</div><div class="l"><span class="ln">66</span>            if FirstnameSave in recordVar[0:50] and not FirstnameSave=="":</div></pre><textarea class="ans" data-i="7" placeholder="Annotate this routine: name it, explain what the code does, and use technical terms…"></textarea><div class="used" id="used-7"></div></div></div>
+
+<div class="panel" id="outPanel" style="display:none">
+  <h2>YOUR ANNOTATIONS &mdash; COPY AND SUBMIT</h2>
+  <textarea class="out" id="outText" readonly></textarea>
+  <div class="btns" style="margin-top:8px"><button class="btn-secondary" id="selBtn">Select all</button></div>
+</div>
+
+<div class="reflect">
+  <p class="tag">WHEN YOU'RE DONE</p>
+  <p>Open the model annotation and compare: did you name every routine, go beyond the variable names, and use the technical terms?</p>
+</div>
+
+<footer>AS Unit 2 &mdash; Lesson 6 &middot; annotation practice for pupils.py</footer>
+
+</div>
+
+<script>
+  var TERMS = [["StringVar", "stringvar"], ["global variable", "global"], ["append mode", "append"], ["file handle", "file ?handle|file ?object"], ["fixed-length record", "fixed[- ]length"], ["concatenation", "concatenat"], ["new-line character", "new[- ]?line|\\\\n"], ["sequential access", "sequential"], ["end of file", "end of (the )?file|eof"], ["exception handling", "exception|ioerror|try ?/ ?except"], ["slicing", "slic|substring"], ["counter", "counter"], ["increment", "incremen"], ["partial match", "partial"], ["presence check", "presence"], ["initialise", "initiali[sz]"], ["field", "\\bfields?\\b"]];
+  var KEY = "annotation-practice-l6-v1";
+  var NAMES = ["Setting up a data structure", "Creating a new blank file", "Copying data from screen textboxes to data structure", "Writing of data to file", "Retrieving data from file", "Splitting into array/textboxes/variables", "Looking/counting of items required", "Validation"];
+  var areas = Array.prototype.slice.call(document.querySelectorAll('textarea.ans'));
+
+  function load() { try { var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; } catch (e) { return {}; } }
+  function save(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* storage unavailable - answers just won't persist */ } }
+  var state = load();
+
+  function termsIn(text) {
+    return TERMS.filter(function (t) { return new RegExp(t[1], 'i').test(text); }).map(function (t) { return t[0]; });
+  }
+  function refresh(i) {
+    var a = areas[i], box = document.getElementById('used-' + i);
+    var found = termsIn(a.value);
+    box.innerHTML = '';
+    if (found.length) {
+      var lab = document.createElement('span'); lab.textContent = 'Terms used: '; box.appendChild(lab);
+      found.forEach(function (t) { var c = document.createElement('span'); c.className = 'chip'; c.textContent = t; box.appendChild(c); });
+    }
+  }
+  function updateStatus() {
+    var n = areas.filter(function (a) { return a.value.trim() !== ''; }).length;
+    document.getElementById('status').innerHTML = '<strong>' + n + ' of ' + areas.length + '</strong> routines started';
+  }
+  areas.forEach(function (a, i) {
+    if (state[i]) a.value = state[i];
+    a.addEventListener('input', function () { state[i] = a.value; save(state); refresh(i); updateStatus(); });
+    refresh(i);
+  });
+  updateStatus();
+
+  document.getElementById('clearBtn').addEventListener('click', function () {
+    areas.forEach(function (a, i) { a.value = ''; refresh(i); });
+    state = {}; save(state); updateStatus();
+    document.getElementById('outPanel').style.display = 'none';
+  });
+  document.getElementById('showBtn').addEventListener('click', function () {
+    var txt = 'Annotation of pupils.py\n\n';
+    areas.forEach(function (a, i) { txt += (i + 1) + '. ' + NAMES[i] + '\n' + (a.value.trim() || '(not answered)') + '\n\n'; });
+    document.getElementById('outText').value = txt.replace(/\s+$/, '') + '\n';
+    document.getElementById('outPanel').style.display = 'block';
+  });
+  document.getElementById('selBtn').addEventListener('click', function () { var o = document.getElementById('outText'); o.focus(); o.select(); });
+</script>
+</body>
+</html>

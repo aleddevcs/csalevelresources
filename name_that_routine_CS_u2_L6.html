@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Name That Routine</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+    --good:#2E9E6E;
+    --good-bg:#E3F5EC;
+    --bad:#C0472C;
+    --bad-bg:#FBEAE5;
+    --shadow: 0 4px 14px rgba(20,30,50,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --good-bg:#173427;
+      --bad-bg:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --good-bg:#173427;
+    --bad-bg:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .status{font-size:14px;color:var(--muted);font-weight:600;}
+  .status strong{color:var(--ink);}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    border-radius:8px;
+    padding:9px 14px;
+    border:none;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--navy);border:1px solid var(--card-border);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--card-border);}
+  button:hover{opacity:.88;}
+
+  .hint{font-size:13px;color:var(--muted);margin:0 0 20px;}
+
+  .columns{
+    display:flex;
+    gap:18px;
+  }
+  .columns > div{flex:1;min-width:0;}
+  .col-head{
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  .col-head.right{color:var(--orange);}
+
+  .item{
+    background:var(--card);
+    border:2px solid var(--card-border);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    cursor:pointer;
+    font-size:14.5px;
+    position:relative;
+    box-shadow:var(--shadow);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    user-select:none;
+  }
+  .item:hover{border-color:var(--teal);}
+  .item.selected{border-color:var(--orange);background:var(--orange-light);}
+  .item.paired{border-color:var(--navy);}
+  .item.correct{border-color:var(--good);background:var(--good-bg);}
+  .item.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+
+  .tagnum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .item-inner{display:flex;align-items:center;}
+
+  .reflect{
+    margin-top:26px;
+    background:var(--orange-light);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .reflect .tag{font-size:12.5px;font-weight:800;color:var(--orange);letter-spacing:.03em;margin:0 0 6px;}
+  .reflect p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+
+  footer{
+    margin-top:26px;
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .columns{flex-direction:column;}
+    header h1{font-size:22px;}
+  }
+
+  .item .code{
+    font-family:Consolas,"Courier New",monospace;
+    font-size:12.5px;line-height:1.5;
+    white-space:pre-wrap;
+    color:var(--ink);
+  }
+  .item .item-inner{align-items:flex-start;}
+  .annot{
+    display:none;margin-top:26px;
+    background:var(--card);border:1px solid var(--card-border);
+    border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);
+  }
+  .annot.show{display:block;}
+  .annot h2{font-size:12.5px;font-weight:800;letter-spacing:.03em;color:var(--teal);margin:0 0 4px;}
+  .annot > p{font-size:13.5px;color:var(--muted);margin:0 0 12px;}
+  .annot .row{padding:10px 0;border-top:1px solid var(--card-border);font-size:14px;line-height:1.5;}
+  .annot .row b{display:block;color:var(--navy);margin-bottom:2px;}
+  :root[data-theme="dark"] .annot .row b{color:#fff;}
+  .annot .row .words{font-weight:700;color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 6 STARTER</p>
+    <h1>Name That Routine</h1>
+    <p>Each snippet comes from the template you'll use all lesson. Click a snippet on the left, then the routine it performs on the right &mdash; click either one again to undo. These routine names are the words the annotation mark scheme uses.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="status" id="status">0 of 8 matched</div>
+    <div class="btns">
+      <button class="btn-secondary" id="shuffleBtn">&#8635; Shuffle</button>
+      <button class="btn-primary" id="checkBtn">&#10003; Check my answers</button>
+      <button class="btn-ghost" id="revealBtn">Reveal all</button>
+    </div>
+  </div>
+  <p class="hint">What is each line of code actually doing? Think about the job it does, not just the words in it.</p>
+
+  <div class="columns">
+    <div>
+      <p class="col-head">CODE FROM THE TEMPLATE</p>
+      <div id="leftCol"></div>
+    </div>
+    <div>
+      <p class="col-head right">WHAT IT DOES</p>
+      <div id="rightCol"></div>
+    </div>
+  </div>
+
+  <div class="annot" id="annot">
+    <h2>HOW TO WRITE IT IN AN ANNOTATION</h2>
+    <p>Name the routine, then say what it does using a technical term. Notice the words that earn the marks.</p>
+    <div id="annotRows"></div>
+  </div>
+
+  <div class="reflect">
+    <p class="tag">BE READY TO SAY</p>
+    <p>Which of these did you already write yourself in Lessons 3&ndash;5, and which one is new to you?</p>
+  </div>
+
+  <footer>AS Unit 2 &mdash; Lesson 6 &middot; sets up today's fix-the-code and annotation work</footer>
+</div>
+
+<script>
+  var PAIRS = [{"id": "structure", "code": "FirstnameVar = StringVar()", "routine": "Setting up the data structure", "annot": "StringVar() creates a variable linked to the text box, which holds whatever the user types into it."}, {"id": "copy", "code": "FirstnameSave = FirstnameVar.get()", "routine": "Copying data from the text boxes into variables", "annot": ".get() copies the text out of the StringVar into an ordinary variable that the program can work with."}, {"id": "fixed", "code": "FirstnameSave = FirstnameSave.ljust(50)", "routine": "Building a fixed-length record", "annot": ".ljust(50) pads the field with spaces to exactly 50 characters, so every field, and so every record, is the same length."}, {"id": "open", "code": "fileObject = open(\"Member.txt\", \"a\")", "routine": "Opening the file in append mode (creating it if needed)", "annot": "Append mode opens the file so new data is added to the end, and creates the file if it does not already exist."}, {"id": "write", "code": "fileObject.write(FirstnameSave + SurnameSave + \"\\n\")", "routine": "Writing the record to the file", "annot": "The padded fields are joined (concatenated) into one string and written as a single line, ending with a new line character."}, {"id": "retrieve", "code": "recordVar = fileObject.readline()\nif recordVar == \"\":\n    break", "routine": "Retrieving data from the file", "annot": "readline() reads one record at a time (sequential access), and an empty string means the end of the file has been reached."}, {"id": "split", "code": "if SurnameSave in recordVar[50:100]:", "routine": "Splitting the record into fields", "annot": "Slicing [50:100] takes characters 50 to 99 of the record, which is the second 50-character field, so it can be compared."}, {"id": "count", "code": "if CountGot == CountNeeded:\n    MemberCount += 1", "routine": "Counting the records that match", "annot": "A record is counted only when the number of fields that matched (CountGot) equals the number of boxes filled in (CountNeeded)."}];
+
+  var rightOrder = [];
+  var matches = {};        // leftId -> rightId
+  var selectedLeft = null;
+  var selectedRight = null;
+  var checked = false;
+  var revealed = false;
+
+  function shuffledIds() {
+    var ids = PAIRS.map(function (p) { return p.id; });
+    for (var i = ids.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = ids[i]; ids[i] = ids[j]; ids[j] = tmp;
+    }
+    if (ids.every(function (id, i) { return id === PAIRS[i].id; })) return shuffledIds();
+    return ids;
+  }
+
+  function reset() {
+    rightOrder = shuffledIds();
+    matches = {};
+    selectedLeft = null;
+    selectedRight = null;
+    checked = false;
+    revealed = false;
+    render();
+    updateStatus();
+  }
+
+  function byId(id) { return PAIRS.filter(function (p) { return p.id === id; })[0]; }
+  function indexOfId(id) { for (var i = 0; i < PAIRS.length; i++) { if (PAIRS[i].id === id) return i; } return -1; }
+  function pairedLeftFor(rightId) {
+    return Object.keys(matches).filter(function (k) { return matches[k] === rightId; })[0];
+  }
+
+  function render() {
+    var leftCol = document.getElementById("leftCol");
+    var rightCol = document.getElementById("rightCol");
+    leftCol.innerHTML = "";
+    rightCol.innerHTML = "";
+
+    PAIRS.forEach(function (p) {
+      var el = document.createElement("div");
+      el.className = "item";
+      el.dataset.id = p.id;
+      var inner = document.createElement("div");
+      inner.className = "item-inner";
+      if (matches[p.id]) {
+        var num = document.createElement("span");
+        num.className = "tagnum";
+        num.textContent = indexOfId(p.id) + 1;
+        inner.appendChild(num);
+        el.classList.add("paired");
+      }
+      if (selectedLeft === p.id) el.classList.add("selected");
+      if (checked && matches[p.id]) {
+        el.classList.add(matches[p.id] === p.id ? "correct" : "incorrect");
+      }
+      var txt = document.createElement("span");
+      txt.className = "code";
+      txt.textContent = p.code;
+      inner.appendChild(txt);
+      el.appendChild(inner);
+      el.addEventListener("click", function () { onLeftClick(p.id); });
+      leftCol.appendChild(el);
+    });
+
+    rightOrder.forEach(function (id) {
+      var p = byId(id);
+      var el = document.createElement("div");
+      el.className = "item";
+      el.dataset.id = p.id;
+      var pairedLeftId = pairedLeftFor(p.id);
+      if (pairedLeftId) {
+        el.classList.add("paired");
+        var num = document.createElement("span");
+        num.className = "tagnum";
+        num.textContent = indexOfId(pairedLeftId) + 1;
+        var inner = document.createElement("div");
+        inner.className = "item-inner";
+        inner.appendChild(num);
+        var t = document.createElement("span");
+        t.textContent = p.routine;
+        inner.appendChild(t);
+        el.appendChild(inner);
+      } else {
+        el.textContent = p.routine;
+      }
+      if (selectedRight === p.id) el.classList.add("selected");
+      if (checked && pairedLeftId) {
+        el.classList.add(pairedLeftId === p.id ? "correct" : "incorrect");
+      }
+      el.addEventListener("click", function () { onRightClick(p.id); });
+      rightCol.appendChild(el);
+    });
+
+    renderAnnotations();
+  }
+
+  function renderAnnotations() {
+    var box = document.getElementById("annot");
+    var rows = document.getElementById("annotRows");
+    rows.innerHTML = "";
+    var allCorrect = PAIRS.every(function (p) { return matches[p.id] === p.id; });
+    if (revealed || (checked && allCorrect)) {
+      PAIRS.forEach(function (p) {
+        var row = document.createElement("div");
+        row.className = "row";
+        var b = document.createElement("b");
+        b.textContent = p.routine;
+        row.appendChild(b);
+        row.appendChild(document.createTextNode(p.annot));
+        rows.appendChild(row);
+      });
+      box.classList.add("show");
+    } else {
+      box.classList.remove("show");
+    }
+  }
+
+  function onLeftClick(id) {
+    if (checked || revealed) return;
+    if (matches[id]) { delete matches[id]; selectedLeft = null; render(); updateStatus(); return; }
+    selectedLeft = (selectedLeft === id) ? null : id;
+    if (selectedLeft && selectedRight) tryPair();
+    render();
+  }
+  function onRightClick(id) {
+    if (checked || revealed) return;
+    var pl = pairedLeftFor(id);
+    if (pl) { delete matches[pl]; selectedRight = null; render(); updateStatus(); return; }
+    selectedRight = (selectedRight === id) ? null : id;
+    if (selectedLeft && selectedRight) tryPair();
+    render();
+  }
+  function tryPair() {
+    matches[selectedLeft] = selectedRight;
+    selectedLeft = null;
+    selectedRight = null;
+    updateStatus();
+  }
+
+  function updateStatus() {
+    var count = Object.keys(matches).length;
+    document.getElementById("status").innerHTML = "<strong>" + count + " of " + PAIRS.length + "</strong> matched";
+  }
+
+  document.getElementById("shuffleBtn").addEventListener("click", reset);
+
+  document.getElementById("checkBtn").addEventListener("click", function () {
+    checked = true;
+    render();
+    var correct = Object.keys(matches).filter(function (k) { return matches[k] === k; }).length;
+    var total = PAIRS.length;
+    document.getElementById("status").innerHTML = correct === total
+      ? "<strong>All " + total + " correct!</strong>"
+      : "<strong>" + correct + " of " + total + "</strong> correct" + (Object.keys(matches).length < total ? " so far" : "") + " \u2014 press Shuffle to try again";
+  });
+
+  document.getElementById("revealBtn").addEventListener("click", function () {
+    PAIRS.forEach(function (p) { matches[p.id] = p.id; });
+    revealed = true;
+    checked = true;
+    render();
+    document.getElementById("status").innerHTML = "Answers revealed \u2014 discuss as a class";
+  });
+
+  reset();
+</script>
+</body>
+</html>

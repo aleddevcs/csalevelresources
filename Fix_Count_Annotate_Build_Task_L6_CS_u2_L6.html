@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build It: Fix, Count, Annotate — Lesson 6</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-deep:#16233F;
+    --teal:#2E9E9E;
+    --teal-light:#E4F3F2;
+    --orange:#E07B26;
+    --orange-light:#FCEADA;
+    --gold-light:#FFF3CD;
+    --ink:#1B1F24;
+    --muted:#5B6470;
+    --paper:#F7F9FB;
+    --card:#FFFFFF;
+    --card-border:#E7EAF0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11182A;
+      --card:#182238;
+      --card-border:#2A3652;
+      --ink:#E7ECF5;
+      --muted:#9AA7BF;
+      --teal-light:#173432;
+      --orange-light:#3A2C1C;
+      --gold-light:#3A331C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11182A;
+    --card:#182238;
+    --card-border:#2A3652;
+    --ink:#E7ECF5;
+    --muted:#9AA7BF;
+    --teal-light:#173432;
+    --orange-light:#3A2C1C;
+    --gold-light:#3A331C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 60px;}
+
+  .progress-bar-outer{
+    position:sticky;
+    top:env(safe-area-inset-top,0px);
+    z-index:20;
+    background:var(--paper);
+    padding:14px 0 10px;
+  }
+  .progress-track{
+    background:var(--card-border);
+    border-radius:20px;
+    height:14px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--teal), var(--orange));
+    border-radius:20px;
+    transition:width .35s ease;
+  }
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .progress-label strong{color:var(--navy);font-size:14px;}
+  :root[data-theme="dark"] .progress-label strong{color:#fff;}
+
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 24px;
+    margin:6px 0 22px;
+  }
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria, Georgia, serif;font-size:26px;margin:0 0 8px;}
+  header p{font-size:14.5px;color:#C8D3E8;margin:0;line-height:1.5;}
+
+  .info-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .info-row .chip{
+    flex:1;
+    min-width:220px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13.5px;
+  }
+  .info-row .chip strong{display:block;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;}
+  :root[data-theme="dark"] .info-row .chip strong{color:var(--teal);}
+
+  .note{font-size:13px;color:var(--muted);font-style:italic;margin:0 0 26px;}
+
+  section.part{margin-bottom:30px;}
+  .part-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .part-num{
+    width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;
+    flex-shrink:0;
+  }
+  .part-head h2{font-family:Cambria, Georgia, serif;font-size:21px;margin:0;color:var(--navy);}
+  :root[data-theme="dark"] .part-head h2{color:#fff;}
+
+  .part-desc{
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14.5px;
+    line-height:1.55;
+    margin-bottom:14px;
+  }
+  .part-desc p{margin:0 0 8px;}
+  .part-desc p:last-child{margin-bottom:0;}
+
+  ul.checklist{list-style:none;margin:0;padding:0;}
+  ul.checklist li{margin-bottom:8px;}
+  ul.checklist label{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:9px;
+    padding:12px 14px;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  ul.checklist label:hover{border-color:var(--teal);}
+  ul.checklist input[type="checkbox"]{
+    width:19px;height:19px;
+    flex-shrink:0;
+    margin-top:1px;
+    accent-color:var(--teal);
+    cursor:pointer;
+  }
+  ul.checklist li.checked label{
+    background:var(--teal-light);
+    border-color:var(--teal);
+  }
+  ul.checklist li.checked span.text{
+    text-decoration:line-through;
+    color:var(--muted);
+  }
+
+  .callout{
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14px;
+    line-height:1.55;
+    margin-top:14px;
+  }
+  .callout strong.title{display:block;color:var(--navy);font-size:14.5px;margin-bottom:5px;}
+  :root[data-theme="dark"] .callout strong.title{color:#fff;}
+  .callout.gold{background:var(--gold-light);}
+  .callout.teal{background:var(--teal-light);}
+  .callout.warn{background:#FBEAE5;}
+  :root[data-theme="dark"] .callout.warn{background:#3A211C;}
+  .callout.warn strong.title{color:#C0472C;}
+
+  .celebrate{
+    display:none;
+    background:linear-gradient(135deg, var(--navy-deep), var(--navy));
+    color:#fff;
+    border-radius:14px;
+    padding:20px 22px;
+    text-align:center;
+    margin:26px 0;
+  }
+  .celebrate.show{display:block;}
+  .celebrate .big{font-size:28px;margin-bottom:4px;}
+  .celebrate p{margin:0;font-size:14.5px;color:#CFE8E6;}
+
+  footer.note{
+    margin-top:30px;
+    padding-top:18px;
+    border-top:1px solid var(--card-border);
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:480px){
+    header h1{font-size:22px;}
+    .info-row{flex-direction:column;}
+  }
+
+  table.tests{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  table.tests th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:12.5px;}
+  table.tests td{padding:8px 10px;border-bottom:1px solid var(--card-border);vertical-align:top;}
+  table.tests tr:nth-child(even) td{background:rgba(46,158,158,.06);}
+
+  .callout + ul.checklist{margin-top:14px;}
+  .callout + .callout{margin-top:14px;}
+
+  .part-desc a{color:var(--navy);font-weight:700;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="progress-bar-outer">
+    <div class="progress-label">
+      <span>Your progress</span>
+      <strong id="progressText">0 of 19 checked</strong>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <header>
+    <p class="kicker">AS UNIT 2 &mdash; LESSON 6</p>
+    <h1>Build It: Fix, Count, Annotate</h1>
+    <p>Four parts: fix Stock.py, fix Volunteers.py, write the count routine, then annotate pupils.py. Tick each box as you complete it.</p>
+  </header>
+
+  <div class="info-row">
+    <div class="chip"><strong>Scenario</strong>The exam's own starter files</div>
+    <div class="chip"><strong>Files</strong>Stock.py, Volunteers.py, count_routine_starter.py, pupils.py</div>
+  </div>
+
+  <p class="note">Before you start: have the files open and the Template Anatomy card next to you. tkinter windows won't open in Codespaces &mdash; you don't need them to. Completing the code and checking it against the answer key is the task.</p>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--teal);">1</div>
+      <h2>Fix the Code: Stock.py</h2>
+    </div>
+    <div class="part-desc" style="background:var(--teal-light);">
+      <p>Stock.py is a 2022 exam starter file with <strong>8 gaps</strong>, each marked <code>. . .</code>. Complete every one on your own, and write your answers as you go.</p>
+      <p>Don't open the answer key until you've filled in every gap. A wrong guess that you then correct teaches you more than a copied answer.</p>
+    </div>
+    <div class="callout teal">
+      <strong class="title">The five gap types</strong>
+      <table class="tests"><tr><th>Type</th><th>Gap</th><th>Look here</th></tr><tr><td>1</td><td>A name that must match its neighbours</td><td>The sibling lines — same code, one field over</td></tr><tr><td>2</td><td>A method name (.get, .ljust, .showinfo)</td><td>The same method on the lines around it</td></tr><tr><td>3</td><td>A counter increment (CountGot +=1)</td><td>The sibling lines use the same counter</td></tr><tr><td>4</td><td>A function name that must match command=</td><td>The Button's command=, or the def line</td></tr><tr><td>5</td><td>A file name that must match</td><td>Where the file was opened for saving</td></tr></table>
+      <p style="margin:6px 0 0;font-size:13px;">The method: find the sibling lines &rarr; copy the pattern &rarr; still stuck? Ctrl+F &mdash; the missing word is almost always somewhere else in the file.</p>
+    </div>
+    <ul class="checklist" data-group="part1"><li><label><input type="checkbox" data-id="p1-1"><span class="text">I've completed all <strong>8 gaps</strong> in Stock.py — on my own, before looking at the answer key</span></label></li><li><label><input type="checkbox" data-id="p1-2"><span class="text">I used the <strong>sibling-line method</strong> (and Ctrl+F) rather than guessing</span></label></li><li><label><input type="checkbox" data-id="p1-3"><span class="text">I marked my own work against the answer key</span></label></li><li><label><input type="checkbox" data-id="p1-4"><span class="text">I noted which <strong>gap types</strong> caught me out</span></label></li></ul>
+    <div class="callout warn">
+      <strong class="title">Common slips</strong>
+      A missing full stop before <code>ljust</code>; quote marks around a variable name; <code>showinfo</code> without the <code>messagebox.</code> in front.
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--orange);">2</div>
+      <h2>Fix the Code: Volunteers.py</h2>
+    </div>
+    <div class="part-desc" style="background:var(--orange-light);">
+      <p>Volunteers.py is a 2024 exam starter file with <strong>7 gaps on 6 lines</strong> &mdash; line 92 has two. It's the same template with different field names, so the same method works.</p>
+    </div>
+    <ul class="checklist" data-group="part2"><li><label><input type="checkbox" data-id="p2-1"><span class="text">I've completed all <strong>7 gaps</strong> in Volunteers.py (that's 6 lines — line 92 has two)</span></label></li><li><label><input type="checkbox" data-id="p2-2"><span class="text">I marked my own work against the answer key</span></label></li><li><label><input type="checkbox" data-id="p2-3"><span class="text">I checked whether the same gap types caught me out as in Stock.py</span></label></li></ul>
+    <div class="callout gold">
+      <strong class="title">Finished early?</strong>
+      These are the same skills on older files.
+      <ul class="checklist" data-group="extA" style="margin-top:10px;"><li><label><input type="checkbox" data-id="ext-1"><span class="text">(Extension) Completed Holidays.py — the placeholders sit inside quote marks, so a variable name must not have any</span></label></li><li><label><input type="checkbox" data-id="ext-2"><span class="text">(Extension) Read calc.py and explained what <code>self</code> and <code>lambda</code> are doing</span></label></li></ul>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--navy);">3</div>
+      <h2>Write the Count Routine</h2>
+    </div>
+    <div class="part-desc" style="background:var(--teal-light);">
+      <p>Write the template's count routine yourself, as a console program that runs anywhere. Open count_routine_starter.py and keep Member.txt (10 records, three fields of 50 characters) in the same folder.</p>
+      <p><strong>First, the hand-trace:</strong> work out what the routine should give before you code it &mdash; <a href="https://claude.ai/artifact/VownQ9JAMdaSioVZYjm88p" target="_blank" rel="noopener">open the hand-trace sheet</a>. Then follow the TODOs in order, testing as you go.</p>
+    </div>
+    <ul class="checklist" data-group="part3"><li><label><input type="checkbox" data-id="p3-1"><span class="text">I completed the <strong>hand-trace sheet</strong> before writing any code</span></label></li><li><label><input type="checkbox" data-id="p3-2"><span class="text"><code>CountNeeded</code> counts the boxes that were filled in</span></label></li><li><label><input type="checkbox" data-id="p3-3"><span class="text">If <code>CountNeeded</code> is 0, an error is printed and the routine stops with <code>return</code></span></label></li><li><label><input type="checkbox" data-id="p3-4"><span class="text">The file is opened with <code>try / except IOError / else</code> — a missing file gives a message, not a crash</span></label></li><li><label><input type="checkbox" data-id="p3-5"><span class="text">A <code>while True</code> loop reads one record at a time, and an empty string closes the file and ends the loop</span></label></li><li><label><input type="checkbox" data-id="p3-6"><span class="text"><code>CountGot</code> is reset to 0 for <em>every</em> record, and goes up for each matching field (slice, <code>in</code>, and <code>not ... == ""</code>)</span></label></li><li><label><input type="checkbox" data-id="p3-7"><span class="text">A record is counted only when <code>CountGot == CountNeeded</code>, and the total is printed</span></label></li><li><label><input type="checkbox" data-id="p3-8"><span class="text">I tested one field, two fields and none — and the results match my hand-trace</span></label></li></ul>
+    <div class="callout teal">
+      <strong class="title">Test plan</strong>
+      <table class="tests"><tr><th>Boxes filled in</th><th>You should see</th></tr><tr><td>Surname = Evans</td><td>Found: 5</td></tr><tr><td>First name = Al, Surname = Evans</td><td>Found: 2</td></tr><tr><td>First name = Alun, Town = Penarth</td><td>Found: 2</td></tr><tr><td>Town = Cardiff</td><td>Found: 4</td></tr><tr><td>First name = Al only</td><td>Found: 6</td></tr><tr><td>Surname = Smith</td><td>Found: 0</td></tr><tr><td>Nothing filled in</td><td>An error message — and no count</td></tr><tr><td>Rename Member.txt, then search</td><td>“No file to read” — no crash</td></tr></table>
+    </div>
+    <div class="callout warn">
+      <strong class="title">Common slips</strong>
+      <code>CountGot</code> reset <em>outside</em> the loop, so counts leak between records (&ldquo;Al&rdquo; alone gives 1 instead of 6). And no <code>not ... == ""</code> check, so an empty box matches every record (&ldquo;Jones&rdquo; alone gives 7 instead of 3).
+    </div>
+    <div class="callout gold">
+      <strong class="title">Finished early?</strong>
+      <ul class="checklist" data-group="extB" style="margin-top:10px;"><li><label><input type="checkbox" data-id="ext-3"><span class="text">(Extension) Made the count routine print each matching record, to check against the hand-trace</span></label></li><li><label><input type="checkbox" data-id="ext-4"><span class="text">(Extension) Changed the count routine to search a fourth field</span></label></li></ul>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-head">
+      <div class="part-num" style="background:var(--orange);">4</div>
+      <h2>Annotate: pupils.py</h2>
+    </div>
+    <div class="part-desc" style="background:var(--orange-light);">
+      <p>Annotation is marked in every paper. Open pupils.py and the <a href="https://claude.ai/artifact/XzLq5VeBxKxptsVpH97CJB" target="_blank" rel="noopener">annotation practice sheet</a>, and annotate the eight routines: name each one, say what the code does beyond what the variable names say, and use technical terms.</p>
+      <p>When you've finished, open the model annotation and compare.</p>
+    </div>
+    <ul class="checklist" data-group="part4"><li><label><input type="checkbox" data-id="p4-1"><span class="text">I annotated <strong>all eight</strong> routines in pupils.py</span></label></li><li><label><input type="checkbox" data-id="p4-2"><span class="text">My annotations explain what the code does <em>beyond</em> what the variable names say</span></label></li><li><label><input type="checkbox" data-id="p4-3"><span class="text">I used technical terms accurately (for example append mode, fixed-length record, slicing)</span></label></li><li><label><input type="checkbox" data-id="p4-4"><span class="text">I compared with the model annotation and noted what I missed</span></label></li></ul>
+    <div class="callout warn">
+      <strong class="title">Common slip</strong>
+      &ldquo;Opens the file.&rdquo; only says what the code already says. &ldquo;Opens the file in append mode, which creates it if it doesn't exist and adds to the end&rdquo; earns the mark.
+    </div>
+  </section>
+
+  <div class="celebrate" id="celebrate">
+    <div class="big">&#127881;</div>
+    <p><strong>All done!</strong> Save Stock.py, Volunteers.py, your count routine and your annotations. Next lesson is after the study week: the Section B simulation &mdash; complete, annotate and build, in 60 minutes.</p>
+  </div>
+
+  <div class="callout teal">
+    <strong class="title">Stuck?</strong>
+    Check the Template Anatomy card and the five gap types first. Then message in the Team chat with a screenshot of your code and what you expected compared with what happened.
+  </div>
+
+  <footer class="note">AS Unit 2 &mdash; Lesson 6 &middot; pairs with the Template Anatomy card</footer>
+</div>
+
+<script>
+  var REQUIRED_IDS = ["p1-1", "p1-2", "p1-3", "p1-4", "p2-1", "p2-2", "p2-3", "p3-1", "p3-2", "p3-3", "p3-4", "p3-5", "p3-6", "p3-7", "p3-8", "p4-1", "p4-2", "p4-3", "p4-4"];
+  var STORAGE_KEY = "fix-the-code-build-task-l6-v1";
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* storage unavailable - progress just won't persist across reloads */
+    }
+  }
+
+  var state = loadState();
+  var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+  checkboxes.forEach(function (cb) {
+    var id = cb.dataset.id;
+    if (state[id]) {
+      cb.checked = true;
+      cb.closest("li").classList.add("checked");
+    }
+    cb.addEventListener("change", function () {
+      state[id] = cb.checked;
+      cb.closest("li").classList.toggle("checked", cb.checked);
+      saveState(state);
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    var done = REQUIRED_IDS.filter(function (id) { return state[id]; }).length;
+    var total = REQUIRED_IDS.length;
+    var pct = Math.round((done / total) * 100);
+    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressText").textContent = done + " of " + total + " checked";
+    document.getElementById("celebrate").classList.toggle("show", done === total);
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
