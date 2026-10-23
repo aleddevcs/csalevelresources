@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Assignment 2 Tracker — Library Management System</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  .progress-wrap{
+    max-width:900px;
+    margin:-1.5rem auto 0;
+    padding:0 1.5rem;
+  }
+  .progress-card{
+    background:var(--white);
+    border-radius:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    padding:1.1rem 1.4rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  .progress-bar-track{
+    flex:1;
+    height:12px;
+    background:#E3EAEF;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--second);
+    transition:width 0.3s ease;
+  }
+  .progress-label{
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--dark);
+    white-space:nowrap;
+  }
+  main{
+    max-width:900px;
+    margin:2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .recall-note{
+    background:#EAF3F0;
+    border:1px solid #BFE0D4;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#0B5B3C;
+    margin-bottom:1.6rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .recall-note .dot{
+    width:20px;
+    height:20px;
+    background:var(--second);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.7rem;
+    flex-shrink:0;
+  }
+  .task-card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    margin-bottom:1.8rem;
+    overflow:hidden;
+    transition:border-color 0.3s ease;
+  }
+  .task-card.complete{
+    border-color:var(--second);
+  }
+  .task-head{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    padding:1.2rem 1.4rem;
+    border-bottom:1px solid #EEF2F5;
+  }
+  .task-badge{
+    background:var(--primary);
+    color:var(--white);
+    font-size:0.75rem;
+    font-weight:bold;
+    letter-spacing:1px;
+    padding:0.35rem 0.7rem;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-badge{
+    background:var(--second);
+  }
+  .task-head h2{
+    margin:0;
+    font-size:1.3rem;
+    color:var(--dark);
+    flex:1;
+  }
+  .task-check-pill{
+    font-size:0.8rem;
+    color:var(--second);
+    font-weight:bold;
+    display:none;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-check-pill{
+    display:inline;
+  }
+  .task-body{
+    padding:1.3rem 1.4rem 1.5rem;
+  }
+  .filename-note{
+    background:var(--light);
+    border-radius:8px;
+    padding:0.7rem 1rem;
+    font-family: "Courier New", monospace;
+    font-size:0.95rem;
+    color:var(--primary);
+    margin-bottom:1.1rem;
+    display:inline-block;
+  }
+  .scenario-note{
+    background:#FBF0E7;
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#8A4A1E;
+    margin-bottom:1.1rem;
+  }
+  .tip-note{
+    background:#EAF1F8;
+    border:1px solid #BCD3E8;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#1D4F73;
+    margin-bottom:1.1rem;
+  }
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .steps li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.7rem;
+    padding:0.55rem 0;
+    border-bottom:1px dashed #EEF2F5;
+  }
+  .steps li:last-child{
+    border-bottom:none;
+  }
+  .steps input[type=checkbox]{
+    width:20px;
+    height:20px;
+    margin-top:0.1rem;
+    accent-color:var(--second);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .steps label{
+    font-size:1rem;
+    line-height:1.4;
+    cursor:pointer;
+  }
+  .steps li.checked label{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .code{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#CADCFC;
+    padding:0.15rem 0.4rem;
+    border-radius:4px;
+    font-size:0.92rem;
+  }
+  .extension-block{
+    margin-top:1.3rem;
+  }
+  .extension{
+    background:var(--amberbg);
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .extension-head{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-weight:bold;
+    color:#8A4A1E;
+    margin-bottom:0.6rem;
+    font-size:0.95rem;
+  }
+  .extension-head .dot{
+    width:22px;
+    height:22px;
+    background:var(--amber);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.8rem;
+    flex-shrink:0;
+  }
+  .ext-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .ext-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.6rem;
+    padding:0.4rem 0;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .ext-list li input[type=checkbox]{
+    width:18px;
+    height:18px;
+    margin-top:0.15rem;
+    accent-color:var(--amber);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .ext-list li.checked{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .nested-tag{
+    display:inline-block;
+    background:var(--dark);
+    color:#CADCFC;
+    font-size:0.7rem;
+    font-weight:bold;
+    letter-spacing:0.5px;
+    padding:0.1rem 0.45rem;
+    border-radius:4px;
+    margin-left:0.3rem;
+    white-space:nowrap;
+  }
+  .still-going{
+    margin-top:0.9rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .still-going .extension-head{
+    color:#8FD9C4;
+  }
+  .still-going .extension-head .dot{
+    background:var(--second);
+  }
+  .still-going p{
+    margin:0;
+    font-size:0.9rem;
+    color:#CADCFC;
+    line-height:1.5;
+  }
+  footer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  details{
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    margin:0.5rem 0;
+    padding:0.55rem 0.95rem;
+    background:var(--light);
+  }
+  details summary{
+    cursor:pointer;
+    font-weight:bold;
+    color:var(--primary);
+    font-size:0.92rem;
+  }
+  details[open] summary{ margin-bottom:0.5rem; }
+  details p{ margin:0; font-size:0.92rem; line-height:1.5; }
+  .codeblock{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.8rem 1rem;
+    border-radius:8px;
+    font-size:0.86rem;
+    line-height:1.55;
+    white-space:pre;
+    overflow-x:auto;
+    margin:0.4rem 0 0;
+  }
+  .codelabel{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0 0 0.2rem;
+  }
+
+  table.exp{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.9rem;
+    margin:0.4rem 0 1.1rem;
+  }
+  table.exp th{
+    background:var(--primary);
+    color:#FFFFFF;
+    text-align:left;
+    padding:0.5rem 0.8rem;
+    font-size:0.85rem;
+  }
+  table.exp td{
+    border:1px solid #D8E2E8;
+    padding:0.5rem 0.8rem;
+    vertical-align:top;
+  }
+  table.exp td.fn{ font-family:"Courier New", monospace; color:var(--primary); }
+  table.exp td.res{ font-family:"Courier New", monospace; }
+
+  .dates{ display:flex; flex-wrap:wrap; gap:0.7rem; margin:0 0 1rem; }
+  .date-tile{
+    flex:1; min-width:9rem; background:var(--white); border:1px solid #D8E2E8; border-radius:12px;
+    padding:0.8rem 1rem; box-shadow:0 4px 14px rgba(0,0,0,0.05);
+  }
+  .date-tile .k{ font-size:0.72rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin:0 0 0.2rem; }
+  .date-tile .v{ font-family:Cambria, Georgia, serif; font-size:1.15rem; font-weight:bold; color:var(--dark); margin:0; }
+  .date-tile.due{ background:var(--amber); border-color:var(--amber); }
+  .date-tile.due .k, .date-tile.due .v{ color:#fff; }
+  .daysnote{ font-size:0.9rem; font-weight:bold; color:var(--primary); margin-left:auto; white-space:nowrap; }
+  .namebox{
+    background:var(--white); border:1px solid #D8E2E8; border-radius:12px; padding:0.9rem 1.1rem; margin:0 0 1rem;
+    box-shadow:0 4px 14px rgba(0,0,0,0.05);
+  }
+  .namebox label{ display:block; font-weight:bold; font-size:0.92rem; margin-bottom:0.4rem; color:var(--dark); }
+  .namebox input{
+    width:100%; border:1px solid #D8E2E8; border-radius:8px; padding:0.55rem 0.75rem; font-size:0.95rem; box-sizing:border-box;
+  }
+  .namebox .out{ margin-top:0.5rem; font-size:0.88rem; color:var(--muted); }
+  .namebox .out span{ font-family:"Courier New", monospace; color:var(--primary); font-weight:bold; }
+  .ac-strip{ display:flex; flex-wrap:wrap; gap:0.6rem; margin:0 0 1.2rem; }
+  .ac-pill{
+    flex:1; min-width:8.5rem; background:var(--white); border:2px solid #D8E2E8; border-radius:12px; padding:0.6rem 0.8rem;
+  }
+  .ac-pill .n{ font-weight:bold; color:var(--dark); font-size:0.95rem; }
+  .ac-pill .c{ font-size:0.82rem; color:var(--muted); margin-top:0.1rem; }
+  .ac-pill .bar{ height:6px; background:#E3EAEF; border-radius:3px; margin-top:0.4rem; overflow:hidden; }
+  .ac-pill .bar i{ display:block; height:100%; width:0; background:var(--second); transition:width .25s ease; }
+  .ac-pill.full{ border-color:#3C9D6B; background:var(--greenbg); }
+  .ac-pill.full .bar i{ background:#3C9D6B; }
+  .week-band{
+    display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap; background:var(--dark); color:#fff; border-radius:12px;
+    padding:0.8rem 1.1rem; margin:1.6rem 0 0.9rem;
+  }
+  .week-band .wk{ font-family:Cambria, Georgia, serif; font-weight:bold; font-size:1.1rem; }
+  .week-band .when{ font-size:0.88rem; color:#CADCFC; }
+  .week-band .here{
+    display:none; margin-left:auto; background:var(--amber); color:#fff; font-size:0.78rem; font-weight:bold;
+    padding:0.2rem 0.7rem; border-radius:999px;
+  }
+  .week-band.current .here{ display:inline-block; }
+  .phase-count{
+    margin-left:auto; font-size:0.82rem; font-weight:bold; color:var(--primary); background:#E3F0F7;
+    border-radius:999px; padding:0.15rem 0.7rem; white-space:nowrap;
+  }
+  .fname{ font-family:"Courier New", monospace; color:var(--primary); font-weight:bold; }
+  .acs{ font-size:0.7rem; font-weight:bold; letter-spacing:0.4px; color:var(--primary); background:#E3F0F7; border-radius:5px; padding:0.1rem 0.4rem; margin-left:0.4rem; white-space:nowrap; }
+  .btn-row{ display:flex; gap:0.6rem; flex-wrap:wrap; margin:1.4rem 0 0.4rem; align-items:center; }
+  .btn{
+    background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.6rem 1.2rem; font-size:0.92rem; font-weight:bold; cursor:pointer;
+  }
+  .btn.secondary{ background:var(--light); color:var(--text); border:1px solid #D8E2E8; }
+  .btn:hover{ filter:brightness(1.08); }
+  .copied{ font-size:0.85rem; color:var(--green); display:none; }
+  .copied.show{ display:inline; }
+  .storewarn{ display:none; background:var(--amberbg); border:1px solid var(--amber); color:#8A4A1E; border-radius:10px; padding:0.7rem 1rem; font-size:0.88rem; margin:0 0 1rem; }
+  .storewarn.show{ display:block; }
+  .help-strip{ background:var(--greenbg); border-radius:12px; padding:0.9rem 1.1rem; font-size:0.93rem; color:var(--green); margin:1.4rem 0 0; line-height:1.5; }
+  details.optional{ background:var(--white); border:1px solid #D8E2E8; border-radius:12px; padding:0.8rem 1.1rem; margin:1.4rem 0 0; }
+  details.optional summary{ cursor:pointer; font-weight:bold; color:var(--primary); }
+  details.optional ul{ margin:0.7rem 0 0; padding-left:1.2rem; font-size:0.92rem; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Assignment 2 tracker</h1>
+  <p>Library Management System — three weeks, one step at a time</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="progress-label" id="progressLabel">0 / 47 steps</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <span class="daysnote" id="daysNote"></span>
+  </div>
+</div>
+
+<main>
+
+  <div class="storewarn" id="storeWarn">This page can't save your ticks in this browser. Keep it open, or note your progress somewhere else.</div>
+
+  <div class="dates">
+    <div class="date-tile"><p class="k">Issued</p><p class="v">Fri 23/10</p></div>
+    <div class="date-tile due"><p class="k">Due</p><p class="v">Fri 13/11</p></div>
+    <div class="date-tile"><p class="k">Surgeries · start of lesson</p><p class="v">Lessons 15–17</p></div>
+    <div class="date-tile"><p class="k">Late request by</p><p class="v">Fri 06/11</p></div>
+  </div>
+
+  <div class="recall-note">
+    <span class="dot">i</span>
+    <span><b>The Task List is what's assessed.</b> Your report must <b>explain</b> selection, iteration and data structures — not just show them. <b>Write each report section straight after you code that part</b>, not all at the end. Your ticks are saved on this device.</span>
+  </div>
+
+  <div class="namebox">
+    <label for="nameInput">Your full name (so your file name is right)</label>
+    <input type="text" id="nameInput" placeholder="e.g. Sam Jones" autocomplete="off">
+    <div class="out">Your code file: <span id="fnameOut">Library_Management_YourName.py</span></div>
+  </div>
+
+  <div class="ac-strip" id="acStrip">
+    <div class="ac-pill" data-ac="2.1"><div class="n">AC 2.1</div><div class="c">inputs, output, comments</div><div class="bar"><i></i></div></div>
+    <div class="ac-pill" data-ac="2.2"><div class="n">AC 2.2</div><div class="c">selection, dictionaries</div><div class="bar"><i></i></div></div>
+    <div class="ac-pill" data-ac="2.3"><div class="n">AC 2.3</div><div class="c">for and while loops</div><div class="bar"><i></i></div></div>
+    <div class="ac-pill" data-ac="2.4"><div class="n">AC 2.4</div><div class="c">nested constructs</div><div class="bar"><i></i></div></div>
+  </div>
+
+  <div class="week-band" id="week1"><span class="wk">Week 1</span><span class="when">Half-term · from Mon 26/10 · no lessons</span><span class="here">You are here</span></div>
+  <section class="task-card" id="phaseA">
+    <div class="task-head">
+      <span class="task-badge">Phase A</span>
+      <h2>Set up</h2>
+      <span class="phase-count" id="countA">0/5</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Get organised before you code anything.</div>
+      <div class="tip-note">Stuck on formatting? See the Lesson 14 slide on submission, and your Assignment 1 report as a model.</div>
+      <ul class="steps" data-phase="A">
+          <li><input type="checkbox" id="A1"><label for="A1">Create a folder for Assignment 2, with places for your code, your screenshots and your report</label></li>
+          <li><input type="checkbox" id="A2"><label for="A2">Open a new Word report: a title page, a contents placeholder, and one heading for each criterion — 2.1, 2.2, 2.3 and 2.4</label></li>
+          <li><input type="checkbox" id="A3"><label for="A3">Set Calibri 12 and 1.5 line spacing, and make your headings with <b>Styles</b>, not by hand</label></li>
+          <li><input type="checkbox" id="A4"><label for="A4">Create your Python file, named <span class="fname">Library_Management_YourName.py</span>, with a header comment saying what the program does</label></li>
+          <li><input type="checkbox" id="A5"><label for="A5">Re-read the brief and the cover sheet. Write down anything you're unsure about — and bring it to a surgery</label></li>
+      </ul>
+    </div>
+  </section>
+  <section class="task-card" id="phaseB">
+    <div class="task-head">
+      <span class="task-badge">Phase B</span>
+      <h2>Plan</h2>
+      <span class="phase-count" id="countB">0/5</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Decide first. Your plan becomes report material.</div>
+      <div class="tip-note">Planning questions only — the answers are yours. Look at: Lesson 14 slides on “fully validate” and “nested loop”.</div>
+      <ul class="steps" data-phase="B">
+          <li data-ac="2.1"><input type="checkbox" id="B1"><label for="B1">List the four things you collect for each book — and the data type of each one<span class="acs">AC 2.1</span></label></li>
+          <li data-ac="2.2"><input type="checkbox" id="B2"><label for="B2">For each one, list <b>every way it could go wrong</b>: blank, wrong type, out of range, wrong length, not an allowed value<span class="acs">AC 2.2</span></label></li>
+          <li data-ac="2.2 2.4"><input type="checkbox" id="B3"><label for="B3">Draw your nested dictionary: which is the outer key? Which are the inner keys?<span class="acs">AC 2.2</span><span class="acs">AC 2.4</span></label></li>
+          <li data-ac="2.3"><input type="checkbox" id="B4"><label for="B4">Decide which loop lists the collection, and which one keeps asking until the user types <b>exit</b> — and why each kind<span class="acs">AC 2.3</span></label></li>
+          <li><input type="checkbox" id="B5"><label for="B5">Write your plan in plain English in your report notes</label></li>
+      </ul>
+    </div>
+  </section>
+  <section class="task-card" id="phaseC">
+    <div class="task-head">
+      <span class="task-badge">Phase C</span>
+      <h2>Inputs, validation and storage</h2>
+      <span class="phase-count" id="countC">0/6</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Your first working code.</div>
+      <div class="tip-note">Stuck on validation? Lesson 14's “shape” slide, and the Lesson 5 validation cheat sheet. Check it's digits <i>before</i> you turn it into a number.</div>
+      <ul class="steps" data-phase="C">
+          <li data-ac="2.1"><input type="checkbox" id="C1"><label for="C1">Collect the four inputs for one book<span class="acs">AC 2.1</span></label></li>
+          <li data-ac="2.2"><input type="checkbox" id="C2"><label for="C2">Validate each input with <b>if / elif</b>, with a separate message for each kind of error<span class="acs">AC 2.2</span></label></li>
+          <li data-ac="2.2 2.4"><input type="checkbox" id="C3"><label for="C3">Store the book in a nested dictionary<span class="acs">AC 2.2</span><span class="acs">AC 2.4</span></label></li>
+          <li data-ac="2.1"><input type="checkbox" id="C4"><label for="C4">Display a summary of the book's details<span class="acs">AC 2.1</span></label></li>
+          <li><input type="checkbox" id="C5"><label for="C5">Comment the purpose of each block as you write it</label></li>
+          <li data-ac="2.1 2.2"><input type="checkbox" id="C6"><label for="C6">Write the 2.1 and 2.2 sections of your report <b>now</b>, while it's fresh<span class="acs">AC 2.1</span><span class="acs">AC 2.2</span></label></li>
+      </ul>
+    </div>
+  </section>
+  <div class="week-band" id="week2"><span class="wk">Week 2</span><span class="when">Lessons 15–16 · Thu 05/11 and Fri 06/11</span><span class="here">You are here</span></div>
+  <section class="task-card" id="phaseD">
+    <div class="task-head">
+      <span class="task-badge">Phase D</span>
+      <h2>The exit loop</h2>
+      <span class="phase-count" id="countD">0/5</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Keep adding books until the user is done.</div>
+      <div class="tip-note">Look at: the while-loop reminder card (Lesson 9). The stop word is <b>exit</b>.</div>
+      <ul class="steps" data-phase="D">
+          <li data-ac="2.3"><input type="checkbox" id="D1"><label for="D1">Keep asking for books until the user types <b>exit</b><span class="acs">AC 2.3</span></label></li>
+          <li data-ac="2.3"><input type="checkbox" id="D2"><label for="D2">Use a priming read: ask before the loop, test in the condition, ask again inside<span class="acs">AC 2.3</span></label></li>
+          <li data-ac="2.3"><input type="checkbox" id="D3"><label for="D3">Make sure <b>exit</b> is checked before anything is validated or stored<span class="acs">AC 2.3</span></label></li>
+          <li><input type="checkbox" id="D4"><label for="D4">Try it: add three books, then exit</label></li>
+          <li data-ac="2.3"><input type="checkbox" id="D5"><label for="D5">Write the while-loop part of your 2.3 section — and say why a while loop, not a for loop<span class="acs">AC 2.3</span></label></li>
+      </ul>
+    </div>
+  </section>
+  <section class="task-card" id="phaseE">
+    <div class="task-head">
+      <span class="task-badge">Phase E</span>
+      <h2>List the collection</h2>
+      <span class="phase-count" id="countE">0/5</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Show every book, every field.</div>
+      <div class="tip-note">Look at: the nested constructs card (Lesson 10) and Lesson 14's “what nested loop means here”.</div>
+      <ul class="steps" data-phase="E">
+          <li data-ac="2.3"><input type="checkbox" id="E1"><label for="E1">A <b>for</b> loop that goes through every book<span class="acs">AC 2.3</span></label></li>
+          <li data-ac="2.3 2.4"><input type="checkbox" id="E2"><label for="E2">A <b>for</b> loop inside it that goes through every field — a nested loop<span class="acs">AC 2.3</span><span class="acs">AC 2.4</span></label></li>
+          <li><input type="checkbox" id="E3"><label for="E3">Display each book's title, author, ISBN and copies clearly</label></li>
+          <li><input type="checkbox" id="E4"><label for="E4">Decide what should happen when the collection is empty — and check that it does</label></li>
+          <li data-ac="2.3 2.4"><input type="checkbox" id="E5"><label for="E5">Write the for-loop and nested-construct parts of your 2.3 and 2.4 sections<span class="acs">AC 2.3</span><span class="acs">AC 2.4</span></label></li>
+      </ul>
+    </div>
+  </section>
+  <section class="task-card" id="phaseF">
+    <div class="task-head">
+      <span class="task-badge">Phase F</span>
+      <h2>Testing</h2>
+      <span class="phase-count" id="countF">0/5</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Start now; finish in Week 3.</div>
+      <div class="tip-note">Three kinds of test for every input: <b>normal</b>, <b>boundary</b> and <b>invalid</b> — and say why each one is a good test.</div>
+      <ul class="steps" data-phase="F">
+          <li><input type="checkbox" id="F1"><label for="F1">Test with <b>normal</b> data — and take a screenshot</label></li>
+          <li><input type="checkbox" id="F2"><label for="F2">Test with <b>boundary</b> data (for example, zero copies) — and take a screenshot</label></li>
+          <li><input type="checkbox" id="F3"><label for="F3">Test every input with <b>invalid</b> data — blank, wrong type, out of range, wrong length — and screenshot each error message</label></li>
+          <li><input type="checkbox" id="F4"><label for="F4">For every test, write down why it is a good test</label></li>
+          <li><input type="checkbox" id="F5"><label for="F5">Caption every screenshot with <b>Insert Caption</b>: a figure number and a description</label></li>
+      </ul>
+    </div>
+  </section>
+  <div class="week-band" id="week3"><span class="wk">Week 3</span><span class="when">Lessons 17–18 · Thu 12/11 and Fri 13/11 · due Fri 13/11</span><span class="here">You are here</span></div>
+  <section class="task-card" id="phaseG">
+    <div class="task-head">
+      <span class="task-badge">Phase G</span>
+      <h2>Tidy the code</h2>
+      <span class="phase-count" id="countG">0/4</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Make it clear for the next reader.</div>
+      <div class="tip-note">A program that works, with unclear comments, will not reach Distinction.</div>
+      <ul class="steps" data-phase="G">
+          <li><input type="checkbox" id="G1"><label for="G1">Check every function and logic block has a comment explaining its <b>purpose</b></label></li>
+          <li><input type="checkbox" id="G2"><label for="G2">Use clear names, and remove any leftover test code</label></li>
+          <li><input type="checkbox" id="G3"><label for="G3">Run the whole program from the start, once, as a user would</label></li>
+          <li><input type="checkbox" id="G4"><label for="G4">Check the file name is exactly <span class="fname">Library_Management_YourName.py</span></label></li>
+      </ul>
+    </div>
+  </section>
+  <section class="task-card" id="phaseH">
+    <div class="task-head">
+      <span class="task-badge">Phase H</span>
+      <h2>Finish the report</h2>
+      <span class="phase-count" id="countH">0/7</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Explain <i>why</i>, not just <i>what</i>.</div>
+      <div class="tip-note">The report must <b>explain</b> selection, iteration and data structures. Merit and Distinction come from the why.</div>
+      <ul class="steps" data-phase="H">
+          <li data-ac="2.1"><input type="checkbox" id="H1"><label for="H1">Section 2.1 — the sequence of inputs and the output: what you did, and why<span class="acs">AC 2.1</span></label></li>
+          <li data-ac="2.2"><input type="checkbox" id="H2"><label for="H2">Section 2.2 — selection: your if / elif validation and the dictionary. Explain <b>each check</b> and why it's there<span class="acs">AC 2.2</span></label></li>
+          <li data-ac="2.3"><input type="checkbox" id="H3"><label for="H3">Section 2.3 — iteration: the for loop and the while loop. Explain why each kind<span class="acs">AC 2.3</span></label></li>
+          <li data-ac="2.4"><input type="checkbox" id="H4"><label for="H4">Section 2.4 — nested constructs: the nested loop and the nested dictionary. Explain why<span class="acs">AC 2.4</span></label></li>
+          <li><input type="checkbox" id="H5"><label for="H5">Testing section: your screenshots, their captions, and why each test matters</label></li>
+          <li><input type="checkbox" id="H6"><label for="H6">Refer to your sources with in-text citations, and add a <b>USW Harvard</b> bibliography</label></li>
+          <li><input type="checkbox" id="H7"><label for="H7">Proofread: spelling, punctuation and grammar; Calibri 12 and 1.5 spacing; contents page updated</label></li>
+      </ul>
+    </div>
+  </section>
+  <section class="task-card" id="phaseI">
+    <div class="task-head">
+      <span class="task-badge">Phase I</span>
+      <h2>Submit</h2>
+      <span class="phase-count" id="countI">0/5</span>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="scenario-note">Don't leave this to the last minute.</div>
+      <div class="tip-note">Running late? Ask the Diploma Course Tutor <b>by Fri 06/11</b>, with evidence. Unagreed late work is capped at a pass.</div>
+      <ul class="steps" data-phase="I">
+          <li><input type="checkbox" id="I1"><label for="I1">Fill in your name on the cover sheet and <b>sign the declaration of authenticity</b></label></li>
+          <li><input type="checkbox" id="I2"><label for="I2">Check your code and your explanations are your own work — the declaration covers AI tools too</label></li>
+          <li><input type="checkbox" id="I3"><label for="I3">Save your report as a Word file</label></li>
+          <li><input type="checkbox" id="I4"><label for="I4">Submit through Teams as a <b>“handed in”</b> piece of work — not a channel post</label></li>
+          <li><input type="checkbox" id="I5"><label for="I5">Check that Teams shows it as handed in</label></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="help-strip"><b>Stuck?</b> Bring it to the surgery at the start of Lessons 15, 16 and 17, or ask on Teams. Say what you tried and what you expected to happen.</div>
+
+  <details class="optional">
+    <summary>Optional extras — only once the required parts are finished and tested</summary>
+    <ul>
+      <li>Borrowing and returning books, and a record of transactions — mentioned in the scenario, but <b>not</b> in the Task List.</li>
+      <li>A check that an ISBN isn't already stored, using a dictionary lookup.</li>
+      <li>Tidier output with f-strings, or <span class="fname">round()</span> for tidy numbers.</li>
+    </ul>
+  </details>
+
+  <div class="btn-row">
+    <button class="btn" onclick="copySummary()">Copy my progress</button>
+    <button class="btn secondary" onclick="resetAll()">Reset everything</button>
+    <span class="copied" id="copied" role="status" aria-live="polite"></span>
+  </div>
+
+</main>
+
+<footer>
+  Assignment 2 · Imperative Programming · Access to HE Applied Computing · CL43CY015
+</footer>
+
+<script>
+  const KEY = 'a2-tracker-lesson14-v1';
+  const PHASES = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
+  const boxes = Array.from(document.querySelectorAll('.steps input[type=checkbox]'));
+  const fnameSpans = Array.from(document.querySelectorAll('.fname'));
+  const nameInput = document.getElementById('nameInput');
+  let storeOK = true;
+
+  /* ---------- storage ---------- */
+  function readStore(){
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
+    catch (e) { storeOK = false; return {}; }
+  }
+  function writeStore(){
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ checked: boxes.filter(b => b.checked).map(b => b.id), name: nameInput.value }));
+    } catch (e) { storeOK = false; document.getElementById('storeWarn').classList.add('show'); }
+  }
+
+  /* ---------- file name ---------- */
+  function cleanName(v){ return v.normalize('NFC').replace(/[^\p{L}\p{N}]/gu, ''); }   /* keeps every letter, including accented ones */
+  function showName(){
+    const n = cleanName(nameInput.value) || 'YourName';
+    const f = 'Library_Management_' + n + '.py';
+    document.getElementById('fnameOut').textContent = f;
+    fnameSpans.forEach(s => { if (s.textContent.startsWith('Library_Management_')) s.textContent = f; });
+  }
+
+  /* ---------- progress ---------- */
+  function update(){
+    const total = boxes.length, done = boxes.filter(b => b.checked).length;
+    document.getElementById('progressFill').style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+    document.getElementById('progressLabel').textContent = done + ' / ' + total + ' steps';
+
+    PHASES.forEach(p => {
+      const card = document.getElementById('phase' + p);
+      const bs = Array.from(card.querySelectorAll('.steps input[type=checkbox]'));
+      const n = bs.filter(b => b.checked).length;
+      document.getElementById('count' + p).textContent = n + '/' + bs.length;
+      card.classList.toggle('complete', bs.length > 0 && n === bs.length);
+    });
+
+    document.querySelectorAll('.ac-pill').forEach(pill => {
+      const ac = pill.dataset.ac;
+      const tagged = boxes.filter(b => (b.closest('li').dataset.ac || '').split(' ').includes(ac));
+      const n = tagged.filter(b => b.checked).length;
+      pill.querySelector('.c').textContent = n + ' of ' + tagged.length + ' steps';
+      pill.querySelector('.bar i').style.width = (tagged.length ? Math.round(n / tagged.length * 100) : 0) + '%';
+      pill.classList.toggle('full', tagged.length > 0 && n === tagged.length);
+    });
+  }
+
+  boxes.forEach(b => b.addEventListener('change', () => {
+    b.closest('li').classList.toggle('checked', b.checked);
+    update(); writeStore();
+  }));
+  nameInput.addEventListener('input', () => { showName(); writeStore(); });
+
+  /* ---------- dates ---------- */
+  const U = (y, m, d) => Date.UTC(y, m, d);
+  function status(now){
+    const today = U(now.getFullYear(), now.getMonth(), now.getDate());
+    const issued = U(2026, 9, 23), due = U(2026, 10, 13);
+    const diff = Math.round((due - today) / 86400000);
+    let label;
+    if (today < issued) label = 'Issued on Fri 23/10';
+    else if (diff > 1) label = diff + ' days to go';
+    else if (diff === 1) label = '1 day to go \u2014 due tomorrow';
+    else if (diff === 0) label = 'Due today';
+    else label = 'The due date has passed';
+    let week = null;
+    if (today >= issued) week = today < U(2026, 10, 2) ? 'week1' : (today < U(2026, 10, 9) ? 'week2' : 'week3');
+    return { label, week };
+  }
+  window.__a2status = status;   // exposed so the date logic can be tested
+  function showDates(){
+    const s = status(new Date());
+    document.getElementById('daysNote').textContent = s.label;
+    ['week1', 'week2', 'week3'].forEach(id => document.getElementById(id).classList.toggle('current', id === s.week));
+  }
+
+  /* ---------- copy / reset ---------- */
+  function summaryText(){
+    const total = boxes.length, done = boxes.filter(b => b.checked).length;
+    const lines = ['Assignment 2 progress: ' + done + '/' + total + ' steps (' + (total ? Math.round(done / total * 100) : 0) + '%)'];
+    lines.push(PHASES.map(p => {
+      const bs = Array.from(document.querySelectorAll('#phase' + p + ' .steps input'));
+      return p + ' ' + bs.filter(b => b.checked).length + '/' + bs.length;
+    }).join(' · '));
+    lines.push(Array.from(document.querySelectorAll('.ac-pill')).map(p => 'AC ' + p.dataset.ac + ' ' + p.querySelector('.c').textContent).join(' · '));
+    lines.push(document.getElementById('daysNote').textContent);
+    return lines.join('\n');
+  }
+  function copySummary(){
+    const note = document.getElementById('copied');
+    const say = t => { note.textContent = t; note.classList.add('show'); setTimeout(() => note.classList.remove('show'), 2500); };
+    const text = summaryText();
+    const fallback = () => {
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta); say(ok ? 'Copied' : 'Could not copy');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => say('Copied'), fallback);
+    else fallback();
+  }
+  window.__a2summary = summaryText;
+  function resetAll(){
+    if (!confirm('Clear every tick and your name? This cannot be undone.')) return;
+    boxes.forEach(b => { b.checked = false; b.closest('li').classList.remove('checked'); });
+    nameInput.value = ''; showName(); update(); writeStore();
+  }
+
+  /* ---------- start up ---------- */
+  const saved = readStore();
+  (saved.checked || []).forEach(id => { const b = document.getElementById(id); if (b) { b.checked = true; b.closest('li').classList.add('checked'); } });
+  nameInput.value = saved.name || '';
+  if (!storeOK) document.getElementById('storeWarn').classList.add('show');
+  showName(); update(); showDates();
+</script>
+
+</body>
+</html>
