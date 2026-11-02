@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Character sets and data types: Topic 4, Lesson 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B; --bad-soft:#F8E3E0; --good-soft:#E3F4EA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+.head-inner{max-width:1100px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 14px;font-size:30px;line-height:1.15}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#C9D3E6;padding:10px 18px;border-radius:10px 10px 0 0;font-weight:700}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+nav button:hover:not([aria-selected="true"]){color:#fff;background:var(--navy-2)}
+main{max-width:1100px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+h2{font-size:24px;margin:0 0 4px;color:var(--navy)}
+h3{font-size:18px;margin:0 0 8px;color:var(--navy)}
+.lede{color:var(--muted);margin:0 0 18px;max-width:72ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:8px 16px;font-weight:700}
+.btn:hover{background:var(--teal-soft)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy-2)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.seg{display:inline-flex;border:2px solid var(--navy);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:#fff;color:var(--navy);padding:8px 14px;font-weight:700}
+.seg button+button{border-left:2px solid var(--navy)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.label{font-weight:700;color:var(--navy)}
+.small{font-size:15px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+input.txt{flex:1;min-width:220px;padding:9px 12px;border:2px solid var(--navy);border-radius:10px;font-size:20px}
+input.txt.mono{font-family:var(--mono);font-size:17px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:2px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:15px}
+.chips button:hover{border-color:var(--teal)}
+
+.chars{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.ch{border:2px solid var(--line);border-radius:12px;padding:10px 12px;min-width:120px;background:#fff;display:flex;flex-direction:column;gap:4px}
+.ch .glyph{font-size:30px;font-weight:700;color:var(--navy);line-height:1.1;font-family:var(--mono)}
+.ch .meta{font-size:13px;color:var(--muted)}
+.ch .bytes{display:flex;flex-direction:column;gap:3px}
+.ch .byte{font-family:var(--mono);font-size:14px;font-weight:700;background:var(--teal-soft);border-radius:6px;padding:2px 6px;white-space:nowrap}
+.ch.multi{border-color:var(--orange);background:var(--orange-soft)}
+.ch.multi .byte{background:#fff}
+.ch.bad{border-color:var(--bad);background:var(--bad-soft)}
+.ch.bad .byte{background:#fff;color:var(--bad)}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.readout{background:var(--paper);border-radius:12px;padding:12px 16px}
+.readout .name{font-size:14px;color:var(--muted)}
+.readout .val{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--navy)}
+.readout .sub{font-size:14px;color:var(--muted)}
+.note{margin-top:12px;border-radius:10px;padding:10px 14px;font-weight:700}
+.note.ok{background:var(--good-soft);color:var(--good)}
+.note.bad{background:var(--bad-soft);color:var(--bad)}
+.note.info{background:var(--teal-soft);color:var(--navy)}
+.note span{font-weight:400;color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.cmp .readout .val{font-size:22px}
+.decoded{font-size:28px;font-weight:700;color:var(--navy);min-height:42px;font-family:var(--mono);word-break:break-all}
+.msg{font-family:var(--mono);font-size:15px;background:var(--paper);border-radius:10px;padding:10px 12px;line-height:1.9;word-break:break-word}
+.fb{min-height:26px;font-weight:700;margin-top:8px}
+.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+details.ref{margin-top:4px}
+details.ref summary{font-weight:700;color:var(--navy);cursor:pointer;padding:6px 0}
+.asc{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:4px;margin-top:8px;font-family:var(--mono);font-size:14px}
+.asc div{background:var(--paper);border-radius:6px;padding:3px 8px;display:flex;justify-content:space-between}
+.asc b{color:var(--navy)}
+
+/* sort */
+.tally{font-weight:700;color:var(--navy)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card.right{border-left-color:var(--good)}.card.wrong{border-left-color:var(--bad)}
+.card p{margin:0}
+.card .item{font-weight:700;font-size:18px}
+.card .eg{font-family:var(--mono);color:var(--muted);font-size:15px}
+.choices{display:flex;gap:5px;flex-wrap:wrap}
+.choices button{flex:1 1 auto;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;padding:5px 8px;font-weight:700;font-size:15px}
+.choices button.picked-right{background:var(--good);border-color:var(--good);color:#fff}
+.choices button.picked-wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.why{font-size:15px;color:var(--muted)}
+.qs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.qs div{background:var(--teal-soft);border-radius:10px;padding:10px 12px;font-size:15px}
+.qs b{display:block;color:var(--navy)}
+@media (max-width:860px){.summary,.two,.cmp,.qs{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Unit 1, Topic 4: Data representation and data types (4.2, 4.3)</p>
+    <h1>Character sets and data types</h1>
+    <nav role="tablist" aria-label="Activities">
+      <button role="tab" aria-selected="true" aria-controls="p-ch" id="t-ch">Character explorer</button>
+      <button role="tab" aria-selected="false" aria-controls="p-dt" id="t-dt">Data type sort</button>
+    </nav>
+  </div>
+</header>
+<main>
+<!-- ============ CHARACTER EXPLORER ============ -->
+<section class="panel active" id="p-ch" role="tabpanel" aria-labelledby="t-ch">
+  <h2>Character explorer</h2>
+  <p class="lede">Type some text to see the code for every character and how many bytes the text takes. Switch between ASCII and Unicode (UTF-8) and try Welsh letters such as ŵ and ŷ.</p>
+
+  <div class="box">
+    <div class="row">
+      <input class="txt" id="txt" value="Da iawn" aria-label="Text to encode">
+      <div class="seg" id="enc"><button data-v="ascii" aria-pressed="true">ASCII</button><button data-v="utf8" aria-pressed="false">Unicode (UTF-8)</button></div>
+    </div>
+    <div class="row" style="margin-top:10px"><span class="small">Try:</span>
+      <div class="chips" id="tryChips"></div>
+    </div>
+    <div class="chars" id="chars"></div>
+    <div class="summary">
+      <div class="readout"><div class="name">Characters</div><div class="val" id="sCount">0</div></div>
+      <div class="readout"><div class="name">Storage</div><div class="val" id="sBytes">0</div><div class="sub" id="sBits"></div></div>
+      <div class="readout"><div class="name">Same text in the other encoding</div><div class="val" id="sOther">0</div><div class="sub" id="sOtherSub"></div></div>
+    </div>
+    <div class="note" id="encNote"></div>
+  </div>
+
+  <div class="two">
+    <div class="box">
+      <h3>Decode the message</h3>
+      <p class="small" style="margin:0 0 8px">Each byte is one ASCII character. Convert to denary, then use the table below.</p>
+      <div class="msg" id="challenge"></div>
+      <div class="row" style="margin-top:10px"><input class="txt" id="guess" placeholder="Type the message" aria-label="Your decoded message" style="font-size:17px"><button class="btn primary" id="checkGuess">Check</button></div>
+      <div class="fb" id="guessFb" aria-live="polite"></div>
+      <div class="row"><button class="btn" id="newMsg">New message</button><button class="btn" id="showMsg">Show answer</button></div>
+    </div>
+    <div class="box">
+      <h3>Binary to text</h3>
+      <p class="small" style="margin:0 0 8px">Type bytes separated by spaces, for example 01001000 01101001.</p>
+      <input class="txt mono" id="binIn" value="01001000 01101001" aria-label="Binary bytes">
+      <div class="decoded" id="binOut"></div>
+      <div class="fb bad" id="binErr"></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h3>The character '7' is not the number 7</h3>
+    <div class="row"><span class="label">Type a digit</span><input class="txt mono" id="digit" value="7" maxlength="1" style="width:80px;min-width:0;flex:none;font-size:22px;text-align:center" aria-label="A single digit"></div>
+    <div class="cmp">
+      <div class="readout"><div class="name" id="dCharName">The character '7' (ASCII)</div><div class="val" id="dChar"></div><div class="sub" id="dCharSub"></div></div>
+      <div class="readout"><div class="name" id="dIntName">The integer 7 (plain binary)</div><div class="val" id="dInt"></div><div class="sub">Its actual value in binary</div></div>
+    </div>
+    <p class="small" style="margin:10px 0 0">The digit characters '0' to '9' have codes 48 to 57. That is why "12" + "3" joins to "123" as strings, but 12 + 3 = 15 as integers.</p>
+    <details class="ref"><summary>ASCII reference: codes 32 to 126</summary><div class="asc" id="ascTable"></div></details>
+  </div>
+</section>
+
+<!-- ============ DATA TYPE SORT ============ -->
+<section class="panel" id="p-dt" role="tabpanel" aria-labelledby="t-dt">
+  <h2>Data type sort</h2>
+  <p class="lede">Choose the best data type for each item. Agree a reason with your partner before you click: you get one go per card.</p>
+  <div class="qs">
+    <div><b>True or false?</b>Boolean</div>
+    <div><b>Arithmetic on whole numbers?</b>Integer</div>
+    <div><b>Has a fractional part?</b>Real</div>
+    <div><b>Leading zeros, symbols, or no arithmetic?</b>String (or Character for one)</div>
+  </div>
+  <p class="tally" id="dtTally"></p>
+  <div class="cards" id="dtCards"></div>
+  <div class="row" style="margin-top:14px"><button class="btn" id="dtReset">Shuffle and start again</button></div>
+</section>
+</main>
+
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.addEventListener('click',()=>tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).classList.toggle('active',x===t)})));
+const b8=n=>n.toString(2).padStart(8,'0');
+const sp=b=>b.slice(0,4)+' '+b.slice(4);
+const utf8=ch=>[...new TextEncoder().encode(ch)];
+
+/* ---------- Character explorer ---------- */
+let enc='ascii';
+const TRY=['Da iawn','Hi','D\u0175r','Ty\u0175ydd','\u20AC5','Caf\u00E9','7 + 5'];
+const chips=document.getElementById('tryChips');
+TRY.forEach(t=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{document.getElementById('txt').value=t;render()};chips.append(b)});
+function render(){
+  const s=document.getElementById('txt').value, chars=[...s], box=document.getElementById('chars');
+  box.innerHTML='';
+  let asciiOK=true, aBytes=0, uBytes=0;
+  chars.forEach(c=>{
+    const cp=c.codePointAt(0), u=utf8(c), inAscii=cp<128;
+    if(!inAscii)asciiOK=false;
+    aBytes+=1;uBytes+=u.length;
+    const d=document.createElement('div');d.className='ch';
+    const g=document.createElement('div');g.className='glyph';g.textContent=c===' '?'\u2423':c;
+    const m=document.createElement('div');m.className='meta';
+    const by=document.createElement('div');by.className='bytes';
+    if(enc==='ascii'){
+      if(inAscii){m.textContent='ASCII '+cp+(c===' '?' (space)':'');const x=document.createElement('div');x.className='byte';x.textContent=sp(b8(cp));by.append(x)}
+      else{d.classList.add('bad');m.textContent='Code point '+cp;const x=document.createElement('div');x.className='byte';x.textContent='Not in ASCII';by.append(x)}
+    }else{
+      m.textContent='Code point '+cp+' \u00B7 '+u.length+' byte'+(u.length>1?'s':'');
+      if(u.length>1)d.classList.add('multi');
+      u.forEach(v=>{const x=document.createElement('div');x.className='byte';x.textContent=sp(b8(v));by.append(x)});
+    }
+    d.append(g,m,by);box.append(d);
+  });
+  document.getElementById('sCount').textContent=chars.length;
+  const note=document.getElementById('encNote');
+  if(enc==='ascii'){
+    document.getElementById('sBytes').textContent=asciiOK?aBytes+' byte'+(aBytes===1?'':'s'):'Cannot store';
+    document.getElementById('sBits').textContent=asciiOK?(aBytes*8)+' bits (8 bits per character)':'Some characters are not in ASCII';
+    document.getElementById('sOther').textContent=uBytes+' byte'+(uBytes===1?'':'s');
+    document.getElementById('sOtherSub').textContent='in Unicode (UTF-8)';
+    if(chars.length===0){note.className='note info';note.textContent='Type something to see its codes.'}
+    else if(asciiOK){note.className='note ok';note.innerHTML='Every character is in ASCII. <span>Each one is mapped to its own 7-bit code, stored in a byte. A string needs 8 bits \u00D7 the number of characters.</span>'}
+    else{note.className='note bad';note.innerHTML='ASCII cannot store this text. <span>The red characters have codes above 127, so they are not in the 7-bit ASCII set. Switch to Unicode (UTF-8) to store them.</span>'}
+  }else{
+    document.getElementById('sBytes').textContent=uBytes+' byte'+(uBytes===1?'':'s');
+    document.getElementById('sBits').textContent=(uBytes*8)+' bits';
+    document.getElementById('sOther').textContent=asciiOK?aBytes+' byte'+(aBytes===1?'':'s'):'Cannot store';
+    document.getElementById('sOtherSub').textContent='in ASCII';
+    const multi=chars.filter(c=>utf8(c).length>1).length;
+    if(chars.length===0){note.className='note info';note.textContent='Type something to see its codes.'}
+    else if(multi){note.className='note info';note.innerHTML=multi+' character'+(multi>1?'s need':' needs')+' more than one byte (orange). <span>Unicode gives every character in every writing system its own code point. UTF-8 stores ASCII characters in 1 byte and others in 2 to 4 bytes.</span>'}
+    else{note.className='note ok';note.innerHTML='Every character here takes 1 byte. <span>UTF-8 uses the same codes as ASCII for the first 128 characters, so plain English text is the same size in both.</span>'}
+  }
+}
+document.getElementById('txt').addEventListener('input',render);
+document.querySelectorAll('#enc button').forEach(b=>b.addEventListener('click',()=>{enc=b.dataset.v;document.querySelectorAll('#enc button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()}));
+render();
+
+/* decode challenge */
+const MSGS=['Da iawn','Bore da','Byte','Hello','Unicode','Cymru','Data','Hex 2A'];
+let mi=0;
+function setMsg(){document.getElementById('challenge').textContent=[...MSGS[mi]].map(c=>b8(c.charCodeAt(0))).join('  ');document.getElementById('guess').value='';const f=document.getElementById('guessFb');f.textContent='';f.className='fb'}
+document.getElementById('newMsg').onclick=()=>{mi=(mi+1)%MSGS.length;setMsg()};
+document.getElementById('showMsg').onclick=()=>{const f=document.getElementById('guessFb');f.className='fb good';f.textContent='The message is: '+MSGS[mi]};
+document.getElementById('checkGuess').onclick=()=>{
+  const g=document.getElementById('guess').value, f=document.getElementById('guessFb'), want=MSGS[mi];
+  if(!g){f.className='fb bad';f.textContent='Type your answer first.';return}
+  if(g===want){f.className='fb good';f.textContent='Correct: '+want+'.'}
+  else if(g.toLowerCase()===want.toLowerCase()){f.className='fb bad';f.textContent='Nearly. Check the capital letters: upper and lower case have different codes (a = A + 32).'}
+  else if(g.replace(/\s/g,'')===want.replace(/\s/g,'')){f.className='fb bad';f.textContent='Nearly. 00100000 is 32, the code for a space.'}
+  else{f.className='fb bad';f.textContent='Not yet. Convert each byte to denary and use the ASCII reference table.'}
+};
+document.getElementById('guess').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('checkGuess').click()});
+setMsg();
+
+/* binary to text */
+function decodeBin(){
+  const raw=document.getElementById('binIn').value.trim(), out=document.getElementById('binOut'), err=document.getElementById('binErr');
+  if(!raw){out.textContent='';err.textContent='';return}
+  const parts=raw.split(/\s+/);let s='',bad=[];
+  parts.forEach(p=>{if(!/^[01]{1,8}$/.test(p)){bad.push(p);return}const v=parseInt(p,2);s+=v<32||v>126?'\u25A1':String.fromCharCode(v)});
+  out.textContent=s;
+  err.textContent=bad.length?'Not a valid byte: '+bad.slice(0,3).join(', ')+'. Use up to 8 bits of 0s and 1s.':(s.includes('\u25A1')?'\u25A1 marks a code outside the printable range 32 to 126.':'');
+}
+document.getElementById('binIn').addEventListener('input',decodeBin);decodeBin();
+
+/* digit vs number */
+function digitRender(){
+  let d=document.getElementById('digit').value;
+  if(!/^\d$/.test(d)){document.getElementById('dChar').textContent='\u2014';document.getElementById('dInt').textContent='\u2014';document.getElementById('dCharSub').textContent='Type a single digit 0 to 9';return}
+  const code=d.charCodeAt(0);
+  document.getElementById('dCharName').textContent="The character '"+d+"' (ASCII)";
+  document.getElementById('dIntName').textContent='The integer '+d+' (plain binary)';
+  document.getElementById('dChar').textContent=sp(b8(code));
+  document.getElementById('dCharSub').textContent='ASCII code '+code+' = 48 + '+d;
+  document.getElementById('dInt').textContent=sp(b8(+d));
+}
+document.getElementById('digit').addEventListener('input',digitRender);digitRender();
+
+/* ASCII table */
+const at=document.getElementById('ascTable');
+for(let c=32;c<=126;c++){const d=document.createElement('div');d.innerHTML='<span>'+c+'</span><b>'+(c===32?'space':String.fromCharCode(c).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;'))+'</b>';at.append(d)}
+
+/* ---------- Data type sort ---------- */
+const TYPES=['Boolean','Character','String','Integer','Real'];
+const ITEMS=[
+  ['Phone number','07700 900123','String','It starts with 0 and contains a space, and you never do arithmetic on it. As an integer the leading 0 would be lost.'],
+  ['Age in years','17','Integer','A whole number that may be used in calculations.'],
+  ['Price of a coffee','2.85','Real','It has a fractional part (the pence).'],
+  ['Is the student enrolled?','True','Boolean','Only two possible values: true or false.'],
+  ['Exam grade','B','Character','A single letter.'],
+  ['Postcode','CF64 1AB','String','A mix of letters, digits and a space.'],
+  ['Number of students in a class','24','Integer','Counting gives a whole number.'],
+  ['Temperature','21.5','Real','Measurements can have a fractional part.'],
+  ['Has the fee been paid?','False','Boolean','A yes/no value is Boolean.'],
+  ['Seat row letter','F','Character','A single character.'],
+  ['Height in metres','1.75','Real','A fractional measurement.'],
+  ['Student ID','S00123','String','It contains a letter and leading zeros, and is never used in arithmetic.'],
+  ['Goals scored in a match','3','Integer','A count: always a whole number.'],
+  ['Email address','aled@example.com','String','A sequence of letters and symbols.'],
+  ['Is the light switched on?','True','Boolean','On or off: two states, so one bit is enough.'],
+  ['Average test mark','67.5','Real','An average is often not a whole number.']
+];
+let dR=0,dD=0;
+function buildDT(){
+  const box=document.getElementById('dtCards');box.innerHTML='';dR=0;dD=0;dtTally();
+  ITEMS.map((_,i)=>i).sort(()=>Math.random()-.5).forEach(idx=>{
+    const [item,eg,ans,why]=ITEMS[idx];
+    const c=document.createElement('div');c.className='card';
+    const p=document.createElement('p');p.className='item';p.textContent=item;
+    const e=document.createElement('p');e.className='eg';e.textContent='e.g. '+eg;
+    const ch=document.createElement('div');ch.className='choices';
+    const w=document.createElement('p');w.className='why';
+    TYPES.forEach(t=>{
+      const b=document.createElement('button');b.textContent=t;
+      b.onclick=()=>{if(c.dataset.done)return;c.dataset.done=1;dD++;
+        if(t===ans){b.classList.add('picked-right');c.classList.add('right');dR++;w.textContent='Correct. '+why}
+        else{b.classList.add('picked-wrong');c.classList.add('wrong');[...ch.children].find(x=>x.textContent===ans).classList.add('picked-right');w.textContent='Best answer: '+ans+'. '+why}
+        dtTally()};
+      ch.append(b)});
+    c.append(p,e,ch,w);box.append(c);
+  });
+}
+function dtTally(){document.getElementById('dtTally').textContent=dD<ITEMS.length?dD+' of '+ITEMS.length+' answered, '+dR+' correct':'All done: '+dR+' out of '+ITEMS.length+' correct.'}
+document.getElementById('dtReset').onclick=buildDT;
+buildDT();
+</script>
+</body>
+</html>
