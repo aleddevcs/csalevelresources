@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Huffman Builder</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.controls label{font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.txtin{border:2px solid #CC9900;border-radius:6px;padding:6px 10px;background:var(--bg);color:var(--ink);font:16px "Courier New",monospace;min-width:240px;width:100%;max-width:420px}
+.stats{display:flex;gap:18px}
+.stat{font-size:13px;color:var(--muted);text-align:right}
+.stat b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-family:Cambria,Georgia,serif}
+.bigtext{font:700 26px "Courier New",monospace;color:var(--navy);letter-spacing:2px;word-break:break-word}
+.bigtext .sp{color:#CC9900}
+table.ft td{text-align:left}
+td.big{font-size:20px}
+td.ok{background:var(--okBg)}
+td.bad{background:var(--badBg)}
+.twrap{overflow-x:auto}
+.twrap svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.edge{stroke:var(--navy);stroke-width:2}
+.edge.hl{stroke:#CC9900;stroke-width:4}
+.blab{fill:#8A6700;font:700 13px Calibri,Arial,sans-serif;text-anchor:middle}
+.hn circle{fill:var(--bg);stroke:var(--navy);stroke-width:2.5}
+.hn rect{fill:var(--soft);stroke:#CC9900;stroke-width:2}
+.hn .ch{fill:var(--navy);font:700 15px "Courier New",monospace;text-anchor:middle;dominant-baseline:central}
+.hn .wt{fill:var(--muted);font:700 11px Calibri,Arial,sans-serif;text-anchor:middle;dominant-baseline:central}
+.hn.click{cursor:pointer}
+.hn.click:hover circle,.hn.click:hover rect{stroke-width:4}
+.hn.picked circle,.hn.picked rect{fill:#CC9900;stroke:#CC9900}
+.hn.picked .ch,.hn.picked .wt{fill:#1F2A36}
+.meter3{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.meter3 div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.meter3 small{display:block;color:var(--muted);font-size:13px}
+.meter3 b{font-family:Cambria,Georgia,serif;font-size:20px;color:var(--navy)}
+.meter3 b.good{color:var(--ok)}
+.binbox{font-family:"Courier New",monospace;font-weight:700;font-size:16px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;word-break:break-word;color:var(--navy);margin:8px 0}
+.olist{display:grid;gap:6px}
+.opt.wide{font-family:Calibri,Arial,sans-serif;font-weight:400;text-align:left;font-size:15px}
+.opt.picked{border-color:var(--navy);background:var(--soft);font-weight:700}
+.tfrow{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px;display:grid;gap:6px}
+.tfrow.ok{border-color:var(--ok);background:var(--okBg)}
+.tfrow.bad{border-color:var(--bad);background:var(--badBg)}
+nav button{padding:10px 18px}
+@media (max-width:800px){.meter3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Huffman Builder</h1><div class="spec">Unit 3 · 3.8.1 · Huffman encoding: frequent characters get the shortest codes</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+const PRE=[['Betty Botter bought some butter','The notes example'],['abracadabra','abracadabra'],['she sells sea shells','she sells sea shells'],['mississippi','mississippi']];
+const show=c=>c===' '?'_':c;
+const S={tab:0,text:PRE[0][0],cust:'',counts:{},cChecked:false,forest:null,pick:[],bmsg:null,bcls:'',bwrong:0,enc:'',dec:{ans:'',checked:false,bits:''},ord:[],ordChecked:false,tf:{}};
+function freqs(){const f={};S.text.toLowerCase().split('').forEach(c=>f[c]=(f[c]||0)+1);return Object.entries(f).sort((a,b)=>a[1]-b[1]||a[0].localeCompare(b[0]));}
+let uid=0;
+function resetForest(){S.forest=freqs().map(([c,w])=>({id:uid++,ch:c,w,left:null,right:null}));S.pick=[];S.bmsg=null;S.bwrong=0;}
+function setText(t){S.text=t;S.counts={};S.cChecked=false;resetForest();S.enc='';S.dec={ans:'',checked:false,bits:''};}
+resetForest();
+function root(){return S.forest.length===1?S.forest[0]:null;}
+function codes(){const r=root();const m={};if(!r)return m;const walk=(n,p)=>{if(n.ch!==undefined&&n.ch!==null&&!n.left){m[n.ch]=p||'0';return;}walk(n.left,p+'0');walk(n.right,p+'1');};walk(r,'');return m;}
+function autoJoin(){const f=S.forest.slice().sort((a,b)=>a.w-b.w);join(f[0],f[1]);}
+function join(a,b){const [l,r]=a.w<=b.w?[a,b]:[b,a];const n={id:uid++,ch:null,w:a.w+b.w,left:l,right:r};S.forest=S.forest.filter(x=>x!==a&&x!==b);S.forest.push(n);S.forest.sort((x,y)=>x.w-y.w);}
+/* ---------- forest drawing ---------- */
+function forestSVG(trees,o={}){
+  const DX=52,DY=62,R=19,PAD=26;let col=0;const pos=new Map();let maxD=0;
+  trees.forEach((t,ti)=>{const walk=(n,d)=>{if(!n)return;if(!n.left&&!n.right){pos.set(n.id,{x:col++,d});}else{walk(n.left,d+1);walk(n.right,d+1);const a=pos.get(n.left.id),b=pos.get(n.right.id);pos.set(n.id,{x:(a.x+b.x)/2,d});}maxD=Math.max(maxD,d);};walk(t,0);col+=0.6;});
+  const W=Math.max(320,col*DX+PAD*2),Hh=(maxD+1)*DY+PAD*1.6;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${Hh}`,role:'img','aria-label':'Huffman tree'});
+  const P=id=>{const p=pos.get(id);return [PAD+p.x*DX+DX/2,PAD+p.d*DY];};
+  const edges=n=>{if(!n||!n.left)return;[[n.left,'0'],[n.right,'1']].forEach(([c,lab])=>{const [x1,y1]=P(n.id),[x2,y2]=P(c.id);el('line',{x1,y1,x2,y2,class:'edge'+(o.path&&o.path.has(c.id)?' hl':'')},svg);
+    el('text',{x:(x1+x2)/2+(lab==='0'?-10:10),y:(y1+y2)/2-4,class:'blab'},svg).textContent=lab;edges(c);});};
+  trees.forEach(edges);
+  const nodes=n=>{if(!n)return;const [x,y]=P(n.id);const leaf=!n.left;const isRoot=trees.includes(n);
+    const picked=S.pick.includes(n.id);const g=el('g',{class:'hn'+(leaf?' leaf':'')+(picked?' picked':'')+(o.click&&isRoot?' click':'')+(o.path&&o.path.has(n.id)?' hl':'')},svg);
+    if(leaf)el('rect',{x:x-R,y:y-R,width:2*R,height:2*R,rx:6},g);else el('circle',{cx:x,cy:y,r:R},g);
+    if(leaf){el('text',{x,y:y-6,class:'ch'},g).textContent=show(n.ch);el('text',{x,y:y+9,class:'wt'},g).textContent=String(n.w);}
+    else el('text',{x,y,class:'ch'},g).textContent=String(n.w);
+    if(o.click&&isRoot){g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',`${leaf?show(n.ch)+' ':''}weight ${n.w}`);g.addEventListener('click',()=>o.click(n));g.addEventListener('keydown',e=>{if(e.key==='Enter')o.click(n);});}
+    nodes(n.left);nodes(n.right);};
+  trees.forEach(nodes);
+  return h('div',{class:'twrap'},svg);
+}
+const textControls=()=>{const inp=h('input',{type:'text',value:S.cust,placeholder:'type your own text',class:'txtin','aria-label':'Your own text'});inp.addEventListener('input',()=>S.cust=inp.value);
+  return h('div',{class:'controls'},h('label',{},'Text',h('select',{onchange:e=>{setText(e.target.value);render();}},...PRE.map(([t,l])=>{const o=h('option',{value:t},l);if(t===S.text)o.selected=true;return o;}),...(PRE.some(p=>p[0]===S.text)?[]:[h('option',{value:S.text,selected:true},'Your text')]))),
+    inp,h('button',{class:'btn ghost',onclick:()=>{if(S.cust.trim().length>1){setText(S.cust.trim());render();}}},'Use my text'));};
+
+/* ---------- FREQUENCY ---------- */
+function freqView(){
+  const F=freqs();let right=0;
+  const rows=F.map(([c,w])=>{const inp=h('input',{type:'number',min:'0',class:'numin',value:S.counts[c]??'','aria-label':`Count of ${show(c)}`,disabled:S.cChecked||null});inp.addEventListener('input',()=>S.counts[c]=inp.value);
+    const ok=Number(S.counts[c])===w;if(ok)right++;return h('tr',{},h('td',{class:'mono big'},show(c)),h('td',{class:S.cChecked?(ok?'ok':'bad'):null},inp),S.cChecked?h('td',{},String(w)):h('td',{class:'small'},'?'));});
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Step 1: count the characters')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Count how many times each character appears. Spaces count too (shown as _). Upper and lower case are treated as the same character.'),
+    textControls(),
+    h('div',{class:'panel'},h('div',{class:'bigtext'},S.text.split('').map(c=>h('span',{class:c===' '?'sp':null},c===' '?'_':c))),h('div',{class:'small'},`${S.text.length} characters × 8-bit ASCII = ${S.text.length*8} bits`)),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Frequency table'),h('table',{class:'t ft'},h('thead',{},h('tr',{},h('th',{},'Character'),h('th',{},'Your count'),h('th',{},'Answer'))),h('tbody',{},...rows)),
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:S.cChecked||null,onclick:()=>{S.cChecked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{F.forEach(([c,w])=>S.counts[c]=w);S.cChecked=true;render();}},'Count for me'),h('button',{class:'btn ghost',onclick:()=>{S.counts={};S.cChecked=false;render();}},'Reset')),
+        S.cChecked?h('div',{class:'fb '+(right===F.length?'ok':'bad')},`${right} of ${F.length} correct.`,right===F.length?' Now build the tree.':''):null),
+      h('div',{class:'panel'},h('h3',{},'Why count?'),h('p',{style:'margin:0'},'Huffman encoding gives the MOST frequent characters the SHORTEST codes. The table, sorted from least to most frequent, is where the tree starts.'))));
+}
+
+/* ---------- BUILD ---------- */
+function buildView(){
+  const done=!!root();
+  const click=n=>{if(done)return;if(S.pick.includes(n.id)){S.pick=S.pick.filter(x=>x!==n.id);render();return;}S.pick.push(n.id);
+    if(S.pick.length===2){const [a,b]=S.pick.map(id=>S.forest.find(x=>x.id===id));const ws=S.forest.map(x=>x.w).sort((x,y)=>x-y);const ok=[a.w,b.w].sort((x,y)=>x-y).join()===[ws[0],ws[1]].join();
+      if(ok){join(a,b);S.bmsg=`Joined ${a.w} and ${b.w} into a new node of ${a.w+b.w}.`;S.bcls='ok';}
+      else{S.bwrong++;S.bmsg=`Not the two smallest. The two smallest weights left are ${ws[0]} and ${ws[1]}.`;S.bcls='bad';}
+      S.pick=[];}
+    render();};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Step 2: build the tree'),h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},String(S.forest.length)),'trees left'),h('div',{class:'stat'},h('b',{},String(S.bwrong)),'mistakes'))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Click the TWO nodes with the smallest numbers to join them. Their total becomes a new node. Repeat until there is one tree. If there is a tie, either choice is fine.'),
+    textControls(),
+    h('div',{class:'panel'},forestSVG(S.forest,{click:done?null:click})),
+    S.bmsg?h('div',{class:'fb '+S.bcls,'aria-live':'polite'},S.bmsg):null,
+    done?h('div',{class:'fb ok'},h('b',{},'One tree! '),'Every left branch is 0 and every right branch is 1. Go to Step 3 to read the codes.'):null,
+    h('div',{class:'actions'},!done?h('button',{class:'btn ghost',onclick:()=>{autoJoin();S.bmsg='Joined the two smallest for you.';S.bcls='';render();}},'Join the two smallest for me'):null,
+      !done?h('button',{class:'btn ghost',onclick:()=>{while(!root())autoJoin();render();}},'Finish the tree'):null,
+      h('button',{class:'btn ghost',onclick:()=>{resetForest();render();}},'Start again')));
+}
+
+/* ---------- CODES ---------- */
+function codesView(){
+  const r=root();
+  if(!r)return h('div',{},h('div',{class:'top'},h('h2',{},'Step 3: codes and bits')),h('div',{class:'fb bad'},'Build the tree in Step 2 first.'),h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{while(!root())autoJoin();render();}},'Build it for me')));
+  const C=codes(),F=freqs();const n=S.text.length,orig=n*8;const huff=F.reduce((t,[c,w])=>t+w*C[c].length,0);
+  const enc=S.enc.toLowerCase().split('').filter(c=>C[c]!==undefined);
+  const encBits=enc.map(c=>C[c]).join(' ');
+  const pathIds=new Set();
+  if(!S.dec.bits){const word=F.slice(-3).map(x=>x[0]).reverse().join('').replace(/ /g,'');S.dec.word=(word||'ab').slice(0,3);S.dec.bits=S.dec.word.split('').map(c=>C[c]).join('');}
+  const din=h('input',{type:'text',class:'txtin',value:S.dec.ans,placeholder:'decoded characters','aria-label':'Decoded text',disabled:S.dec.checked||null});din.addEventListener('input',()=>S.dec.ans=din.value);
+  const ein=h('input',{type:'text',class:'txtin',value:S.enc,placeholder:'type a message using these characters','aria-label':'Message to encode'});ein.addEventListener('input',()=>{S.enc=ein.value;const o=document.getElementById('encout');if(o){const e2=S.enc.toLowerCase().split('').filter(c=>C[c]!==undefined);o.textContent=e2.map(c=>C[c]).join(' ')||' ';document.getElementById('encbits').textContent=`${e2.reduce((t,c)=>t+C[c].length,0)} bits with Huffman vs ${e2.length*8} bits in ASCII`;}});
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Step 3: codes and bits')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Each code is the path from the root to the character: 0 for left, 1 for right. Notice that the most frequent characters have the shortest codes, and no code is the start of another.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},forestSVG([r])),
+      h('div',{class:'panel'},h('h3',{},'Code table'),h('table',{class:'t ft'},h('thead',{},h('tr',{},...['Character','Frequency','Code','Bits used'].map(t=>h('th',{},t)))),
+        h('tbody',{},...F.slice().reverse().map(([c,w])=>h('tr',{},h('td',{class:'mono big'},show(c)),h('td',{},String(w)),h('td',{class:'mono'},C[c]),h('td',{},`${w} × ${C[c].length} = ${w*C[c].length}`))))))),
+    h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'How much smaller?'),h('div',{class:'meter3'},
+      h('div',{},h('small',{},'8-bit ASCII'),h('b',{},`${orig} bits`),h('small',{},`${n} × 8`)),
+      h('div',{},h('small',{},'Huffman'),h('b',{class:'good'},`${huff} bits`),h('small',{},'sum of frequency × code length')),
+      h('div',{},h('small',{},'Ratio (original : compressed)'),h('b',{},`${(orig/huff).toFixed(2)} : 1`)),
+      h('div',{},h('small',{},'Saving'),h('b',{},`${((orig-huff)/orig*100).toFixed(1)}%`))),
+      h('p',{class:'small',style:'margin:8px 0 0'},'Remember: the tree (or code table) must also be stored with the file so it can be decoded. Different tie-breaks give different codes, but the same total.')),
+    h('div',{class:'grid',style:'margin-top:12px'},
+      h('div',{class:'panel'},h('h3',{},'Encode a message'),ein,h('div',{class:'binbox',id:'encout'},encBits||' '),h('div',{class:'small',id:'encbits'},`${enc.reduce((t,c)=>t+C[c].length,0)} bits with Huffman vs ${enc.length*8} bits in ASCII`)),
+      h('div',{class:'panel'},h('h3',{},'Decode this'),h('div',{class:'binbox'},S.dec.bits),h('p',{class:'small'},'Start at the root. Follow 0 = left, 1 = right until you reach a character, then go back to the root. Spaces are shown as _.'),din,
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:S.dec.checked||null,onclick:()=>{S.dec.checked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{S.dec={ans:'',checked:false,bits:''};render();}},'New one')),
+        S.dec.checked?h('div',{class:'fb '+(S.dec.ans.toLowerCase().replace(/_/g,' ')===S.dec.word?'ok':'bad')},S.dec.ans.toLowerCase().replace(/_/g,' ')===S.dec.word?'Correct!':`Not quite: it decodes to "${S.dec.word.replace(/ /g,'_')}".`):null)));
+}
+
+/* ---------- EXPLAIN ---------- */
+const STEPS=['Count how often each character appears','Sort the characters from least to most frequent','Join the two least frequent into a new node with their total','Repeat until there is only one tree','Label left branches 0 and right branches 1','Read each code from the root to the character'];
+const TF=[
+ ['Huffman encoding is a lossless compression method.',true,'The original text can be re-created exactly from the codes and the tree.'],
+ ['The most frequent character gets the longest code.',false,'The other way round: the most frequent characters get the SHORTEST codes.'],
+ ['No Huffman code is the start of another code.',true,'Characters are only at the ends of branches, so a code can never continue into another one. That is why the bits need no gaps.'],
+ ['The compressed file does not need to store the tree.',false,'Without the tree or code table, the receiver could not turn the bits back into characters.'],
+ ['Two different correct trees for the same text always use the same total number of bits.',true,'Ties can be broken either way, which changes the codes, but the total is always the same.'],
+ ['Every character in a Huffman code uses 8 bits.',false,'That is ASCII. Huffman codes have different lengths: that is where the saving comes from.'],
+];
+function explainView(){
+  const shuffled=[3,0,5,2,4,1];
+  if(!S.ord.length&&!S.ordInit){S.ordInit=true;}
+  const placed=S.ord;const ok=S.ordChecked&&placed.every((v,i)=>v===i);
+  const right=Object.entries(S.tf).filter(([i,v])=>v===TF[i][1]).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Explain it')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'You are unlikely to build a whole tree in the exam, but you may need to EXPLAIN Huffman encoding. Put the steps in order, then decide which statements are true.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Put the steps in order (click them in order)'),
+        h('div',{class:'olist'},...shuffled.map(k=>{const pos=placed.indexOf(k);return h('button',{class:'opt wide'+(pos>=0?' picked':''),disabled:pos>=0||S.ordChecked||null,onclick:()=>{placed.push(k);render();}},pos>=0?`${pos+1}. ${STEPS[k]}`:STEPS[k]);})),
+        h('div',{class:'actions'},h('button',{class:'btn primary',disabled:placed.length<6||S.ordChecked||null,onclick:()=>{S.ordChecked=true;render();}},'Check'),h('button',{class:'btn ghost',onclick:()=>{S.ord=[];S.ordChecked=false;render();}},'Reset')),
+        S.ordChecked?h('div',{class:'fb '+(ok?'ok':'bad')},ok?'Correct order.':h('div',{},'Not quite. The correct order:',h('ol',{},...STEPS.map(t=>h('li',{},t))))):null),
+      h('div',{class:'panel'},h('h3',{},`True or false? ${right} / ${TF.length}`),...TF.map(([t,a,why],i)=>{const g=S.tf[i];return h('div',{class:'tfrow'+(g!==undefined?(g===a?' ok':' bad'):'')},h('div',{},t),
+        h('div',{class:'opts'},...[[true,'True'],[false,'False']].map(([v,l])=>{let cl='opt';if(g!==undefined){if(v===a)cl+=' ok';else if(v===g)cl+=' bad';}return h('button',{class:cl,disabled:g!==undefined||null,onclick:()=>{S.tf[i]=v;render();}},l);})),
+        g!==undefined?h('div',{class:'why'},why):null);}))));
+}
+const TABS=[['1. Count',freqView],['2. Build the tree',buildView],['3. Codes and bits',codesView],['Explain it',explainView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Compression Comparison</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.formula{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:16px}
+.formula b{color:var(--navy)}
+.ccard{margin-bottom:10px}
+.ctitle{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--navy)}
+.pill{font-size:12px;font-weight:700;border-radius:10px;padding:2px 8px;color:#fff}
+.pill.lossless{background:#003366}
+.pill.lossy{background:#CC9900;color:#1F2A36}
+.calcrow{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:8px}
+.calcrow label{display:grid;gap:3px;font-size:13px;color:var(--muted)}
+.x1{display:flex;gap:4px;align-items:center;font-weight:700;color:var(--navy)}
+.bars{margin-bottom:14px}
+.bh{font-family:Cambria,Georgia,serif;font-weight:700;color:var(--navy);margin-bottom:4px}
+.brow{display:grid;grid-template-columns:60px 1fr 80px;gap:8px;align-items:center;margin:4px 0}
+.bn{font-weight:700;color:var(--navy)}
+.bn.wide{grid-column:auto}
+.btrack{height:20px;background:var(--bg);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.bfill{height:100%}
+.bfill.lossless{background:#003366}
+.bfill.lossy{background:#CC9900}
+.bv{font-weight:700;font-size:14px;text-align:right}
+.olist{display:grid;gap:6px}
+.opt.wide{font-family:Calibri,Arial,sans-serif;font-weight:400;text-align:left;font-size:14.5px}
+.slider{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.slider input{width:300px;max-width:100%;accent-color:#CC9900}
+.bigl{font-family:Cambria,Georgia,serif;font-size:30px;font-weight:700;color:var(--navy)}
+.panel .brow{grid-template-columns:170px 1fr 90px}
+.panel .bars .brow{grid-template-columns:60px 1fr 80px}
+.tips{margin:0;padding-left:20px}
+.disc{background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Compression Comparison</h1><div class="spec">Unit 3 · 3.8.2 · Ratio, saving, compression time and decompression time</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const DATA=[
+ {file:'Text document',alg:'ZIP',type:'lossless',o:100,c:50,ct:30,dt:10},
+ {file:'Photograph',alg:'JPEG',type:'lossy',o:5,c:1,ct:2,dt:1},
+ {file:'Audio',alg:'MP3',type:'lossy',o:50,c:5,ct:20,dt:5},
+ {file:'Image',alg:'PNG',type:'lossless',o:10,c:7.5,ct:10,dt:5},
+];
+const S={tab:0,calc:{},q:{},sc:{},lvl:5};
+/* ---------- CALCULATE ---------- */
+function calcView(){
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Calculate')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Work out the compression ratio (as x : 1, to 2 decimal places) and the percentage saving (to 1 decimal place) for each file. These are the examples from the notes.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Formulas'),
+        h('div',{class:'formula'},h('b',{},'Compression ratio'),' = original size : compressed size',h('div',{class:'small'},'Divide both sides by the compressed size to get "x : 1". 100 : 50 = 2 : 1.')),
+        h('div',{class:'formula'},h('b',{},'Percentage saving'),' = (original − compressed) ÷ original × 100'),
+        h('div',{class:'formula'},h('b',{},'Compression time'),' and ',h('b',{},'decompression time'),h('div',{class:'small'},'How long it takes to make the file smaller, and to turn it back into something you can use.'))),
+      h('div',{},...DATA.map((d,i)=>{const st=S.calc[i]||(S.calc[i]={r:'',s:'',checked:false});const ratio=d.o/d.c,save=(d.o-d.c)/d.o*100;
+        const r=h('input',{type:'number',step:'0.01',class:'numin',value:st.r,'aria-label':'Ratio',disabled:st.checked||null});r.addEventListener('input',()=>st.r=r.value);
+        const s=h('input',{type:'number',step:'0.1',class:'numin',value:st.s,'aria-label':'Saving',disabled:st.checked||null});s.addEventListener('input',()=>st.s=s.value);
+        const okR=Math.abs(Number(st.r)-ratio)<0.006,okS=Math.abs(Number(st.s)-save)<0.06;
+        return h('div',{class:'ccard'+(st.checked?(okR&&okS?' ok':' bad'):'')},
+          h('div',{class:'ctitle'},h('b',{},`${d.file}: ${d.alg}`),h('span',{class:'pill '+d.type},d.type)),
+          h('div',{class:'small'},`${d.o} MB → ${d.c} MB  ·  compress ${d.ct} s  ·  decompress ${d.dt} s`),
+          h('div',{class:'calcrow'},h('label',{},'Ratio',h('span',{class:'x1'},r,' : 1')),h('label',{},'Saving %',s),h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check')),
+          st.checked?h('div',{class:'why'},`${d.o} : ${d.c} = ${ratio.toFixed(2)} : 1${okR?' ✓':' ✗'}.  (${d.o} − ${d.c}) ÷ ${d.o} × 100 = ${save.toFixed(1)}%${okS?' ✓':' ✗'}.`):null);}))));
+}
+/* ---------- COMPARE ---------- */
+const QS=[
+ ['Which algorithm gives the highest compression ratio?',['ZIP','JPEG','MP3','PNG'],'MP3','MP3 shrinks 50 MB to 5 MB: 10 : 1.'],
+ ['Which algorithm takes the longest to compress its file?',['ZIP','JPEG','MP3','PNG'],'ZIP','ZIP takes 30 s, but it is also compressing the biggest file (100 MB).'],
+ ['In every example, which is quicker?',['Compressing','Decompressing','They are always equal'],'Decompressing','Decompressing is quicker in all four. That suits files that are compressed once but opened many times.'],
+ ['Why do the lossy algorithms (JPEG, MP3) get higher ratios than the lossless ones?',['They are newer','They permanently throw away data people will not notice','They use bigger files','They compress more slowly'],'They permanently throw away data people will not notice','Lossless methods must keep every bit, so they cannot shrink files as much.'],
+ ['PNG only saves 25%. Why might someone still choose it over JPEG for an image?',['PNG is always faster','PNG is lossless, so every pixel is kept exactly','PNG files are always smaller','JPEG cannot store colour'],'PNG is lossless, so every pixel is kept exactly','For logos, diagrams or medical images, keeping exact detail matters more than file size.'],
+];
+function bars(key,label,unit,max){return h('div',{class:'bars'},h('div',{class:'bh'},label),...DATA.map(d=>{const v=typeof key==='function'?key(d):d[key];return h('div',{class:'brow'},h('span',{class:'bn'},d.alg),h('div',{class:'btrack'},h('div',{class:'bfill '+d.type,style:`width:${Math.max(2,v/max*100)}%`})),h('span',{class:'bv'},`${Number.isInteger(v)?v:v.toFixed(2)}${unit}`));}));}
+function compareView(){
+  const Q=S.q;const right=Object.entries(Q).filter(([i,v])=>v===QS[i][2]).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Compare'),h('div',{class:'mscore'},`${right} / ${QS.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Read the charts, then answer the questions. Navy bars are lossless; amber bars are lossy.'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},bars(d=>d.o/d.c,'Compression ratio (x : 1)',' : 1',10),bars(d=>(d.o-d.c)/d.o*100,'Percentage saving','%',100),bars('ct','Compression time',' s',30),bars('dt','Decompression time',' s',30)),
+      h('div',{},...QS.map(([q,opts,a,why],i)=>{const g=Q[i];return h('div',{class:'ccard'+(g?(g===a?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy);margin-bottom:6px'},q),
+        h('div',{class:'opts'},...opts.map(o=>{let cl='opt';if(g){if(o===a)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{Q[i]=o;render();}},o);})),
+        g?h('div',{class:'why'},h('b',{},g===a?'✓ ':'✗ '),why):null);}))));
+}
+/* ---------- CHOOSE ---------- */
+const SC=[
+ {t:'A long report is emailed to a client. Every word must arrive exactly as written.',alg:'ZIP',reasons:[['It is lossless, so the document is re-created exactly',1],['It gives the highest ratio of all four',0],['It is the fastest to compress',0]]},
+ {t:'A photo gallery on a website must load quickly for thousands of visitors.',alg:'JPEG',reasons:[['High ratio and fast decompression, and lost detail is barely visible',1],['It keeps every pixel exactly',0],['It is the only format that stores colour',0]]},
+ {t:'A podcast episode is downloaded by listeners on their phones.',alg:'MP3',reasons:[['A 10 : 1 ratio makes downloads small, and removed sounds are ones people cannot hear',1],['It is lossless',0],['It takes the least time to compress',0]]},
+ {t:'A hospital stores X-ray images. Doctors must see every detail.',alg:'PNG',reasons:[['Lossless: no detail is lost, so a lower ratio is accepted',1],['It gives the smallest files',0],['It is lossy, which keeps the important parts',0]]},
+ {t:'A company logo with sharp edges and flat colours is used on a website.',alg:'PNG',reasons:[['Lossless, so the sharp edges have no blurry artefacts',1],['It is the fastest to decompress',0],['JPEG cannot be used on websites',0]]},
+ {t:'A programmer backs up all their source-code files every night.',alg:'ZIP',reasons:[['Lossless: one changed character could break the program. Slow compression is fine overnight',1],['It is lossy but very fast',0],['It always halves every file',0]]},
+];
+function chooseView(){
+  const right=SC.filter((s,i)=>S.sc[i]&&S.sc[i].a===s.alg&&S.sc[i].r!==undefined&&s.reasons[S.sc[i].r][1]).length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Choose the algorithm'),h('div',{class:'mscore'},`${right} / ${SC.length}`)),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Pick the best algorithm for each job, then the best REASON. In the exam, the reason is where the marks are.'),
+    h('div',{class:'cards'},...SC.map((s,i)=>{const st=S.sc[i]||(S.sc[i]={});const algOk=st.a===s.alg;const done=st.r!==undefined;const full=done&&algOk&&s.reasons[st.r][1];
+      return h('div',{class:'ccard'+(done?(full?' ok':' bad'):'')},h('div',{style:'font-weight:700;color:var(--navy);min-height:52px'},s.t),
+        h('div',{class:'opts'},...['ZIP','JPEG','MP3','PNG'].map(o=>{let cl='opt';if(st.a){if(o===s.alg)cl+=' ok';else if(o===st.a)cl+=' bad';}return h('button',{class:cl,disabled:st.a||null,onclick:()=>{st.a=o;render();}},o);})),
+        st.a?h('div',{style:'margin-top:8px'},h('div',{class:'small'},`Why ${s.alg}?`),h('div',{class:'olist'},...s.reasons.map(([r,ok],k)=>{let cl='opt wide';if(done){if(ok)cl+=' ok';else if(k===st.r)cl+=' bad';}return h('button',{class:cl,disabled:done||null,onclick:()=>{st.r=k;render();}},r);}))):null);})),
+    h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.sc={};render();}},'Reset')));
+}
+/* ---------- TRADE-OFF ---------- */
+function tradeView(){
+  const L=S.lvl;const ratio=1.6+0.12*L,ct=4*Math.pow(1.33,L-1),dt=8-0.25*L,size=100/ratio;
+  const sl=h('input',{type:'range',min:'1',max:'9',value:String(L),'aria-label':'Compression level'});sl.addEventListener('input',()=>{S.lvl=Number(sl.value);render();const n=document.querySelector('input[type=range]');n&&n.focus();});
+  const bar=(lab,v,max,unit,cls)=>h('div',{class:'brow'},h('span',{class:'bn wide'},lab),h('div',{class:'btrack'},h('div',{class:'bfill '+cls,style:`width:${Math.min(100,v/max*100)}%`})),h('span',{class:'bv'},`${v.toFixed(v<10?2:1)}${unit}`));
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'The trade-off')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Many lossless compressors (like ZIP) let you choose a level from fastest (1) to maximum (9). Move the slider for a 100 MB text file. What do you gain, and what does it cost? (Illustrative figures.)'),
+    h('div',{class:'panel'},h('div',{class:'slider'},h('b',{},'Level'),h('span',{class:'small'},'1 fastest'),sl,h('span',{class:'small'},'9 maximum'),h('span',{class:'bigl'},String(L))),
+      bar('Compressed size',size,100,' MB','lossless'),bar('Ratio',ratio,3,' : 1','lossless'),bar('Compression time',ct,40,' s','lossy'),bar('Decompression time',dt,10,' s','lossy')),
+    h('div',{class:'grid',style:'margin-top:12px'},
+      h('div',{class:'panel'},h('h3',{},'Which level would you choose?'),h('ul',{class:'tips'},
+        h('li',{},h('b',{},'Live video call: '),'a fast level. The data must be compressed in real time.'),
+        h('li',{},h('b',{},'Nightly backup: '),'maximum. It runs once, overnight, and storage costs money.'),
+        h('li',{},h('b',{},'Files downloaded by millions: '),'a high level. Compress once, decompress many times.'))),
+      h('div',{class:'disc'},h('h3',{},'Talk about it'),h('ul',{},
+        h('li',{},'Going from level 1 to 9, how much smaller does the file get? How much longer does it take to compress?'),
+        h('li',{},'Does decompression get slower too? Why does that matter for files many people download?'),
+        h('li',{},'Write one exam sentence comparing two levels using ratio AND time.')))));
+}
+const TABS=[['Calculate',calcView],['Compare',compareView],['Choose the algorithm',chooseView],['The trade-off',tradeView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>
