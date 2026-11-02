@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Test Bench</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.txtin{border:2px solid #CC9900;border-radius:6px;padding:7px 10px;background:var(--bg);color:var(--ink);font:16px "Courier New",monospace;width:220px}
+.addrow{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.twrap{overflow-x:auto}
+table.t td.mono,.mono{font-family:"Courier New",monospace;font-weight:700}
+tr.badrow td{background:var(--badBg)}
+tr.okrow td{background:var(--okBg)}
+.tips{margin:8px 0 0;padding-left:20px;font-size:15px}
+.disc{margin-top:12px;background:var(--okBg);border-radius:10px;padding:10px 14px}
+.disc h3{color:var(--ok);font-size:16px;margin-bottom:4px}
+.disc ul{margin:0;padding-left:20px}
+.big2{font-size:17px;color:var(--navy);margin-bottom:6px}
+.ccard .opt{font-family:Calibri,Arial,sans-serif;font-weight:700;font-size:13px}
+.numin.wide{width:110px}
+table.plan select{border:2px solid #CC9900;border-radius:6px;padding:4px 6px;background:var(--bg);color:var(--ink)}
+.mscore{margin-right:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Test Bench</h1><div class="spec">Unit 3 · 3.9.1 · Selecting test data: normal, boundary and invalid</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const isInt=s=>/^-?\d+$/.test(String(s).trim());
+/* ---------- programs ---------- */
+const PROGS=[
+ {name:'Three-digit number (like 2022 Q5)',spec:'Input a whole number from 100 to 999 inclusive. If it is valid, output its three digits, the digit sum and the number. Otherwise output "error".',
+  expected:x=>{if(!isInt(x))return'error';const n=Number(x);if(n>99&&n<1000){const a=Math.floor(n/100),c=n%10,b=Math.floor((n%100-c)/10);return `${a}, ${b}, ${c}, ${a+b+c}, ${n}`;}return'error';},
+  actual:x=>{if(!isInt(x))return'CRASH: runtime error (type mismatch)';const n=Number(x);if(n>100&&n<=1000){const a=Math.floor(n/100),c=n%10,b=Math.floor((n%100-c)/10);return `${a}, ${b}, ${c}, ${a+b+c}, ${n}`;}return'error';},
+  bugs:[['Rejects 100, the lowest valid number',x=>isInt(x)&&Number(x)===100,'if x > 100 ... should be x > 99 (or x >= 100)'],['Accepts 1000, which is too big',x=>isInt(x)&&Number(x)===1000,'... AND x <= 1000 should be x < 1000 (or x <= 999)'],['Crashes on non-numeric input',x=>!isInt(x)&&String(x).trim()!=='','The input is never validated as a whole number before it is used']],
+  code:'input x\nif x > 100 AND x <= 1000 then     ← bugs 1 and 2\n    a = x DIV 100\n    ...\nelse\n    output "error"\nend if\n(no check that x is a whole number ← bug 3)'},
+ {name:'Pass mark checker',spec:'Input an exam mark, a whole number from 0 to 100. Output "Pass" if the mark is 40 or more, "Fail" if it is below 40, and "error" for anything else.',
+  expected:x=>{if(!isInt(x))return'error';const n=Number(x);if(n<0||n>100)return'error';return n>=40?'Pass':'Fail';},
+  actual:x=>{if(!isInt(x))return'error';const n=Number(x);if(n<0||n>101)return'error';return n>40?'Pass':'Fail';},
+  bugs:[['A mark of exactly 40 fails',x=>isInt(x)&&Number(x)===40,'if mark > 40 should be mark >= 40'],['Accepts 101, which is too high',x=>isInt(x)&&Number(x)===101,'if mark < 0 OR mark > 101 should use > 100']],
+  code:'input mark\nif mark < 0 OR mark > 101 then     ← bug 2\n    output "error"\nelse if mark > 40 then           ← bug 1\n    output "Pass"\nelse\n    output "Fail"\nend if'},
+];
+const S={tab:0,p:0,bh:PROGS.map(()=>({tests:[],val:''})),cl:{},plan:null};
+function bugView(){
+  const P=PROGS[S.p],st=S.bh[S.p];
+  const found=P.bugs.map(([d,f])=>st.tests.some(t=>f(t.x)));const nf=found.filter(Boolean).length;
+  const run=()=>{const x=st.val;if(String(x).trim()==='')return;const e=P.expected(x),a=P.actual(x);st.tests.unshift({x,e,a,ok:e===a});st.val='';render();};
+  const inp=h('input',{type:'text',class:'txtin',value:st.val,placeholder:'type a test input','aria-label':'Test input'});inp.addEventListener('input',()=>st.val=inp.value);inp.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+  const all=nf===P.bugs.length;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Bug Hunt'),h('div',{class:'dots'},PROGS.map((p,i)=>h('button',{class:'btn '+(i===S.p?'primary':'ghost'),onclick:()=>{S.p=i;render();}},p.name)))),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'This program has hidden bugs. Type test inputs and compare what it SHOULD output with what it ACTUALLY outputs. Find every bug using as few tests as you can.'),
+    h('div',{class:'grid'},
+      h('div',{},h('div',{class:'panel'},h('h3',{},'The specification'),h('p',{style:'margin:0'},P.spec)),
+        h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'Test it'),h('div',{class:'addrow'},inp,h('button',{class:'btn accent',onclick:run},'Run test')),
+          h('div',{class:'twrap'},h('table',{class:'t'},h('thead',{},h('tr',{},...['Input','Expected','Actual',''].map(t=>h('th',{},t)))),
+            h('tbody',{},...(st.tests.length?st.tests.map(t=>h('tr',{class:t.ok?null:'badrow'},h('td',{class:'mono'},t.x),h('td',{},t.e),h('td',{},t.a),h('td',{},t.ok?'✓':'BUG!'))):[h('tr',{},h('td',{colspan:'4',class:'small'},'No tests yet.'))])))))),
+      h('div',{},h('div',{class:'panel'},h('h3',{},`Bugs found: ${nf} of ${P.bugs.length}`),h('div',{class:'small',style:'margin-bottom:8px'},`Tests run: ${st.tests.length}`),
+          h('ul',{class:'meter'},...P.bugs.map(([d],i)=>h('li',{class:found[i]?'got':null},h('span',{class:'bx'},found[i]?'✓':''),found[i]?d:'??? (not found yet)')))),
+        all?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},'All bugs found! Here is the faulty code'),h('pre',{class:'code'},P.code),h('ul',{class:'tips'},...P.bugs.map(([d,,fix])=>h('li',{},h('b',{},d+': '),fix)))):null,
+        st.tests.length>=4?h('div',{class:'disc'},h('h3',{},'Think about it'),h('ul',{},h('li',{},'Which kinds of input found the bugs: typical values, values at the edges, or values of the wrong type?'),h('li',{},'Would a test plan with only normal data have found any of them?'),h('li',{},'For each boundary, which TWO values should you always test?'))):null,
+        h('div',{class:'actions'},h('button',{class:'btn ghost',onclick:()=>{S.bh[S.p]={tests:[],val:''};render();}},'Start again')))));
+}
+/* ---------- CLASSIFY ---------- */
+const CL=[
+ {spec:'Age: a whole number from 16 to 65 inclusive.',items:[['30','Normal'],['16','Boundary (accept)'],['65','Boundary (accept)'],['15','Boundary (reject)'],['66','Boundary (reject)'],['"sixteen"','Invalid'],['42.5','Invalid'],['-5','Invalid']]},
+ {spec:'Password: 8 to 20 characters long.',items:[['"tiger2024"  (9 characters)','Normal'],['"abcdefgh"  (8 characters)','Boundary (accept)'],['"abcdefg"  (7 characters)','Boundary (reject)'],['21 characters','Boundary (reject)'],['"" (empty)','Invalid'],['20 characters','Boundary (accept)']]},
+];
+const COPTS=['Normal','Boundary (accept)','Boundary (reject)','Invalid'];
+const WHY={'Normal':'A typical value well inside the range: it should be accepted.','Boundary (accept)':'It is exactly on the edge of the valid range, so it should be accepted.','Boundary (reject)':'It is just outside the edge of the range, so it should be rejected.','Invalid':'It is the wrong type or far outside the range, so it should be rejected with an error.'};
+function classifyView(){
+  let right=0,tot=0;
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Classify test data')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'For each specification, classify every test value. Boundary data is tested on BOTH sides of each edge, so decide whether each boundary value should be accepted or rejected.'),
+    ...CL.map((c,ci)=>h('div',{class:'panel',style:'margin-bottom:12px'},h('h3',{},c.spec),
+      h('div',{class:'cards'},...c.items.map(([v,a],ii)=>{const k=ci+':'+ii;const g=S.cl[k];tot++;if(g===a)right++;
+        return h('div',{class:'ccard'+(g?(g===a?' ok':' bad'):'')},h('div',{class:'mono big2'},v),
+          h('div',{class:'opts'},...COPTS.map(o=>{let cl='opt';if(g){if(o===a)cl+=' ok';else if(o===g)cl+=' bad';}return h('button',{class:cl,disabled:g||null,onclick:()=>{S.cl[k]=o;render();}},o);})),
+          g?h('div',{class:'why'},WHY[a]):null);})))),
+    h('div',{class:'actions'},h('span',{class:'mscore'},`${Object.keys(S.cl).filter(k=>{const [ci,ii]=k.split(':').map(Number);return S.cl[k]===CL[ci].items[ii][1];}).length} / ${CL.reduce((t,c)=>t+c.items.length,0)}`),h('button',{class:'btn ghost',onclick:()=>{S.cl={};render();}},'Reset')));
+}
+/* ---------- PLAN IT ---------- */
+const TYPES=['','Normal','Boundary (accept)','Boundary (reject)','Invalid'];
+function planInit(){S.plan={rows:Array.from({length:6},()=>({d:'',t:'',e:''})),checked:false};}
+planInit();
+function classifyTickets(d){const s=String(d).trim();if(!isInt(s))return 'Invalid';const n=Number(s);if(n===1||n===10)return 'Boundary (accept)';if(n===0||n===11)return 'Boundary (reject)';if(n>1&&n<10)return 'Normal';return 'Invalid';}
+const expOf=t=>t==='Normal'||t==='Boundary (accept)'?'Accepted':'Rejected';
+function planView(){
+  const P=S.plan;
+  const rows=P.rows.map((r,i)=>{const d=h('input',{type:'text',class:'numin wide',value:r.d,'aria-label':`Test ${i+1} data`,disabled:P.checked||null});d.addEventListener('input',()=>r.d=d.value);
+    const t=h('select',{'aria-label':`Test ${i+1} type`,disabled:P.checked||null},...TYPES.map(o=>{const op=h('option',{value:o},o||'type…');if(r.t===o)op.selected=true;return op;}));t.addEventListener('change',()=>r.t=t.value);
+    const e=h('select',{'aria-label':`Test ${i+1} expected`,disabled:P.checked||null},...['','Accepted','Rejected'].map(o=>{const op=h('option',{value:o},o||'expected…');if(r.e===o)op.selected=true;return op;}));e.addEventListener('change',()=>r.e=e.value);
+    let ok=null,why='';if(P.checked&&r.d.trim()){const ct=classifyTickets(r.d);ok=r.t===ct&&r.e===expOf(ct);why=ok?'✓':`${r.d} is ${ct}, so it should be ${expOf(ct).toLowerCase()}.`;}
+    return h('tr',{class:ok===null?null:ok?'okrow':'badrow'},h('td',{},String(i+1)),h('td',{},d),h('td',{},t),h('td',{},e),h('td',{class:'small'},why));});
+  let cov=null;
+  if(P.checked){const vals=P.rows.filter(r=>r.d.trim()).map(r=>r.d.trim());const has=f=>vals.some(f);
+    cov=[['A normal value (2 to 9)',has(v=>isInt(v)&&+v>1&&+v<10)],['The lower boundary: 1 (accept)',has(v=>isInt(v)&&+v===1)],['Just below: 0 (reject)',has(v=>isInt(v)&&+v===0)],['The upper boundary: 10 (accept)',has(v=>isInt(v)&&+v===10)],['Just above: 11 (reject)',has(v=>isInt(v)&&+v===11)],['Invalid data (e.g. "two", 2.5)',has(v=>!isInt(v))]];}
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Plan it')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Write a test plan for this specification. Use six tests that cover normal data, BOTH sides of BOTH boundaries, and invalid data. Give the type and the expected result for each.'),
+    h('div',{class:'panel'},h('h3',{},'Specification: a cinema booking app accepts 1 to 10 tickets per booking (whole numbers only).'),
+      h('div',{class:'twrap'},h('table',{class:'t plan'},h('thead',{},h('tr',{},...['Test','Test data','Type','Expected result',''].map(t=>h('th',{},t)))),h('tbody',{},...rows))),
+      h('div',{class:'actions'},h('button',{class:'btn primary',disabled:P.checked||null,onclick:()=>{P.checked=true;render();}},'Check my plan'),h('button',{class:'btn ghost',onclick:()=>{planInit();render();}},'Reset'))),
+    cov?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},`Coverage: ${cov.filter(c=>c[1]).length} of ${cov.length}`),h('ul',{class:'meter'},...cov.map(([t,g])=>h('li',{class:g?'got':'miss'},h('span',{class:'bx'},g?'✓':''),t)))):null);
+}
+const TABS=[['Bug Hunt',bugView],['Classify',classifyView],['Plan it',planView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+  const f=main.querySelector('.txtin');if(f&&S.tab===0)f.focus();
+}
+render();
+
+</script>
+</body>
+</html>

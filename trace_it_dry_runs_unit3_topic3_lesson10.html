@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trace It: Dry Runs</title>
+<style>
+:root{
+  --navy:#003366; --amber:#CC9900; --amberText:#8A6700;
+  --bg:#FFFFFF; --panel:#EEF3F8; --ink:#1F2A36; --muted:#5B6B7B; --line:#C8D4E1; --code:#F3F6FA;
+  --head:#003366; --soft:#FBF3DD; --grid:#E3E8EE;
+  --ok:#1E7B4A; --okBg:#E3F3EA; --bad:#B03A3A; --badBg:#F9E6E6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+    --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+    --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#9CC2E8; --amberText:#E8C052; --bg:#0D1824; --panel:#15263A; --ink:#E4ECF4; --muted:#9FB1C4;
+  --line:#2B4159; --code:#112030; --head:#001F3F; --soft:#33290E; --grid:#1F3247;
+  --ok:#6FD19B; --okBg:#143324; --bad:#F29A9A; --badBg:#3A1C1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,"Segoe UI",Carlito,Arial,sans-serif;font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--head);color:#fff;padding:18px 24px 0}
+.hrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;max-width:1320px;margin:0 auto}
+header h1{font-size:28px}
+.spec{font-size:15px;color:#C9D6E3}
+nav{display:flex;gap:4px;max-width:1320px;margin:14px auto 0;overflow-x:auto}
+nav button{background:transparent;color:#C9D6E3;border:0;border-radius:10px 10px 0 0;padding:10px 16px;font-size:17px;font-weight:700;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+nav .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:#CC9900;color:#1F2A36;font-size:13px;line-height:22px;text-align:center;margin-right:6px}
+main{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.top h2{font-size:24px;color:var(--navy)}
+.prompt{background:var(--soft);border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.prompt b{color:var(--amberText)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:12px;padding:14px}
+.panel h3{font-size:18px;color:var(--navy);margin-bottom:8px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:700;font-size:16px}
+.btn.primary{background:#003366;color:#fff}
+.btn.accent{background:#CC9900;color:#1F2A36}
+.btn.ghost{background:var(--bg);color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+pre.code{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:"Courier New",monospace;font-size:15px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.code .ln{color:var(--muted)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--bg)}
+.fb.ok{border-color:var(--ok);background:var(--okBg)}
+.fb.bad{border-color:var(--bad);background:var(--badBg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-weight:700}
+.dot[aria-current="true"]{border-color:var(--navy);color:var(--navy)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+/* classes */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-family:"Courier New",monospace;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--c);color:#fff}
+.gsvg svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.axis{stroke:var(--ink);stroke-width:2}
+.alab{fill:var(--ink);font:700 14px Calibri,Arial,sans-serif}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th{background:#003366;color:#fff;text-align:left;padding:6px 8px}
+table.t td{border-bottom:1px solid var(--line);padding:6px 8px;background:var(--bg)}
+table.t td.mono{font-family:"Courier New",monospace;font-weight:700}
+.info{background:var(--bg);border-radius:10px;padding:10px 12px;border-left:6px solid var(--c);margin-top:10px}
+.info b{color:var(--c)}
+/* count it */
+.step{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.step.cur{border-color:#CC9900}
+.step.ok{border-color:var(--ok);background:var(--okBg)}
+.step.bad{border-color:var(--bad);background:var(--badBg)}
+.step.locked{opacity:.45}
+.step h4{margin:0 0 6px;font-size:16px;color:var(--navy)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:"Courier New",monospace;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt.ok{border-color:var(--ok);background:var(--okBg)}
+.opt.bad{border-color:var(--bad);background:var(--badBg)}
+.opt:disabled{cursor:default}
+.numin{width:80px;border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink)}
+.why{font-size:14.5px;margin-top:6px}
+.meter{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.meter li{display:flex;gap:8px;align-items:center;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.meter .bx{flex:none;width:18px;height:18px;border-radius:4px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.meter li.got{border-color:var(--ok);background:var(--okBg)}
+.meter li.got .bx{background:var(--ok);border-color:var(--ok)}
+.meter li.miss{border-color:var(--bad);background:var(--badBg)}
+.mscore{font-family:Cambria,Georgia,serif;font-size:28px;font-weight:700;color:var(--navy)}
+/* classify */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ccard{background:var(--panel);border-radius:12px;padding:10px;border:2px solid transparent}
+.ccard.ok{border-color:var(--ok)}
+.ccard.bad{border-color:var(--bad)}
+.ccard pre.code{font-size:13.5px;min-height:110px}
+.ccard .opts{margin-top:8px}
+.ccard .opt{font-size:13px;padding:4px 8px}
+/* sketch */
+.thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:800px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+.thumb{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;text-align:center;color:var(--ink)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb[aria-pressed="true"]{border-color:#CC9900;background:var(--soft)}
+.thumb.ok{border-color:var(--ok);background:var(--okBg)}
+.thumb.bad{border-color:var(--bad);background:var(--badBg)}
+.selrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.selrow label{display:grid;gap:3px;font-size:14px;color:var(--muted)}
+.selrow select{border:2px solid #CC9900;border-radius:6px;padding:5px 8px;background:var(--bg);color:var(--ink);min-width:200px}
+.selrow select.ok{border-color:var(--ok);background:var(--okBg)}
+.selrow select.bad{border-color:var(--bad);background:var(--badBg)}
+
+.twrap{overflow-x:auto}
+table.tr{border-collapse:collapse}
+table.tr th{background:#003366;color:#fff;padding:6px 10px;font-size:14px;white-space:nowrap}
+table.tr td{border:1px solid var(--line);padding:3px;text-align:center;background:var(--bg)}
+table.tr td.given{font:700 15px "Courier New",monospace;color:var(--navy);background:var(--panel);padding:6px 10px}
+table.tr td.blank{background:var(--panel)}
+input.cell{width:96px;border:2px solid #CC9900;border-radius:5px;padding:4px 6px;font:700 15px "Courier New",monospace;text-align:center;background:var(--bg);color:var(--ink)}
+input.cell.ok{border-color:var(--ok);background:var(--okBg)}
+input.cell.bad{border-color:var(--bad);background:var(--badBg)}
+.olist{display:grid;gap:6px}
+.opt.wide{font-family:Calibri,Arial,sans-serif;font-weight:400;text-align:left;font-size:15px}
+.txtin{border:2px solid #CC9900;border-radius:6px;padding:6px 10px;background:var(--bg);color:var(--ink);font:15px "Courier New",monospace;width:200px}
+.addrow{display:flex;gap:8px;align-items:center;margin:8px 0}
+.mono{font-family:"Courier New",monospace;font-weight:700}
+tr.badrow td{background:var(--badBg)}
+.ccard pre.code{font-size:13.5px;min-height:0}
+.ccard h3{font-size:17px;color:var(--navy);margin-bottom:6px}
+ol.cl{list-style:none;margin:8px 0;padding:6px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;counter-reset:ln}
+ol.cl li{counter-increment:ln;font:14px "Courier New",monospace;white-space:pre;padding:2px 8px 2px 4px;display:flex}
+ol.cl li::before{content:counter(ln);width:22px;flex:none;color:var(--muted);font-size:12px}
+ol.cl.pick li{cursor:pointer}
+ol.cl.pick li:hover{background:var(--soft)}
+ol.cl li.ok{background:var(--okBg);outline:2px solid var(--ok);outline-offset:-2px}
+ol.cl li.bad{background:var(--badBg);outline:2px solid var(--bad);outline-offset:-2px}
+.cards{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div><h1>Trace It: Dry Runs</h1><div class="spec">Unit 3 · 3.9.2 and 3.9.3 · Trace tables, logical errors and purpose from test data</div></div>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main"></main>
+<script>
+function h(tag,attrs={},...kids){const n=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='style')n.setAttribute('style',v);else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':v);}kids.flat().forEach(c=>{if(c==null||c===false)return;n.appendChild(typeof c==='string'?document.createTextNode(c):c);});return n;}
+const norm=v=>String(v??'').trim().replace(/^["']|["']$/g,'').replace(/\s+/g,'').toLowerCase().replace(/−/g,'-');
+/* ---------- trace generators ---------- */
+function tMax(list){const rows=[['–','–','0','']];let m=0;list.forEach(n=>{const g=n>m;if(g)m=n;rows.push([String(n),g?'Yes':'No',String(m),'']);});rows.push(['','','',String(m)]);return rows;}
+function tBin(d){const rows=[];let ans='';while(d!==0){const r=d%2;ans=String(r)+ans;rows.push([String(d),String(r),String(r),ans]);d=Math.floor(d/2);}rows.push(['0','','',ans]);return rows;}
+function tSum(n){const rows=[[String(n),'–','0']];let s=0;while(n>0){const d=n%10;s+=d;n=Math.floor(n/10);rows.push([String(n),String(d),String(s)]);}return rows;}
+const TASKS=[
+ {title:'findMax with [3, 1, 4, 1, 5, 9]',code:'set max = 0\nfor each number in list\n    if number > max then\n        set max = number\n    end if\nnext number\noutput max',cols:['number','number > max?','max','output'],rows:tMax([3,1,4,1,5,9]),given:1,
+  after:{q:'Is the output correct for this test data?',opts:['Yes: 9 is the largest','No'],a:0,why:'Yes. With this data the algorithm works. Try the next task...'}},
+ {title:'findMax with [−3, −7, −1]',code:'set max = 0\nfor each number in list\n    if number > max then\n        set max = number\n    end if\nnext number\noutput max',cols:['number','number > max?','max','output'],rows:tMax([-3,-7,-1]),given:1,
+  after:{q:'The output is 0, but the largest number is −1. How should the algorithm be fixed?',opts:['Change > to <','Start max at the first item: set max = list[0]','Start max at 100','Output max − 1'],a:1,why:'max started at 0, which is bigger than every item. Starting at the first item works for any list. This is a LOGICAL error: the program runs but gives the wrong answer.'}},
+ {title:'WJEC 2018 Q6: decNumber = 137',code:'while decNumber <> 0\n    if decNumber MOD 2 = 0 then\n        bin = 0\n    else\n        bin = 1\n    end if\n    answer = char(bin) + answer\n    decNumber = decNumber DIV 2\nend while\noutput answer',cols:['decNumber','decNumber MOD 2','bin','answer'],rows:tBin(137),given:0,givenCells:[[0,0]],
+  after:{q:'State the purpose of the algorithm. [1]',opts:['It doubles a number','It converts a decimal number to binary','It counts the 1s in a number','It reverses a number'],a:1,why:'Mark scheme: "Converts decimal numbers to binary numbers." 137 = 10001001.'}},
+ {title:'Sum of digits: n = 123',code:'set sum = 0\nwhile n > 0\n    set digit = n MOD 10\n    set sum = sum + digit\n    set n = n DIV 10\nend while\noutput sum',cols:['n','digit','sum'],rows:tSum(123),given:1,
+  after:{q:'What is the purpose of this algorithm?',opts:['It reverses a number','It outputs the sum of the digits of a whole number','It counts the digits','It outputs the last digit'],a:1,why:'1 + 2 + 3 = 6. Testing with 56 (11) and 7 (7) confirms it.'}},
+ {title:'WJEC 2022 Q5: x = 365',code:'input x\nif x > 99 AND x < 1000 then\n    a = x DIV 100\n    b = x MOD 100\n    c = x MOD 10\n    b = (b – c) DIV 10\n    output a, b, c\n    ds = (a + b + c)\n    output ds\n    y = ((a * 100) + (b * 10) + c)\n    output y\nelse\n    output "error"\nend if',cols:['x','a','b','c','ds','y'],rows:[['365','','','','',''],['','3','','','',''],['','','65','','',''],['','','','5','',''],['','','6','','',''],['','','','','14',''],['','','','','','365']],given:1,sparse:true,
+  after:{q:'Explain the purpose of the algorithm. [2]',opts:['It sorts the digits','It checks the input is a three-digit number, and outputs its digits and the digit sum','It outputs the number backwards','It converts the number to binary'],a:1,why:'Mark scheme: confirms the input (1 mark) and outputs the digit sum (1 mark). Outputs for 365: 3, 6, 5, 14, 365. An invalid input such as 99 or 1000 outputs "error".'}},
+];
+const S={tab:0,ti:0,st:{},m:{},e:{}};
+function traceView(){
+  const T=TASKS[S.ti],st=S.st[S.ti]||(S.st[S.ti]={v:{},checked:false,shown:0,ans:null});
+  const isGiven=(r,c)=>r<T.given||(T.givenCells&&T.givenCells.some(([a,b])=>a===r&&b===c));
+  let right=0,tot=0;
+  const body=T.rows.map((row,r)=>h('tr',{},...row.map((ans,c)=>{
+    if(isGiven(r,c))return h('td',{class:'given'},ans);
+    if(T.sparse&&ans==='')return h('td',{class:'blank'},'');
+    tot++;const k=r+':'+c;const val=st.v[k]??'';const ok=norm(val)===norm(ans);if(ok)right++;
+    if(r<st.shown+T.given&&st.shownRows){}
+    const inp=h('input',{type:'text',class:'cell'+(st.checked?(ok?' ok':' bad'):''),value:val,'aria-label':`${T.cols[c]}, row ${r+1}`,disabled:st.checked||null});inp.addEventListener('input',()=>st.v[k]=inp.value);
+    return h('td',{},inp);})));
+  const dots=h('div',{class:'dots'},TASKS.map((_,j)=>h('button',{class:'dot'+(S.st[j]&&S.st[j].checked?' done':''),'aria-current':String(j===S.ti),onclick:()=>{S.ti=j;render();}},String(j+1))));
+  const nextRow=()=>{for(let r=0;r<T.rows.length;r++){let filled=false;T.rows[r].forEach((ans,c)=>{if(isGiven(r,c)||(T.sparse&&ans===''))return;const k=r+':'+c;if(norm(st.v[k]??'')!==norm(ans)){st.v[k]=ans;filled=true;}});if(filled)break;}render();};
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},`Trace table ${S.ti+1}: ${T.title}`),dots),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Dry run the algorithm. Fill in each row of the trace table as the values change. Leave a cell empty if nothing is written there. Use – for "not set yet".'),
+    h('div',{class:'grid'},
+      h('div',{class:'panel'},h('h3',{},'Algorithm'),h('pre',{class:'code'},T.code)),
+      h('div',{},h('div',{class:'panel'},h('h3',{},'Trace table'),h('div',{class:'twrap'},h('table',{class:'tr'},h('thead',{},h('tr',{},...T.cols.map(c=>h('th',{},c)))),h('tbody',{},...body))),
+          h('div',{class:'actions'},h('button',{class:'btn primary',disabled:st.checked||null,onclick:()=>{st.checked=true;render();}},'Check'),
+            h('button',{class:'btn ghost',disabled:st.checked||null,onclick:nextRow},'Help: fill the next row'),
+            h('button',{class:'btn ghost',onclick:()=>{S.st[S.ti]=null;render();}},'Reset')),
+          st.checked?h('div',{class:'fb '+(right===tot?'ok':'bad')},`${right} of ${tot} cells correct.`,right===tot?'':' Red cells are wrong.'):null),
+        st.checked?h('div',{class:'panel',style:'margin-top:12px'},h('h3',{},T.after.q),h('div',{class:'olist'},...T.after.opts.map((o,k)=>{let cl='opt wide';if(st.ans!==null){if(k===T.after.a)cl+=' ok';else if(k===st.ans)cl+=' bad';}return h('button',{class:cl,disabled:st.ans!==null||null,onclick:()=>{st.ans=k;render();}},o);})),
+          st.ans!==null?h('div',{class:'why'},T.after.why):null,
+          st.ans!==null&&S.ti<TASKS.length-1?h('div',{class:'actions'},h('button',{class:'btn accent',onclick:()=>{S.ti++;render();}},'Next trace table →')):null):null)));
+}
+/* ---------- MYSTERY ---------- */
+const MYS=[
+ {code:'input n\nset rev = 0\nwhile n > 0\n    set rev = rev * 10 + n MOD 10\n    set n = n DIV 10\nend while\noutput rev',inp:'a whole number',run:x=>{let n=parseInt(x);if(isNaN(n)||n<0)return'(enter a whole number)';let r=0;while(n>0){r=r*10+n%10;n=Math.floor(n/10);}return String(r);},opts:['Adds up the digits','Reverses the digits of a number','Doubles the number','Counts the digits'],a:1},
+ {code:'input list\nset count = 0\nfor each item in list\n    if item MOD 2 = 0 then\n        set count = count + 1\n    end if\nnext item\noutput count',inp:'a list, e.g. 3, 8, 10, 7',run:x=>{const l=x.split(',').map(s=>parseInt(s)).filter(v=>!isNaN(v));if(!l.length)return'(enter numbers separated by commas)';return String(l.filter(v=>v%2===0).length);},opts:['Counts the even numbers in a list','Adds up the list','Finds the largest item','Counts the odd numbers'],a:0},
+ {code:'input n\nset result = 1\nfor i = 1 to n\n    set result = result * i\nnext i\noutput result',inp:'a whole number',run:x=>{const n=parseInt(x);if(isNaN(n)||n<0)return'(enter a whole number)';if(n>18)return'(try a smaller number)';let r=1;for(let i=1;i<=n;i++)r*=i;return String(r);},opts:['Squares the number','Calculates n factorial (n!)','Adds the numbers from 1 to n','Doubles the number n times'],a:1},
+ {code:'input word\nset out = ""\nfor i = len(word) - 1 to 0 step -1\n    set out = out + word[i]\nnext i\nif out = word then\n    output "Yes"\nelse\n    output "No"\nend if',inp:'a word',run:x=>{const w=x.trim();if(!w)return'(enter a word)';return w.split('').reverse().join('')===w?'Yes':'No';},opts:['Checks whether a word is a palindrome (the same backwards)','Reverses a word','Counts the letters','Checks whether a word has a vowel'],a:0},
+];
+function mysView(){
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'What\u2019s its purpose?')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'For each mystery algorithm, run it with at least THREE different test inputs and look at the effect. Then choose its purpose.'),
+    h('div',{class:'cards'},...MYS.map((m,i)=>{const st=S.m[i]||(S.m[i]={val:'',runs:[],ans:null});
+      const inp=h('input',{type:'text',class:'txtin',value:st.val,placeholder:m.inp,'aria-label':'Test input'});inp.addEventListener('input',()=>st.val=inp.value);
+      const go=()=>{if(!st.val.trim())return;st.runs.push([st.val,m.run(st.val)]);st.val='';render();};inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+      return h('div',{class:'ccard'+(st.ans!==null?(st.ans===m.a?' ok':' bad'):'')},h('h3',{},`Mystery ${i+1}`),h('pre',{class:'code'},m.code),
+        h('div',{class:'addrow'},inp,h('button',{class:'btn accent',onclick:go},'Run')),
+        st.runs.length?h('table',{class:'t'},h('thead',{},h('tr',{},h('th',{},'Input'),h('th',{},'Output'))),h('tbody',{},...st.runs.map(([a,b])=>h('tr',{},h('td',{class:'mono'},a),h('td',{class:'mono'},b))))):null,
+        st.runs.length>=3?h('div',{style:'margin-top:8px'},h('div',{class:'small'},'What is its purpose?'),h('div',{class:'olist'},...m.opts.map((o,k)=>{let cl='opt wide';if(st.ans!==null){if(k===m.a)cl+=' ok';else if(k===st.ans)cl+=' bad';}return h('button',{class:cl,disabled:st.ans!==null||null,onclick:()=>{st.ans=k;render();}},o);}))):h('div',{class:'small',style:'margin-top:6px'},`Run ${3-st.runs.length} more test${3-st.runs.length===1?'':'s'} to unlock the question.`));})));
+}
+/* ---------- FIND THE ERROR ---------- */
+const ERR=[
+ {title:'Smallest item',spec:'Should output the SMALLEST number in a list.',code:['set min = 0','for each number in list','    if number < min then','        set min = number','    end if','next number','output min'],bad:0,run:l=>{let m=0;l.forEach(n=>{if(n<m)m=n;});return m;},correct:l=>Math.min(...l),fix:'min starts at 0, so for a list of positive numbers it outputs 0. Fix: set min = list[0].'},
+ {title:'Average',spec:'Should output the AVERAGE (mean) of a list.',code:['set total = 0','for each number in list','    set total = total + number','next number','set average = total / 10','output average'],bad:4,run:l=>l.reduce((a,b)=>a+b,0)/10,correct:l=>l.reduce((a,b)=>a+b,0)/l.length,fix:'It always divides by 10, so it only works for lists of exactly 10 numbers. Fix: divide by len(list).'},
+ {title:'Count the passes',spec:'Should count how many marks are 40 or more.',code:['set count = 0','for each mark in list','    if mark > 40 then','        set count = count + 1','    end if','next mark','output count'],bad:2,run:l=>l.filter(m=>m>40).length,correct:l=>l.filter(m=>m>=40).length,fix:'> should be >=. A mark of exactly 40 is not counted: a boundary value finds this.'},
+];
+function errView(){
+  return h('div',{},
+    h('div',{class:'top'},h('h2',{},'Find the logical error')),
+    h('div',{class:'prompt'},h('b',{},'Task: '),'Each algorithm runs without crashing, but has a LOGICAL error. Choose test data that makes it give the wrong answer, then click the line with the error.'),
+    h('div',{class:'cards'},...ERR.map((e,i)=>{const st=S.e[i]||(S.e[i]={val:'',runs:[],line:null});
+      const inp=h('input',{type:'text',class:'txtin',value:st.val,placeholder:'e.g. 5, 8, 2','aria-label':'Test list'});inp.addEventListener('input',()=>st.val=inp.value);
+      const go=()=>{const l=st.val.split(',').map(s=>Number(s.trim())).filter(v=>!isNaN(v)&&String(v)!=='');if(!l.length)return;const a=e.run(l),c=e.correct(l);const f=v=>String(Math.round(v*100)/100);st.runs.push([l.join(', '),f(a),f(c),f(a)!==f(c)]);st.val='';render();};inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')go();});
+      const caught=st.runs.some(r=>r[3]);
+      return h('div',{class:'ccard'+(st.line!==null?(st.line===e.bad?' ok':' bad'):'')},h('h3',{},e.title),h('div',{class:'small'},e.spec),
+        h('ol',{class:'cl'+(caught&&st.line===null?' pick':'')},...e.code.map((c,ln)=>{let cls=null;if(st.line!==null){if(ln===e.bad)cls='ok';else if(ln===st.line)cls='bad';}
+          return h('li',{class:cls,role:caught&&st.line===null?'button':null,tabindex:caught&&st.line===null?'0':null,onclick:()=>{if(caught&&st.line===null){st.line=ln;render();}}},c);})),
+        h('div',{class:'addrow'},inp,h('button',{class:'btn accent',onclick:go},'Test')),
+        st.runs.length?h('table',{class:'t'},h('thead',{},h('tr',{},...['Test data','Actual','Expected'].map(t=>h('th',{},t)))),h('tbody',{},...st.runs.map(([d,a,c,bad])=>h('tr',{class:bad?'badrow':null},h('td',{class:'mono'},d),h('td',{},a),h('td',{},c))))):null,
+        caught&&st.line===null?h('div',{class:'small',style:'margin-top:6px'},'You found test data that reveals the error. Now click the faulty line.'):null,
+        st.line!==null?h('div',{class:'why'},h('b',{},st.line===e.bad?'✓ ':'✗ '),e.fix):null);})));
+}
+const TABS=[['Trace tables',traceView],['What\u2019s its purpose?',mysView],['Find the logical error',errView]];
+function render(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([t],i)=>nav.appendChild(h('button',{role:'tab','aria-selected':String(i===S.tab),onclick:()=>{S.tab=i;render();}},h('span',{class:'n'},String(i+1)),t)));
+  const main=document.getElementById('main');main.innerHTML='';main.appendChild(TABS[S.tab][1]());
+}
+render();
+
+</script>
+</body>
+</html>
