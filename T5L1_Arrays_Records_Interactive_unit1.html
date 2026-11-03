@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arrays and records: Topic 5, Lesson 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B; --bad-soft:#F8E3E0; --good-soft:#E3F4EA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+.head-inner{max-width:1120px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 14px;font-size:30px;line-height:1.15}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#C9D3E6;padding:10px 18px;border-radius:10px 10px 0 0;font-weight:700}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+nav button:hover:not([aria-selected="true"]){color:#fff;background:var(--navy-2)}
+main{max-width:1120px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+h2{font-size:24px;margin:0 0 4px;color:var(--navy)}
+h3{font-size:18px;margin:0 0 10px;color:var(--navy)}
+.lede{color:var(--muted);margin:0 0 18px;max-width:74ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:8px 16px;font-weight:700}
+.btn:hover{background:var(--teal-soft)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy-2)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.seg{display:inline-flex;border:2px solid var(--navy);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:#fff;color:var(--navy);padding:7px 13px;font-weight:700}
+.seg button+button{border-left:2px solid var(--navy)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.label{font-weight:700;color:var(--navy)}
+.small{font-size:15px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+input.num{width:90px;padding:7px 10px;border:2px solid var(--line);border-radius:10px;font-family:var(--mono)}
+.fb{min-height:26px;font-weight:700;margin-top:10px}
+.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}.fb.info{color:var(--navy)}
+
+/* 1D array */
+.arr{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+.cellw{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cell{width:70px;height:62px;border:2px solid var(--navy);border-radius:10px;background:#fff;font-family:var(--mono);font-size:24px;font-weight:700;color:var(--navy);text-align:center}
+.cell.hl{background:var(--orange);border-color:var(--orange);color:#fff}
+.cell.seen{background:var(--teal-soft)}
+.idx{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.idx.hl{color:var(--orange);font-weight:700}
+.tracer{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;margin-top:10px}
+pre.code{background:var(--navy);color:#fff;border-radius:12px;padding:12px 0;margin:0;font-family:var(--mono);font-size:15px;line-height:1.75;overflow-x:auto}
+pre.code span{display:block;padding:0 16px;white-space:pre}
+pre.code span.cur{background:var(--orange);color:var(--navy);font-weight:700}
+table.trace{border-collapse:collapse;width:100%;font-size:16px}
+table.trace th{background:var(--navy);color:#fff;padding:6px 8px;text-align:center}
+table.trace td{border:1px solid var(--line);padding:5px 8px;text-align:center;font-family:var(--mono)}
+table.trace tr.new td{background:var(--orange-soft)}
+.vars{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.var{background:var(--paper);border-radius:10px;padding:6px 12px;font-family:var(--mono);font-weight:700;color:var(--navy)}
+.out{margin-top:10px;background:var(--teal-soft);border-radius:10px;padding:10px 14px;font-family:var(--mono);font-weight:700;min-height:44px}
+.explain{margin-top:10px;font-size:15px;color:var(--ink);background:var(--paper);border-radius:10px;padding:8px 12px;min-height:40px}
+
+/* 2D grid */
+.gridwrap{overflow-x:auto}
+table.g2{border-collapse:separate;border-spacing:6px;margin:4px 0}
+table.g2 th{font-family:var(--mono);font-size:14px;color:var(--teal);font-weight:700}
+table.g2 th.rh{color:var(--orange);text-align:right;padding-right:6px}
+table.g2 th small{display:block;color:var(--muted);font-family:var(--sans);font-weight:400}
+table.g2 td button{width:74px;height:54px;border:2px solid var(--navy);border-radius:8px;background:#fff;font-family:var(--mono);font-size:21px;font-weight:700;color:var(--navy)}
+table.g2 td button.hl{background:var(--orange);border-color:var(--orange);color:#fff}
+table.g2 td button.band{background:var(--teal-soft)}
+table.g2 td button.good{background:var(--good);border-color:var(--good);color:#fff}
+table.g2 td button.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.readout{background:var(--paper);border-radius:12px;padding:12px 16px}
+.readout .val{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--navy)}
+.challenge{font-size:22px;font-weight:700;color:var(--navy);font-family:var(--mono)}
+
+/* records */
+table.rec{border-collapse:collapse;width:100%;font-size:16px;margin-top:6px}
+table.rec th button{width:100%;background:var(--teal);color:#fff;border:0;padding:8px 10px;font-weight:700;text-align:left}
+table.rec th button:hover{background:#0b7375}
+table.rec td{border:1px solid var(--line);padding:0}
+table.rec td button{width:100%;background:#fff;border:0;padding:8px 10px;text-align:left;font:inherit;color:var(--ink)}
+table.rec tr:hover td button{background:var(--teal-soft)}
+table.rec .sel-row td button{background:var(--orange-soft)}
+table.rec th.sel-col button{background:var(--orange);color:var(--navy)}
+.prompt{font-size:20px;font-weight:700;color:var(--navy);margin:4px 0 6px}
+.dt{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.dt label{background:var(--paper);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.dt label b{color:var(--navy)}
+.dt label small{font-family:var(--mono);color:var(--muted)}
+.dt select{padding:6px 8px;border:2px solid var(--line);border-radius:8px}
+.dt label.right{background:var(--good-soft)}.dt label.wrong{background:var(--bad-soft)}
+.dt .why{font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.right{border-left-color:var(--good)}.card.wrong{border-left-color:var(--bad)}
+.card p{margin:0}
+.choices{display:flex;gap:5px;flex-wrap:wrap}
+.choices button{flex:1 1 auto;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;padding:5px 8px;font-weight:700;font-size:14px}
+.choices button.picked-right{background:var(--good);border-color:var(--good);color:#fff}
+.choices button.picked-wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.why{font-size:14px;color:var(--muted)}
+.tally{font-weight:700;color:var(--navy)}
+@media (max-width:880px){.tracer,.two{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Unit 1, Topic 5: Data structures (5.1)</p>
+    <h1>Arrays and records</h1>
+    <nav role="tablist" aria-label="Activities">
+      <button role="tab" aria-selected="true" aria-controls="p-1d" id="t-1d">Array explorer</button>
+      <button role="tab" aria-selected="false" aria-controls="p-2d" id="t-2d">2D grid</button>
+      <button role="tab" aria-selected="false" aria-controls="p-rec" id="t-rec">Record builder</button>
+    </nav>
+  </div>
+</header>
+<main>
+<!-- ================= 1D ================= -->
+<section class="panel active" id="p-1d" role="tabpanel" aria-labelledby="t-1d">
+  <h2>Array explorer</h2>
+  <p class="lede">Click a value to change it. Look up any index, then choose a program and step through it one line at a time. Predict each step before you press Next.</p>
+  <div class="box">
+    <div class="row" style="justify-content:space-between">
+      <div class="mono label" id="decl">declare scores[0 to 4] as integer</div>
+      <div class="row"><button class="btn" id="aAdd">Add element</button><button class="btn" id="aRemove">Remove last</button><button class="btn" id="aRand">Random values</button></div>
+    </div>
+    <div class="arr" id="arr"></div>
+    <div class="row" style="margin-top:12px">
+      <span class="label mono">output scores[</span><input class="num" id="lookIdx" value="2" aria-label="Index to look up"><span class="label mono">]</span>
+      <button class="btn primary" id="lookBtn">Run</button>
+      <span class="fb" id="lookFb" style="margin:0"></span>
+    </div>
+  </div>
+  <div class="box">
+    <div class="row"><span class="label">Program</span>
+      <div class="seg" id="prog"><button data-v="total" aria-pressed="true">Total</button><button data-v="largest" aria-pressed="false">Largest</button><button data-v="count" aria-pressed="false">Count above 10</button><button data-v="search" aria-pressed="false">Search</button></div>
+      <span id="targetWrap" style="display:none" class="row"><span class="label">Search for</span><input class="num" id="target" value="9" aria-label="Value to search for"></span>
+    </div>
+    <div class="tracer">
+      <div>
+        <pre class="code" id="code"></pre>
+        <div class="vars" id="vars"></div>
+        <div class="explain" id="explain" aria-live="polite"></div>
+      </div>
+      <div>
+        <table class="trace" id="trace"></table>
+        <div class="out" id="out">Output:</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="next">Next step</button><button class="btn" id="runAll">Run to the end</button><button class="btn" id="reset">Start again</button></div>
+  </div>
+</section>
+
+<!-- ================= 2D ================= -->
+<section class="panel" id="p-2d" role="tabpanel" aria-labelledby="t-2d">
+  <h2>2D grid</h2>
+  <p class="lede">The handsets traded in by each member of staff each month. Click any cell to see how to refer to it. Then try the challenges and trace a total.</p>
+  <div class="box">
+    <div class="row" style="justify-content:space-between">
+      <div class="mono label" id="decl2">declare handsets[0 to 2, 0 to 3] as integer</div>
+      <div class="row"><span class="label">Index order</span><div class="seg" id="order"><button data-v="rc" aria-pressed="true">[row, column]</button><button data-v="cr" aria-pressed="false">(column, row)</button></div></div>
+    </div>
+    <div class="two" style="margin-top:12px">
+      <div class="gridwrap"><table class="g2" id="g2"></table></div>
+      <div>
+        <div class="readout"><div class="small">Selected element</div><div class="val" id="selRef">Click a cell</div><div class="small" id="selDesc"></div></div>
+        <p class="small" id="orderNote" style="margin:10px 0 0"></p>
+      </div>
+    </div>
+  </div>
+  <div class="two">
+    <div class="box">
+      <h3>Find the element</h3>
+      <div class="challenge" id="chal"></div>
+      <p class="small" style="margin:6px 0 0">Click the cell it refers to.</p>
+      <div class="fb" id="chalFb" aria-live="polite"></div>
+      <button class="btn accent" id="chalNew">New challenge</button>
+    </div>
+    <div class="box">
+      <h3>Trace a total</h3>
+      <div class="row"><div class="seg" id="tot"><button data-v="row" aria-pressed="true">One row</button><button data-v="col" aria-pressed="false">One column</button><button data-v="all" aria-pressed="false">Whole grid</button></div>
+        <span id="totPick" class="row"><span class="label" id="totPickLbl">Row</span><input class="num" id="totIdx" value="1" aria-label="Row or column index" style="width:70px"></span></div>
+      <pre class="code" id="code2" style="margin-top:10px"></pre>
+      <div class="vars" id="vars2"></div>
+      <div class="out" id="out2">Output:</div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="next2">Next step</button><button class="btn" id="all2">Run to the end</button><button class="btn" id="reset2">Start again</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RECORDS ================= -->
+<section class="panel" id="p-rec" role="tabpanel" aria-labelledby="t-rec">
+  <h2>Record builder</h2>
+  <p class="lede">A record holds all the data about one entity, and its fields can have different data types. Identify the parts of the table, choose a data type for each field, then decide which structure fits each situation.</p>
+  <div class="box">
+    <h3>1. Field, record or primary key?</h3>
+    <div class="prompt" id="recPrompt"></div>
+    <table class="rec" id="recTable"></table>
+    <div class="fb" id="recFb" aria-live="polite"></div>
+    <button class="btn accent" id="recNew">Next question</button>
+  </div>
+  <div class="box">
+    <h3>2. Choose a data type for each field</h3>
+    <div class="dt" id="dt"></div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="dtCheck">Check my choices</button><span class="fb" id="dtFb" style="margin:0"></span></div>
+    <pre class="code" id="recCode" style="margin-top:12px;display:none"></pre>
+  </div>
+  <div class="box">
+    <h3>3. Which data structure?</h3>
+    <p class="tally" id="sTally"></p>
+    <div class="cards" id="sCards"></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="sReset">Shuffle and start again</button></div>
+  </div>
+</section>
+</main>
+
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.addEventListener('click',()=>tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).classList.toggle('active',x===t)})));
+function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.setAttribute('aria-pressed',x===b));cb(b.dataset.v)}))}
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ================= 1D ARRAY ================= */
+let A=[12,7,15,9,20], prog='total', steps=[], si=0, hlIdx=-1;
+function drawArr(){
+  const box=document.getElementById('arr');box.innerHTML='';
+  A.forEach((v,i)=>{
+    const w=document.createElement('div');w.className='cellw';
+    const c=document.createElement('input');c.className='cell'+(i===hlIdx?' hl':'');c.value=v;c.setAttribute('aria-label','scores['+i+']');
+    c.addEventListener('change',()=>{const n=parseInt(c.value,10);if(!isNaN(n)){A[i]=n}c.value=A[i];buildSteps()});
+    const l=document.createElement('div');l.className='idx'+(i===hlIdx?' hl':'');l.textContent='['+i+']';
+    w.append(c,l);box.append(w);
+  });
+  document.getElementById('decl').textContent='declare scores[0 to '+(A.length-1)+'] as integer';
+}
+document.getElementById('aAdd').onclick=()=>{if(A.length<8){A.push(Math.floor(Math.random()*25)+1);buildSteps()}};
+document.getElementById('aRemove').onclick=()=>{if(A.length>3){A.pop();buildSteps()}};
+document.getElementById('aRand').onclick=()=>{A=A.map(()=>Math.floor(Math.random()*25)+1);buildSteps()};
+document.getElementById('lookBtn').onclick=()=>{
+  const i=parseInt(document.getElementById('lookIdx').value,10), f=document.getElementById('lookFb');
+  if(isNaN(i)){f.className='fb bad';f.textContent='Type a whole number index.';return}
+  if(i<0||i>=A.length){f.className='fb bad';f.textContent='Error: scores['+i+'] does not exist. The indices run from 0 to '+(A.length-1)+'.';hlIdx=-1;drawArr();return}
+  hlIdx=i;drawArr();f.className='fb good';f.textContent='Output: '+A[i]+'   (element number '+(i+1)+', because the index starts at 0)';
+};
+const PROGS={
+  total:{cols:['i','scores[i]','total']},
+  largest:{cols:['i','scores[i]','largest']},
+  count:{cols:['i','scores[i]','count']},
+  search:{cols:['i','scores[i]','found']}
+};
+function codeLines(){
+  const N=A.length-1, t=document.getElementById('target').value;
+  if(prog==='total')return ['set total = 0','for i = 0 to '+N,'  set total = total + scores[i]','next i','output total'];
+  if(prog==='largest')return ['set largest = scores[0]','for i = 1 to '+N,'  if scores[i] > largest then','    set largest = scores[i]','  end if','next i','output largest'];
+  if(prog==='count')return ['set count = 0','for i = 0 to '+N,'  if scores[i] > 10 then','    set count = count + 1','  end if','next i','output count'];
+  return ['set found = FALSE','for i = 0 to '+N,'  if scores[i] = '+t+' then','    set found = TRUE','    output "Found at index ", i','  end if','next i','if found = FALSE then','  output "Not found"','end if'];
+}
+function buildSteps(){
+  steps=[];const N=A.length;const S=(line,vars,row,out,msg,idx)=>steps.push({line,vars:{...vars},row,out,msg,idx});
+  let out=[];
+  if(prog==='total'){
+    let v={total:0};S(0,v,['start','','0'],[], 'total starts at 0.',-1);
+    for(let i=0;i<N;i++){v.i=i;S(1,v,null,[],'i = '+i+': the loop visits scores['+i+'].',i);v.total+=A[i];S(2,v,[i,A[i],v.total],[],'total = '+(v.total-A[i])+' + '+A[i]+' = '+v.total,i);S(3,v,null,[],i<N-1?'next i: move on to index '+(i+1)+'.':'next i: that was the last index, so the loop ends.',i)}
+    out=[String(v.total)];S(4,v,null,out,'Output the total: '+v.total+'.',-1);
+  }else if(prog==='largest'){
+    let v={largest:A[0]};S(0,v,['start','',String(A[0])],[],'largest starts as scores[0] = '+A[0]+'.',0);
+    for(let i=1;i<N;i++){v.i=i;S(1,v,null,[],'i = '+i+'.',i);const big=A[i]>v.largest;S(2,v,null,[],'Is scores['+i+'] ('+A[i]+') > largest ('+v.largest+')? '+(big?'Yes.':'No.'),i);
+      if(big){v.largest=A[i];S(3,v,[i,A[i],v.largest],[],'largest = '+A[i]+'.',i)}else{steps[steps.length-1].row=[i,A[i],v.largest]}
+      S(5,v,null,[],'next i.',i)}
+    out=[String(v.largest)];S(6,v,null,out,'Output the largest value: '+v.largest+'.',-1);
+  }else if(prog==='count'){
+    let v={count:0};S(0,v,['start','','0'],[],'count starts at 0.',-1);
+    for(let i=0;i<N;i++){v.i=i;S(1,v,null,[],'i = '+i+'.',i);const yes=A[i]>10;S(2,v,null,[],'Is scores['+i+'] ('+A[i]+') > 10? '+(yes?'Yes.':'No.'),i);
+      if(yes){v.count++;S(3,v,[i,A[i],v.count],[],'count = '+v.count+'.',i)}else{steps[steps.length-1].row=[i,A[i],v.count]}
+      S(5,v,null,[],'next i.',i)}
+    out=[String(v.count)];S(6,v,null,out,'Output the count: '+v.count+'.',-1);
+  }else{
+    const t=parseInt(document.getElementById('target').value,10);let v={found:'FALSE'};S(0,v,['start','','FALSE'],[],'found starts as FALSE.',-1);
+    for(let i=0;i<N;i++){v.i=i;S(1,v,null,out.slice(),'i = '+i+'.',i);const m=A[i]===t;S(2,v,null,out.slice(),'Is scores['+i+'] ('+A[i]+') = '+t+'? '+(m?'Yes.':'No.'),i);
+      if(m){v.found='TRUE';S(3,v,[i,A[i],'TRUE'],out.slice(),'found = TRUE.',i);out.push('Found at index '+i);S(4,v,null,out.slice(),'Output the index where it was found.',i)}else{steps[steps.length-1].row=[i,A[i],v.found]}
+      S(6,v,null,out.slice(),'next i.',i)}
+    S(7,v,null,out.slice(),'Is found = FALSE? '+(v.found==='FALSE'?'Yes.':'No, so skip the message.'),-1);
+    if(v.found==='FALSE'){out.push('Not found');S(8,v,null,out.slice(),'Output "Not found".',-1)}
+    S(9,v,null,out.slice(),'End of the program.',-1);
+  }
+  si=0;hlIdx=-1;renderStep();
+}
+function renderStep(){
+  const lines=codeLines(), st=si>0?steps[si-1]:null;
+  document.getElementById('code').innerHTML=lines.map((l,k)=>'<span class="'+(st&&st.line===k?'cur':'')+'">'+esc(l)+'</span>').join('');
+  hlIdx=st?st.idx:-1;drawArr();
+  document.querySelectorAll('#arr .cell').forEach((c,i)=>{if(st&&i<st.idx&&prog!=='search'&&i!==hlIdx)c.classList.add('seen')});
+  const cols=PROGS[prog].cols, rows=steps.slice(0,si).filter(s=>s.row).map(s=>s.row);
+  document.getElementById('trace').innerHTML='<tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr>'+rows.map((r,k)=>'<tr class="'+(k===rows.length-1&&st&&st.row?'new':'')+'">'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
+  document.getElementById('vars').innerHTML=st?Object.entries(st.vars).map(([k,v])=>'<span class="var">'+k+' = '+v+'</span>').join(''):'';
+  document.getElementById('explain').textContent=st?st.msg:'Press Next step to run the first line. Predict what will happen first.';
+  const o=st?st.out:[];document.getElementById('out').textContent='Output: '+o.join('  |  ');
+  document.getElementById('next').disabled=si>=steps.length;
+}
+document.getElementById('next').onclick=()=>{if(si<steps.length){si++;renderStep()}};
+document.getElementById('runAll').onclick=()=>{si=steps.length;renderStep()};
+document.getElementById('reset').onclick=()=>{si=0;renderStep()};
+seg('prog',v=>{prog=v;document.getElementById('targetWrap').style.display=v==='search'?'':'none';buildSteps()});
+document.getElementById('target').addEventListener('change',buildSteps);
+buildSteps();
+
+/* ================= 2D GRID ================= */
+const HS=[[34,43,23,51],[26,47,54,14],[31,28,40,37]], STAFF=['001','002','003'], MON=['Jan','Feb','Mar','Apr'];
+let order='rc', sel=null, chal=null, tot='row', st2=[], si2=0;
+const ref=(r,c)=>order==='rc'?'handsets['+r+', '+c+']':'handsets('+c+', '+r+')';
+function drawGrid(marks={}){
+  const t=document.getElementById('g2');
+  let h='<tr><th></th>'+MON.map((m,j)=>'<th>['+j+']<small>'+m+'</small></th>').join('')+'</tr>';
+  HS.forEach((row,i)=>{h+='<tr><th class="rh">'+STAFF[i]+' ['+i+']</th>'+row.map((v,j)=>'<td><button data-r="'+i+'" data-c="'+j+'" class="'+(marks[i+','+j]||'')+'" aria-label="row '+i+' column '+j+'">'+v+'</button></td>').join('')+'</tr>'});
+  t.innerHTML=h;
+  t.querySelectorAll('button').forEach(b=>b.onclick=()=>cellClick(+b.dataset.r,+b.dataset.c));
+}
+function cellClick(r,c){
+  if(chal&&!chal.done){
+    const f=document.getElementById('chalFb');
+    if(r===chal.r&&c===chal.c){chal.done=true;f.className='fb good';f.textContent='Correct: '+ref(r,c)+' = '+HS[r][c]+'.';drawGrid({[r+','+c]:'good'})}
+    else if(r===chal.c&&c===chal.r){f.className='fb bad';f.textContent='Close: you swapped the row and the column. '+(order==='rc'?'The first index is the row.':'In this order the first index is the column.');drawGrid({[r+','+c]:'bad'})}
+    else{f.className='fb bad';f.textContent='Not that one. '+(order==='rc'?'Find the row first, then the column.':'Find the column first, then the row.');drawGrid({[r+','+c]:'bad'})}
+    sel={r,c};showSel();return;
+  }
+  sel={r,c};drawGrid({[r+','+c]:'hl'});showSel();
+}
+function showSel(){
+  if(!sel)return;
+  document.getElementById('selRef').textContent=ref(sel.r,sel.c)+' = '+HS[sel.r][sel.c];
+  document.getElementById('selDesc').textContent='Row '+sel.r+' (staff '+STAFF[sel.r]+'), column '+sel.c+' ('+MON[sel.c]+')';
+}
+function orderInfo(){
+  document.getElementById('decl2').textContent=order==='rc'?'declare handsets[0 to 2, 0 to 3] as integer':'declare handsets(4, 3) as integer';
+  document.getElementById('orderNote').textContent=order==='rc'?'Row first, then column. This is the order used on today\u2019s slides.':'Column first, then row, as in the 2022 Q7 mark scheme: loginDetails(3,5) has 3 columns and 5 rows. Both orders are fine if you say which you use and stay consistent.';
+}
+seg('order',v=>{order=v;orderInfo();showSel();if(chal&&!chal.done)setChal(chal.r,chal.c);build2()});
+function setChal(r,c){chal={r,c,done:false};document.getElementById('chal').textContent=ref(r,c);document.getElementById('chalFb').textContent=''}
+document.getElementById('chalNew').onclick=()=>{let r,c;do{r=Math.floor(Math.random()*3);c=Math.floor(Math.random()*4)}while(chal&&r===chal.r&&c===chal.c);setChal(r,c);drawGrid()};
+/* totals tracer */
+function code2(){
+  const k=document.getElementById('totIdx').value;
+  const R=(a,b)=>order==='rc'?'handsets['+a+', '+b+']':'handsets('+b+', '+a+')';
+  if(tot==='row')return ['set total = 0','for month = 0 to 3','  set total = total + '+R(k,'month'),'next month','output total'];
+  if(tot==='col')return ['set total = 0','for staff = 0 to 2','  set total = total + '+R('staff',k),'next staff','output total'];
+  return ['set total = 0','for staff = 0 to 2','  for month = 0 to 3','    set total = total + '+R('staff','month'),'  next month','next staff','output total'];
+}
+function build2(){
+  st2=[];const P=(line,v,cell,out,band)=>st2.push({line,v:{...v},cell,out,band});
+  let v={total:0};
+  if(tot==='row'){let k=Math.min(2,Math.max(0,parseInt(document.getElementById('totIdx').value,10)||0));document.getElementById('totIdx').value=k;
+    P(0,v,null,'',{row:k});for(let c=0;c<4;c++){v.month=c;P(1,v,[k,c],'',{row:k});v.total+=HS[k][c];P(2,v,[k,c],'',{row:k});P(3,v,[k,c],'',{row:k})}P(4,v,null,String(v.total),{row:k})}
+  else if(tot==='col'){let k=Math.min(3,Math.max(0,parseInt(document.getElementById('totIdx').value,10)||0));document.getElementById('totIdx').value=k;
+    P(0,v,null,'',{col:k});for(let r=0;r<3;r++){v.staff=r;P(1,v,[r,k],'',{col:k});v.total+=HS[r][k];P(2,v,[r,k],'',{col:k});P(3,v,[r,k],'',{col:k})}P(4,v,null,String(v.total),{col:k})}
+  else{P(0,v,null,'',{});for(let r=0;r<3;r++){v.staff=r;P(1,v,null,'',{row:r});for(let c=0;c<4;c++){v.month=c;P(2,v,[r,c],'',{row:r});v.total+=HS[r][c];P(3,v,[r,c],'',{row:r});P(4,v,[r,c],'',{row:r})}P(5,v,null,'',{row:r})}P(6,v,null,String(v.total),{})}
+  si2=0;render2();
+}
+function render2(){
+  const lines=code2(), s=si2>0?st2[si2-1]:null;
+  document.getElementById('code2').innerHTML=lines.map((l,k)=>'<span class="'+(s&&s.line===k?'cur':'')+'">'+esc(l)+'</span>').join('');
+  document.getElementById('vars2').innerHTML=s?Object.entries(s.v).map(([k,v])=>'<span class="var">'+k+' = '+v+'</span>').join(''):'';
+  document.getElementById('out2').textContent='Output: '+(s?s.out:'');
+  const m={};
+  if(s){if(s.band.row!==undefined)for(let c=0;c<4;c++)m[s.band.row+','+c]='band';if(s.band.col!==undefined)for(let r=0;r<3;r++)m[r+','+s.band.col]='band';if(s.cell)m[s.cell[0]+','+s.cell[1]]='hl'}
+  drawGrid(m);
+  document.getElementById('next2').disabled=si2>=st2.length;
+}
+seg('tot',v=>{tot=v;document.getElementById('totPick').style.display=v==='all'?'none':'';document.getElementById('totPickLbl').textContent=v==='row'?'Row':'Column';document.getElementById('totIdx').value=v==='row'?1:1;build2()});
+document.getElementById('totIdx').addEventListener('change',build2);
+document.getElementById('next2').onclick=()=>{if(si2<st2.length){si2++;render2()}};
+document.getElementById('all2').onclick=()=>{si2=st2.length;render2()};
+document.getElementById('reset2').onclick=()=>{si2=0;render2()};
+orderInfo();drawGrid();setChal(2,1);build2();
+
+/* ================= RECORDS ================= */
+const FIELDS=[['StudentID','S0012','String','Contains a letter and leading zeros, and is never used in arithmetic.'],['Name','Ffion Hughes','String','A sequence of characters.'],['TutorGroup','B','Character','A single letter.'],['YearGroup','12','Integer','A whole number.'],['AverageMark','71.5','Real','Has a fractional part.'],['Enrolled','True','Boolean','Only True or False.']];
+const ROWS=[['S0012','Ffion Hughes','B','12','71.5','True'],['S0013','Tom Price','A','12','64.0','True'],['S0014','Amira Khan','B','13','82.5','False'],['S0015','Dafydd Rees','C','12','58.5','True']];
+const PROMPTS=[{k:'field',t:'Click a field (any one).'},{k:'record',t:'Click a record.'},{k:'pk',t:'Click the primary key field.'},{k:'recordOf',t:'Click the record for Amira Khan.'},{k:'fieldReal',t:'Click the field that holds real numbers.'}];
+let pi=0;
+function drawRec(selRow=-1,selCol=-1){
+  const t=document.getElementById('recTable');
+  t.innerHTML='<tr>'+FIELDS.map((f,j)=>'<th class="'+(j===selCol?'sel-col':'')+'"><button data-c="'+j+'">'+f[0]+'</button></th>').join('')+'</tr>'+ROWS.map((r,i)=>'<tr class="'+(i===selRow?'sel-row':'')+'">'+r.map(v=>'<td><button data-r="'+i+'">'+esc(v)+'</button></td>').join('')+'</tr>').join('');
+  t.querySelectorAll('th button').forEach(b=>b.onclick=()=>recClick('col',+b.dataset.c));
+  t.querySelectorAll('td button').forEach(b=>b.onclick=()=>recClick('row',+b.dataset.r));
+}
+function recClick(kind,n){
+  const p=PROMPTS[pi].k,f=document.getElementById('recFb');
+  drawRec(kind==='row'?n:-1,kind==='col'?n:-1);
+  const ok=(p==='field'&&kind==='col')||(p==='record'&&kind==='row')||(p==='pk'&&kind==='col'&&n===0)||(p==='recordOf'&&kind==='row'&&n===2)||(p==='fieldReal'&&kind==='col'&&n===4);
+  if(ok){f.className='fb good';f.textContent={field:'Correct: '+FIELDS[n]?.[0]+' is a field. A field is one item of data, held for every record.',record:'Correct: a record is one whole row: all the data about one student.',pk:'Correct: StudentID is unique for every record, so it identifies each student.',recordOf:'Correct: the whole row is Amira Khan\u2019s record.',fieldReal:'Correct: AverageMark holds real numbers such as 71.5.'}[p];return}
+  f.className='fb bad';
+  if((p==='record'||p==='recordOf')&&kind==='col')f.textContent='That is a field (a column). A record is a whole row.';
+  else if((p==='field'||p==='pk'||p==='fieldReal')&&kind==='row')f.textContent='That is a record (a row). A field is a column heading.';
+  else if(p==='pk')f.textContent=FIELDS[n][0]+' is not unique: two students could share it. Which field is different for every student?';
+  else if(p==='fieldReal')f.textContent=FIELDS[n][0]+' holds '+FIELDS[n][2].toLowerCase()+' data. Look for values with a decimal point.';
+  else f.textContent='That is a record, but not Amira Khan\u2019s.';
+}
+document.getElementById('recNew').onclick=()=>{pi=(pi+1)%PROMPTS.length;document.getElementById('recPrompt').textContent=PROMPTS[pi].t;document.getElementById('recFb').textContent='';drawRec()};
+document.getElementById('recPrompt').textContent=PROMPTS[0].t;drawRec();
+/* data types */
+const TYPES=['Choose\u2026','String','Character','Integer','Real','Boolean'];
+const dt=document.getElementById('dt');
+FIELDS.forEach((f,i)=>{const l=document.createElement('label');l.innerHTML='<b>'+f[0]+'</b><small>e.g. '+esc(f[1])+'</small><select data-i="'+i+'">'+TYPES.map(t=>'<option>'+t+'</option>').join('')+'</select><span class="why"></span>';dt.append(l)});
+document.getElementById('dtCheck').onclick=()=>{
+  let right=0;const sels=[...dt.querySelectorAll('select')];
+  sels.forEach(s=>{const f=FIELDS[+s.dataset.i],l=s.parentElement,w=l.querySelector('.why');
+    if(s.value===f[2]){right++;l.className='right';w.textContent='Correct. '+f[3]}else{l.className='wrong';w.textContent=s.value==='Choose\u2026'?'Choose a type.':'Not quite: think about the example value.'}});
+  const fb=document.getElementById('dtFb');fb.className='fb '+(right===FIELDS.length?'good':'bad');fb.textContent=right+' of '+FIELDS.length+' correct.';
+  const code=document.getElementById('recCode');
+  if(right===FIELDS.length){code.style.display='';code.innerHTML=['record Student',...FIELDS.map(f=>'  '+f[0].charAt(0).toLowerCase()+f[0].slice(1)+' as '+(f[2]==='Boolean'?'Boolean':f[2].toLowerCase())),'end record','','declare learners[0 to 29] as Student','output learners[2].name    {Amira Khan}'].map(l=>'<span>'+esc(l)+'</span>').join('')}
+  else code.style.display='none';
+};
+/* which structure */
+const OPTS=['1D array','2D array','Record','Array of records'];
+const SC=[
+  ['Rainfall for each of the 30 days in a month','1D array','One list of values, all the same data type.'],
+  ['Which seats in a cinema are booked, by row and seat number','2D array','A grid of rows and seats, all Boolean.'],
+  ['One customer\u2019s name, address and age','Record','Different data types, all about one entity.'],
+  ['Test marks for 25 students across 4 tests','2D array','A grid: students by tests, all integers.'],
+  ['The title, author, price and ISBN of one book','Record','Fields of different types about one book.'],
+  ['The names of the 7 days of the week','1D array','One list of strings.'],
+  ['Name, salary and start year for every employee','Array of records','Many entities, each with mixed fields.'],
+  ['Temperature every hour for a week','2D array','A grid of days by hours, all real numbers.']
+];
+let sR=0,sD=0;
+function buildS(){
+  const box=document.getElementById('sCards');box.innerHTML='';sR=0;sD=0;sTally();
+  SC.map((_,i)=>i).sort(()=>Math.random()-.5).forEach(idx=>{
+    const [txt,ans,why]=SC[idx];const c=document.createElement('div');c.className='card';
+    const p=document.createElement('p');p.textContent=txt;const ch=document.createElement('div');ch.className='choices';const w=document.createElement('p');w.className='why';
+    OPTS.forEach(o=>{const b=document.createElement('button');b.textContent=o;b.onclick=()=>{if(c.dataset.done)return;c.dataset.done=1;sD++;
+      if(o===ans){b.classList.add('picked-right');c.classList.add('right');sR++;w.textContent='Correct. '+why}else{b.classList.add('picked-wrong');c.classList.add('wrong');[...ch.children].find(x=>x.textContent===ans).classList.add('picked-right');w.textContent='Best answer: '+ans+'. '+why}sTally()};ch.append(b)});
+    c.append(p,ch,w);box.append(c)});
+}
+function sTally(){document.getElementById('sTally').textContent=sD<SC.length?sD+' of '+SC.length+' answered, '+sR+' correct':'All done: '+sR+' out of '+SC.length+' correct.'}
+document.getElementById('sReset').onclick=buildS;buildS();
+</script>
+</body>
+</html>
