@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 15 Task Tracker — Recursion</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  .progress-wrap{
+    max-width:900px;
+    margin:-1.5rem auto 0;
+    padding:0 1.5rem;
+  }
+  .progress-card{
+    background:var(--white);
+    border-radius:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    padding:1.1rem 1.4rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  .progress-bar-track{
+    flex:1;
+    height:12px;
+    background:#E3EAEF;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--second);
+    transition:width 0.3s ease;
+  }
+  .progress-label{
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--dark);
+    white-space:nowrap;
+  }
+  main{
+    max-width:900px;
+    margin:2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .recall-note{
+    background:#EAF3F0;
+    border:1px solid #BFE0D4;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#0B5B3C;
+    margin-bottom:1.6rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .recall-note .dot{
+    width:20px;
+    height:20px;
+    background:var(--second);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.7rem;
+    flex-shrink:0;
+  }
+  .task-card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    margin-bottom:1.8rem;
+    overflow:hidden;
+    transition:border-color 0.3s ease;
+  }
+  .task-card.complete{
+    border-color:var(--second);
+  }
+  .task-head{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    padding:1.2rem 1.4rem;
+    border-bottom:1px solid #EEF2F5;
+  }
+  .task-badge{
+    background:var(--primary);
+    color:var(--white);
+    font-size:0.75rem;
+    font-weight:bold;
+    letter-spacing:1px;
+    padding:0.35rem 0.7rem;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-badge{
+    background:var(--second);
+  }
+  .task-head h2{
+    margin:0;
+    font-size:1.3rem;
+    color:var(--dark);
+    flex:1;
+  }
+  .task-check-pill{
+    font-size:0.8rem;
+    color:var(--second);
+    font-weight:bold;
+    display:none;
+    white-space:nowrap;
+  }
+  .task-card.complete .task-check-pill{
+    display:inline;
+  }
+  .task-body{
+    padding:1.3rem 1.4rem 1.5rem;
+  }
+  .filename-note{
+    background:var(--light);
+    border-radius:8px;
+    padding:0.7rem 1rem;
+    font-family: "Courier New", monospace;
+    font-size:0.95rem;
+    color:var(--primary);
+    margin-bottom:1.1rem;
+    display:inline-block;
+  }
+  .scenario-note{
+    background:#FBF0E7;
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#8A4A1E;
+    margin-bottom:1.1rem;
+  }
+  .tip-note{
+    background:#EAF1F8;
+    border:1px solid #BCD3E8;
+    border-radius:10px;
+    padding:0.8rem 1.1rem;
+    font-size:0.88rem;
+    color:#1D4F73;
+    margin-bottom:1.1rem;
+  }
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .steps li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.7rem;
+    padding:0.55rem 0;
+    border-bottom:1px dashed #EEF2F5;
+  }
+  .steps li:last-child{
+    border-bottom:none;
+  }
+  .steps input[type=checkbox]{
+    width:20px;
+    height:20px;
+    margin-top:0.1rem;
+    accent-color:var(--second);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .steps label{
+    font-size:1rem;
+    line-height:1.4;
+    cursor:pointer;
+  }
+  .steps li.checked label{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .code{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#CADCFC;
+    padding:0.15rem 0.4rem;
+    border-radius:4px;
+    font-size:0.92rem;
+  }
+  .extension-block{
+    margin-top:1.3rem;
+  }
+  .extension{
+    background:var(--amberbg);
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .extension-head{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-weight:bold;
+    color:#8A4A1E;
+    margin-bottom:0.6rem;
+    font-size:0.95rem;
+  }
+  .extension-head .dot{
+    width:22px;
+    height:22px;
+    background:var(--amber);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:0.8rem;
+    flex-shrink:0;
+  }
+  .ext-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .ext-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:0.6rem;
+    padding:0.4rem 0;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .ext-list li input[type=checkbox]{
+    width:18px;
+    height:18px;
+    margin-top:0.15rem;
+    accent-color:var(--amber);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .ext-list li.checked{
+    color:var(--muted);
+    text-decoration:line-through;
+  }
+  .nested-tag{
+    display:inline-block;
+    background:var(--dark);
+    color:#CADCFC;
+    font-size:0.7rem;
+    font-weight:bold;
+    letter-spacing:0.5px;
+    padding:0.1rem 0.45rem;
+    border-radius:4px;
+    margin-left:0.3rem;
+    white-space:nowrap;
+  }
+  .still-going{
+    margin-top:0.9rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+  .still-going .extension-head{
+    color:#8FD9C4;
+  }
+  .still-going .extension-head .dot{
+    background:var(--second);
+  }
+  .still-going p{
+    margin:0;
+    font-size:0.9rem;
+    color:#CADCFC;
+    line-height:1.5;
+  }
+  footer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  details{
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    margin:0.5rem 0;
+    padding:0.55rem 0.95rem;
+    background:var(--light);
+  }
+  details summary{
+    cursor:pointer;
+    font-weight:bold;
+    color:var(--primary);
+    font-size:0.92rem;
+  }
+  details[open] summary{ margin-bottom:0.5rem; }
+  details p{ margin:0; font-size:0.92rem; line-height:1.5; }
+  .codeblock{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.8rem 1rem;
+    border-radius:8px;
+    font-size:0.86rem;
+    line-height:1.55;
+    white-space:pre;
+    overflow-x:auto;
+    margin:0.4rem 0 0;
+  }
+  .codelabel{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0 0 0.2rem;
+  }
+
+  table.exp{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.9rem;
+    margin:0.4rem 0 1.1rem;
+  }
+  table.exp th{
+    background:var(--primary);
+    color:#FFFFFF;
+    text-align:left;
+    padding:0.5rem 0.8rem;
+    font-size:0.85rem;
+  }
+  table.exp td{
+    border:1px solid #D8E2E8;
+    padding:0.5rem 0.8rem;
+    vertical-align:top;
+  }
+  table.exp td.fn{ font-family:"Courier New", monospace; color:var(--primary); }
+  table.exp td.res{ font-family:"Courier New", monospace; }
+
+  table.exp{ width:100%; border-collapse:collapse; font-size:0.9rem; margin:0.4rem 0 1.1rem; }
+  table.exp th{ background:var(--primary); color:#fff; text-align:left; padding:0.5rem 0.8rem; font-size:0.85rem; }
+  table.exp td{ border:1px solid #D8E2E8; padding:0.5rem 0.8rem; vertical-align:top; }
+  table.exp td.fn{ font-family:"Courier New", monospace; color:var(--primary); }
+  table.exp td.res{ font-family:"Courier New", monospace; }
+
+  .tracebox{ background:var(--light); border:1px solid #D8E2E8; border-radius:12px; padding:1rem 1.1rem; margin:0.4rem 0 1.2rem; }
+  .tracebox h3{ margin:0 0 0.3rem; font-size:1rem; color:var(--dark); }
+  .tracebox .sub{ font-size:0.88rem; color:var(--muted); margin:0 0 0.7rem; line-height:1.45; }
+  table.trace{ width:100%; border-collapse:collapse; background:#fff; font-size:0.93rem; }
+  table.trace th{ background:var(--primary); color:#fff; text-align:left; padding:0.45rem 0.7rem; font-size:0.82rem; }
+  table.trace td{ border:1px solid #D8E2E8; padding:0.4rem 0.7rem; vertical-align:middle; }
+  table.trace td.mono{ font-family:"Courier New", monospace; }
+  table.trace select, table.trace input{
+    border:1px solid #C5D2DA; border-radius:6px; padding:0.3rem 0.5rem; font-size:0.92rem; width:100%; box-sizing:border-box; background:#fff;
+  }
+  table.trace tr.ok td{ background:#E4F3EB; }
+  table.trace tr.bad td{ background:#FDF0F0; }
+  table.trace .mark{ font-weight:bold; width:2.2rem; text-align:center; }
+  .tracebtns{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.7rem; align-items:center; }
+  .tracebtns button{
+    background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem; font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .tracebtns button.secondary{ background:#fff; color:var(--text); border:1px solid #C5D2DA; }
+  .tracebtns button:hover{ filter:brightness(1.08); }
+  .tracemsg{ margin-top:0.7rem; font-size:0.92rem; line-height:1.5; display:none; padding:0.7rem 0.9rem; border-radius:8px; }
+  .tracemsg.show{ display:block; }
+  .tracemsg.good{ background:var(--greenbg); color:var(--green); }
+  .tracemsg.act{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 15 task tracker</h1>
+  <p>Recursion — a function that calls itself</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="progress-label" id="progressLabel">0 / 14 steps</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<main>
+
+  <div class="recall-note">
+    <span class="dot">i</span>
+    <span><b>Three rules.</b> <b>1.</b> Every recursive function needs a <b>base case</b>. <b>2.</b> Every recursive call must move <b>towards</b> the base case. <b>3.</b> <b>Return</b> the recursive call's result.</span>
+  </div>
+
+  <!-- TASK 1 -->
+  <section class="task-card" id="task1">
+    <div class="task-head">
+      <span class="task-badge">Task 1</span>
+      <h2>Trace it, then write it</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="filename-note">Open the supplied file: lesson15_task1_start.py</div>
+      <div class="tip-note"><b>Watch the direction.</b> In the traced output the calls go <b>down</b> (3, 2, 1, 0) until the base case; then the answers come back <b>up</b>. Your trace table should show the same thing.</div>
+      <details>
+        <summary>What the traced <span class="code">sum_to(3)</span> should print — click to compare</summary>
+        <div class="codelabel">Running the start file, you should see:</div>
+        <div class="codeblock">sum_to called with 3
+sum_to called with 2
+sum_to called with 1
+sum_to called with 0
+  base case: returns 0
+  sum_to( 1 ) returns 1
+  sum_to( 2 ) returns 3
+  sum_to( 3 ) returns 6</div>
+      </details>
+      <div class="codelabel">The test calls in the start file should give these results:</div>
+      <table class="exp">
+        <tr><th>Call</th><th>Should give</th></tr>
+        <tr><td class="fn">sum_to(0)</td><td class="res">0</td></tr>
+        <tr><td class="fn">sum_to(1)</td><td class="res">1</td></tr>
+        <tr><td class="fn">sum_to(4)</td><td class="res">10</td></tr>
+        <tr><td class="fn">sum_to(10)</td><td class="res">55</td></tr>
+      </table>
+
+      <div class="tracebox" id="traceBox">
+        <h3>Trace table: <span class="code">sum_to(4)</span></h3>
+        <p class="sub">Fill in each row. <b>Hint:</b> work out the <b>Returns</b> column from the <b>bottom up</b> — the base case returns first.</p>
+        <table class="trace">
+          <tr><th>Call</th><th>n</th><th>Base case?</th><th>Returns</th><th class="mark"></th></tr>
+          <tr data-base="no" data-ret="10"><td>1</td><td class="mono">4</td><td><select><option value="">—</option><option value="no">no</option><option value="yes">YES</option></select></td><td><input type="text" inputmode="numeric" placeholder="?"></td><td class="mark"></td></tr>
+          <tr data-base="no" data-ret="6"><td>2</td><td class="mono">3</td><td><select><option value="">—</option><option value="no">no</option><option value="yes">YES</option></select></td><td><input type="text" inputmode="numeric" placeholder="?"></td><td class="mark"></td></tr>
+          <tr data-base="no" data-ret="3"><td>3</td><td class="mono">2</td><td><select><option value="">—</option><option value="no">no</option><option value="yes">YES</option></select></td><td><input type="text" inputmode="numeric" placeholder="?"></td><td class="mark"></td></tr>
+          <tr data-base="no" data-ret="1"><td>4</td><td class="mono">1</td><td><select><option value="">—</option><option value="no">no</option><option value="yes">YES</option></select></td><td><input type="text" inputmode="numeric" placeholder="?"></td><td class="mark"></td></tr>
+          <tr data-base="yes" data-ret="0"><td>5</td><td class="mono">0</td><td><select><option value="">—</option><option value="no">no</option><option value="yes">YES</option></select></td><td><input type="text" inputmode="numeric" placeholder="?"></td><td class="mark"></td></tr>
+        </table>
+        <div class="tracebtns">
+          <button onclick="checkTrace()">Check my table</button>
+          <button class="secondary" onclick="resetTrace()">Clear</button>
+        </div>
+        <div class="tracemsg" id="traceMsg" role="status" aria-live="polite"></div>
+      </div>
+
+      <ul class="steps" data-task="task1">
+        <li><input type="checkbox" id="t1-1"><label for="t1-1">Run the start file. Compare the output with the board: do the calls go <b>down</b> and the answers come <b>up</b>?</label></li>
+        <li><input type="checkbox" id="t1-2"><label for="t1-2">Complete the trace table above for <span class="code">sum_to(4)</span> — on screen or on paper</label></li>
+        <li><input type="checkbox" id="t1-3"><label for="t1-3">Change <span class="code">countdown</span> so it counts down from <b>5</b> and prints <span class="code">"Lift off!"</span> instead of <span class="code">"Go!"</span></label></li>
+        <li><input type="checkbox" id="t1-4"><label for="t1-4">Write <span class="code">sum_to(n)</span>: the header and the base case are given — you write the <b>recursive case</b></label></li>
+        <li><input type="checkbox" id="t1-5"><label for="t1-5">Uncomment the test calls, one at a time, and check each result against the table above</label></li>
+        <li><input type="checkbox" id="t1-6"><label for="t1-6">Put a comment above <span class='code'>sum_to</span>: what it takes in, and what it returns</label></li>
+        <li><input type="checkbox" id="t1-7"><label for="t1-7">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="t1-e1"><label for="t1-e1">Write a loop version of <span class="code">sum_to</span>. Do the two agree for <span class="code">100</span>?</label></li>
+            <li><input type="checkbox" id="t1-e2"><label for="t1-e2"><b>Predict:</b> what happens with <span class="code">sum_to(2000)</span>, and why? <b>Ask your teacher before you run it.</b></label></li>
+            <li><input type="checkbox" id="t1-e3"><label for="t1-e3">Curiosity: in the traced output, where exactly do the numbers stop going down and start coming back up?</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK 2 -->
+  <section class="task-card" id="task2">
+    <div class="task-head">
+      <span class="task-badge">Task 2</span>
+      <h2>Factorial, power, and three broken functions</h2>
+      <span class="task-check-pill">✓ Done</span>
+    </div>
+    <div class="task-body">
+      <div class="filename-note">Part A: open lesson15_task2_start.py</div>
+      <div class="tip-note"><b>Short of time?</b> Do <span class="code">factorial</span> only. The broken functions (Part B) move to the start of Lesson 16.</div>
+      <div class="codelabel">The test calls in the start file should give these results:</div>
+      <table class="exp">
+        <tr><th>Call</th><th>Should give</th></tr>
+        <tr><td class="fn">factorial(0)</td><td class="res">1</td></tr>
+        <tr><td class="fn">factorial(1)</td><td class="res">1</td></tr>
+        <tr><td class="fn">factorial(4)</td><td class="res">24</td></tr>
+        <tr><td class="fn">factorial(5)</td><td class="res">120</td></tr>
+        <tr><td class="fn">power(2, 5)</td><td class="res">32</td></tr>
+        <tr><td class="fn">power(3, 0)</td><td class="res">1</td></tr>
+        <tr><td class="fn">power(5, 2)</td><td class="res">25</td></tr>
+      </table>
+      <details>
+        <summary>Stuck? Two pointers — click only when you need them</summary>
+        <p><b>factorial:</b> look at <span class="code">sum_to</span>. What does it return in the base case? What does it <em>add</em> to the recursive call — and what should factorial do instead?</p>
+        <p style="margin-top:0.5rem;"><b>power:</b> two parameters, but <b>only one changes</b>. Which one, and in which direction?</p>
+      </details>
+      <div class="filename-note" style="margin-top:1rem;">Part B: open lesson15_task2_debug_start.py</div>
+      <div class="tip-note"><b>STOP — do not run a broken function until you have fixed it.</b> A broken recursive function can run away and freeze your browser. For each one: <b>trace it on paper with n = 2 first.</b> Where does it stop? What does it return? Write down what's wrong <em>before</em> you change anything.</div>
+      <ul class="steps" data-task="task2">
+        <li><input type="checkbox" id="t2-1"><label for="t2-1">Write <span class="code">factorial(n)</span>, with <span class="code">factorial(0)</span> as the base case, giving <span class="code">1</span></label></li>
+        <li><input type="checkbox" id="t2-2"><label for="t2-2">Test <span class='code'>factorial</span> against the table above</label></li>
+        <li><input type="checkbox" id="t2-3"><label for="t2-3">Write <span class="code">power(base, exp)</span>, with <span class="code">exp == 0</span> giving <span class="code">1</span></label></li>
+        <li><input type="checkbox" id="t2-4"><label for="t2-4">Test <span class='code'>power</span> against the table above</label></li>
+        <li><input type="checkbox" id="t2-5"><label for="t2-5"><b>Part B:</b> for each of the three broken functions, <b>trace it with n = 2 on paper</b> and write down what is wrong — before changing anything</label></li>
+        <li><input type="checkbox" id="t2-6"><label for="t2-6">Fix all three — <b>then</b> uncomment each test call and check the result</label></li>
+        <li><input type="checkbox" id="t2-7"><label for="t2-7">Check it off</label></li>
+      </ul>
+
+      <div class="extension-block">
+        <div class="extension">
+          <div class="extension-head"><span class="dot">★</span> Extensions — finished early? Try as many as you like</div>
+          <ul class="ext-list">
+            <li><input type="checkbox" id="t2-e1"><label for="t2-e1">Write <span class="code">digit_sum(n)</span>: add up the digits of <span class="code">n</span>. <span class="code">digit_sum(472)</span> gives <span class="code">13</span>. It needs <span class="code">%</span> and <span class="code">//</span></label></li>
+            <li><input type="checkbox" id="t2-e2"><label for="t2-e2">Write <span class="code">countdown_by_two(n)</span> so it stops safely whether <span class="code">n</span> is odd or even</label></li>
+            <li><input type="checkbox" id="t2-e3"><label for="t2-e3">Write one sentence explaining why your <span class="code">power</span> always stops</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Lesson 15 · Imperative Programming · Access to HE Applied Computing
+</footer>
+
+<script>
+  const stepBoxes = Array.from(document.querySelectorAll('.steps input[type=checkbox]'));
+  const extBoxes = Array.from(document.querySelectorAll('.ext-list input[type=checkbox]'));
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+
+  function updateProgress(){
+    const total = stepBoxes.length;
+    const checked = stepBoxes.filter(b => b.checked).length;
+    const pct = total ? Math.round((checked/total)*100) : 0;
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = checked + ' / ' + total + ' steps';
+
+    Array.from(document.querySelectorAll('.task-card')).forEach(card => {
+      const boxes = Array.from(card.querySelectorAll('.steps input[type=checkbox]'));
+      const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
+      card.classList.toggle('complete', allChecked);
+    });
+  }
+
+  stepBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+      updateProgress();
+    });
+  });
+
+  extBoxes.forEach(box => {
+    box.addEventListener('change', () => {
+      const li = box.closest('li');
+      li.classList.toggle('checked', box.checked);
+    });
+  });
+
+  updateProgress();
+</script>
+
+
+<script>
+  function norm(v){ return String(v).trim(); }
+  function checkTrace(){
+    const rows = Array.from(document.querySelectorAll('#traceBox table.trace tr[data-ret]'));
+    let ok = 0, blank = 0;
+    rows.forEach(r => {
+      const base = r.querySelector('select').value;
+      const ret = norm(r.querySelector('input').value);
+      const mark = r.querySelector('.mark');
+      r.classList.remove('ok', 'bad');
+      if (!base || !ret) { blank++; mark.textContent = ''; return; }
+      const good = base === r.dataset.base && ret === r.dataset.ret;
+      r.classList.add(good ? 'ok' : 'bad');
+      mark.textContent = good ? '\u2713' : '\u2717';
+      if (good) ok++;
+    });
+    const msg = document.getElementById('traceMsg');
+    msg.className = 'tracemsg show';
+    if (blank === rows.length) {
+      msg.classList.add('act');
+      msg.innerHTML = 'Fill in the table first \u2014 then check it.';
+    } else if (ok === rows.length) {
+      msg.classList.add('good');
+      msg.innerHTML = '<b>All five rows correct.</b> The base case returns <b>0</b> first, then each call adds its own <code>n</code> on the way back up: 0, 1, 3, 6, 10.';
+    } else {
+      msg.classList.add('act');
+      msg.innerHTML = '<b>' + ok + ' of ' + rows.length + ' rows correct' + (blank ? ' (' + blank + ' not filled in)' : '') + '.</b> Start at the <b>bottom</b>: which call is the base case, and what does it return? Then work <b>up</b> \u2014 each call returns its own <code>n</code> plus the answer from the row below it.';
+    }
+  }
+  function resetTrace(){
+    document.querySelectorAll('#traceBox table.trace tr[data-ret]').forEach(r => {
+      r.querySelector('select').value = ''; r.querySelector('input').value = '';
+      r.classList.remove('ok', 'bad'); r.querySelector('.mark').textContent = '';
+    });
+    const msg = document.getElementById('traceMsg'); msg.className = 'tracemsg'; msg.innerHTML = '';
+  }
+</script>
+
+</body>
+</html>

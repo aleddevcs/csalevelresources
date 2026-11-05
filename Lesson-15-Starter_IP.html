@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 15 Starter — Warm-up and Where Are You</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --white:#FFFFFF;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  main{
+    max-width:780px;
+    margin:-1.2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    margin-bottom:1.6rem;
+    padding:1.5rem 1.6rem;
+  }
+  .intro{
+    display:flex;
+    align-items:flex-start;
+    gap:0.9rem;
+  }
+  .intro .dot{
+    width:36px;
+    height:36px;
+    background:var(--second);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:1.1rem;
+    flex-shrink:0;
+  }
+  .intro p{
+    margin:0;
+    font-size:0.98rem;
+    line-height:1.5;
+  }
+  .section-title{
+    font-size:1.1rem;
+    font-weight:bold;
+    color:var(--dark);
+    margin:0 0 1rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .section-title .num{
+    background:var(--primary);
+    color:white;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  .part-label{
+    font-size:0.75rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 0.3rem;
+  }
+
+  /* submission check */
+  .status-q{
+    font-size:1rem;
+    margin:0 0 0.9rem;
+  }
+  .status-opts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.6rem;
+  }
+  .status-btn{
+    flex:1;
+    min-width:150px;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.85rem 0.8rem;
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+  }
+  .status-btn:hover{ border-color:var(--second); }
+  .status-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .status-msg{
+    display:none;
+    margin-top:1rem;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.95rem;
+    line-height:1.5;
+  }
+  .status-msg.show{ display:block; }
+  .status-msg.good{ background:var(--greenbg); color:var(--green); }
+  .status-msg.act{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .status-msg b{ display:block; margin-bottom:0.2rem; }
+  .privacy{
+    margin:0.9rem 0 0;
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  /* retrieval */
+  .q{
+    margin-bottom:1.3rem;
+  }
+  .q:last-child{
+    margin-bottom:0;
+  }
+  .q .prompt{
+    font-size:0.98rem;
+    margin-bottom:0.6rem;
+  }
+  .row{
+    display:flex;
+    gap:0.6rem;
+    align-items:center;
+  }
+  .row input[type=text]{
+    flex:1;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.5rem 0.7rem;
+    font-family:"Courier New", monospace;
+    font-size:0.95rem;
+  }
+  .row button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .row button:hover{
+    background:var(--primary);
+  }
+  .answer{
+    display:none;
+    margin-top:0.6rem;
+    padding:0.7rem 0.9rem;
+    border-radius:8px;
+    font-size:0.9rem;
+    background:var(--greenbg);
+    color:var(--green);
+  }
+  .answer.show{
+    display:block;
+  }
+  code{
+    font-family:"Courier New", monospace;
+    background:var(--light);
+    padding:0.05rem 0.3rem;
+    border-radius:4px;
+    font-size:0.9em;
+  }
+  .today-card{
+    background:var(--primary);
+    color:white;
+  }
+  .today-card .section-title{
+    color:white;
+  }
+  .today-card .section-title .num{
+    background:white;
+    color:var(--primary);
+  }
+  .today-card ul{
+    margin:0;
+    padding-left:1.2rem;
+    font-size:0.95rem;
+    line-height:1.9;
+  }
+  footer{
+    max-width:780px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  pre.snippet{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.92rem;
+    line-height:1.6;
+    margin:0 0 0.8rem;
+    overflow-x:auto;
+  }
+  .stage-list{
+    display:flex;
+    flex-direction:column;
+    gap:0.55rem;
+  }
+  .stage-btn{
+    text-align:left;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.8rem 1rem;
+    font-size:0.96rem;
+    color:var(--text);
+    cursor:pointer;
+    display:flex;
+    gap:0.8rem;
+    align-items:flex-start;
+  }
+  .stage-btn .n{
+    font-weight:bold;
+    color:var(--second);
+    min-width:1.2rem;
+  }
+  .stage-btn:hover{ border-color:var(--second); }
+  .stage-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .stage-btn.sel .n{ color:#CADCFC; }
+
+  .pick{
+    display:flex;
+    flex-direction:column;
+    gap:0.3rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:0.8rem;
+    margin:0 0 0.9rem;
+  }
+  .cl{
+    font-family:"Courier New", monospace;
+    font-size:0.92rem;
+    color:#F4F8FA;
+    background:rgba(255,255,255,0.04);
+    border:2px solid transparent;
+    border-radius:6px;
+    padding:0.35rem 0.6rem;
+    text-align:left;
+    white-space:pre;
+    cursor:pointer;
+  }
+  .cl:hover{ border-color:#5B7FA6; }
+  .cl.sel{ border-color:#F9E795; background:rgba(249,231,149,0.14); }
+  .cl.right{ border-color:#6FCF97; background:rgba(111,207,151,0.2); }
+  .cl.missed{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.18); }
+  .cl.wrong{ border-color:#F0997B; background:rgba(240,153,123,0.22); }
+  .cl.locked{ cursor:default; }
+  .pick-actions{
+    display:flex;
+    gap:0.6rem;
+    margin-bottom:0.2rem;
+  }
+  .pick-actions button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1.1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .pick-actions button.secondary{
+    background:var(--light);
+    color:var(--text);
+    border:1px solid #D8E2E8;
+  }
+  .pick-actions button:hover{ background:var(--primary); color:#fff; }
+  .legend-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.9rem;
+    font-size:0.78rem;
+    color:var(--muted);
+    margin:0.5rem 0 0;
+  }
+  .legend-row span::before{
+    content:"";
+    display:inline-block;
+    width:0.8rem;
+    height:0.8rem;
+    border-radius:3px;
+    margin-right:0.35rem;
+    vertical-align:-0.1rem;
+    border:2px solid;
+  }
+  .legend-row .l-right::before{ border-color:#6FCF97; background:rgba(111,207,151,0.35); }
+  .legend-row .l-missed::before{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.3); }
+  .legend-row .l-wrong::before{ border-color:#F0997B; background:rgba(240,153,123,0.4); }
+  .legend-row{ display:none; }
+  .legend-row.show{ display:flex; }
+
+  .gs-info{ display:none; margin:0.9rem 0 0; }
+  .gs-info.show{ display:block; }
+  .gs-info .what{
+    background:var(--light); border-radius:10px; padding:0.8rem 1rem; font-size:0.93rem; line-height:1.5; margin-bottom:0.7rem;
+  }
+  .chips-label{ font-size:0.82rem; color:var(--muted); margin:0 0 0.4rem; }
+  .chips{ display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.4rem; }
+  .chip{
+    text-align:left; background:#FBF0E7; border:1px solid var(--amber); color:#8A4A1E; border-radius:8px;
+    padding:0.5rem 0.8rem; font-size:0.9rem; cursor:pointer; line-height:1.4;
+  }
+  .chip:hover{ background:#F8E3D0; }
+  .action-label{ display:block; font-weight:bold; font-size:0.95rem; margin:1.1rem 0 0.4rem; color:var(--dark); }
+  textarea.action{
+    width:100%; min-height:5.5rem; border:1px solid #D8E2E8; border-radius:8px; padding:0.6rem 0.75rem;
+    font-family:inherit; font-size:0.95rem; line-height:1.5; resize:vertical; box-sizing:border-box;
+  }
+  .a-row{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.6rem; align-items:center; }
+  .a-row button{
+    background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .a-row button.secondary{ background:var(--light); color:var(--text); border:1px solid #D8E2E8; }
+  .a-row button:hover{ filter:brightness(1.08); }
+  .a-row .note{ font-size:0.85rem; color:var(--green); display:none; }
+  .a-row .note.show{ display:inline; }
+  .selfeval{
+    display:flex; gap:0.7rem; align-items:flex-start; margin-top:1.1rem; padding:0.8rem 1rem;
+    background:var(--light); border-radius:10px; font-size:0.93rem; line-height:1.45; cursor:pointer;
+  }
+  .selfeval input{ width:20px; height:20px; margin-top:0.1rem; accent-color:var(--second); flex-shrink:0; }
+  .selfeval.done{ background:var(--greenbg); color:var(--green); }
+  .fb{ margin-top:0.7rem; }
+
+  .qfb{ margin-top:0.7rem; }
+  .answer.fix{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .answer b{ font-weight:bold; }
+  .important{
+    margin-top:0.6rem; padding:0.6rem 0.8rem; border-radius:8px; background:var(--light); font-size:0.9rem; line-height:1.45; color:var(--text);
+    border-left:4px solid var(--second);
+  }
+  textarea.free{
+    width:100%; min-height:4.2rem; border:1px solid #D8E2E8; border-radius:8px; padding:0.6rem 0.75rem; font-family:inherit;
+    font-size:0.95rem; line-height:1.5; box-sizing:border-box; resize:vertical;
+  }
+  .qbtn{
+    margin-top:0.5rem; background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .qbtn:hover{ filter:brightness(1.08); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 15 starter</h1>
+  <p>Warm-up after the break — and where are you on Assignment 2?</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="intro">
+      <span class="dot">?</span>
+      <p>Welcome back. Two quick parts. First, <b>predict</b> what three short programmes print — without running them, and without notes. Then say <b>where you are</b> on Assignment 2, so you know what to do in the surgery.</p>
+    </div>
+  </div>
+
+  <!-- PART A -->
+  <div class="card">
+    <p class="part-label">Part A</p>
+    <p class="section-title"><span class="num">1</span>Predict the output</p>
+
+    <div class="q">
+      <div class="prompt"><b>Question 1</b> — what does this print?</div>
+      <pre class="snippet">def double(n):
+    return n * 2
+
+print(double(4) + 1)</pre>
+      <div class="row">
+        <input type="text" id="p1" placeholder="Type your prediction">
+        <button onclick="checkQ(1)">Check</button>
+      </div>
+      <div class="answer qfb" id="a1" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 2</b> — what is printed? <i>(There's more than one line.)</i></div>
+      <pre class="snippet">def show(n):
+    print(n * 2)
+
+x = show(4)
+print(x)</pre>
+      <div class="row">
+        <input type="text" id="p2" placeholder="Type your prediction">
+        <button onclick="checkQ(2)">Check</button>
+      </div>
+      <div class="answer qfb" id="a2" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 3</b> — what does this print?</div>
+      <pre class="snippet">scores = {"A": {"x": 1, "y": 2},
+          "B": {"x": 3, "y": 4}}
+total = 0
+for key, d in scores.items():
+    for f, v in d.items():
+        total = total + v
+print(total)</pre>
+      <div class="row">
+        <input type="text" id="p3" placeholder="Type your prediction">
+        <button onclick="checkQ(3)">Check</button>
+      </div>
+      <div class="answer qfb" id="a3" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 4</b> — in words: a function has a parameter <code>n</code>. How does the value of <code>n</code> get into the function?</div>
+      <textarea class="free" id="p4" placeholder="Write your answer"></textarea>
+      <button class="qbtn" onclick="checkQ4()">Show a model answer</button>
+      <div class="answer qfb" id="a4" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <!-- PART B -->
+  <div class="card">
+    <p class="part-label">Part B</p>
+    <p class="section-title"><span class="num">2</span>Where are you on Assignment 2?</p>
+    <p class="status-q">Open your tracker and look at your phases. Which best describes you? <b>Be honest</b> — it decides what you do in the surgery.</p>
+    <div class="stage-list" role="group" aria-label="Where you are on Assignment 2">
+      <button class="stage-btn" data-stage="1" aria-pressed="false"><span class="n">1</span><span>Not started yet</span></button>
+      <button class="stage-btn" data-stage="2" aria-pressed="false"><span class="n">2</span><span>Set up and planning — Phases A and B</span></button>
+      <button class="stage-btn" data-stage="3" aria-pressed="false"><span class="n">3</span><span>First inputs, validation and storage — Phase C</span></button>
+      <button class="stage-btn" data-stage="4" aria-pressed="false"><span class="n">4</span><span>The loops — Phases D and E</span></button>
+      <button class="stage-btn" data-stage="5" aria-pressed="false"><span class="n">5</span><span>Testing and the report — Phases F to I</span></button>
+    </div>
+
+    <div class="status-msg" id="msg-1" role="status" aria-live="polite">
+      <b>Start in the surgery — you have time.</b>Open the <strong>planning sheet</strong> and the <strong>report template</strong>, and get your first input working. Assignment 2 is due <strong>Friday 13/11</strong>, and it doesn't need functions or recursion.
+    </div>
+    <div class="status-msg" id="msg-2" role="status" aria-live="polite">
+      <b>Next: Phase C.</b>The four inputs, validation, and storing a book in a nested dictionary. For validation, look at Lesson 14's <strong>“if / elif inside a retry loop”</strong> slide.
+    </div>
+    <div class="status-msg" id="msg-3" role="status" aria-live="polite">
+      <b>Next: Phases D and E.</b>The <strong>exit</strong> loop (ask before the loop, test in the condition, ask again inside), then the <strong>for loop inside a for loop</strong> that lists the collection.
+    </div>
+    <div class="status-msg" id="msg-4" role="status" aria-live="polite">
+      <b>Next: Phase F — testing.</b>Test <strong>normal</strong>, <strong>boundary</strong> and <strong>invalid</strong> data, and screenshot as you go. Start writing your report sections straight after each part.
+    </div>
+    <div class="status-msg" id="msg-5" role="status" aria-live="polite">
+      <b>Well on — keep explaining <i>why</i>.</b>In each report section, say why you chose the loop, the check, the structure. Caption every screenshot, and check the declaration and submission steps in Phase I.
+    </div>
+
+    <p class="privacy">This is just for you — nothing you click here is sent anywhere. Your tracker keeps your real progress on your own device.</p>
+  </div>
+
+  <div class="card today-card">
+    <p class="section-title"><span class="num">→</span>Today</p>
+    <ul>
+      <li><b>Assignment 2 surgery</b> — 15 minutes to move your work forward</li>
+      <li><b>Recursion</b> — a function that calls itself</li>
+      <li><b>Trace it</b> — follow the calls down, and the answers back up</li>
+      <li><b>Explain it</b> — Assignment 3 will ask you to</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>Lesson 15 · Imperative Programming · Access to HE Applied Computing</footer>
+
+<script>
+  const NEED = 'Type your prediction first \u2014 it\'s the prediction that does the learning.';
+  const WHY2 = '<div class="important"><b>Why this matters today:</b> recursion fails in a specific way when a <code>return</code> is missing. Keep this one in mind.</div>';
+
+  function put(id, html, ok){
+    const out = document.getElementById(id);
+    out.innerHTML = html;
+    out.classList.remove('fix');
+    if (ok === false) out.classList.add('fix');
+    out.classList.add('show');
+  }
+
+  const checks = {
+    1(v){
+      const t = v.trim().toLowerCase();
+      if (t === '9' || t === 'nine') return [true, '<b>Yes \u2014 9.</b> <code>double(4)</code> <i>returns</i> 8, and then 1 is added.'];
+      if (t === '8' || t === 'eight') return [false, '<b>Nearly.</b> <code>double(4)</code> returns 8 \u2014 but the <code>print</code> line adds 1 to it first. The answer is <code>9</code>.'];
+      return [false, 'The answer is <code>9</code>. <code>double(4)</code> returns 8, and the <code>print</code> line adds 1 to that.'];
+    },
+    2(v){
+      const tokens = (v.toLowerCase().replace(/eight/g, '8').match(/\d+|none/g)) || [];
+      const key = tokens.join(' ');
+      if (key === '8 none') return [true, '<b>Yes \u2014 <code>8</code>, then <code>None</code>.</b> <code>show()</code> <i>prints</i> 8, but it doesn\'t <i>return</i> anything \u2014 so <code>x</code> is <code>None</code>.'];
+      if (key === '8') return [false, '<b>You have the first line.</b> There\'s a second: <code>print(x)</code>. <code>show()</code> prints 8 but returns nothing, so <code>x</code> is <code>None</code>.' + WHY2];
+      if (key === '8 8') return [false, '<b>The second line isn\'t 8.</b> <code>x</code> holds what <code>show()</code> <i>returned</i> \u2014 and it only prints, so it returns nothing. <code>x</code> is <code>None</code>.' + WHY2];
+      if (key === 'none') return [false, '<b>Right about the second line \u2014 but what did <code>show(4)</code> print first?</b> It printed <code>8</code>, then <code>None</code> was printed for <code>x</code>.' + WHY2];
+      return [false, 'The answer is <code>8</code>, then <code>None</code>. <code>show()</code> prints 8 but returns nothing, so <code>x</code> is <code>None</code>.' + WHY2];
+    },
+    3(v){
+      const t = v.trim().toLowerCase();
+      if (t === '10' || t === 'ten') return [true, '<b>Yes \u2014 10.</b> The inner loop runs for each outer pass: 1 + 2, then 3 + 4.'];
+      return [false, 'The answer is <code>10</code>. The outer loop takes <code>"A"</code> then <code>"B"</code>; for each, the inner loop adds both values: 1 + 2 + 3 + 4.'];
+    }
+  };
+
+  function checkQ(n){
+    const v = document.getElementById('p' + n).value;
+    if (!v.trim()) { put('a' + n, NEED, false); return; }
+    const [ok, html] = checks[n](v);
+    put('a' + n, html, ok);
+  }
+
+  function checkQ4(){
+    const v = document.getElementById('p4').value;
+    if (!v.trim()) { put('a4', 'Write your own answer first \u2014 then compare it with the model.', false); return; }
+    put('a4', '<b>A model answer:</b> it\'s the <b>argument</b> you pass in when you call the function \u2014 for example, <code>double(4)</code> passes 4. <i>Today, a function will pass a new argument to itself.</i>', true);
+  }
+
+  /* ---------- Part B ---------- */
+  const stageBtns = Array.from(document.querySelectorAll('.stage-btn'));
+  stageBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.stage;
+      stageBtns.forEach(b => {
+        b.classList.toggle('sel', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      for (let k = 1; k <= 5; k++) {
+        document.getElementById('msg-' + k).className = 'status-msg' + (String(k) === key ? ' show ' + (k === 5 ? 'good' : 'act') : '');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
