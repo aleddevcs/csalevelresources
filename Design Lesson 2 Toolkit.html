@@ -1,0 +1,441 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Design Lesson 2 Toolkit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+
+
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #5f7076; --faint: #8fa0a4;
+    --surface: #f4f8f8; --raised: #ffffff; --sunken: #ebf1f0; --border: #d6e1df;
+    --accent: #0b7a85; --accent-soft: #d9eff0; --accent-ink: #ffffff;
+    --good: #1f7d56; --good-soft: #d9f0e5;
+    --warn: #a3491b; --warn-soft: #f8e3d6;
+    --amb: #8a5a00; --amb-soft: #f7ecc8; --bad: #b3392f; --bad-soft: #f8dcd8;
+    --focus: #2b6f8f;
+    --t-html: #a8480f; --t-html-soft: #f7e3d4;
+    --t-css: #1f6a8c; --t-css-soft: #dcebf2;
+    --t-js: #7d6200; --t-js-soft: #f5ecc9;
+    --t-php: #5c4b8a; --t-php-soft: #e8e3f5;
+    --t-sql: #9c3b54; --t-sql-soft: #f6dfe5;
+    --t-tool: #3c4c53; --t-tool-soft: #e3eaea;
+    --p-browser: #0b7a85; --p-server: #1f7d56; --p-db: #44558a;
+    --shadow: 0 1px 2px rgba(22,35,42,.06), 0 6px 20px rgba(22,35,42,.06);
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --codebg: #0f2a2e; --codeink: #d6efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+      --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+      --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+      --good: #4fbb8c; --good-soft: #153626;
+      --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+      --focus: #6cb6d8;
+      --t-html: #ec9d70; --t-html-soft: #3a2517;
+      --t-css: #6cb6d8; --t-css-soft: #16262c;
+      --t-js: #e3c04d; --t-js-soft: #342c10;
+      --t-php: #b3a3e8; --t-php-soft: #2b2440;
+      --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+      --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+      --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --codebg: #0a1517; --codeink: #cfeae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+    --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+    --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+    --good: #4fbb8c; --good-soft: #153626;
+    --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+    --focus: #6cb6d8;
+    --t-html: #ec9d70; --t-html-soft: #3a2517;
+    --t-css: #6cb6d8; --t-css-soft: #16262c;
+    --t-js: #e3c04d; --t-js-soft: #342c10;
+    --t-php: #b3a3e8; --t-php-soft: #2b2440;
+    --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+    --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+    --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --codebg: #0a1517; --codeink: #cfeae4;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--raised); }
+  .topbar b { font-size: 17px; }
+  .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 70ch; margin: 0 0 22px; }
+  .panel { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink);
+    font: 500 13.5px var(--sans); cursor: pointer; }
+  .btn:hover { background: var(--sunken); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
+  .t-html { background: var(--t-html-soft); color: var(--t-html); }
+  .t-css { background: var(--t-css-soft); color: var(--t-css); }
+  .t-js { background: var(--t-js-soft); color: var(--t-js); }
+  .t-php { background: var(--t-php-soft); color: var(--t-php); }
+  .t-sql { background: var(--t-sql-soft); color: var(--t-sql); }
+  .t-tool { background: var(--t-tool-soft); color: var(--t-tool); }
+  .p-browser { background: var(--accent-soft); color: var(--p-browser); }
+  .p-server { background: var(--good-soft); color: var(--p-server); }
+  .p-db { background: var(--sunken); color: var(--p-db); }
+  .fb { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-top: 12px; }
+  .fb.good { background: var(--good-soft); color: var(--ink); border: 1px solid var(--good); }
+  .fb.warn { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn); }
+  .fb.info { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+  .fb b { font-weight: 600; }
+  .code { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 13px/1.7 var(--mono);
+    overflow-x: auto; white-space: pre; margin: 0; }
+  .progress { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft);
+    font: 500 13px var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 560px) { .wrap { padding: 20px 16px 60px; } .topbar { padding: 12px 16px; } h1 { font-size: 23px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  .txt { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); }
+  textarea.txt { resize: vertical; min-height: 64px; line-height: 1.45; }
+  .hint { font-size: 13px; color: var(--muted); margin: 4px 0; }
+  .lab { display: block; font: 600 12px var(--mono); color: var(--muted); letter-spacing: .04em; margin: 12px 0 5px; text-transform: uppercase; }
+  .stack { display: grid; gap: 12px; }
+  .chip { display: inline-block; font: 600 12px var(--sans); padding: 3px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--sunken); color: var(--ink-soft); margin: 2px 6px 2px 0; }
+  .chip.ok { background: var(--good-soft); border-color: var(--good); color: var(--ink); }
+  .chip.gap { background: var(--bad-soft); border-color: var(--bad); color: var(--ink); }
+  .chip.warn { background: var(--amb-soft); border-color: var(--amb); color: var(--ink); }
+  .chip.info { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sg { padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 13px var(--sans); cursor: pointer; }
+  .sg:hover { background: var(--sunken); }
+  .sg[aria-pressed="true"] { color: var(--ink); border-width: 2px; padding: 7px 12px; }
+  .sg.s-good[aria-pressed="true"] { border-color: var(--good); background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"] { border-color: var(--amb); background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"] { border-color: var(--bad); background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .savedp { margin-top: 22px; background: var(--sunken); box-shadow: none; }
+  .del { background: transparent; border: 0; color: var(--muted); font: 600 13px var(--sans); cursor: pointer; text-decoration: underline; padding: 4px; }
+  .sumbar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--sunken); margin: 10px 0 6px; }
+  .sumbar i { display: block; height: 100%; }
+
+
+  .mtabs { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; overflow-x: auto; background: var(--surface);
+    border-bottom: 1px solid var(--border); padding: 0 24px; scrollbar-width: thin; }
+  .mtab { flex: none; padding: 14px 16px 12px; border: 0; border-bottom: 3px solid transparent; background: transparent;
+    color: var(--muted); font: 600 14px var(--sans); cursor: pointer; white-space: nowrap; }
+  .mtab:hover { color: var(--ink); }
+  .mtab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .phase { display: inline-block; margin-bottom: 12px; }
+  .tool > h1 { margin-top: 0; }
+  @media (max-width: 560px) { .mtabs { padding: 0 8px; } .mtab { padding: 12px 12px 10px; font-size: 13px; } }
+
+  .qrow { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); }
+  .qrow.right { border-color: var(--good); }
+  .qrow.wrong { border-color: var(--bad); }
+  .qrow .qt { font-weight: 600; font-size: 15px; }
+  .qrow .qfb { grid-column: 1 / -1; font-size: 13.5px; color: var(--ink-soft); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .sg:disabled { cursor: default; opacity: .8; }
+  .sg:disabled:hover { background: var(--raised); }
+  .sg[aria-pressed="true"]:disabled:hover { background: inherit; }
+  .sg.s-good[aria-pressed="true"]:disabled:hover { background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"]:disabled:hover { background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"]:disabled:hover { background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"]:disabled:hover { background: var(--accent-soft); }
+  .sec { margin-top: 10px; }
+  .sec > h2 { margin: 18px 0 4px; }
+  .stem { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 15px/1.6 var(--sans); }
+  .stem b { color: var(--accent); font-weight: 600; }
+  :root[data-theme="dark"] .stem b { color: #7fe3d0; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 22px; }
+  .scenario { margin: 0 0 6px; color: var(--ink-soft); font-size: 14.5px; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .cols3 { grid-template-columns: 1fr; } }
+  .big { font: 700 24px var(--sans); margin: 2px 0 4px; }
+  [hidden] { display: none !important; }
+
+</style>
+<div class="topbar"><b>Design Lesson 2 Toolkit</b><span class="tag">Unit 5 NEA · Design · Lesson 2</span></div>
+<nav class="mtabs" role="tablist" aria-label="Design Lesson 2 tools"><button class="mtab" role="tab" id="mt-t-1" data-t="t-1" data-slug="pick-the-data-type" aria-controls="t-1" aria-selected="true" tabindex="0">Pick the Data Type</button><button class="mtab" role="tab" id="mt-t-2" data-t="t-2" data-slug="which-validation" aria-controls="t-2" aria-selected="false" tabindex="-1">Which Validation?</button><button class="mtab" role="tab" id="mt-t-3" data-t="t-3" data-slug="spot-the-mismatch" aria-controls="t-3" aria-selected="false" tabindex="-1">Spot the Mismatch</button></nav>
+<div class="wrap">
+<section class="tool" id="t-1" role="tabpanel" aria-labelledby="mt-t-1"><span class="tag phase">Part 2 · Data types</span><h1>Pick the data type</h1><p class="lede">Choose a type for each field, spot the choices made by habit, then pick a type and length for one of your own.</p><div id="a1" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 2.</p></section>
+<section class="tool" id="t-2" role="tabpanel" aria-labelledby="mt-t-2" hidden><span class="tag phase">Part 2 · Validation</span><h1>Which validation?</h1><p class="lede">Name the kind of check, spot the rules you can't test, then write a testable rule of your own.</p><div id="a2" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 2.</p></section>
+<section class="tool" id="t-3" role="tabpanel" aria-labelledby="mt-t-3" hidden><span class="tag phase">Part 2 · Form and table</span><h1>Spot the mismatch</h1><p class="lede">Compare a form with its table, find where they disagree, and find the columns nobody fills in.</p><div id="a3" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 2.</p></section>
+</div>
+<script>
+function h(tag, a, kids){
+  var e = document.createElement(tag);
+  if (a) Object.keys(a).forEach(function(k){
+    var v = a[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "value") e.value = v;
+    else if (k.slice(0, 2) === "on") e[k] = v;
+    else if (v !== false && v !== null && v !== undefined) e.setAttribute(k, v === true ? "" : v);
+  });
+  (kids || []).forEach(function(c){ if (c === null || c === undefined) return; e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+function chip(cls, text){ return h("span", { class: "chip " + cls, text: text }); }
+function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
+
+/* Generic pick-one quiz: rows of items, one choice each, check, feedback, summary. */
+function quiz(cfg){
+  var wrap = h("div", { class: "stack" });
+  var list = h("div", { class: "stack" });
+  var ans = {}, checked = false, rows = [];
+  var btn = h("button", { class: "btn primary", type: "button" });
+  var sum = h("div");
+  function label(k){ for (var i = 0; i < cfg.options.length; i++) if (cfg.options[i].k === k) return cfg.options[i].label; return k; }
+  cfg.items.forEach(function(it, i){
+    var row = h("div", { class: "qrow" });
+    var left = h("div", {}, [h("div", { class: "qt", text: it.t })]);
+    if (it.sub) left.appendChild(h("div", { class: "hint", text: it.sub }));
+    var seg = h("div", { class: "seg", role: "group", "aria-label": it.t });
+    var bs = cfg.options.map(function(o){
+      var b = h("button", { class: "sg " + o.cls, type: "button", text: o.label, "aria-pressed": "false" });
+      b.onclick = function(){
+        if (checked) return;
+        ans[i] = o.k;
+        bs.forEach(function(x, j){ x.setAttribute("aria-pressed", cfg.options[j].k === o.k ? "true" : "false"); });
+        update();
+      };
+      seg.appendChild(b);
+      return b;
+    });
+    var fb = h("div", { class: "qfb", hidden: true });
+    row.appendChild(left); row.appendChild(seg); row.appendChild(fb);
+    list.appendChild(row);
+    rows.push({ row: row, bs: bs, fb: fb });
+  });
+  function answered(){ return Object.keys(ans).length; }
+  function update(){
+    var n = answered(), t = cfg.items.length;
+    btn.textContent = checked ? "Try again" : "Check my answers (" + n + " of " + t + " chosen)";
+    btn.disabled = !checked && n < t;
+  }
+  btn.onclick = function(){
+    if (checked) { reset(); return; }
+    checked = true;
+    var score = 0;
+    cfg.items.forEach(function(it, i){
+      var r = rows[i], ok = ans[i] === it.a;
+      if (ok) score++;
+      r.row.className = "qrow " + (ok ? "right" : "wrong");
+      r.bs.forEach(function(b){ b.disabled = true; });
+      clear(r.fb);
+      r.fb.appendChild(chip(ok ? "ok" : "gap", ok ? "Right" : "Not quite: " + label(it.a)));
+      r.fb.appendChild(document.createTextNode(it.why));
+      r.fb.hidden = false;
+    });
+    clear(sum); sum.appendChild(cfg.summary(score, cfg.items.length));
+    update();
+    try { sum.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {}
+  };
+  function reset(){
+    ans = {}; checked = false; clear(sum);
+    rows.forEach(function(r){ r.row.className = "qrow"; r.fb.hidden = true; r.bs.forEach(function(b){ b.disabled = false; b.setAttribute("aria-pressed", "false"); }); });
+    update();
+  }
+  wrap.appendChild(list);
+  wrap.appendChild(h("div", { class: "row" }, [btn]));
+  wrap.appendChild(sum);
+  update();
+  return wrap;
+}
+function result(score, total, good, ok, low){
+  var cls = score >= good ? "good" : score >= ok ? "info" : "warn";
+  var msg = score >= good ? low[0] : score >= ok ? low[1] : low[2];
+  return h("div", { class: "fb " + cls }, [h("div", { class: "big", text: score + " out of " + total }), msg]);
+}
+
+/* ---------- Tool 1: Pick the Data Type ---------- */
+var TYPES = [
+  { k: "INT", label: "INT", cls: "s-acc" }, { k: "DECIMAL", label: "DECIMAL", cls: "s-acc" },
+  { k: "VARCHAR", label: "VARCHAR", cls: "s-acc" }, { k: "DATE", label: "DATE", cls: "s-acc" }, { k: "BOOLEAN", label: "BOOLEAN", cls: "s-acc" }];
+var FIELDS = [
+  { t: "Price of a book", sub: "£12.99", a: "DECIMAL", why: "Money has pence, so it needs decimal places, and DECIMAL stores them exactly." },
+  { t: "Stock level", sub: "Number of copies on the shelf", a: "INT", why: "A whole number you count and compare." },
+  { t: "Customer email", sub: "sam.jones@example.com", a: "VARCHAR", why: "Variable-length text." },
+  { t: "Date of birth", sub: "14 March 2008", a: "DATE", why: "A real date. DATE lets you sort, compare and work out ages." },
+  { t: "Phone number", sub: "07700 900123", a: "VARCHAR", why: "You never add phone numbers together, and a number type would drop the leading 0. Store it as text." },
+  { t: "Account archived?", sub: "Yes or no", a: "BOOLEAN", why: "Only two possible values." },
+  { t: "CustomerID", sub: "Generated by the system", a: "INT", why: "A whole number that identifies one row." },
+  { t: "Order date", sub: "When the order was placed", a: "DATE", why: "A date, so store it as a date." },
+  { t: "Surname", sub: "O'Neill-Jones", a: "VARCHAR", why: "Text, of varying length." },
+  { t: "Postcode", sub: "CF10 1AB", a: "VARCHAR", why: "Letters and numbers together, so it is text." },
+  { t: "Quantity ordered", sub: "Copies of one book on one order", a: "INT", why: "A whole number you can add up." },
+  { t: "Parcel weight in kg", sub: "1.25", a: "DECIMAL", why: "A measurement with a fractional part." },
+];
+var HABITS = [
+  { t: "PasswordHash VARCHAR(30)", sub: "Because passwords are limited to 30 characters", a: "fix", why: "A hash is much longer than the password it came from. It needs about 255 characters." },
+  { t: "Email VARCHAR(100)", sub: "", a: "ok", why: "Long enough for real addresses, and not a random 255." },
+  { t: "Price FLOAT", sub: "", a: "fix", why: "FLOAT can round money wrongly. Use DECIMAL." },
+  { t: "PhoneNumber INT", sub: "", a: "fix", why: "A leading 0 would be lost, and you never calculate with it. Use VARCHAR." },
+  { t: "FirstName VARCHAR(30)", sub: "", a: "ok", why: "Enough for real names, and it gives the validation rule a sensible limit." },
+  { t: "Every field in the table is VARCHAR(255)", sub: "", a: "fix", why: "That is a habit, not a choice. Pick each type by what the data is." },
+  { t: "DateJoined VARCHAR(10)", sub: "", a: "fix", why: "It is a date, so use DATE. Then you can sort and compare." },
+  { t: "StockLevel INT", sub: "", a: "ok", why: "A whole number you count." },
+  { t: "Surname VARCHAR(2)", sub: "", a: "fix", why: "Far too short. O'Neill-Jones needs 12 characters." },
+];
+function tool1(){
+  var app = document.getElementById("a1");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Round 1: choose the type" }), h("p", { class: "hint", text: "Pick by what the data is, not by habit." }),
+    quiz({ items: FIELDS, options: TYPES, summary: function(score, total){
+      return result(score, total, 11, 8, ["Strong. You choose by what the data is.", "Good. Check the ones marked Not quite, especially phone numbers and money.", "Ask what the data is: a count, money, text or a date. Then pick the type."]); } })]);
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Round 2: sensible or fix it?" }), h("p", { class: "hint", text: "Each line is a choice a student made. Is it sensible?" }),
+    quiz({ items: HABITS, options: [{ k: "ok", label: "Sensible", cls: "s-good" }, { k: "fix", label: "Fix it", cls: "s-bad" }], summary: function(score, total){
+      return result(score, total, 8, 6, ["Strong. You can spot a type chosen by habit.", "Good. Look again at the ones marked Not quite.", "Check each one against what the data really is and how long real values get."]); } })]);
+  var s3 = h("div", { class: "sec" }, [h("h2", { text: "Round 3: your turn" }), h("p", { class: "hint", text: "Pick a field from your own table. Choose its type and length, and give the reason." })]);
+  var sel = h("select", { id: "dt-type", class: "txt", "aria-label": "Data type" }, ["Choose a type", "INT", "DECIMAL", "CHAR", "VARCHAR", "TEXT", "DATE", "BOOLEAN"].map(function(x, i){ return h("option", { value: i ? x : "", text: x }); }));
+  var len = h("input", { id: "dt-len", class: "txt", type: "text", placeholder: "e.g. 100, or n/a", "aria-label": "Length" });
+  var why = h("textarea", { id: "dt-why", class: "txt", placeholder: "e.g. Email is text of varying length, and real addresses are under 100 characters.", "aria-label": "Reason" });
+  var chips = h("div", { style: "margin-top:10px" });
+  function check(){
+    clear(chips);
+    var t = sel.value, l = len.value.trim(), w = why.value.trim();
+    chips.appendChild(chip(t ? "ok" : "gap", t ? "Type chosen" : "Choose a type"));
+    chips.appendChild(chip(l ? "ok" : "gap", l ? "Length given" : "Give a length, or write n/a"));
+    chips.appendChild(chip(w.split(/\s+/).filter(Boolean).length >= 7 ? "ok" : "gap", w.split(/\s+/).filter(Boolean).length >= 7 ? "Reason given" : "Give a reason in a full sentence"));
+    if (t === "VARCHAR" && /^255$/.test(l)) chips.appendChild(chip("warn", "255 by habit? Say why 255 is right for this field"));
+    if (/\b(habit|default|easier|always|everyone)\b/i.test(w)) chips.appendChild(chip("warn", "Say what the data is, not what you usually do"));
+    if (t === "INT" && /phone|postcode/i.test(w)) chips.appendChild(chip("warn", "Would a leading 0 be lost?"));
+  }
+  [sel, len, why].forEach(function(e){ e.oninput = check; e.onchange = check; });
+  check();
+  s3.appendChild(h("span", { class: "lab", text: "Data type" })); s3.appendChild(sel);
+  s3.appendChild(h("span", { class: "lab", text: "Length" })); s3.appendChild(len);
+  s3.appendChild(h("span", { class: "lab", text: "Why this type and length?" })); s3.appendChild(why);
+  s3.appendChild(chips);
+  s3.appendChild(h("p", { class: "hint", text: "These checks look for the shape of a good answer. They can't judge whether it is right. Show your partner." }));
+  app.appendChild(s1); app.appendChild(s2); app.appendChild(s3);
+}
+
+/* ---------- Tool 2: Which Validation? ---------- */
+var KINDS = [
+  { k: "presence", label: "Presence", cls: "s-acc" }, { k: "range", label: "Range", cls: "s-acc" }, { k: "length", label: "Length", cls: "s-acc" },
+  { k: "type", label: "Type", cls: "s-acc" }, { k: "format", label: "Format", cls: "s-acc" }];
+var RULES = [
+  { t: "Quantity must be between 1 and 10", a: "range", why: "A number between two limits is a range check." },
+  { t: "Email must not be empty", a: "presence", why: "It only asks whether something was entered." },
+  { t: "Password must be at least 8 characters", a: "length", why: "It counts characters." },
+  { t: "Quantity must be a whole number", a: "type", why: "It asks what kind of data it is, not how big." },
+  { t: "Email must contain one @ with a dot after it", a: "format", why: "It checks a pattern." },
+  { t: "Surname must be 1 to 30 characters", a: "length", why: "The limits are on the number of characters, not on a value." },
+  { t: "Price must be more than 0 and less than 500", a: "range", why: "It limits the value of a number." },
+  { t: "Date of birth must be a real date", a: "type", why: "Is it a date at all? That is type." },
+  { t: "Postcode must follow the pattern CF10 1AB", a: "format", why: "A pattern of letters and digits." },
+  { t: "A first name must be entered", a: "presence", why: "It asks only whether the box is empty." },
+];
+var TESTS = [
+  { t: "Email must be valid", a: "vague", why: "Valid how? It doesn't say which kind of check, or what passes and fails." },
+  { t: "Quantity is a whole number from 1 to 10. Pass: 3. Fail: 0", a: "test", why: "It names the limits, with a pass and a fail." },
+  { t: "Check the password is OK", a: "vague", why: "OK is not a rule. Say the kind and the limit." },
+  { t: "Surname is 1 to 30 characters. Pass: Sam. Fail: (empty)", a: "test", why: "A length rule with a pass and a fail." },
+  { t: "Price must be sensible", a: "vague", why: "Sensible to whom? Give the limits, such as more than 0 and less than 500." },
+  { t: "Data must be correct", a: "vague", why: "A computer can't test “correct”. It can test range, length, type, format and presence." },
+  { t: "Postcode matches the pattern. Pass: CF10 1AB. Fail: CF10", a: "test", why: "A format rule with a pass and a fail." },
+  { t: "Phone is 11 digits only. Pass: 07700900123. Fail: 0770", a: "test", why: "Length and type, with a pass and a fail." },
+];
+var KINDRX = /\b(presence|range|length|type|format)\b/i;
+function tool2(){
+  var app = document.getElementById("a2");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Round 1: which kind of check?" }),
+    quiz({ items: RULES, options: KINDS, summary: function(score, total){
+      return result(score, total, 9, 7, ["Strong. You know the five kinds.", "Good. Look at the ones marked Not quite.", "Presence asks if it is there. Range limits a value. Length counts characters. Type asks what kind of data. Format checks a pattern."]); } })]);
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Round 2: testable or vague?" }), h("p", { class: "hint", text: "A testable rule names its kind and gives one value that passes and one that fails." }),
+    quiz({ items: TESTS, options: [{ k: "test", label: "Testable", cls: "s-good" }, { k: "vague", label: "Vague", cls: "s-bad" }], summary: function(score, total){
+      return result(score, total, 8, 6, ["Strong. You can spot a rule you can't test.", "Good. Check the ones marked Not quite.", "Could you write a pass and a fail for it? If not, it is vague."]); } })]);
+  var s3 = h("div", { class: "sec" }, [h("h2", { text: "Round 3: write the rule" }),
+    h("p", { class: "scenario", text: "Field: Quantity ordered. A customer can order 1 to 10 copies of a book at once. Write the validation rule for your table." })]);
+  var ta = h("textarea", { id: "vr-text", class: "txt", placeholder: "Kind of check, the limits, then one value that passes and one that fails.", "aria-label": "Your rule" });
+  var chips = h("div", { style: "margin-top:10px" });
+  function check(){
+    clear(chips); var v = ta.value;
+    if (!v.trim()) { chips.appendChild(h("span", { class: "hint", text: "Write your rule and four quick checks appear." })); return; }
+    chips.appendChild(chip(KINDRX.test(v) ? "ok" : "gap", KINDRX.test(v) ? "Names a kind of check" : "Name the kind: presence, range, length, type or format"));
+    chips.appendChild(chip(/\d/.test(v) && /\b(1|one)\b/i.test(v) && /\b(10|ten)\b/i.test(v) ? "ok" : "gap", /\d/.test(v) && /\b(1|one)\b/i.test(v) && /\b(10|ten)\b/i.test(v) ? "Gives the limits, 1 and 10" : "Give the limits, 1 and 10"));
+    chips.appendChild(chip(/\bpass(es)?\b/i.test(v) && /\bfail(s)?\b/i.test(v) ? "ok" : "gap", /\bpass(es)?\b/i.test(v) && /\bfail(s)?\b/i.test(v) ? "Gives a pass and a fail" : "Add a pass and a fail, such as Pass: 3. Fail: 0"));
+    chips.appendChild(chip(/\b(valid|correct|sensible|proper|okay|ok)\b/i.test(v) ? "warn" : "ok", /\b(valid|correct|sensible|proper|okay|ok)\b/i.test(v) ? "Check words like “valid” and “sensible”" : "No vague words"));
+  }
+  ta.oninput = check; check();
+  var M = "Range check: quantity must be a whole number from 1 to 10. Pass: 3. Fail: 0 (or 11).";
+  var model = h("div", { class: "fb info", hidden: true }, [h("b", { text: "A model answer: " }), M]);
+  var btn = h("button", { class: "btn", type: "button", text: "Show a model answer" });
+  btn.onclick = function(){ model.hidden = !model.hidden; btn.textContent = model.hidden ? "Show a model answer" : "Hide the model answer"; };
+  s3.appendChild(ta); s3.appendChild(chips);
+  s3.appendChild(h("div", { class: "row", style: "margin-top:10px" }, [btn])); s3.appendChild(model);
+  s3.appendChild(h("p", { class: "hint", text: "The checks look for the shape of a good rule. They can't judge whether it is right. A strong answer could also add a type check, so “three” fails." }));
+  app.appendChild(s1); app.appendChild(s2); app.appendChild(s3);
+}
+
+/* ---------- Tool 3: Spot the Mismatch ---------- */
+var PAIRS = [
+  { t: "txtTitle and Title", sub: "Form: text, required, 1 to 100 characters. Table: VARCHAR(100), presence and length 1 to 100.", a: "match", why: "Same name, same limits, same rule." },
+  { t: "txtAuthor and Author", sub: "Form: text, required, 1 to 50 characters. Table: VARCHAR(30), presence and length 1 to 30.", a: "rule", why: "The form allows 50 characters but the table holds 30. A 40-character author would pass the form and fail on saving." },
+  { t: "txtPrice and Price", sub: "Form: number, 0.01 to 500. Table: DECIMAL(6,2), range 0.01 to 500.", a: "match", why: "Same limits, and DECIMAL(6,2) holds pounds and pence." },
+  { t: "txtStock and StockLevel", sub: "Form: whole number, 0 to 1000. Table: INT, range 0 to 100.", a: "rule", why: "The limits differ: 1000 on the form, 100 in the table." },
+  { t: "txtCost and Price", sub: "Form: number, 0.01 to 500. Table: DECIMAL(6,2), range 0.01 to 500.", a: "name", why: "The same data under two names. Use one naming style, or add a mapping." },
+  { t: "txtShelf", sub: "Form: text, optional, 1 to 10 characters. The Book table has no Shelf column.", a: "nocol", why: "Where would the value be stored? Add a column, or take the field off the form." },
+];
+var COLS = [
+  { t: "BookID", sub: "INT, primary key, generated by the system", a: "gen", why: "Generated, never typed, so it needn't be on the form." },
+  { t: "DateAdded", sub: "DATE, today's date when the book is saved", a: "gen", why: "The system fills it in." },
+  { t: "Publisher", sub: "VARCHAR(50), required. Not on the form, and nothing fills it in.", a: "miss", why: "A required column with no source. Add it to the form, or generate it, or drop it." },
+  { t: "Archived", sub: "BOOLEAN, set to No when the book is created", a: "gen", why: "Set by the system, not typed." },
+];
+function tool3(){
+  var app = document.getElementById("a3");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Part 1: form field against table column" }),
+    h("p", { class: "scenario", text: "The Add book form and the Book table in a shop. For each pair, decide whether the form and the table agree." }),
+    quiz({ items: PAIRS, options: [{ k: "match", label: "Match", cls: "s-good" }, { k: "rule", label: "Rule differs", cls: "s-bad" }, { k: "name", label: "Name differs", cls: "s-amb" }, { k: "nocol", label: "No column", cls: "s-bad" }],
+      summary: function(score, total){ return result(score, total, 6, 5, ["Every mismatch found. That is exactly what your partner does in the link check.", "Nearly. Look at the one marked Not quite and compare the limits.", "Compare the name, the type and the limits side by side, one at a time."]); } })]);
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Part 2: columns with no field" }), h("p", { class: "hint", text: "Every column should be on the form or filled in by the system." }),
+    quiz({ items: COLS, options: [{ k: "gen", label: "Generated", cls: "s-good" }, { k: "miss", label: "Missing from the form", cls: "s-bad" }],
+      summary: function(score, total){ return result(score, total, 4, 3, ["Strong. Every column has a source.", "Nearly. Ask: who fills this column in?", "For each column ask: does the user type it, or does the system fill it in?"]); } })]);
+  app.appendChild(s1); app.appendChild(s2);
+}
+
+tool1(); tool2(); tool3();
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".mtab"));
+  function show(i, focus){
+    tabs.forEach(function(t, k){
+      var on = k === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.dataset.t).hidden = !on;
+    });
+    var nav = tabs[i].parentNode; nav.scrollLeft = Math.max(0, tabs[i].offsetLeft - 16);
+    if (focus) tabs[i].focus();
+    try { history.replaceState(null, "", "#" + tabs[i].dataset.slug); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener("click", function(){ show(i); });
+    t.addEventListener("keydown", function(e){
+      if (e.key === "ArrowRight") { e.preventDefault(); show((i + 1) % tabs.length, true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); show((i + tabs.length - 1) % tabs.length, true); }
+    });
+  });
+  var hh = (location.hash || "").replace("#", "");
+  tabs.forEach(function(t, i){ if (t.dataset.slug === hh) show(i); });
+})();
+
+</script>
+
+</body></html>
