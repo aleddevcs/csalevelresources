@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Section B: Mark Your Work</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
+<style>
+  :root{--navy:#1F3864;--navy-deep:#16233F;--teal:#2E9E9E;--orange:#E07B26;--ink:#1B1F24;--muted:#5B6470;--paper:#F7F9FB;--card:#FFFFFF;--line:#E1E6EE;--good:#2E8B57;--bad:#C0462B;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px 50px;}
+  .bar{position:sticky;top:0;z-index:5;background:var(--navy-deep);color:#fff;padding:9px 18px;margin:0 -18px 14px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;}
+  .bar .s{font-size:13px;color:#C8D3E8;margin-right:18px;} .bar .s b{display:inline-block;min-width:20px;color:#fff;font-size:16px;margin-left:3px;}
+  .bar .tot{margin-left:auto;background:var(--orange);color:#fff;border-radius:18px;padding:3px 16px;font-weight:800;font-size:16px;}
+  header{background:var(--navy-deep);color:#fff;border-radius:14px;padding:18px 22px;margin-bottom:14px;}
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 5px;}
+  header h1{font-family:Cambria,Georgia,serif;font-size:26px;margin:0 0 5px;} header p{font-size:14px;color:#C8D3E8;margin:0;line-height:1.5;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,35,60,.05);}
+  .card h2{font-family:Cambria,Georgia,serif;font-size:19px;color:var(--navy);margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+  .card h2 .m{font-family:"Segoe UI",Arial,sans-serif;font-size:12px;font-weight:700;color:#fff;background:var(--orange);border-radius:12px;padding:2px 11px;}
+  .card h2 .got{margin-left:auto;font-family:"Segoe UI",Arial,sans-serif;font-size:14px;font-weight:800;color:var(--navy);background:#fff;border:2px solid var(--teal);border-radius:18px;padding:2px 13px;}
+  p.how{font-size:13.5px;color:var(--muted);line-height:1.5;margin:4px 0 10px;}
+  h3{font-size:12.5px;font-weight:800;letter-spacing:.03em;color:var(--teal);margin:12px 0 4px;}
+  ul.ck{list-style:none;margin:0;padding:0;}
+  ul.ck li{border:1px solid var(--line);border-radius:9px;margin-bottom:6px;background:#fff;}
+  ul.ck li.on{background:#EAF6F0;border-color:#9AD3B5;}
+  ul.ck label{display:flex;gap:11px;align-items:flex-start;padding:8px 12px;cursor:pointer;font-size:14px;line-height:1.4;}
+  ul.ck input{width:18px;height:18px;margin-top:2px;accent-color:var(--teal);flex-shrink:0;}
+  .sub{display:block;font-size:12.5px;color:var(--muted);margin-top:1px;}
+  code{font-family:Consolas,"Courier New",monospace;font-size:12px;background:#F1F4F9;padding:1px 5px;border-radius:4px;}
+  .why{background:#FFF3CD;border-radius:9px;padding:9px 13px;font-size:13.5px;line-height:1.5;margin-top:8px;}
+  .res{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px;} .res div{flex:1 1 150px;background:#F5F7FA;border-radius:10px;padding:10px 14px;}
+  .res b{display:block;font-size:24px;color:var(--navy);} .res span{font-size:12.5px;color:var(--muted);}
+  .res .t{background:var(--navy);} .res .t b,.res .t span{color:#fff;}
+  ul.rev{margin:6px 0 0;padding-left:20px;font-size:13.5px;line-height:1.55;} ul.rev li{margin-bottom:4px;}
+  label.r{display:block;font-size:14px;padding:3px 0;} label.r input{margin-right:8px;accent-color:var(--teal);}
+  input.txt,input.nm{font-family:inherit;font-size:14.5px;padding:8px 11px;border:2px solid var(--line);border-radius:9px;width:100%;}
+  input.nm{max-width:340px;margin-top:6px;}
+  button{font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:9px;padding:9px 16px;cursor:pointer;background:var(--teal);color:#fff;}
+  button.g{background:#fff;color:var(--navy);border:1px solid var(--line);}
+  textarea.out{width:100%;min-height:210px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;margin-top:8px;}
+  footer{margin-top:16px;font-size:12px;color:var(--muted);text-align:center;}
+  @media print{ .bar,button{display:none;} body{background:#fff;} .card{break-inside:avoid;box-shadow:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="bar">
+  <span class="s">Q1 <b id="bq1">0</b>/4</span><span class="s">Q2 <b id="bq2">0</b>/4</span><span class="s">Q3 <b id="bq3">0</b>/8</span>
+  <span class="tot" id="btot">0 / 16</span>
+</div>
+<header>
+  <p class="kicker">AS UNIT 2 &mdash; LESSON 7 &middot; SECTION B SIMULATION</p>
+  <h1>Mark Your Work</h1>
+  <p>Tick only what you can point to. Q1 and Q2 you mark yourself; Q3 is marked by your partner, who runs your program. Your marks and a list of what to practise appear as you tick.</p>
+  <label style="display:block;font-size:13px;margin-top:10px;color:#C8D3E8">Your name <input class="nm" id="nm" placeholder="Name" aria-label="Your name"></label>
+</header>
+
+<div class="card">
+  <h2>Q1 &mdash; Complete the code <span class="m">4 marks</span><span class="got" id="g1">0 of 4</span></h2>
+  <p class="how">Use the Q1 answers your teacher shares. Tick each gap you corrected correctly. One mark each, up to a maximum of 4 &mdash; there are five gaps, so one can be missed.</p>
+  <ul class="ck"><li><label><input type="checkbox" data-id="q1-1"><span class="tx"><b>Gap 1</b> &middot; line 10 &middot; <code>PhoneSave = . . ..get()</code><span class="sub">tests: Copying data into the structure</span></span></label></li><li><label><input type="checkbox" data-id="q1-2"><span class="tx"><b>Gap 2</b> &middot; line 17 &middot; <code>messagebox.showinfo(. . .)</code><span class="sub">tests: Message for file saved</span></span></label></li><li><label><input type="checkbox" data-id="q1-3"><span class="tx"><b>Gap 3</b> &middot; line 52 &middot; <code>. . . +=1</code><span class="sub">tests: Counting found items</span></span></label></li><li><label><input type="checkbox" data-id="q1-4"><span class="tx"><b>Gap 4</b> &middot; line 57 &middot; <code>messagebox.showinfo("Found: ", str(. . .))</code><span class="sub">tests: Outputting the number counted</span></span></label></li><li><label><input type="checkbox" data-id="q1-5"><span class="tx"><b>Gap 5</b> &middot; line 72 &middot; <code>HirerVar = . . .()</code><span class="sub">tests: Definition of the storage type</span></span></label></li></ul>
+  <div class="why" id="w1" style="display:none"></div>
+</div>
+
+<div class="card">
+  <h2>Q2 &mdash; Annotate <span class="m">4 marks</span><span class="got" id="g2">0 of 4</span></h2>
+  <p class="how">Tick each routine you annotated <b>clearly</b> in BeachHuts_answer.py: you named it, said what the code does, and used a technical term. Then the two quality points.</p>
+  <ul class="ck"><li><label><input type="checkbox" data-id="q2-1"><span class="tx"><b>Setting up a data structure</b><span class="sub">StringVar, global, counters set to 0</span></span></label></li><li><label><input type="checkbox" data-id="q2-2"><span class="tx"><b>Creating a new blank file</b><span class="sub">append mode creates the file</span></span></label></li><li><label><input type="checkbox" data-id="q2-3"><span class="tx"><b>Copying data from screen textboxes</b><span class="sub">.get() into ordinary variables</span></span></label></li><li><label><input type="checkbox" data-id="q2-4"><span class="tx"><b>Writing of data to file</b><span class="sub">ljust, joining the fields, write, close</span></span></label></li><li><label><input type="checkbox" data-id="q2-5"><span class="tx"><b>Retrieving data from file</b><span class="sub">try / except, readline, end of file</span></span></label></li><li><label><input type="checkbox" data-id="q2-6"><span class="tx"><b>Splitting into variables</b><span class="sub">slicing each 50-character field</span></span></label></li><li><label><input type="checkbox" data-id="q2-7"><span class="tx"><b>Looking/counting of items required</b><span class="sub">CountNeeded, CountGot, the counter</span></span></label></li><li><label><input type="checkbox" data-id="q2-8"><span class="tx"><b>Validation</b><span class="sub">presence check, not X == ""</span></span></label></li></ul>
+  <h3>QUALITY</h3>
+  <ul class="ck"><li><label><input type="checkbox" data-id="q2q-1"><span class="tx">I explained the code beyond what the variable names say</span></label></li><li><label><input type="checkbox" data-id="q2q-2"><span class="tx">I used technical terms accurately and confidently</span></label></li></ul>
+  <div class="why" id="w2" style="display:none"></div>
+</div>
+
+<div class="card">
+  <h2>Q3 &mdash; Build the program <span class="m">8 marks</span><span class="got" id="g3">0 of 8</span></h2>
+  <p class="how"><b>Your partner</b> runs HutBookings.py and ticks a point only if they can see it working. Then tick the three quality points together. Any file access method is fine, and so is a text or window interface.</p>
+  <ul class="ck"><li><label><input type="checkbox" data-id="q3-1"><span class="tx"><b>Input</b><span class="sub">The program asks for a hut ID, a name and a phone number.</span></span></label></li><li><label><input type="checkbox" data-id="q3-2"><span class="tx"><b>Length check</b><span class="sub">Wrong lengths are rejected and asked for again — hut ID exactly 3, name up to 20, phone exactly 11.</span></span></label></li><li><label><input type="checkbox" data-id="q3-3"><span class="tx"><b>Creates the data file called bookings.txt</b><span class="sub">After the first booking, a file with exactly that name exists.</span></span></label></li><li><label><input type="checkbox" data-id="q3-4"><span class="tx"><b>Stores on disk in bookings.txt</b><span class="sub">Opening the file shows the booking, and a second booking is added without losing the first.</span></span></label></li><li><label><input type="checkbox" data-id="q3-5"><span class="tx"><b>Useful feedback that it has been saved</b><span class="sub">The user is told the booking was saved — ideally which one and where.</span></span></label></li><li><label><input type="checkbox" data-id="q3-6"><span class="tx"><b>Retrieves data from disk</b><span class="sub">The program reads bookings.txt back.</span></span></label></li><li><label><input type="checkbox" data-id="q3-7"><span class="tx"><b>Retrieves the specified hut's details</b><span class="sub">Entering a hut ID shows that hirer's name and phone only, and a missing hut gets a message.</span></span></label></li><li><label><input type="checkbox" data-id="q3-8"><span class="tx"><b>HCI fit for purpose</b><span class="sub">Clear prompts, readable messages, and a way to choose between adding and finding.</span></span></label></li></ul>
+  <h3>QUALITY (decides the top band)</h3>
+  <ul class="ck"><li><label><input type="checkbox" data-id="q3q-1"><span class="tx">Well-structured code: clear names, comments, a sensible layout</span></label></li><li><label><input type="checkbox" data-id="q3q-2"><span class="tx">Used the language well: loops, validation, with open, try / except</span></label></li><li><label><input type="checkbox" data-id="q3q-3"><span class="tx">A user interface that aids the user and is intuitive</span></label></li></ul>
+  <div class="why" id="w3" style="display:none"></div>
+</div>
+
+<div class="card">
+  <h2>Your result</h2>
+  <div class="res">
+    <div><b id="r1">0</b><span>Q1 &mdash; out of 4</span></div><div><b id="r2">0</b><span>Q2 &mdash; out of 4</span></div>
+    <div><b id="r3">0</b><span>Q3 &mdash; out of 8</span></div><div class="t"><b id="rt">0</b><span>Total &mdash; out of 16</span></div>
+  </div>
+  <p class="how" id="loss">Tick your answers above to see where your marks were lost.</p>
+  <p class="how" style="margin-bottom:0">These are estimates from the bands. Within a band your teacher decides the final mark.</p>
+</div>
+
+<div class="card">
+  <h2>What to practise</h2>
+  <ul class="rev" id="rev"><li>Tick your answers above to build this list.</li></ul>
+</div>
+
+<div class="card">
+  <h2>Reflect</h2>
+  <p class="how">What caused most of the marks you lost?</p>
+  <label class="r"><input type="radio" name="cause" value="I ran out of time"> I ran out of time</label>
+  <label class="r"><input type="radio" name="cause" value="There was something I didn't know how to do"> There was something I didn't know how to do</label>
+  <label class="r"><input type="radio" name="cause" value="I made slips I could have caught"> I made slips I could have caught</label>
+  <p class="how" style="margin-top:12px">The one skill I will practise before Lesson 12:</p>
+  <input class="txt" id="skill" placeholder="For example: the length check loop, the count routine, annotating with technical terms">
+</div>
+
+<div class="card">
+  <h2>Share your result</h2>
+  <p class="how">Press the button, then copy the text and post it to your teacher.</p>
+  <button id="show">Show my result as text</button> <button class="g" id="reset">Clear everything</button>
+  <textarea class="out" id="out" readonly style="display:none"></textarea>
+  <button class="g" id="sel" style="display:none;margin-top:8px">Select all</button>
+</div>
+<footer>AS Unit 2 &mdash; Lesson 7 &middot; Section B simulation &middot; self-marking sheet</footer>
+</div>
+
+<script>
+  var D = {"q1": [{"id": "q1-1", "ln": 10, "gap": "PhoneSave = . . ..get()", "tests": "Copying data into the structure", "type": "1"}, {"id": "q1-2", "ln": 17, "gap": "messagebox.showinfo(. . .)", "tests": "Message for file saved", "type": "2"}, {"id": "q1-3", "ln": 52, "gap": ". . . +=1", "tests": "Counting found items", "type": "3"}, {"id": "q1-4", "ln": 57, "gap": "messagebox.showinfo(\"Found: \", str(. . .))", "tests": "Outputting the number counted", "type": "1"}, {"id": "q1-5", "ln": 72, "gap": "HirerVar = . . .()", "tests": "Definition of the storage type", "type": "1"}], "types": {"1": ["a name that must match its neighbours", "copy the pattern from the sibling lines"], "2": ["a method name or its arguments", "the same method is on the lines around it"], "3": ["a counter increment", "the sibling lines use the same counter"]}, "q2": [{"id": "q2-1", "name": "Setting up a data structure"}, {"id": "q2-2", "name": "Creating a new blank file"}, {"id": "q2-3", "name": "Copying data from screen textboxes"}, {"id": "q2-4", "name": "Writing of data to file"}, {"id": "q2-5", "name": "Retrieving data from file"}, {"id": "q2-6", "name": "Splitting into variables"}, {"id": "q2-7", "name": "Looking/counting of items required"}, {"id": "q2-8", "name": "Validation"}], "q3": [{"id": "q3-1", "name": "Input", "tip": "Use input() for every item."}, {"id": "q3-2", "name": "Length check", "tip": "Put len() in a loop that rejects wrong lengths and asks again (cheat sheet, pattern B)."}, {"id": "q3-3", "name": "Creates the data file called bookings.txt", "tip": "open(\"bookings.txt\", \"a\") creates it \u2014 and use the exact file name."}, {"id": "q3-4", "name": "Stores on disk in bookings.txt", "tip": "write(record + \"\\n\") in append mode (pattern C)."}, {"id": "q3-5", "name": "Useful feedback that it has been saved", "tip": "print what was saved, and where."}, {"id": "q3-6", "name": "Retrieves data from disk", "tip": "Open the file for reading and read it (pattern D)."}, {"id": "q3-7", "name": "Retrieves the specified hut's details", "tip": "Compare the key with a slice and show only that record (pattern D)."}, {"id": "q3-8", "name": "HCI fit for purpose", "tip": "Prompts with examples, a numbered menu, labelled output (the HCI checklist)."}]};
+  var KEY = "section-b-self-marking-l7-v1";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type=checkbox]'));
+  var radios = Array.prototype.slice.call(document.querySelectorAll('input[name=cause]'));
+  var nm = document.getElementById('nm'), skill = document.getElementById('skill');
+
+  function load() { try { var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; } catch (e) { return {}; } }
+  function save() {
+    var s = { boxes: {}, name: nm.value, skill: skill.value, cause: '' };
+    boxes.forEach(function (b) { s.boxes[b.getAttribute('data-id')] = b.checked; });
+    radios.forEach(function (r) { if (r.checked) s.cause = r.value; });
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage unavailable - just won't persist */ }
+  }
+  function on(id) { var b = document.querySelector('input[data-id="' + id + '"]'); return b && b.checked; }
+  function count(list) { return list.filter(function (x) { return on(x.id); }).length; }
+
+  // ---- marks -------------------------------------------------------------
+  function markQ1() { return Math.min(count(D.q1), 4); }
+  function markQ2() {
+    var n = count(D.q2), beyond = on('q2q-1'), terms = on('q2q-2');
+    if (n === 0) return 0;
+    if (n <= 3) return 1;
+    if (n === D.q2.length && beyond && terms) return 4;
+    if (n >= 6 && terms) return 3;
+    return 2;
+  }
+  function markQ3() {
+    var k = count(D.q3), q = ['q3q-1', 'q3q-2', 'q3q-3'].filter(on).length;
+    if (k === 0) return 0;
+    if (k >= 7) { if (q < 2) return 6; return q === 3 ? 8 : 7; }
+    if (k >= 3) return Math.max(3, q === 0 ? k - 1 : k);
+    return k;
+  }
+
+  function why1(m) {
+    var got = count(D.q1), el = document.getElementById('w1');
+    var missed = D.q1.filter(function (x) { return !on(x.id); });
+    if (!got) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    el.textContent = got + ' gap' + (got === 1 ? '' : 's') + ' corrected' + (got > 4 ? ' \u2014 capped at the 4 marks available' : '') + '. ' +
+      (missed.length ? 'Missed: ' + missed.map(function (x) { return 'gap ' + (D.q1.indexOf(x) + 1) + ' (' + D.types[x.type][0] + ')'; }).join('; ') + '.' : 'None missed.');
+  }
+  function why2(m) {
+    var n = count(D.q2), el = document.getElementById('w2'), beyond = on('q2q-1'), terms = on('q2q-2');
+    if (!n && !beyond && !terms) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    var t = n + ' of ' + D.q2.length + ' routines annotated. ';
+    if (m === 4) t += 'Top band: all routines, explained beyond the names, with technical terms.';
+    else if (n <= 3) t += 'Band 1: cover more routines first \u2014 that is what moves you up.';
+    else {
+      var need = [];
+      if (n < D.q2.length) need.push('annotate all ' + D.q2.length + ' routines');
+      if (!beyond) need.push('explain the code beyond the variable names');
+      if (!terms) need.push('use technical terms');
+      t += 'To reach 4: ' + need.join(', ') + '.';
+    }
+    el.textContent = t;
+  }
+  function why3(m) {
+    var k = count(D.q3), q = ['q3q-1', 'q3q-2', 'q3q-3'].filter(on).length, el = document.getElementById('w3');
+    if (!k && !q) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    var t = k + ' of 8 points seen working; ' + q + ' of 3 quality points. ';
+    if (k >= 7 && q < 2) t += 'The points are there, but the quality points hold you in the middle band.';
+    else if (k >= 7) t += q === 3 ? 'Top band.' : 'Top band \u2014 the third quality point would make it 8.';
+    else if (k >= 3) t += 'Middle band (3\u20136): each extra point is worth about a mark; seven would reach the top band.';
+    else t += 'Lower band: get a working core first \u2014 input, a file, and a way to read it back.';
+    el.textContent = t;
+  }
+
+  function update() {
+    boxes.forEach(function (b) { b.closest('li').classList.toggle('on', b.checked); });
+    var m1 = markQ1(), m2 = markQ2(), m3 = markQ3(), tot = m1 + m2 + m3;
+    document.getElementById('bq1').textContent = m1; document.getElementById('bq2').textContent = m2; document.getElementById('bq3').textContent = m3;
+    document.getElementById('btot').textContent = tot + ' / 16';
+    document.getElementById('g1').textContent = m1 + ' of 4'; document.getElementById('g2').textContent = m2 + ' of 4'; document.getElementById('g3').textContent = m3 + ' of 8';
+    document.getElementById('r1').textContent = m1; document.getElementById('r2').textContent = m2; document.getElementById('r3').textContent = m3; document.getElementById('rt').textContent = tot;
+    why1(m1); why2(m2); why3(m3);
+
+    var any = boxes.some(function (b) { return b.checked; });
+    var loss = document.getElementById('loss');
+    if (!any) { loss.textContent = 'Tick your answers above to see where your marks were lost.'; }
+    else {
+      var lost = [['Q1', 4 - m1, 4], ['Q2', 4 - m2, 4], ['Q3', 8 - m3, 8]];
+      var worst = lost.slice().sort(function (a, b) { return b[1] - a[1]; })[0];
+      loss.innerHTML = worst[1] === 0 ? '<b>Full marks.</b> Nothing lost.' : 'Most marks lost: <b>' + worst[0] + '</b> (' + worst[1] + ' of ' + worst[2] + ' marks). ' + lost.filter(function (x) { return x[1] > 0; }).map(function (x) { return x[0] + ' lost ' + x[1]; }).join(', ') + '.';
+    }
+
+    var rev = [];
+    D.q1.forEach(function (x, i) { if (any && !on(x.id)) rev.push('<b>Q1 gap ' + (i + 1) + '</b> \u2014 ' + D.types[x.type][0] + ': ' + D.types[x.type][1] + '.'); });
+    D.q2.forEach(function (x) { if (any && !on(x.id)) rev.push('<b>Q2</b> \u2014 annotate <i>' + x.name.toLowerCase() + '</i>: name it, say what the code does, add a technical term.'); });
+    if (any && !on('q2q-1')) rev.push('<b>Q2</b> \u2014 explain the code beyond what the variable names already say.');
+    if (any && !on('q2q-2')) rev.push('<b>Q2</b> \u2014 use technical terms (fixed-length record, append mode, slicing, counter\u2026).');
+    D.q3.forEach(function (x) { if (any && !on(x.id)) rev.push('<b>Q3 \u2014 ' + x.name + ':</b> ' + x.tip); });
+    if (any && !on('q3q-1')) rev.push('<b>Q3</b> \u2014 structure: clear names and comments, a sensible layout.');
+    if (any && !on('q3q-2')) rev.push('<b>Q3</b> \u2014 use the language well: loops, validation, <code>with open</code>, <code>try / except</code>.');
+    if (any && !on('q3q-3')) rev.push('<b>Q3</b> \u2014 interface: prompts with examples, a menu, labelled output.');
+    document.getElementById('rev').innerHTML = !any ? '<li>Tick your answers above to build this list.</li>' : (rev.length ? rev.map(function (r) { return '<li>' + r + '</li>'; }).join('') : '<li>Nothing to revisit \u2014 full marks. Try the paper again with no cheat sheet.</li>');
+    return { m1: m1, m2: m2, m3: m3, tot: tot };
+  }
+
+  function text() {
+    var r = update(), cause = '';
+    radios.forEach(function (x) { if (x.checked) cause = x.value; });
+    var t = 'Section B simulation \u2014 ' + (nm.value.trim() || '(no name)') + '\n';
+    t += 'Q1: ' + r.m1 + '/4   Q2: ' + r.m2 + '/4   Q3: ' + r.m3 + '/8   TOTAL: ' + r.tot + '/16\n\n';
+    t += 'Gaps missed (Q1): ' + (D.q1.filter(function (x) { return !on(x.id); }).map(function (x) { return D.q1.indexOf(x) + 1; }).join(', ') || 'none') + '\n';
+    t += 'Routines not annotated (Q2): ' + (D.q2.filter(function (x) { return !on(x.id); }).map(function (x) { return x.name; }).join('; ') || 'none') + '\n';
+    t += 'Points missing (Q3): ' + (D.q3.filter(function (x) { return !on(x.id); }).map(function (x) { return x.name; }).join('; ') || 'none') + '\n\n';
+    t += 'Most marks lost to: ' + (cause || '(not answered)') + '\n';
+    t += 'Skill to practise before Lesson 12: ' + (skill.value.trim() || '(not answered)') + '\n';
+    return t;
+  }
+
+  var s0 = load();
+  boxes.forEach(function (b) { if (s0.boxes && s0.boxes[b.getAttribute('data-id')]) b.checked = true; b.addEventListener('change', function () { save(); update(); }); });
+  if (s0.name) nm.value = s0.name; if (s0.skill) skill.value = s0.skill;
+  radios.forEach(function (r) { if (s0.cause && r.value === s0.cause) r.checked = true; r.addEventListener('change', save); });
+  nm.addEventListener('input', save); skill.addEventListener('input', save);
+  document.getElementById('show').addEventListener('click', function () {
+    var o = document.getElementById('out'); o.value = text(); o.style.display = 'block'; document.getElementById('sel').style.display = 'inline-block';
+  });
+  document.getElementById('sel').addEventListener('click', function () { var o = document.getElementById('out'); o.focus(); o.select(); });
+  document.getElementById('reset').addEventListener('click', function () {
+    boxes.forEach(function (b) { b.checked = false; }); radios.forEach(function (r) { r.checked = false; }); nm.value = ''; skill.value = '';
+    document.getElementById('out').style.display = 'none'; document.getElementById('sel').style.display = 'none'; save(); update();
+  });
+  update();
+</script>
+</body>
+</html>

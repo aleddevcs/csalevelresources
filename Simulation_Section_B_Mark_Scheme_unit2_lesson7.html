@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section B Simulation: Mark Scheme and Answer Key</title>
+<style>
+  :root{--navy:#1F3864;--navy-deep:#16233F;--teal:#2E9E9E;--orange:#E07B26;--ink:#1B1F24;--muted:#5B6470;--paper:#F7F9FB;--card:#FFFFFF;--line:#E1E6EE;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1060px;margin:0 auto;padding:24px 20px 50px;}
+  header{background:var(--navy-deep);color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:16px;}
+  header .kicker{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 6px;}
+  header h1{font-family:Cambria,Georgia,serif;font-size:27px;margin:0 0 6px;}
+  header p{font-size:14px;color:#C8D3E8;margin:0;line-height:1.5;}
+  h2.s{font-family:Cambria,Georgia,serif;font-size:21px;color:var(--navy);margin:26px 0 4px;border-bottom:3px solid var(--teal);padding-bottom:4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;}
+  h2.s .m{font-family:"Segoe UI",Arial,sans-serif;font-size:13px;font-weight:700;color:#fff;background:var(--orange);border-radius:12px;padding:2px 12px;}
+  p.sub{font-size:13.5px;color:var(--muted);margin:6px 0 10px;line-height:1.5;}
+  table.t{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+  table.t th{background:var(--navy);color:#fff;text-align:left;font-size:12.5px;padding:8px 10px;}
+  table.t td{vertical-align:top;padding:8px 10px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.5;}
+  table.t tr:nth-child(even) td{background:#F8FAFC;}
+  td.n{width:34px;font-weight:800;color:var(--navy);} td.ln{width:46px;color:var(--muted);}
+  code{font-family:Consolas,"Courier New",monospace;font-size:12px;background:#F1F4F9;padding:1px 5px;border-radius:4px;word-break:break-word;}
+  .tag{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:12px;color:#fff;font-size:12px;font-weight:800;padding:0 7px;}
+  .t1{background:#2E9E9E;}.t2{background:#E07B26;}.t3{background:#2E5395;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:10px;}
+  .card .ch{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:4px;}
+  .card .cn{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;}
+  .card .lines{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600;}
+  .card p{margin:4px 0 0;font-size:14px;line-height:1.55;background:#EAF6F0;border-radius:8px;padding:8px 12px;}
+  .note{background:#FFF3CD;border-radius:10px;padding:10px 14px;font-size:13.5px;line-height:1.5;margin:10px 0;}
+  pre.code{background:#16233F;color:#DCE6F2;padding:14px 18px;border-radius:12px;font-family:Consolas,"Courier New",monospace;font-size:12px;line-height:1.5;overflow-x:auto;white-space:pre;margin:8px 0 12px;}
+  .sum{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px;}
+  .sum div{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;}
+  .sum b{display:block;font-size:22px;color:var(--navy);} .sum span{font-size:12.5px;color:var(--muted);}
+  footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center;}
+  @media (max-width:760px){ table.t, table.t tr, table.t td, table.t th{display:block;width:auto !important;} table.t tr:first-child{display:none;} table.t tr{border-top:2px solid var(--line);padding:6px 4px;} }
+  @media print{ body{background:#fff;} .card,table.t{break-inside:avoid;} pre.code{font-size:10px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="kicker">AS UNIT 2 &mdash; LESSON 7 &middot; SECTION B SIMULATION</p>
+  <h1>Mark Scheme and Answer Key</h1>
+  <p>Barry Island Beach Huts &mdash; 16 marks. Keep separate from the paper. Release Q1 and Q2 at the marking stage, and Q3 for partner marking.</p>
+</header>
+
+<div class="sum">
+  <div><b>4</b><span>Q1 &mdash; complete the code</span></div>
+  <div><b>4</b><span>Q2 &mdash; annotate</span></div>
+  <div><b>8</b><span>Q3 &mdash; build</span></div>
+  <div><b>16</b><span>Section B total</span></div>
+</div>
+
+<h2 class="s">Q1 &mdash; Complete the code <span class="m">4 marks</span></h2>
+<p class="sub">One mark for each corrected line, up to a maximum of 4. The starter has five gaps, so a student can miss one and still score full marks. The design intent of each gap is shown against the 2026 indicative content.</p>
+<table class="t"><tr><th>#</th><th>Line</th><th>The gap</th><th>Correct line</th><th>Tests</th><th>Type</th><th>How to find it</th></tr><tr><td class="n">1</td><td class="ln">10</td><td><code>PhoneSave = . . ..get()</code></td><td><code>PhoneSave = PhoneVar.get()</code></td><td>Copying data into the structure</td><td><span class="tag t1">1</span></td><td>Each box has its own Var, and the lines above copy HutVar and HirerVar the same way. The third field is the phone number, so the variable is PhoneVar — which makeWindow creates and links to its box.</td></tr><tr><td class="n">2</td><td class="ln">17</td><td><code>messagebox.showinfo(. . .)</code></td><td><code>messagebox.showinfo("Saved", "Saved")</code></td><td>Message for file saved</td><td><span class="tag t2">2</span></td><td>showinfo takes a title, then a message — as in the count routine's showinfo("Found: ", ...). Any suitable title and message that tells the user the booking was saved should be accepted.</td></tr><tr><td class="n">3</td><td class="ln">52</td><td><code>. . . +=1</code></td><td><code>CountGot +=1</code></td><td>Counting found items</td><td><span class="tag t3">3</span></td><td>Every field's test raises CountGot by one — the lines above and below are identical, so it is the same counter.</td></tr><tr><td class="n">4</td><td class="ln">57</td><td><code>messagebox.showinfo("Found: ", str(. . .))</code></td><td><code>messagebox.showinfo("Found: ", str(HireCount))</code></td><td>Outputting the number counted</td><td><span class="tag t1">1</span></td><td>HireCount is the counter: it is set to 0 at the start of the routine and goes up when CountGot equals CountNeeded. It is what must be shown, with str() turning it into text.</td></tr><tr><td class="n">5</td><td class="ln">72</td><td><code>HirerVar = . . .()</code></td><td><code>HirerVar = StringVar()</code></td><td>Definition of the storage type</td><td><span class="tag t1">1</span></td><td>Every box's variable is created the same way: HutVar = StringVar() above and PhoneVar = StringVar() below. A StringVar holds the text typed into a box.</td></tr></table>
+<div class="note"><b>Accept:</b> any suitable title and message for gap 2 that tells the user the booking was saved. Everything else is exact. <b>Likely slips:</b> missing brackets on <code>.get()</code>; <code>HireCount</code> written as <code>HireCounter</code>; quote marks around <code>HireCount</code> inside <code>str()</code>; and filling gap 3 with <code>HireCount</code> instead of <code>CountGot</code>, which would let the loop count records that don't match.</div>
+
+<h2 class="s">Q2 &mdash; Annotate <span class="m">4 marks</span></h2>
+<p class="sub">Banded. The model below names every routine in the program and where it is. Students need only annotate the routines they can; the band depends on how many, and how well.</p>
+<table class="t"><tr><th>Marks</th><th>The candidate has&hellip;</th></tr>
+<tr><td><b>4</b></td><td>Annotated <b>all</b> the routines in the code; documented all code beyond self-documenting identifiers (explained the variables); and used appropriate technical terminology confidently and accurately.</td></tr>
+<tr><td><b>2&ndash;3</b></td><td>Annotated <b>most</b> of the routines and used appropriate technical terminology.</td></tr>
+<tr><td><b>1</b></td><td>Annotated <b>one</b> routine with limited technical terminology &mdash; <i>or</i> documented only code that used self-documenting identifiers.</td></tr>
+<tr><td><b>0</b></td><td>Not credit worthy or not attempted.</td></tr></table>
+<p class="sub" style="margin-top:0">My paraphrase of the 2026 bands; the official scheme is the authority.</p>
+<div class="card"><div class="ch"><span class="cn">1</span><b>Setting up a data structure</b><span class="lines">BeachHuts.py, lines 21–22, 61, 67, 72, 77</span></div><p>Each text box has a StringVar — a variable linked to its Entry widget that holds whatever the user types into it. HutVar, HirerVar and PhoneVar are declared global so that the save and count routines, which are separate from makeWindow, can read them. HireCount and CountNeeded are integer counters, initialised to 0 before any counting starts.</p></div><div class="card"><div class="ch"><span class="cn">2</span><b>Creating a new blank file</b><span class="lines">BeachHuts.py, line 13</span></div><p>Hire.txt is opened in append mode ("a"). If it does not exist yet, Python creates a new blank file; if it does, the new record is added to the end without overwriting what is already stored. fileObject is the file handle used to write to it.</p></div><div class="card"><div class="ch"><span class="cn">3</span><b>Copying data from screen textboxes to data structure</b><span class="lines">BeachHuts.py, lines 6, 8, 10</span></div><p>.get() copies the text currently typed in each box out of its StringVar into an ordinary string variable — HutSave, HirerSave and PhoneSave — so that the program can process it. This is done for every field before anything is written to the file.</p></div><div class="card"><div class="ch"><span class="cn">4</span><b>Writing of data to file</b><span class="lines">BeachHuts.py, lines 7, 9, 11, 14–15</span></div><p>.ljust(50) pads each field with spaces to exactly 50 characters, making a fixed-length record, so every field starts at the same position. The three padded fields are concatenated into one string with a new-line character (\n) and written as one line with write(). close() then saves the file and releases it.</p></div><div class="card"><div class="ch"><span class="cn">5</span><b>Retrieving data from file</b><span class="lines">BeachHuts.py, lines 38–40, 42–43, 45–46, 48</span></div><p>The file is opened for reading inside try / except, so a missing file raises an IOError that is handled with an error message instead of crashing the program. In the else part, readline() reads one record (one line) at a time — sequential access. An empty string means the end of the file has been reached, so the file is closed and break ends the loop.</p></div><div class="card"><div class="ch"><span class="cn">6</span><b>Splitting into array/textboxes/variables</b><span class="lines">BeachHuts.py, lines 49, 51, 53</span></div><p>Each record is split into its fields using slicing: [0:50] is the hut ID, [50:100] the hirer and [100:150] the phone number. This only works because every field was padded to 50 characters when it was saved, so each field is always in the same position. The in operator then tests whether the text typed is found inside that field — a partial match.</p></div><div class="card"><div class="ch"><span class="cn">7</span><b>Looking/counting of items required</b><span class="lines">BeachHuts.py, lines 28, 44, 55–57</span></div><p>CountNeeded counts how many boxes the user filled in. For every record, CountGot is reset to 0 and then increased by 1 for each filled-in box that matches its field. If CountGot equals CountNeeded, every box that was filled in matched, so HireCount is incremented. When the loop ends the total is displayed in a message box.</p></div><div class="card"><div class="ch"><span class="cn">8</span><b>Validation (left or trim)</b><span class="lines">BeachHuts.py, lines 27, 34–35, 40</span></div><p>A presence check: if CountNeeded is 0 nothing has been entered, so an error message is shown and return ends the routine before the file is read. The not ... == "" tests stop an empty box matching every record, because an empty string is found inside every string. The try / except also checks that the file exists before it is read. (This program has no left or trim check — annotate what is there.)</p></div>
+
+<h2 class="s">Q3 &mdash; Build the program <span class="m">8 marks</span></h2>
+<p class="sub">The eight points of functionality. Tick only what you can see working when the program is run. Random, serial or sequential file access are all acceptable, and so is a textual or GUI interface.</p>
+<table class="t"><tr><th>#</th><th>Indicative content</th><th>Evidence to look for when you run it</th></tr><tr><td class="n">1</td><td><b>Input</b></td><td>The program asks for a hut ID, the hirer's name and the hirer's phone number.</td></tr><tr><td class="n">2</td><td><b>Length check</b></td><td>At least one length check is present and really applied: the hut ID is exactly 3 characters, the name no more than 20, the phone number exactly 11. Wrong lengths are rejected, not just reported. (Left or len is sufficient.)</td></tr><tr><td class="n">3</td><td><b>Creates a data file called bookings.txt</b></td><td>After the first booking, a file with exactly that name exists in the folder.</td></tr><tr><td class="n">4</td><td><b>Stores on disk in a text file called bookings.txt</b></td><td>Open the file: the booking is in it, and a second booking is added without losing the first.</td></tr><tr><td class="n">5</td><td><b>Descriptive / useful feedback that the file has been saved</b></td><td>The user is told the booking was saved — better still, which booking and where. A message that only says ‘done’ is weaker.</td></tr><tr><td class="n">6</td><td><b>Retrieves data from disk</b></td><td>The program reads bookings.txt back (any file access method: random, serial or sequential is acceptable).</td></tr><tr><td class="n">7</td><td><b>Retrieves the specified hut's details</b></td><td>Entering a hut ID shows that hirer's name and phone number — not the whole file. A hut with no booking gets a sensible message.</td></tr><tr><td class="n">8</td><td><b>HCI fit for purpose (textual or GUI)</b></td><td>Clear prompts, readable messages, and a way to choose between adding and finding. A text menu is fine; a window is fine.</td></tr></table>
+<table class="t"><tr><th>Marks</th><th>The candidate has&hellip;</th></tr>
+<tr><td><b>7&ndash;8</b></td><td>Created a new program with <b>seven or eight</b> of the eight points; used and fully exploited the programming facilities of the language; shown a sound understanding of the tools and techniques; written well-structured code; and provided a completed user interface that aids interaction and is intuitive.</td></tr>
+<tr><td><b>3&ndash;6</b></td><td>Created a new program with <b>three to six</b> of the points; made use of an appropriate range of the language's facilities; shown an understanding of the tools and techniques; and provided a user interface that aids interaction.</td></tr>
+<tr><td><b>1&ndash;2</b></td><td>Created a new program with <b>one or two</b> of the points; used a limited range of the facilities; shown a limited understanding; and provided evidence of a user interface.</td></tr>
+<tr><td><b>0</b></td><td>Not credit worthy or not attempted.</td></tr></table>
+<p class="sub" style="margin-top:0">My paraphrase of the 2026 bands. Within a band, the quality points (structure, use of the language, the interface) decide the mark — for example, 7 or 8 within the top band.</p>
+
+<h3 style="font-size:15px;color:var(--navy);margin:16px 0 4px">Test plan for marking</h3>
+<table class="t"><tr><th>Run this</th><th>You should see</th></tr><tr><td>Add H07, Alun Evans, 07700900123</td><td>Accepted; a saved message appears; bookings.txt now exists.</td></tr><tr><td>Enter hut ID H7</td><td>Rejected: it isn't 3 characters.</td></tr><tr><td>Enter a 21-character name</td><td>Rejected: longer than 20.</td></tr><tr><td>Enter phone 0770090012 (10 digits)</td><td>Rejected: not 11 characters.</td></tr><tr><td>Add a second booking for H07</td><td>Accepted; open bookings.txt — both bookings are there.</td></tr><tr><td>Find H07</td><td>Both hirers' names and phone numbers are shown.</td></tr><tr><td>Find H99</td><td>A sensible message that there is no booking.</td></tr><tr><td>Delete bookings.txt, then find a hut</td><td>A friendly message — no crash.</td></tr></table>
+
+<h3 style="font-size:15px;color:var(--navy);margin:16px 0 4px">Model program (earns all eight points)</h3>
+<p class="sub">One approach among many. It uses the valid-flag style and <code>with open</code> from the videos, a text menu for the interface, and a record of 3 + 20 + 11 = 34 characters.</p>
+<pre class="code"># HutBookings.py - Barry Island Beach Huts
+# Records hut bookings in bookings.txt and finds a booking by hut ID.
+
+option = ""
+
+# LOOP: the menu keeps showing until the user chooses to exit
+while option != "3":
+    print("\n=== Barry Island Beach Huts ===")
+    print("1. Add a booking")
+    print("2. Find a booking by hut ID")
+    print("3. Exit")
+    option = input("Choose an option (1-3): ")
+
+    if option == "1":
+
+        # INPUT + LENGTH CHECK: hut ID must be exactly 3 characters
+        valid = False
+        while valid == False:
+            hut = input("Hut ID (3 characters, e.g. H07): ")
+            if len(hut) != 3:
+                print("The hut ID must be exactly 3 characters.")
+            else:
+                valid = True
+
+        # INPUT + LENGTH CHECK: name must be 1 to 20 characters
+        valid = False
+        while valid == False:
+            hirer = input("Hirer's name (up to 20 characters): ")
+            if hirer == "":
+                print("The name cannot be empty.")
+            elif len(hirer) &gt; 20:
+                print("The name must be 20 characters or fewer.")
+            else:
+                valid = True
+
+        # INPUT + LENGTH CHECK: phone must be exactly 11 characters, digits only
+        valid = False
+        while valid == False:
+            phone = input("Phone number (11 digits): ")
+            if len(phone) != 11:
+                print("The phone number must be exactly 11 characters.")
+            elif not phone.isdigit():
+                print("The phone number must be digits only.")
+            else:
+                valid = True
+
+        # FIXED-LENGTH RECORD: 3 + 20 + 11 = 34 characters
+        record = hut.ljust(3) + hirer.ljust(20) + phone.ljust(11)
+
+        # CREATES THE DATA FILE and STORES ON DISK: append mode creates
+        # bookings.txt if it does not exist, and adds to the end if it does
+        with open("bookings.txt", "a") as file:
+            file.write(record + "\n")
+
+        # DESCRIPTIVE FEEDBACK
+        print("Booking saved: hut", hut, "for", hirer, "- stored in bookings.txt")
+
+    elif option == "2":
+        key = input("Hut ID to find: ")
+
+        # RETRIEVES DATA FROM DISK, then picks out the SPECIFIED hut
+        try:
+            with open("bookings.txt", "r") as file:
+                found = False
+                for line in file:
+                    if line[0:3] == key:
+                        print("Hut", key, "- hirer:", line[3:23].strip(), "- phone:", line[23:34].strip())
+                        found = True
+                if found == False:
+                    print("No booking found for hut", key)
+        except FileNotFoundError:
+            print("There are no bookings saved yet.")
+
+    elif option == "3":
+        print("Goodbye!")
+
+    else:
+        print("Please choose 1, 2 or 3.")
+</pre>
+
+<footer>AS Unit 2 &mdash; Lesson 7 &middot; Section B simulation mark scheme &middot; keep separate from the paper</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section B Cheat Sheet</title>
+<style>
+  :root{--navy:#1F3864;--navy-deep:#16233F;--teal:#2E9E9E;--orange:#E07B26;--ink:#1B1F24;--muted:#5B6470;--paper:#F7F9FB;--card:#FFFFFF;--line:#DCE2EB;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 18px 40px;}
+  header{background:var(--navy-deep);color:#fff;border-radius:12px;padding:14px 20px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+  header .t{flex:1 1 380px;} header .kicker{font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--orange);margin:0 0 3px;}
+  header h1{font-family:Cambria,Georgia,serif;font-size:24px;margin:0;} header p{font-size:12.5px;color:#C8D3E8;margin:3px 0 0;}
+  .time{display:flex;gap:8px;flex-wrap:wrap;} .time div{background:#22355F;border-radius:8px;padding:6px 12px;font-size:12px;color:#fff;text-align:center;}
+  .time b{display:block;font-size:15px;color:var(--orange);}
+  .cols{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;} .cols > div{flex:1 1 440px;min-width:0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:10px;}
+  .card h2{font-size:12px;font-weight:800;letter-spacing:.04em;margin:0 0 6px;color:var(--teal);display:flex;align-items:center;gap:8px;}
+  .card h2 .q{background:var(--orange);color:#fff;border-radius:10px;padding:1px 9px;font-size:11px;}
+  .card h2.o{color:var(--orange);}
+  table.t{width:100%;border-collapse:collapse;font-size:12px;}
+  table.t th{background:var(--navy);color:#fff;text-align:left;padding:5px 7px;font-size:11px;}
+  table.t td{padding:4px 7px;border-top:1px solid var(--line);vertical-align:top;line-height:1.35;}
+  table.t td:first-child{font-weight:700;color:var(--navy);}
+  code{font-family:Consolas,"Courier New",monospace;font-size:11px;background:#F1F4F9;padding:0 4px;border-radius:3px;}
+  pre.code{background:#16233F;color:#DCE6F2;margin:0;padding:9px 12px;border-radius:8px;font-family:Consolas,"Courier New",monospace;font-size:10.8px;line-height:1.42;overflow-x:auto;white-space:pre;}
+  .lab{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:800;}
+  ul.l{margin:0;padding-left:17px;font-size:12px;line-height:1.45;} ul.l li{margin-bottom:2px;}
+  .chip{display:inline-block;background:#E4F3F2;color:#14595A;border-radius:12px;padding:1px 8px;font-size:11px;font-weight:600;margin:0 4px 4px 0;}
+  .tip{background:#FFF3CD;border-radius:7px;padding:6px 9px;font-size:12px;line-height:1.4;margin-top:6px;}
+  .good{background:#E8F6EE;border-radius:7px;padding:5px 9px;font-size:11.5px;margin-top:5px;} .weak{background:#FBE9E5;border-radius:7px;padding:5px 9px;font-size:11.5px;margin-top:5px;}
+  .pb{height:0;}
+  footer{margin-top:8px;font-size:11px;color:var(--muted);text-align:center;}
+  .print{float:right;background:var(--teal);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  @media print{
+    @page{size:A4;margin:9mm;}
+    body{background:#fff;} .print{display:none;} .wrap{padding:0;max-width:none;}
+    header{padding:8px 12px;margin-bottom:6px;} header h1{font-size:19px;}
+    .card{break-inside:avoid;margin-bottom:6px;padding:7px 10px;} .cols{gap:8px;} .cols > div{flex:1 1 48%;}
+    pre.code{font-size:8.6px;padding:6px 8px;overflow:visible;white-space:pre-wrap;word-break:break-word;} table.t{font-size:9.6px;} code{font-size:8.8px;} ul.l{font-size:9.6px;} .card h2{font-size:10px;}
+    .time div{padding:3px 8px;font-size:9.5px;} .tip,.good,.weak{font-size:9.4px;}
+    .pb{break-after:page;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="t"><p class="kicker">AS UNIT 2 &mdash; LESSON 7 &middot; OPEN-BOOK SIMULATION</p><h1>Section B Cheat Sheet</h1>
+  <p>Q3 first &mdash; it is half the marks &mdash; then Q1 and Q2. Patterns, not answers: change the names and numbers to fit the question.</p></div>
+  <div class="time"><div><b>~10</b>Q1 min</div><div><b>~10</b>Q2 min</div><div><b>~40</b>Q3 min</div><div><b>run</b>&amp; save as you go</div></div>
+</header>
+<button class="print" onclick="window.print()">Print</button>
+<div class="cols"><div><div class="card"><h2><span class="q">Q3</span> BUILD &mdash; 8 MARKS &mdash; THE EIGHT POINTS</h2><table class="t "><tr><th>#</th><th>Point</th><th>How to earn it</th><th>See</th></tr><tr><td>1</td><td>Input</td><td><code>input()</code> for every item</td><td>B</td></tr><tr><td>2</td><td>Length check</td><td><code>len()</code> test — reject and ask again</td><td>B</td></tr><tr><td>3</td><td>Creates the data file</td><td><code>open("name.txt", "a")</code> — use the exact file name</td><td>C</td></tr><tr><td>4</td><td>Stores on disk</td><td><code>write(record + "\n")</code></td><td>C</td></tr><tr><td>5</td><td>Useful feedback</td><td><code>print</code> what was saved, and where</td><td>C</td></tr><tr><td>6</td><td>Retrieves data</td><td><code>open(..., "r")</code> and read it</td><td>D</td></tr><tr><td>7</td><td>Retrieves the one asked for</td><td>compare the key with a slice; show only that record</td><td>D</td></tr><tr><td>8</td><td>HCI fit for purpose</td><td>clear prompts, a menu, readable messages</td><td>A + list</td></tr></table><div class="tip"><b>7&ndash;8 marks</b> needs seven or eight points <b>and</b> well-structured code and an interface that aids the user. Get a working core first, then polish.</div></div><div class="card"><h2><span class="lab">A</span> MENU LOOP &mdash; the shape of the program</h2><pre class="code">option = ""
+while option != "3":
+    print("1. Add   2. Find   3. Exit")
+    option = input("Choose 1-3: ")
+    if option == "1":
+        ...                     # add a record
+    elif option == "2":
+        ...                     # find a record
+    elif option == "3":
+        print("Goodbye!")
+    else:
+        print("Please choose 1, 2 or 3.")</pre></div><div class="card"><h2><span class="lab">B</span> INPUT + LENGTH CHECK</h2><pre class="code">valid = False
+while valid == False:
+    ref = input("Reference (5 characters, e.g. BK123): ")
+    if ref == "":
+        print("The reference cannot be empty.")
+    elif len(ref) != 5:                 # exact length
+        print("It must be exactly 5 characters.")
+    else:
+        valid = True
+# also: len(x) &gt; 25 (maximum) | not x.isdigit() (digits only)
+# range: isdigit() FIRST, then int(x) &lt; 1 or int(x) &gt; 8</pre></div></div><div><div class="card"><h2><span class="lab">C</span> SAVE + FEEDBACK</h2><pre class="code">record = ref.ljust(5) + title.ljust(25)     # 5 + 25 = 30 characters
+with open("books.txt", "a") as file:        # creates it if missing
+    file.write(record + "\n")               # \n ends the line
+print("Saved", title, "to books.txt")       # WHAT was saved, and WHERE</pre></div><div class="card"><h2><span class="lab">D</span> FIND ONE RECORD</h2><pre class="code">key = input("Reference to find: ")
+try:
+    with open("books.txt", "r") as file:
+        found = False
+        for line in file:
+            if line[0:5] == key:                  # slice = the first field
+                print(line[5:30].strip())         # strip() removes the padding
+                found = True
+        if found == False:
+            print("No record found for", key)
+except FileNotFoundError:
+    print("No records saved yet.")</pre><div class="tip">Any file access is accepted &mdash; this reads line by line. The older style (<code>open</code>, <code>readline()</code>, <code>close()</code>, <code>except IOError</code>) is fine too.</div></div><div class="card"><h2 class="o">HCI &mdash; WHAT ‘FIT FOR PURPOSE’ LOOKS LIKE</h2><ul class="l"><li>Prompts say what to type, with an example</li><li>A numbered menu that loops until Exit</li><li>Errors say what is wrong <b>and</b> what to do</li><li>Confirmation names the data that was saved</li><li>Output is labelled, not a raw line from the file</li><li>‘Not found’ and ‘no file yet’ don't crash it</li><li>Says goodbye</li></ul></div><div class="card"><h2 class="o">COMMON SLIPS</h2><ul class="l"><li><code>input()</code> gives text — <code>int()</code> or <code>float()</code> before any maths or number comparison.</li><li>Joining a number to text needs <code>str()</code>: <code>"Total " + count</code> crashes.</li><li>Forgot <code>"\n"</code> — the records run together on one line.</li><li><code>"a"</code> adds to the end; <code>"w"</code> replaces everything.</li><li>Slice ends are excluded: <code>[0:5]</code> is 5 characters, and must match the <code>ljust</code> widths.</li><li>Reset <code>CountGot = 0</code> for <b>every</b> record.</li><li>Type before range: <code>isdigit()</code> first, then <code>int()</code>.</li><li>Test it with bad input before you stop.</li></ul></div><div class="card"><h2>BEFORE YOU FINISH</h2><ul class="l"><li>Both files saved with the <b>exact</b> names from the paper</li><li>The program runs &mdash; and you tried it with bad input</li><li>All three questions attempted</li></ul></div></div></div>
+<div class="pb"></div>
+<div class="cols"><div><div class="card"><h2><span class="q">Q1</span> COMPLETE THE CODE &mdash; 4 MARKS</h2><div class="tip" style="margin:0 0 6px"><b>Don't guess.</b> 1 Find the sibling lines (same code, one field over) &rarr; 2 copy the pattern &rarr; 3 still stuck? <b>Ctrl+F</b> &mdash; the missing word is almost always somewhere else in the file. A placeholder inside quote marks is a variable: no quotes.</div><table class="t "><tr><th></th><th>The gap is&hellip;</th><th>Look here</th></tr><tr><td>1</td><td>A name that must match its neighbours</td><td>copy it from the sibling block</td></tr><tr><td>2</td><td>A method name — <code>.get</code>, <code>.ljust</code>, <code>.showinfo</code></td><td>the same method is on the lines around it</td></tr><tr><td>3</td><td>A counter — <code>CountGot +=1</code></td><td>the sibling lines use the same counter</td></tr><tr><td>4</td><td>A function name</td><td>must match the Button's <code>command=</code></td></tr><tr><td>5</td><td>A file name</td><td>must match where the file was opened to save</td></tr></table></div><div class="card"><h2>THE TEMPLATE IN 14 LINES</h2><table class="t "><tr><th>Code</th><th>What it does</th></tr><tr><td>StringVar()</td><td>holds the text typed in a box</td></tr><tr><td>Entry(frame, textvariable=Var)</td><td>the text box, linked to its Var</td></tr><tr><td>Var.get()</td><td>copies the text out of the Var</td></tr><tr><td>.ljust(50)</td><td>pads to 50 characters (fixed-length)</td></tr><tr><td>open("f.txt","a") / ("r")</td><td>add to the end (creates it) / read</td></tr><tr><td>write(a + b + "\n")</td><td>joins the fields; one line</td></tr><tr><td>close()</td><td>saves the file and releases it</td></tr><tr><td>messagebox.showinfo("title","text")</td><td>a pop-up message</td></tr><tr><td>return</td><td>ends the routine</td></tr><tr><td>Button(..., command=name)</td><td>no brackets after the name</td></tr><tr><td>x in recordVar[0:50]</td><td>partial match in the first field</td></tr><tr><td>not X == ""</td><td>ignore an empty box</td></tr><tr><td>CountNeeded / CountGot</td><td>boxes filled in / boxes matching this record</td></tr><tr><td>str(count)</td><td>number to text for a message</td></tr></table></div></div><div><div class="card"><h2><span class="q">Q2</span> ANNOTATE &mdash; 4 MARKS</h2><table class="t "><tr><th>Name the routine</th><th>Look for</th></tr><tr><td>Setting up a data structure</td><td><code>StringVar()</code>, counters set to 0, <code>global</code></td></tr><tr><td>Creating a new blank file</td><td><code>open(..., "a")</code> creates it if it is missing</td></tr><tr><td>Copying data from the boxes</td><td><code>.get()</code> into ordinary variables</td></tr><tr><td>Writing data to file</td><td><code>.ljust</code>, join the fields, <code>write</code>, <code>close</code></td></tr><tr><td>Retrieving data from file</td><td><code>try / except IOError</code>, <code>readline()</code>, <code>""</code> = end of file</td></tr><tr><td>Splitting into variables</td><td>slices such as <code>[0:50]</code>, <code>[50:100]</code></td></tr><tr><td>Looking / counting items</td><td><code>CountNeeded</code>, <code>CountGot</code>, the counter</td></tr><tr><td>Validation (left or trim)</td><td>presence check, <code>not X == ""</code>, <code>len</code></td></tr></table><div class="tip"><b>Write:</b> the routine &rarr; what the code does &rarr; a technical term &rarr; why.</div><div class="weak"><b>Weak:</b> &ldquo;Opens the file.&rdquo; &mdash; says what the code already says.</div><div class="good"><b>Good:</b> &ldquo;Opens the file in append mode, which creates it if it does not exist and adds to the end.&rdquo;</div><div style="margin-top:6px"><span class="chip">fixed-length record</span><span class="chip">append mode</span><span class="chip">concatenation</span><span class="chip">sequential access</span><span class="chip">slicing</span><span class="chip">counter</span><span class="chip">partial match</span><span class="chip">end of file</span><span class="chip">exception handling</span><span class="chip">presence check</span><span class="chip">file handle</span><span class="chip">initialise</span></div><div class="tip"><b>4 marks:</b> all routines, explained beyond the variable names, with confident technical terms. <b>2&ndash;3:</b> most routines. <b>1:</b> one.</div></div><div class="card"><h2>THE COUNT ROUTINE IN ONE BREATH</h2><ul class="l"><li><b>CountNeeded</b> = how many boxes were filled in.</li><li><b>CountGot</b> = how many of those match <i>this</i> record.</li><li>The record counts only when <code>CountGot == CountNeeded</code>.</li><li>Reset <code>CountGot = 0</code> at the top of the loop, for every record.</li></ul></div><div class="card"><h2>THE EXAM'S OLDER FILE STYLE &mdash; RECOGNISE IT</h2><pre class="code">try:
+    fileObject = open("f.txt", "r")
+except IOError:
+    messagebox.showerror("Error", "No file to read")
+else:
+    while True:
+        recordVar = fileObject.readline()
+        if recordVar == "":
+            fileObject.close()
+            break
+        ...                       # use recordVar here</pre><div class="tip">Same job as <code>with open ... for line in file</code>. Both are fine in your own code; you may need to complete either.</div></div></div></div>
+<footer>AS Unit 2 &mdash; Section B Cheat Sheet &middot; allowed in the Lesson 7 simulation only &middot; the examples use a book club, not the paper's scenario</footer>
+</div>
+</body>
+</html>
