@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paradigm Detective</title>
+<style>
+:root {
+  --navy: #003366;
+  --amber: #CC9900;
+  --bg: #F3F6FA;
+  --surface: #FFFFFF;
+  --surface-2: #E8EEF5;
+  --text: #1A1A1A;
+  --muted: #4A5A70;
+  --heading: #003366;
+  --accent: #CC9900;
+  --accent-text: #7A5C00;
+  --code-bg: #003366;
+  --code-text: #FFFFFF;
+  --line: #C9D3E0;
+  --right: #2E7D32;
+  --right-bg: #E6F2E7;
+  --wrong: #B23A3A;
+  --wrong-bg: #F8E6E6;
+  --part: #8A6A00;
+  --part-bg: #FAF1D6;
+  --imp: #003366;
+  --dec: #CC9900;
+  --oth: #5A7FA6;
+  --on-kind: #FFFFFF;
+  --sel: #CC9900;
+  --hint-bg: #FAF1D6;
+  --hint-text: #5C4500;
+  --blk-1: #CC9900;
+  --blk-2: #5A7FA6;
+  --blk-3: #003366;
+  --blk-text: #FFFFFF;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+    --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --code-bg: #0A1422; --code-text: #F2F5FA;
+    --line: #2C4466; --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24;
+    --part: #E0B23A; --part-bg: #3A3016; --imp: #3D6FA8; --dec: #B88A10; --oth: #5A7FA6; --on-kind: #FFFFFF;
+    --sel: #E0B23A; --hint-bg: #3A3016; --hint-text: #F2D88A;
+    --blk-1: #B88A10; --blk-2: #4F739C; --blk-3: #2E5A8C; --blk-text: #FFFFFF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+  --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --code-bg: #0A1422; --code-text: #F2F5FA;
+  --line: #2C4466; --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24;
+  --part: #E0B23A; --part-bg: #3A3016; --imp: #3D6FA8; --dec: #B88A10; --oth: #5A7FA6; --on-kind: #FFFFFF;
+  --sel: #E0B23A; --hint-bg: #3A3016; --hint-text: #F2D88A;
+  --blk-1: #B88A10; --blk-2: #4F739C; --blk-3: #2E5A8C; --blk-text: #FFFFFF;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 90px); }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 1.05rem; line-height: 1.5;
+}
+h1, h2, h3 { font-family: Cambria, Caladea, Georgia, "Times New Roman", serif; color: var(--heading); line-height: 1.25; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--navy); }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--navy); color: #FFFFFF; }
+.bar-inner { max-width: 1240px; margin: 0 auto; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.bar h1 { color: #FFFFFF; margin: 0; font-size: 1.45rem; flex: 1 1 14rem; }
+.bar h1 small { display: block; font-family: Calibri, Carlito, Arial, sans-serif; font-weight: 400; font-size: 0.85rem; color: #F2D88A; }
+.stat { font-size: 0.95rem; white-space: nowrap; }
+.stat b { font-size: 1.15rem; }
+.bar button {
+  font: inherit; font-size: 0.92rem; padding: 0.42rem 0.8rem; border-radius: 6px; cursor: pointer;
+  background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.55);
+}
+.bar button:hover { background: rgba(255,255,255,0.12); }
+.bar button.primary { background: var(--amber); border-color: var(--amber); color: #1A1A1A; font-weight: 700; }
+.bar button.primary:hover { background: #E0B23A; }
+
+main { max-width: 1240px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 0.25rem 0 1.25rem; padding: 0; list-style: none; counter-reset: step; }
+.steps li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.9rem 0.7rem 2.6rem; position: relative; counter-increment: step; }
+.steps li::before {
+  content: counter(step); position: absolute; left: 0.75rem; top: 0.7rem; width: 1.4rem; height: 1.4rem; border-radius: 50%;
+  background: var(--accent); color: #1A1A1A; font-weight: 700; font-size: 0.85rem; display: grid; place-items: center;
+}
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+
+h2.section { font-size: 1.3rem; margin: 1.25rem 0 0.6rem; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+h2.section .note { font-family: Calibri, Carlito, Arial, sans-serif; font-size: 0.95rem; font-weight: 400; color: var(--muted); }
+
+.tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 0.75rem; min-height: 4rem;
+  padding: 0.75rem; border: 2px dashed var(--line); border-radius: 12px; }
+.tray.drop-target, .group.drop-target { border-color: var(--accent); background: var(--part-bg); }
+.tray-empty { color: var(--muted); grid-column: 1 / -1; margin: 0.3rem 0.2rem; }
+
+.card {
+  background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 0.55rem 0.65rem 0.6rem;
+  display: flex; flex-direction: column; gap: 0.45rem; min-width: 0;
+}
+.card[draggable="true"] { cursor: grab; }
+.card.selected { border-color: var(--sel); box-shadow: 0 0 0 3px var(--sel); }
+.card.dragging { opacity: 0.5; }
+.card-top { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.card-id { font-family: Cambria, Caladea, Georgia, serif; font-weight: 700; color: var(--heading); font-size: 1.05rem; margin-right: auto; }
+.card button {
+  font: inherit; font-size: 0.85rem; padding: 0.2rem 0.55rem; border-radius: 6px; cursor: pointer;
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--line);
+}
+.card button:hover { border-color: var(--accent); }
+.card button[aria-pressed="true"] { background: var(--accent); color: #1A1A1A; border-color: var(--accent); font-weight: 700; }
+.card pre {
+  margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: 7px; padding: 0.55rem 0.65rem;
+  font-family: "Courier New", Courier, monospace; font-size: 0.84rem; line-height: 1.4; overflow-x: auto; white-space: pre;
+}
+.blocks { background: var(--surface-2); border-radius: 7px; padding: 0.55rem; display: flex; flex-direction: column; gap: 3px; }
+.blk { color: var(--blk-text); font-size: 0.88rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px; width: max-content; max-width: 100%; }
+.blk.b1 { background: var(--blk-1); border-radius: 12px 12px 6px 6px; }
+.blk.b2 { background: var(--blk-2); }
+.blk.b3 { background: var(--blk-3); margin-left: 1.2rem; }
+.blk.b4 { background: var(--blk-2); width: 5rem; }
+.hint { background: var(--hint-bg); color: var(--hint-text); border-radius: 7px; padding: 0.35rem 0.55rem; font-size: 0.9rem; }
+.hint code { font-family: "Courier New", Courier, monospace; font-weight: 700; }
+.label { display: inline-block; color: var(--on-kind); font-weight: 700; font-size: 0.85rem; padding: 0.15rem 0.6rem; border-radius: 999px; }
+.label.imp { background: var(--imp); } .label.dec { background: var(--dec); } .label.oth { background: var(--oth); }
+.lang { font-size: 0.85rem; color: var(--muted); }
+
+.groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 0.75rem; }
+.group {
+  background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 0.7rem;
+  display: flex; flex-direction: column; gap: 0.55rem; min-width: 0;
+}
+.group.can-drop { border-style: dashed; border-color: var(--accent); }
+.group-head { display: flex; align-items: center; gap: 0.5rem; }
+.group-head h3 { margin: 0; font-size: 1.1rem; margin-right: auto; }
+.group-head .count { color: var(--muted); font-size: 0.9rem; }
+.place-btn {
+  font: inherit; font-size: 0.9rem; font-weight: 700; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer;
+  background: var(--accent); color: #1A1A1A; border: none;
+}
+.group textarea {
+  font: inherit; font-size: 0.95rem; width: 100%; min-height: 3.2rem; resize: vertical; border-radius: 7px;
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--text); padding: 0.4rem 0.55rem;
+}
+.group textarea::placeholder { color: var(--muted); }
+.group-cards { display: flex; flex-direction: column; gap: 0.5rem; }
+.group-empty { color: var(--muted); font-size: 0.92rem; margin: 0; }
+.verdict { border-radius: 7px; padding: 0.4rem 0.6rem; font-size: 0.93rem; border: 2px solid; }
+.verdict.ok { background: var(--right-bg); border-color: var(--right); }
+.verdict.part { background: var(--part-bg); border-color: var(--part); }
+.verdict.bad { background: var(--wrong-bg); border-color: var(--wrong); }
+
+.key { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 0.75rem; }
+.fam { background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 0.8rem 0.9rem; }
+.fam.ok { border-color: var(--right); }
+.fam-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.35rem; }
+.fam-head h3 { margin: 0; font-size: 1.15rem; margin-right: auto; }
+.fam .think { font-style: italic; margin: 0.1rem 0 0.35rem; }
+.fam p { margin: 0.25rem 0; }
+.fam .yours { color: var(--muted); font-size: 0.95rem; }
+.legend { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0 0 0.75rem; font-size: 0.95rem; }
+
+.log { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0.4rem 0.9rem; max-height: 18rem; overflow-y: auto; }
+.log ol { margin: 0; padding: 0; list-style: none; }
+.log li { padding: 0.45rem 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+.log li:last-child { border-bottom: none; }
+.log li .t { color: var(--muted); font-size: 0.8rem; margin-right: 0.4rem; }
+.log li.exam { border-left: 4px solid var(--accent); padding-left: 0.6rem; }
+
+.stretch { background: var(--surface-2); border-radius: 10px; padding: 0.7rem 0.9rem; margin-top: 0.75rem; }
+.hidden { display: none !important; }
+button:focus-visible, textarea:focus-visible, .card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 640px) { .bar h1 { font-size: 1.25rem; } .tray, .groups, .key { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-inner">
+    <h1>Paradigm Detective<small>Unit 3 Topic 4, Lesson 1: method first</small></h1>
+    <span class="stat">Placed <b id="placed">0</b> / 12</span>
+    <span class="stat">Hints <b id="hints">0</b></span>
+    <span class="stat hidden" id="scoreWrap">Families <b id="score">0</b> / 7</span>
+    <button type="button" class="primary" id="revealBtn">Reveal the families</button>
+    <button type="button" id="restartBtn">Start again</button>
+    <button type="button" id="themeBtn">Dark mode</button>
+  </div>
+</header>
+
+<main>
+  <ol class="steps">
+    <li><strong>Sort.</strong> Twelve unlabelled code fragments. Put fragments that work in the same way into the same group. Select a fragment, then choose <em>Place here</em> on a group, or drag it.</li>
+    <li><strong>Write the rule.</strong> For each group, write how the programmer is thinking. Ask: who decides what happens next, and does the code say <em>how</em> or just <em>what</em>?</li>
+    <li><strong>Reveal.</strong> Check your groups against the seven families and compare your rules with the mark-scheme wording. Hints are there if you’re stuck, but try first.</li>
+  </ol>
+
+  <h2 class="section">Fragments <span class="note" id="trayNote">Not yet placed</span></h2>
+  <div class="tray" id="tray" aria-label="Unplaced fragments"></div>
+
+  <h2 class="section">Your groups <span class="note">Use as many groups as you need. There are eight; you won’t need them all.</span></h2>
+  <div class="groups" id="groups"></div>
+
+  <section id="keySection" class="hidden" aria-labelledby="keyTitle">
+    <h2 class="section" id="keyTitle">The seven families</h2>
+    <div class="legend">
+      <span><span class="label imp">Imperative</span> tells the computer HOW</span>
+      <span><span class="label dec">Declarative</span> tells the computer WHAT</span>
+      <span><span class="label oth">Other type</span> other types of language</span>
+    </div>
+    <div class="key" id="key"></div>
+    <div class="stretch">
+      <strong>Stretch:</strong> which fragments could belong to more than one family? Look again at the JavaScript event listener and the Java classes. Many modern languages are multi-paradigm: JavaScript supports event-driven, object-oriented and functional styles, and an event handler in Visual Basic usually sits inside a class.
+    </div>
+  </section>
+
+  <h2 class="section">Detective’s log <span class="note">Newest first. Exam-ready sentences are marked in amber.</span></h2>
+  <div class="log" aria-live="polite"><ol id="log"></ol></div>
+  <p class="sr" id="announce" aria-live="assertive"></p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var FAMILIES = {
+    proc: { name: "Procedural", kind: "imp", kindName: "Imperative",
+      think: "“Do this, then this, then this.”",
+      ms: "Solves a problem in a linear fashion through a sequence of step-by-step instructions, using sequence, selection, iteration and callable procedures and functions. Follows a top-down approach.",
+      use: "Problems that need a linear algorithm solution; command-line interface applications.",
+      examples: "C, Pascal" },
+    event: { name: "Event-driven", kind: "imp", kindName: "Imperative",
+      think: "“Wait. When this happens, run that.”",
+      ms: "Listeners are attached to objects, e.g. buttons, which execute a subroutine based on the type of event triggered, e.g. a single click. Used for problems that need heavy user interaction through a graphical interface.",
+      use: "GUI applications; rapid application development.",
+      examples: "Visual Basic" },
+    oop: { name: "Object-oriented", kind: "imp", kindName: "Imperative",
+      think: "“Build objects that hold their own data and actions.”",
+      ms: "Programs are divided into objects, classes and methods. Inheritance reduces code duplication and encapsulation makes data more secure.",
+      use: "Large systems, e.g. a large distributed application built by a large team of developers.",
+      examples: "Java, C++" },
+    func: { name: "Functional", kind: "dec", kindName: "Declarative",
+      think: "“Define functions; evaluate expressions.”",
+      ms: "Uses a series of function definitions which are evaluated as mathematical expressions to solve a problem. Declarative: the programmer codes what problem to solve, not how to solve it.",
+      use: "Software requiring complex mathematical transformations; research and testing.",
+      examples: "Haskell" },
+    logic: { name: "Logic", kind: "dec", kindName: "Declarative",
+      think: "“Here are facts and rules. You work out the answer.”",
+      ms: "Solves problems using a specific knowledge base. It takes a problem or question and produces a solution based on this knowledge base.",
+      use: "Expert systems and artificial intelligence.",
+      examples: "PROLOG, Mercury" },
+    markup: { name: "Mark-up", kind: "oth", kindName: "Other type",
+      think: "“This text is a heading; this is a button.”",
+      ms: "Annotates a document in a way that is syntactically distinguishable from the text, defining its structure and presentation.",
+      use: "Web pages and data representation.",
+      examples: "HTML, XML" },
+    visual: { name: "Visual", kind: "oth", kindName: "Other type",
+      think: "“Snap blocks together.”",
+      ms: "Programs are created by manipulating program elements graphically rather than by specifying them textually.",
+      use: "Education; designing and prototyping quickly.",
+      examples: "Scratch, LabVIEW, Blockly" }
+  };
+  var FAM_ORDER = ["proc", "event", "oop", "func", "logic", "markup", "visual"];
+
+  var FRAGS = [
+    { key: "proc1", fam: "proc", lang: "WJEC pseudo-code",
+      code: "Declare total\nset total = 0\nfor i = 1 to 5\n   set total = total + scores[i]\nnext i\nset average = total / 5",
+      hint: "Look at <code>for … next</code> and each <code>set</code>: every step is spelled out, in order." },
+    { key: "proc2", fam: "proc", lang: "C",
+      code: "int main(void) {\n    int count = 0;\n    while (count < 10) {\n        printf(\"%d\\n\", count);\n        count = count + 1;\n    }\n    return 0;\n}",
+      hint: "Look at the <code>while</code> loop updating <code>count</code>: the programmer controls each step." },
+    { key: "event1", fam: "event", lang: "Visual Basic",
+      code: "Private Sub btnBook_Click() _\n        Handles btnBook.Click\n    lblStatus.Text = \"Booked\"\nEnd Sub",
+      hint: "Look at <code>Handles btnBook.Click</code>: this code only runs when something happens to a button." },
+    { key: "event2", fam: "event", lang: "JavaScript",
+      code: "saveButton.addEventListener(\"click\",\n  function () {\n    showMessage(\"Saved\");\n  });",
+      hint: "Look at <code>addEventListener(\"click\" …</code>: the code waits for the user." },
+    { key: "oop1", fam: "oop", lang: "Java",
+      code: "class Account {\n   private double balance;\n\n   public void deposit(double amt) {\n      balance = balance + amt;\n   }\n}",
+      hint: "Look at <code>class</code> and <code>private</code>: data and the code that uses it are bundled together." },
+    { key: "oop2", fam: "oop", lang: "Java",
+      code: "class Dog extends Animal {\n   public void speak() {\n      System.out.println(\"Woof\");\n   }\n}\nDog rex = new Dog();\nrex.speak();",
+      hint: "Look at <code>extends</code> and <code>new</code>: one class builds on another, then an object is created." },
+    { key: "func1", fam: "func", lang: "Haskell",
+      code: "square x = x * x\nsumSquares xs = sum (map square xs)\n\n-- sumSquares [1,2,3] gives 14",
+      hint: "Look for loops or variables being updated. There are none: just function definitions." },
+    { key: "func2", fam: "func", lang: "Haskell",
+      code: "factorial 0 = 1\nfactorial n = n * factorial (n - 1)",
+      hint: "Two lines that each define what <code>factorial</code> equals, like maths, with no steps or loops." },
+    { key: "logic1", fam: "logic", lang: "PROLOG",
+      code: "parent(gwen, dafydd).\nparent(dafydd, cerys).\ngrandparent(X, Z) :-\n    parent(X, Y), parent(Y, Z).\n\n?- grandparent(gwen, Who).\nWho = cerys.",
+      hint: "Look at the facts, the rule after <code>:-</code>, and the question after <code>?-</code>. Nobody wrote a search." },
+    { key: "logic2", fam: "logic", lang: "PROLOG",
+      code: "has(gwen, fever).\nhas(gwen, rash).\nillness(P, measles) :-\n    has(P, fever), has(P, rash).\n\n?- illness(gwen, What).",
+      hint: "Facts, a rule, then a question: the language works out the answer from what it has been told." },
+    { key: "markup1", fam: "markup", lang: "HTML",
+      code: "<h1>Book a lesson</h1>\n<p>Choose a <b>date</b>:</p>\n<button>Book</button>",
+      hint: "Look at the tags: they label parts of a page. Nothing is calculated, repeated or decided." },
+    { key: "visual1", fam: "visual", lang: "Block-based (e.g. Scratch, Blockly)", visual: true,
+      hint: "Nothing is typed: the program is built by snapping graphical blocks together." }
+  ];
+
+  var GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  var state;
+  var logItems = [];
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function now() { var d = new Date(); return (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes(); }
+
+  function log(html, exam) {
+    logItems.unshift({ html: html, exam: !!exam, t: now() });
+    renderLog();
+  }
+  function renderLog() {
+    var ol = document.getElementById("log");
+    ol.innerHTML = logItems.length ? logItems.map(function (l) {
+      return '<li' + (l.exam ? ' class="exam"' : '') + '><span class="t">' + l.t + '</span>' + l.html + '</li>';
+    }).join("") : '<li>Nothing yet. Select a fragment to start.</li>';
+  }
+
+  function fragById(id) { for (var i = 0; i < state.frags.length; i++) if (state.frags[i].id === id) return state.frags[i]; return null; }
+
+  function init(keepLog) {
+    var order = shuffle(FRAGS.slice());
+    state = {
+      frags: order.map(function (f, i) { return Object.assign({ id: "F" + (i + 1) }, f); }),
+      place: {}, selected: null, hints: {}, revealed: false, rules: GROUPS.map(function () { return ""; })
+    };
+    state.frags.forEach(function (f) { state.place[f.id] = null; });
+    if (!keepLog) logItems = [];
+    render();
+  }
+
+  function cardHtml(f, inGroup) {
+    var fam = FAMILIES[f.fam];
+    var sel = state.selected === f.id;
+    var h = '<div class="card' + (sel ? ' selected' : '') + '" draggable="true" data-id="' + f.id + '">';
+    h += '<div class="card-top"><span class="card-id">' + f.id + '</span>';
+    if (state.revealed) h += '<span class="label ' + fam.kind + '">' + fam.name + '</span>';
+    h += '<button type="button" data-act="select" data-id="' + f.id + '" aria-pressed="' + sel + '">' + (sel ? "Selected" : (inGroup ? "Move" : "Select")) + '</button>';
+    if (!state.hints[f.id] && !state.revealed) h += '<button type="button" data-act="hint" data-id="' + f.id + '">Hint</button>';
+    h += '</div>';
+    if (f.visual) {
+      h += '<div class="blocks" role="img" aria-label="Graphical blocks: when flag clicked; repeat 10; move 10 steps; turn 15 degrees; end of repeat">' +
+        '<div class="blk b1">when flag clicked</div><div class="blk b2">repeat 10</div>' +
+        '<div class="blk b3">move 10 steps</div><div class="blk b3">turn 15 degrees</div><div class="blk b4">&nbsp;</div></div>';
+    } else {
+      h += '<pre>' + esc(f.code) + '</pre>';
+    }
+    if (state.hints[f.id] || state.revealed) {
+      if (state.hints[f.id] && !state.revealed) h += '<div class="hint">' + f.hint + '</div>';
+      if (state.revealed) h += '<div class="lang">Language: ' + esc(f.lang) + '</div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function groupVerdict(gi) {
+    var ids = state.frags.filter(function (f) { return state.place[f.id] === gi; });
+    if (!ids.length) return null;
+    var fams = {};
+    ids.forEach(function (f) { fams[f.fam] = (fams[f.fam] || 0) + 1; });
+    var keys = Object.keys(fams);
+    if (keys.length > 1) {
+      return { cls: "bad", text: "Mixed: " + keys.map(function (k) { return FAMILIES[k].name + " (" + fams[k] + ")"; }).join(" + ") + ". Split this group." };
+    }
+    var k = keys[0], total = FRAGS.filter(function (f) { return f.fam === k; }).length;
+    if (fams[k] === total) return { cls: "ok", text: "✓ One complete family: " + FAMILIES[k].name + ".", fam: k };
+    return { cls: "part", text: "One family, but incomplete: " + FAMILIES[k].name + " (" + fams[k] + " of " + total + "). Find the other one." };
+  }
+
+  function familyCorrect(k) {
+    var members = state.frags.filter(function (f) { return f.fam === k; });
+    var g = state.place[members[0].id];
+    if (g === null) return false;
+    if (!members.every(function (f) { return state.place[f.id] === g; })) return false;
+    return state.frags.every(function (f) { return state.place[f.id] !== g || f.fam === k; });
+  }
+  function score() { return FAM_ORDER.filter(familyCorrect).length; }
+
+  function render() {
+    // tray
+    var tray = document.getElementById("tray");
+    var unplaced = state.frags.filter(function (f) { return state.place[f.id] === null; });
+    tray.innerHTML = unplaced.length ? unplaced.map(function (f) { return cardHtml(f, false); }).join("") :
+      '<p class="tray-empty">All twelve fragments are in groups. Check your rules, then reveal the families.</p>';
+    document.getElementById("trayNote").textContent = unplaced.length ? unplaced.length + " not yet placed" : "All placed";
+
+    // groups
+    var gWrap = document.getElementById("groups");
+    gWrap.innerHTML = GROUPS.map(function (g, gi) {
+      var members = state.frags.filter(function (f) { return state.place[f.id] === gi; });
+      var h = '<section class="group' + (state.selected ? ' can-drop' : '') + '" data-group="' + gi + '" aria-label="Group ' + g + '">';
+      h += '<div class="group-head"><h3>Group ' + g + '</h3><span class="count">' + members.length + ' fragment' + (members.length === 1 ? '' : 's') + '</span>';
+      if (state.selected && state.place[state.selected] !== gi) h += '<button type="button" class="place-btn" data-act="place" data-group="' + gi + '">Place ' + state.selected + ' here</button>';
+      h += '</div>';
+      h += '<label class="sr" for="rule' + gi + '">Rule for group ' + g + '</label>';
+      h += '<textarea id="rule' + gi + '" data-rule="' + gi + '" placeholder="Rule: how is the programmer thinking?">' + esc(state.rules[gi]) + '</textarea>';
+      if (state.revealed) {
+        var v = groupVerdict(gi);
+        if (v) h += '<div class="verdict ' + v.cls + '">' + v.text + '</div>';
+      }
+      h += '<div class="group-cards">' + (members.length ? members.map(function (f) { return cardHtml(f, true); }).join("") :
+        '<p class="group-empty">Empty.</p>') + '</div>';
+      h += '</section>';
+      return h;
+    }).join("");
+
+    // stats
+    document.getElementById("placed").textContent = 12 - unplaced.length;
+    document.getElementById("hints").textContent = Object.keys(state.hints).length;
+    var sw = document.getElementById("scoreWrap");
+    sw.classList.toggle("hidden", !state.revealed);
+    document.getElementById("score").textContent = score();
+    document.getElementById("revealBtn").textContent = state.revealed ? "Hide the labels" : "Reveal the families";
+    document.getElementById("keySection").classList.toggle("hidden", !state.revealed);
+    if (state.revealed) renderKey();
+    renderLog();
+  }
+
+  function renderKey() {
+    document.getElementById("key").innerHTML = FAM_ORDER.map(function (k) {
+      var fam = FAMILIES[k];
+      var ok = familyCorrect(k);
+      var members = state.frags.filter(function (f) { return f.fam === k; }).map(function (f) { return f.id; });
+      var yours = "";
+      if (ok) {
+        var gi = state.place[members[0]];
+        var r = state.rules[gi].trim();
+        yours = '<p class="yours"><strong>Your rule (Group ' + GROUPS[gi] + '):</strong> ' + (r ? esc(r) : "not written yet") + '</p>';
+      } else {
+        yours = '<p class="yours"><strong>Not grouped correctly yet.</strong> Fragments: ' + members.join(", ") + '.</p>';
+      }
+      return '<article class="fam' + (ok ? ' ok' : '') + '"><div class="fam-head"><h3>' + (ok ? "✓ " : "") + fam.name + '</h3><span class="label ' + fam.kind + '">' + fam.kindName + '</span></div>' +
+        '<p class="think">' + fam.think + '</p>' +
+        '<p><strong>Mark-scheme wording:</strong> ' + fam.ms + '</p>' +
+        '<p><strong>Where it’s used:</strong> ' + fam.use + '</p>' +
+        '<p><strong>Examples:</strong> ' + fam.examples + '</p>' + yours + '</article>';
+    }).join("");
+  }
+
+  function select(id) {
+    state.selected = state.selected === id ? null : id;
+    if (state.selected) announce(id + " selected. Choose Place here on a group.");
+    render();
+  }
+  function place(id, gi) {
+    var from = state.place[id];
+    if (from === gi) { state.selected = null; render(); return; }
+    state.place[id] = gi;
+    state.selected = null;
+    var msg = gi === null ? "Returned " + id + " to the fragments." : "Placed " + id + " in Group " + GROUPS[gi] + ".";
+    if (gi !== null) {
+      var others = state.frags.filter(function (f) { return f.id !== id && state.place[f.id] === gi; }).map(function (f) { return f.id; });
+      if (others.length) msg += " It is now grouped with " + others.join(", ") + ".";
+    }
+    log(msg);
+    if (state.revealed && gi !== null) {
+      var v = groupVerdict(gi);
+      if (v && v.cls === "ok") {
+        log("<strong>" + FAMILIES[v.fam].name + " complete.</strong> " + FAMILIES[v.fam].ms, true);
+      }
+    }
+    announce(msg);
+    render();
+  }
+  function hint(id) {
+    state.hints[id] = true;
+    var f = fragById(id);
+    log("Hint used for " + id + ": " + f.hint);
+    render();
+  }
+  function reveal() {
+    state.revealed = !state.revealed;
+    state.selected = null;
+    if (state.revealed) {
+      var unplaced = state.frags.filter(function (f) { return state.place[f.id] === null; }).length;
+      var s = score();
+      log("<strong>Revealed.</strong> " + s + " of 7 families grouped correctly" + (unplaced ? ", with " + unplaced + " fragment" + (unplaced === 1 ? "" : "s") + " still unplaced" : "") +
+        ". Hints used: " + Object.keys(state.hints).length + ".");
+      FAM_ORDER.slice().reverse().forEach(function (k) {
+        if (familyCorrect(k)) log("<strong>" + FAMILIES[k].name + " ✓</strong> " + FAMILIES[k].ms, true);
+      });
+    } else {
+      log("Labels hidden. Keep sorting, then reveal again.");
+    }
+    render();
+    if (state.revealed) document.getElementById("keySection").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+  function announce(t) { document.getElementById("announce").textContent = t; }
+
+  // Events
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-act]");
+    if (b) {
+      var act = b.getAttribute("data-act");
+      if (act === "select") select(b.getAttribute("data-id"));
+      else if (act === "hint") hint(b.getAttribute("data-id"));
+      else if (act === "place") place(state.selected, Number(b.getAttribute("data-group")));
+      return;
+    }
+    if (state.selected && e.target.closest("#tray") && state.place[state.selected] !== null) {
+      place(state.selected, null);
+    }
+  });
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t.hasAttribute && t.hasAttribute("data-rule")) {
+      state.rules[Number(t.getAttribute("data-rule"))] = t.value;
+      if (state.revealed) renderKey();
+    }
+  });
+  // Drag and drop (mouse); tap/click route above works everywhere
+  var dragId = null;
+  document.addEventListener("dragstart", function (e) {
+    var c = e.target.closest && e.target.closest(".card");
+    if (!c) return;
+    dragId = c.getAttribute("data-id");
+    c.classList.add("dragging");
+    try { e.dataTransfer.setData("text/plain", dragId); e.dataTransfer.effectAllowed = "move"; } catch (err) {}
+  });
+  document.addEventListener("dragend", function () {
+    dragId = null;
+    document.querySelectorAll(".dragging, .drop-target").forEach(function (el) { el.classList.remove("dragging", "drop-target"); });
+  });
+  document.addEventListener("dragover", function (e) {
+    if (!dragId) return;
+    var zone = e.target.closest(".group, #tray");
+    if (!zone) return;
+    e.preventDefault();
+    document.querySelectorAll(".drop-target").forEach(function (el) { if (el !== zone) el.classList.remove("drop-target"); });
+    zone.classList.add("drop-target");
+  });
+  document.addEventListener("drop", function (e) {
+    if (!dragId) return;
+    var zone = e.target.closest(".group, #tray");
+    if (!zone) return;
+    e.preventDefault();
+    var id = dragId; dragId = null;
+    place(id, zone.id === "tray" ? null : Number(zone.getAttribute("data-group")));
+  });
+
+  document.getElementById("revealBtn").addEventListener("click", reveal);
+  document.getElementById("restartBtn").addEventListener("click", function () { init(false); log("Started again with the fragments in a new order."); });
+
+  var themeBtn = document.getElementById("themeBtn");
+  function isDark() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t === "dark";
+    return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function labelTheme() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  themeBtn.addEventListener("click", function () {
+    var next = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("u3t4-detective-theme", next); } catch (err) {}
+    labelTheme();
+  });
+  try {
+    var saved = localStorage.getItem("u3t4-detective-theme");
+    if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+  } catch (err) {}
+  labelTheme();
+
+  window.__detective = { getState: function () { return state; }, place: place, reveal: reveal, score: score, FRAGS: FRAGS };
+  init(false);
+})();
+</script>
+</body>
+</html>

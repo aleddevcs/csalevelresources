@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paradigm Picker</title>
+<style>
+:root {
+  --navy: #003366; --amber: #CC9900;
+  --bg: #F3F6FA; --surface: #FFFFFF; --surface-2: #E8EEF5; --text: #1A1A1A; --muted: #4A5A70;
+  --heading: #003366; --accent: #CC9900; --accent-text: #7A5C00; --line: #C9D3E0;
+  --right: #2E7D32; --right-bg: #E6F2E7; --wrong: #B23A3A; --wrong-bg: #F8E6E6;
+  --part-bg: #FAF1D6; --imp: #003366; --dec: #CC9900; --oth: #5A7FA6; --on-kind: #FFFFFF;
+  --sentence-bg: #FAF1D6;
+  color-scheme: light; box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+    --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+    --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24;
+    --part-bg: #3A3016; --imp: #3D6FA8; --dec: #B88A10; --oth: #5A7FA6; --on-kind: #FFFFFF;
+    --sentence-bg: #2E2814; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+  --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+  --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24;
+  --part-bg: #3A3016; --imp: #3D6FA8; --dec: #B88A10; --oth: #5A7FA6; --on-kind: #FFFFFF;
+  --sentence-bg: #2E2814; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 100px); }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 1.07rem; line-height: 1.5; }
+h1, h2, h3 { font-family: Cambria, Caladea, Georgia, "Times New Roman", serif; color: var(--heading); line-height: 1.25; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--navy); }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--navy); color: #FFFFFF; }
+.bar-inner { max-width: 1040px; margin: 0 auto; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.bar h1 { color: #FFFFFF; margin: 0; font-size: 1.45rem; flex: 1 1 12rem; }
+.bar h1 small { display: block; font-family: Calibri, Carlito, Arial, sans-serif; font-weight: 400; font-size: 0.85rem; color: #F2D88A; }
+.stat { font-size: 0.95rem; white-space: nowrap; }
+.stat b { font-size: 1.2rem; }
+.bar button { font: inherit; font-size: 0.92rem; padding: 0.42rem 0.8rem; border-radius: 6px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.55); }
+.bar button:hover { background: rgba(255,255,255,0.12); }
+.modes { max-width: 1040px; margin: 0 auto; padding: 0 1.25rem 0.6rem; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.modes button { font: inherit; font-size: 0.95rem; padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.45); }
+.modes button[aria-selected="true"] { background: var(--amber); border-color: var(--amber); color: #1A1A1A; font-weight: 700; }
+
+main { max-width: 1040px; margin: 0 auto; padding: 1.1rem 1.25rem 3rem; }
+.intro { color: var(--muted); margin: 0 0 1rem; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem 1.3rem 1.25rem; }
+.progress-line { display: flex; justify-content: space-between; gap: 1rem; color: var(--muted); font-size: 0.95rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+.dots { display: flex; gap: 5px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); }
+.dot.cur { background: var(--accent); border-color: var(--accent); }
+.dot.ok { background: var(--right); border-color: var(--right); }
+.dot.half { background: var(--accent); border-color: var(--right); }
+.dot.no { background: var(--wrong); border-color: var(--wrong); }
+.scenario { font-family: Cambria, Caladea, Georgia, serif; font-size: 1.35rem; color: var(--heading); margin: 0.3rem 0 1rem; line-height: 1.35; }
+.step-label { font-weight: 700; color: var(--accent-text); margin: 0.9rem 0 0.45rem; }
+.paradigms { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.pbtn { font: inherit; font-weight: 700; cursor: pointer; padding: 0.65rem 0.8rem; border-radius: 8px; text-align: left; background: var(--surface-2); color: var(--text); border: 2px solid transparent; display: flex; align-items: center; gap: 0.5rem; }
+.pbtn .sw { width: 0.8rem; height: 0.8rem; border-radius: 50%; flex: none; }
+.sw.imp { background: var(--imp); } .sw.dec { background: var(--dec); } .sw.oth { background: var(--oth); }
+.pbtn:hover:not(:disabled) { border-color: var(--accent); }
+.pbtn:disabled { cursor: default; }
+.pbtn.right { background: var(--right-bg); border-color: var(--right); }
+.pbtn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+.pbtn.faded { opacity: 0.5; }
+.jopts { display: grid; gap: 0.5rem; }
+.jbtn { font: inherit; text-align: left; cursor: pointer; padding: 0.65rem 0.85rem; border-radius: 8px; background: var(--surface-2); color: var(--text); border: 2px solid transparent; display: flex; gap: 0.6rem; }
+.jbtn .letter { font-weight: 700; color: var(--heading); flex: none; }
+.jbtn:hover:not(:disabled) { border-color: var(--accent); }
+.jbtn:disabled { cursor: default; }
+.jbtn.right { background: var(--right-bg); border-color: var(--right); }
+.jbtn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+.jbtn.faded { opacity: 0.5; }
+.fb { margin-top: 0.6rem; padding: 0.55rem 0.8rem; border-radius: 8px; border: 2px solid var(--line); }
+.fb.ok { border-color: var(--right); background: var(--right-bg); }
+.fb.no { border-color: var(--wrong); background: var(--wrong-bg); }
+.sentence { margin-top: 1rem; background: var(--sentence-bg); border-radius: 10px; padding: 0.8rem 1rem; border: 2px solid var(--accent); }
+.sentence h3 { margin: 0 0 0.3rem; font-size: 1.05rem; }
+.sentence p { margin: 0; }
+.actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 700; cursor: pointer; padding: 0.55rem 1.1rem; border-radius: 8px; border: 2px solid var(--accent); background: var(--accent); color: #1A1A1A; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+textarea { font: inherit; width: 100%; min-height: 6rem; resize: vertical; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); padding: 0.6rem 0.75rem; }
+.terms { margin: 0.6rem 0 0; }
+.term { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 999px; margin: 0.15rem 0.2rem 0 0; font-size: 0.9rem; border: 1px solid var(--line); }
+.term.hit { background: var(--right-bg); border-color: var(--right); }
+.checklist { list-style: none; padding: 0; margin: 0.6rem 0 0; }
+.checklist li { margin: 0.25rem 0; }
+.checklist label { display: flex; gap: 0.5rem; align-items: flex-start; cursor: pointer; }
+.checklist input { width: 1.1rem; height: 1.1rem; margin-top: 0.2rem; accent-color: var(--accent); }
+.summary h2 { margin: 0 0 0.4rem; }
+.summary ol { padding-left: 1.3rem; }
+.summary li { margin: 0.35rem 0; }
+
+h2.section { font-size: 1.25rem; margin: 1.5rem 0 0.6rem; }
+h2.section .note { font-family: Calibri, Carlito, Arial, sans-serif; font-size: 0.95rem; font-weight: 400; color: var(--muted); }
+.log { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0.4rem 0.9rem; max-height: 20rem; overflow-y: auto; }
+.log ol { margin: 0; padding: 0; list-style: none; }
+.log li { padding: 0.45rem 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+.log li:last-child { border-bottom: none; }
+.log li .t { color: var(--muted); font-size: 0.8rem; margin-right: 0.4rem; }
+.log li.exam { border-left: 4px solid var(--accent); padding-left: 0.6rem; }
+.hidden { display: none !important; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) { .bar h1 { font-size: 1.25rem; } .scenario { font-size: 1.2rem; } .paradigms { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-inner">
+    <h1>Paradigm Picker<small>Unit 3 Topic 4, Lesson 1: which paradigm, and why?</small></h1>
+    <span class="stat" id="scoreStat">Score <b id="score">0</b> / <span id="scoreMax">12</span></span>
+    <button type="button" id="restartBtn">Restart round</button>
+    <button type="button" id="themeBtn">Dark mode</button>
+  </div>
+  <div class="modes" role="tablist" aria-label="Rounds">
+    <button type="button" role="tab" data-mode="r1" aria-selected="true">Round 1: imperative</button>
+    <button type="button" role="tab" data-mode="r2" aria-selected="false">Round 2: all paradigms</button>
+    <button type="button" role="tab" data-mode="fw" aria-selected="false">Write the sentence</button>
+  </div>
+</header>
+
+<main>
+  <p class="intro" id="intro"></p>
+  <div class="panel" id="panel" aria-live="polite"></div>
+
+  <h2 class="section">Exam-sentence log <span class="note">Newest first. Amber entries are sentences worth learning for 2019 Q7(c)-style questions.</span></h2>
+  <div class="log"><ol id="log"></ol></div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var P = {
+    proc:   { name: "Procedural", as: "procedural programming", kind: "imp", lang: "Pascal",
+      feature: "The problem is solved in a linear fashion through a sequence of step-by-step instructions.",
+      notWhy: "Procedural suits problems that need a linear algorithm solution and command-line interface applications." },
+    event:  { name: "Event-driven", as: "event-driven programming", kind: "imp", lang: "Visual Basic",
+      feature: "Listeners attached to objects such as buttons run a subroutine when an event is triggered.",
+      notWhy: "Event-driven suits GUI applications with heavy user interaction, and rapid application development." },
+    oop:    { name: "Object-oriented", as: "object-oriented programming", kind: "imp", lang: "Java",
+      feature: "Inheritance lets new classes reuse code from existing classes, reducing duplication.",
+      notWhy: "Object-oriented suits large, complex systems, especially those built by a large team of developers." },
+    func:   { name: "Functional", as: "functional programming", kind: "dec", lang: "Haskell",
+      feature: "Function definitions are evaluated as mathematical expressions, with no side effects.",
+      notWhy: "Functional suits software requiring complex mathematical transformations, and research and testing." },
+    logic:  { name: "Logic", as: "logic programming", kind: "dec", lang: "PROLOG",
+      feature: "A knowledge base of facts and rules is used to answer a question.",
+      notWhy: "Logic suits expert systems and artificial intelligence, where answers come from a knowledge base." },
+    markup: { name: "Mark-up", as: "a mark-up language", kind: "oth", lang: "HTML",
+      feature: "Tags annotate a document so that its structure is distinguishable from the text.",
+      notWhy: "Mark-up suits structuring web pages and representing data. It has no selection or iteration of its own." },
+    visual: { name: "Visual", as: "a visual programming language", kind: "oth", lang: "Scratch",
+      feature: "Programs are built by manipulating graphical elements rather than typing text.",
+      notWhy: "Visual languages suit beginners and education, and designing and prototyping quickly." }
+  };
+  var ALL = ["proc", "event", "oop", "func", "logic", "markup", "visual"];
+  var IMP = ["proc", "event", "oop"];
+
+  var R1 = [
+    { text: "A command-line utility that renames every file in a folder, one after another, using a date stamp.", short: "A command-line utility that renames files", fam: "proc",
+      why: "the task can be solved in a linear fashion through a sequence of step-by-step instructions, and procedural programming suits command-line interface applications",
+      vague: "Procedural programming is the most popular paradigm.", others: ["event", "logic"] },
+    { text: "A cinema booking app with buttons, drop-down menus and a seat map that customers click on.", short: "A cinema booking app", fam: "event",
+      why: "it needs heavy user interaction through a graphical interface: listeners attached to the buttons and seat map run a subroutine when an event such as a click is triggered",
+      vague: "Event-driven programs look more modern.", others: ["proc", "func"] },
+    { text: "A national banking system built by 60 developers working at several sites.", short: "A national banking system built by 60 developers", fam: "oop",
+      why: "it is a large distributed application built by a large team: the program is divided into objects, classes and methods, so developers can work on one project without affecting each other’s code",
+      vague: "Banks have always used object-oriented software.", others: ["proc", "markup"] },
+    { text: "Firmware that runs a washing machine’s fixed cycle (fill, heat, wash, rinse, spin, in that order), controlling the motor and valves directly.", short: "Washing machine firmware", fam: "proc",
+      why: "it is a fixed sequence of step-by-step instructions, and procedural programming gives close control over the underlying operation of the hardware",
+      vague: "It is only a simple program.", others: ["oop", "logic"] },
+    { text: "A GUI order form that must be prototyped and shown to a client by Friday.", short: "A GUI order form needed quickly", fam: "event",
+      why: "event-driven programming supports rapid application development of a graphical user interface, with ready-made controls whose events trigger subroutines",
+      vague: "It would be quicker.", others: ["proc", "logic"] },
+    { text: "A game with many character types (players, enemies, shopkeepers) that share common features but each behave differently.", short: "A game with many related character types", fam: "oop",
+      why: "inheritance lets each character type reuse the code of a shared Character class, reducing code duplication, while each class can still define its own behaviour",
+      vague: "Games are usually object-oriented.", others: ["proc", "markup"] }
+  ];
+
+  var R2 = [
+    { text: "An expert system that suggests which disease a plant has from the symptoms a gardener enters.", short: "A plant-disease expert system", fam: "logic",
+      why: "logic programming solves problems using a specific knowledge base of facts and rules, taking a question (the symptoms) and producing a solution from that knowledge base",
+      vague: "Logic is needed to work out the answer.", others: ["proc", "markup"] },
+    { text: "Research software that applies complex mathematical transformations to experimental data.", short: "Research software applying mathematical transformations", fam: "func",
+      why: "it uses a series of function definitions evaluated as mathematical expressions, and with no side effects each function is easier to test and debug",
+      vague: "It involves a lot of maths.", others: ["event", "markup"] },
+    { text: "The structure of a college course web page: headings, paragraphs, images and links.", short: "A college course web page", fam: "markup",
+      why: "mark-up annotates the document with tags so its structure and presentation are syntactically distinguishable from the text, which is how web pages are structured",
+      vague: "It is going on the internet.", others: ["proc", "logic"] },
+    { text: "A first programming club for 9-year-olds who have never written code.", short: "A programming club for 9-year-olds", fam: "visual",
+      why: "visual languages are intuitive for beginners: programs are built by manipulating graphical blocks, so children can see the structure without learning syntax",
+      vague: "Children like colourful things.", others: ["func", "oop"] },
+    { text: "A touchscreen self-service checkout that responds to taps, barcode scans and card payments.", short: "A self-service checkout", fam: "event",
+      why: "it needs heavy user interaction: each tap, scan or card insertion is an event that triggers a subroutine through a listener",
+      vague: "Shops use event-driven software.", others: ["func", "logic"] },
+    { text: "A program run from the command line overnight that reads sensor files and calculates daily averages, step by step.", short: "An overnight command-line averaging program", fam: "proc",
+      why: "it is a linear algorithm solution run as a command-line interface application, solved through a sequence of step-by-step instructions",
+      vague: "It is an old-fashioned kind of program.", others: ["event", "visual"] },
+    { text: "A large online game platform built by several teams who share and extend common code.", short: "A large online game platform built by several teams", fam: "oop",
+      why: "it is a large application built by many developers: encapsulation and inheritance let teams reuse and extend shared classes without affecting each other’s code",
+      vague: "Large programs need OOP.", others: ["func", "markup"] },
+    { text: "Software that applies a long chain of mathematical transformations to financial models, where the same input must always give the same output.", short: "Financial modelling software", fam: "func",
+      why: "functional programming evaluates functions as mathematical expressions with no side effects, so the same input always gives the same output",
+      vague: "It needs to be accurate.", others: ["event", "visual"] }
+  ];
+
+  var FW = [
+    { text: "Weather-modelling software requiring complex mathematical transformations.", fam: "func",
+      model: "Weather-modelling software requiring complex mathematical transformations would suit functional programming, e.g. Haskell, because it uses a series of function definitions which are evaluated as mathematical expressions to solve a problem.",
+      terms: ["function", "mathematical", "expression", "side effect", "declarative", "Haskell"] },
+    { text: "A photo-album app where users drag, drop and click to organise their pictures.", fam: "event",
+      model: "A photo-album app would suit event-driven programming, e.g. Visual Basic, because it requires heavy user interaction through a graphical interface: listeners attached to objects run a subroutine when an event such as a drag or click is triggered.",
+      terms: ["event", "listener", "graphical", "GUI", "click", "interaction", "subroutine", "Visual Basic"] },
+    { text: "A medical expert system that suggests a diagnosis from a patient’s symptoms.", fam: "logic",
+      model: "A medical expert system would suit logic programming, e.g. PROLOG, because it solves problems using a specific knowledge base and produces a solution to a question (the symptoms) from that knowledge base.",
+      terms: ["knowledge base", "fact", "rule", "question", "query", "expert system", "PROLOG"] },
+    { text: "A hospital records system built by a team of 40 developers.", fam: "oop",
+      model: "A hospital records system built by a large team would suit object-oriented programming, e.g. Java, because the program is divided into objects, classes and methods, so multiple developers can work on one project without affecting each other’s code.",
+      terms: ["object", "class", "method", "inheritance", "encapsulation", "team", "developers", "Java", "C++"] }
+  ];
+
+  var INTROS = {
+    r1: "Round 1: procedural, event-driven or object-oriented? Pick the paradigm, then pick the justification that would earn the mark. First-try answers score: 2 marks per scenario.",
+    r2: "Round 2: all seven paradigms, mixed. Pick the paradigm, then the justification that would earn the mark. First-try answers score: 2 marks per scenario.",
+    fw: "Write the sentence: pick the paradigm, then write your own one-mark justification as you would in the exam. Compare it with the mark-scheme sentence and decide honestly whether yours earns the mark."
+  };
+
+  var LETTERS = ["A", "B", "C", "D"];
+  var mode = "r1";
+  var rounds = {};
+  var logItems = [];
+
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function now() { var d = new Date(); return (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes(); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function lowerFirst(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+
+  function log(html, exam) { logItems.unshift({ html: html, exam: !!exam, t: now() }); renderLog(); }
+  function renderLog() {
+    document.getElementById("log").innerHTML = logItems.length ? logItems.map(function (l) {
+      return '<li' + (l.exam ? ' class="exam"' : '') + '><span class="t">' + l.t + '</span>' + l.html + '</li>';
+    }).join("") : "<li>Nothing yet. Your exam sentences appear here as you answer.</li>";
+  }
+
+  function examSentence(s) {
+    var f = P[s.fam];
+    return s.short + " would suit " + f.as + ", e.g. " + f.lang + ", because " + s.why + ".";
+  }
+
+  function newRound(m) {
+    if (m === "fw") {
+      rounds.fw = { items: shuffle(FW), i: 0, results: FW.map(function () { return null; }), stage: "pick", wrongPicks: [], text: "", revealed: false, checks: {} };
+    } else {
+      var src = m === "r1" ? R1 : R2;
+      rounds[m] = { items: shuffle(src).map(function (s) {
+          var opts = shuffle([
+            { text: cap(s.why) + ".", kind: "right" },
+            { text: s.vague, kind: "vague" },
+            { text: P[s.others[0]].feature, kind: "other", fam: s.others[0] },
+            { text: P[s.others[1]].feature, kind: "other", fam: s.others[1] }
+          ]);
+          return Object.assign({}, s, { opts: opts });
+        }), i: 0, results: src.map(function () { return { p: null, j: null }; }), stage: "pick", wrongPicks: [], wrongJ: [], done: false };
+    }
+  }
+
+  function score(m) {
+    var r = rounds[m];
+    if (m === "fw") return r.results.filter(function (x) { return x === true; }).length;
+    return r.results.reduce(function (a, x) { return a + (x.p === true ? 1 : 0) + (x.j === true ? 1 : 0); }, 0);
+  }
+  function maxScore(m) { return m === "fw" ? FW.length : (m === "r1" ? R1.length : R2.length) * 2; }
+
+  function dots(r, m) {
+    return '<div class="dots" aria-hidden="true">' + r.items.map(function (_, k) {
+      var cls = "dot";
+      if (k === r.i && !r.done) cls += " cur";
+      var res = r.results[k];
+      if (m === "fw") { if (res === true) cls += " ok"; else if (res === false) cls += " no"; }
+      else if (res.j !== null) { var pts = (res.p ? 1 : 0) + (res.j ? 1 : 0); cls += pts === 2 ? " ok" : (pts === 1 ? " half" : " no"); }
+      return '<span class="' + cls + '"></span>';
+    }).join("") + '</div>';
+  }
+
+  function pickButtons(list, r, s) {
+    return '<div class="paradigms">' + list.map(function (k) {
+      var cls = "pbtn", dis = "";
+      if (r.stage !== "pick") { dis = " disabled"; cls += k === s.fam ? " right" : (r.wrongPicks.indexOf(k) >= 0 ? " wrong" : " faded"); }
+      else if (r.wrongPicks.indexOf(k) >= 0) { cls += " wrong"; dis = " disabled"; }
+      return '<button type="button" class="' + cls + '" data-pick="' + k + '"' + dis + '><span class="sw ' + P[k].kind + '"></span>' + P[k].name + '</button>';
+    }).join("") + '</div>';
+  }
+
+  function render() {
+    document.querySelectorAll(".modes button").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-mode") === mode)); });
+    document.getElementById("intro").textContent = INTROS[mode];
+    document.getElementById("score").textContent = score(mode);
+    document.getElementById("scoreMax").textContent = maxScore(mode);
+    var r = rounds[mode];
+    var panel = document.getElementById("panel");
+    if (r.done) { panel.innerHTML = summaryHtml(); return; }
+    var s = r.items[r.i];
+    var h = '<div class="progress-line"><span>Scenario ' + (r.i + 1) + ' of ' + r.items.length + '</span>' + dots(r, mode) + '</div>';
+    h += '<p class="scenario">' + esc(s.text) + '</p>';
+    h += '<p class="step-label">Step 1: which paradigm would be most suitable?</p>';
+    h += pickButtons(mode === "r1" ? IMP : ALL, r, s);
+    if (r.pickFeedback) h += '<div class="fb ' + r.pickFeedback.cls + '">' + r.pickFeedback.html + '</div>';
+
+    if (mode === "fw") {
+      if (r.stage !== "pick") {
+        h += '<p class="step-label">Step 2: write your one-mark justification</p>';
+        h += '<label class="hidden" for="fwText">Your sentence</label><textarea id="fwText" placeholder="… would suit ' + P[s.fam].as + ', e.g. …, because …"' + (r.revealed ? " readonly" : "") + '>' + esc(r.text) + '</textarea>';
+        if (!r.revealed) {
+          h += '<div class="actions"><button type="button" class="btn" id="compareBtn">Compare with the mark scheme</button></div>';
+        } else {
+          var low = r.text.toLowerCase();
+          h += '<div class="sentence"><h3>Mark-scheme style sentence</h3><p>' + esc(s.model) + '</p></div>';
+          h += '<p class="terms"><strong>Key terms spotted in yours:</strong> ' + s.terms.map(function (t) {
+            return '<span class="term' + (low.indexOf(t.toLowerCase()) >= 0 ? ' hit' : '') + '">' + esc(t) + '</span>';
+          }).join("") + '</p>';
+          h += '<ul class="checklist">' + [
+            ["named", "I named the paradigm"],
+            ["link", "I linked it to a feature of this problem"],
+            ["how", "I described how the paradigm works, in mark-scheme words"],
+            ["eg", "I gave an example language (“using examples”)"]
+          ].map(function (c) {
+            return '<li><label><input type="checkbox" data-check="' + c[0] + '"' + (r.checks[c[0]] ? " checked" : "") + '> ' + c[1] + '</label></li>';
+          }).join("") + '</ul>';
+          if (r.results[r.i] === null) {
+            h += '<div class="actions"><button type="button" class="btn" data-self="yes">My sentence earns the mark</button><button type="button" class="btn ghost" data-self="no">Not yet</button></div>';
+          } else {
+            h += '<div class="fb ' + (r.results[r.i] ? 'ok' : 'no') + '">' + (r.results[r.i] ? "Marked as earning the mark." : "Marked as not yet. Use the mark-scheme sentence to improve it.") + '</div>';
+            h += nextButton(r);
+          }
+        }
+      }
+      panel.innerHTML = h;
+      var ta = document.getElementById("fwText");
+      if (ta && !r.revealed) ta.addEventListener("input", function () { r.text = ta.value; });
+      return;
+    }
+
+    if (r.stage !== "pick") {
+      h += '<p class="step-label">Step 2: which justification would earn the mark?</p><div class="jopts">';
+      s.opts.forEach(function (o, k) {
+        var cls = "jbtn", dis = "";
+        if (r.stage === "done") { dis = " disabled"; cls += o.kind === "right" ? " right" : (r.wrongJ.indexOf(k) >= 0 ? " wrong" : " faded"); }
+        else if (r.wrongJ.indexOf(k) >= 0) { cls += " wrong"; dis = " disabled"; }
+        h += '<button type="button" class="' + cls + '" data-j="' + k + '"' + dis + '><span class="letter">' + LETTERS[k] + '</span><span>' + esc(o.text) + '</span></button>';
+      });
+      h += '</div>';
+      if (r.jFeedback) h += '<div class="fb ' + r.jFeedback.cls + '">' + r.jFeedback.html + '</div>';
+    }
+    if (r.stage === "done") {
+      h += '<div class="sentence"><h3>Your exam sentence</h3><p>' + esc(examSentence(s)) + '</p></div>';
+      h += nextButton(r);
+    }
+    panel.innerHTML = h;
+  }
+
+  function nextButton(r) {
+    var last = r.i === r.items.length - 1;
+    return '<div class="actions"><button type="button" class="btn" id="nextBtn">' + (last ? "See my results" : "Next scenario") + '</button></div>';
+  }
+
+  function summaryHtml() {
+    var r = rounds[mode];
+    var sc = score(mode), mx = maxScore(mode);
+    var h = '<div class="summary"><h2>' + (mode === "r1" ? "Round 1" : mode === "r2" ? "Round 2" : "Write the sentence") + ' complete: ' + sc + ' / ' + mx + '</h2>';
+    if (mode === "fw") {
+      h += '<p>You self-marked ' + sc + ' of ' + mx + ' sentences as earning the mark. The mark-scheme sentences:</p><ol>' +
+        r.items.map(function (s) { return '<li>' + esc(s.model) + '</li>'; }).join("") + '</ol>';
+    } else {
+      h += '<p>Learn these: each one is a full-mark answer to one part of a “which paradigm would be most suitable” question.</p><ol>' +
+        r.items.map(function (s) { return '<li>' + esc(examSentence(s)) + '</li>'; }).join("") + '</ol>';
+    }
+    var next = mode === "r1" ? "Round 2 is next when your teacher says so." : mode === "r2" ? "Now try “Write the sentence”." : "Use these sentences in the exam check.";
+    h += '<p>' + next + '</p><div class="actions"><button type="button" class="btn ghost" id="againBtn">Try this round again</button></div></div>';
+    return h;
+  }
+
+  function onPick(k) {
+    var r = rounds[mode], s = r.items[r.i];
+    if (r.stage !== "pick") return;
+    if (k === s.fam) {
+      if (mode === "fw") { if (r.results[r.i] === undefined) r.results[r.i] = null; }
+      else if (r.results[r.i].p === null) r.results[r.i].p = r.wrongPicks.length === 0;
+      r.stage = mode === "fw" ? "write" : "justify";
+      r.pickFeedback = { cls: "ok", html: "<strong>Correct: " + P[k].name + ".</strong> " + P[k].notWhy };
+      log("Scenario " + (r.i + 1) + ": chose " + P[k].name + (r.wrongPicks.length ? " after " + r.wrongPicks.length + " wrong attempt" + (r.wrongPicks.length > 1 ? "s" : "") : " first time") + ".");
+    } else {
+      r.wrongPicks.push(k);
+      if (mode !== "fw" && r.results[r.i].p === null) r.results[r.i].p = false;
+      r.pickFeedback = { cls: "no", html: "<strong>Not " + P[k].name + ".</strong> " + P[k].notWhy + " Read the scenario again: what does this problem need most?" };
+    }
+    render();
+  }
+
+  function onJustify(k) {
+    var r = rounds[mode], s = r.items[r.i], o = s.opts[k];
+    if (r.stage !== "justify") return;
+    if (o.kind === "right") {
+      if (r.results[r.i].j === null) r.results[r.i].j = r.wrongJ.length === 0;
+      r.stage = "done";
+      r.jFeedback = { cls: "ok", html: "<strong>That earns the mark.</strong> It links a feature of the problem to how " + P[s.fam].as + " works." };
+      log("<strong>" + P[s.fam].name + ".</strong> " + esc(examSentence(s)), true);
+    } else {
+      r.wrongJ.push(k);
+      if (r.results[r.i].j === null) r.results[r.i].j = false;
+      var why = o.kind === "vague"
+        ? "Too vague to earn a mark: it doesn’t say which feature of the problem matches the paradigm."
+        : "That describes " + P[o.fam].as + ", not " + P[s.fam].as + ".";
+      r.jFeedback = { cls: "no", html: "<strong>No mark.</strong> " + why };
+    }
+    render();
+  }
+
+  function next() {
+    var r = rounds[mode];
+    if (r.i === r.items.length - 1) {
+      r.done = true;
+      log("<strong>" + (mode === "r1" ? "Round 1" : mode === "r2" ? "Round 2" : "Write the sentence") + " finished:</strong> " + score(mode) + " / " + maxScore(mode) + ".");
+    } else {
+      r.i++;
+      r.stage = "pick"; r.wrongPicks = []; r.wrongJ = []; r.pickFeedback = null; r.jFeedback = null;
+      r.text = ""; r.revealed = false; r.checks = {};
+    }
+    render();
+    window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    var pb = t.closest("[data-pick]"); if (pb) { onPick(pb.getAttribute("data-pick")); return; }
+    var jb = t.closest("[data-j]"); if (jb) { onJustify(Number(jb.getAttribute("data-j"))); return; }
+    var mb = t.closest(".modes button"); if (mb) { mode = mb.getAttribute("data-mode"); render(); return; }
+    if (t.closest("#nextBtn")) { next(); return; }
+    if (t.closest("#againBtn") || t.closest("#restartBtn")) { newRound(mode); log("Restarted " + (mode === "r1" ? "Round 1" : mode === "r2" ? "Round 2" : "Write the sentence") + "."); render(); return; }
+    if (t.closest("#compareBtn")) {
+      var r = rounds.fw;
+      var ta = document.getElementById("fwText");
+      r.text = ta ? ta.value : r.text;
+      if (!r.text.trim()) { ta.focus(); ta.setAttribute("placeholder", "Write your sentence first, then compare."); return; }
+      r.revealed = true;
+      log("Compared your sentence for “" + esc(r.items[r.i].text) + "” with the mark scheme.");
+      log("<strong>" + P[r.items[r.i].fam].name + ".</strong> " + esc(r.items[r.i].model), true);
+      render(); return;
+    }
+    var sb = t.closest("[data-self]");
+    if (sb) { var rr = rounds.fw; rr.results[rr.i] = sb.getAttribute("data-self") === "yes"; render(); return; }
+  });
+  document.addEventListener("change", function (e) {
+    var c = e.target;
+    if (c.hasAttribute && c.hasAttribute("data-check")) rounds.fw.checks[c.getAttribute("data-check")] = c.checked;
+  });
+
+  var themeBtn = document.getElementById("themeBtn");
+  function isDark() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t === "dark"; return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; }
+  function labelTheme() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  themeBtn.addEventListener("click", function () {
+    var nx = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", nx);
+    try { localStorage.setItem("u3t4-picker-theme", nx); } catch (err) {}
+    labelTheme();
+  });
+  try { var sv = localStorage.getItem("u3t4-picker-theme"); if (sv === "light" || sv === "dark") document.documentElement.setAttribute("data-theme", sv); } catch (err) {}
+  labelTheme();
+
+  // Open a round from the link, e.g. …#round2 or #write
+  var hashMap = { "#round1": "r1", "#round2": "r2", "#write": "fw" };
+  function fromHash() { if (hashMap[location.hash]) { mode = hashMap[location.hash]; render(); } }
+  window.addEventListener("hashchange", fromHash);
+
+  newRound("r1"); newRound("r2"); newRound("fw");
+  if (hashMap[location.hash]) mode = hashMap[location.hash];
+  renderLog();
+  render();
+  window.__picker = { rounds: rounds, P: P, getMode: function () { return mode; }, score: score };
+})();
+</script>
+</body>
+</html>
