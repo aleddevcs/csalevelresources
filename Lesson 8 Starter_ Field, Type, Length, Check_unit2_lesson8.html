@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 8 Starter: Field, Type, Length, Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&display=swap">
+<style>
+:root {
+  --navy: #1F2A44; --teal: #0F7C80; --orange: #E8772E;
+  --bg: #F3F5F8; --surface: #FFFFFF; --ink: #1A2233; --muted: #5A6372;
+  --line: #D5DBE3; --head-bg: #1F2A44; --head-ink: #FFFFFF;
+  --ok-bg: #DDF1EF; --ok-ink: #0B5F62; --bad-bg: #FCE6D6; --bad-ink: #9A4512;
+  --input-bg: #FFFFFF; --note-bg: #EEF4F8; --btn-border: #1F2A44; --btn-primary: #0F7C80;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD;
+    --line: #33405A; --head-bg: #2A3858; --head-ink: #FFFFFF;
+    --ok-bg: #12403F; --ok-ink: #9FE3DD; --bad-bg: #4A2A16; --bad-ink: #FFC39A;
+    --input-bg: #121826; --note-bg: #202A40; --btn-border: #5A6B8C; --btn-primary: #0F7C80; --teal: #3BB3B0; --orange: #F29350;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD;
+  --line: #33405A; --head-bg: #2A3858; --head-ink: #FFFFFF;
+  --ok-bg: #12403F; --ok-ink: #9FE3DD; --bad-bg: #4A2A16; --bad-ink: #FFC39A;
+  --input-bg: #121826; --note-bg: #202A40; --btn-border: #5A6B8C; --btn-primary: #0F7C80; --teal: #3BB3B0; --orange: #F29350;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, Arial, sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 48px; }
+h1 { font-family: "Space Grotesk", Arial, sans-serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0 0 8px; color: var(--ink); }
+.lede { color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
+.bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 0 0 18px; }
+button { font: 600 15px Inter, Arial, sans-serif; border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 2px solid var(--btn-border); background: var(--surface); color: var(--ink); }
+button.primary { background: var(--btn-primary); border-color: var(--btn-primary); color: #FFFFFF; }
+button.reveal { background: var(--orange); border-color: var(--orange); color: #1A1A1A; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.timer { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.clock { font: 700 28px "Space Grotesk", Arial, sans-serif; font-variant-numeric: tabular-nums; min-width: 4.2ch; text-align: right; }
+.clock.done { color: var(--orange); }
+.score { font-weight: 700; padding: 8px 14px; border-radius: 8px; background: var(--note-bg); }
+.score:empty { display: none; }
+.wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; min-width: 720px; }
+th { background: var(--head-bg); color: var(--head-ink); text-align: left; font-size: 14px; padding: 12px; }
+td { border-top: 1px solid var(--line); padding: 10px 12px; vertical-align: middle; }
+.field b { display: block; font-size: 16px; }
+.field span { color: var(--muted); font-size: 14px; }
+select, input[type=number] { font: 15px Inter, Arial, sans-serif; width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--input-bg); color: var(--ink); }
+input[type=number] { max-width: 100px; }
+.ok { background: var(--ok-bg) !important; color: var(--ok-ink); border-color: var(--teal) !important; }
+.bad { background: var(--bad-bg) !important; color: var(--bad-ink); border-color: var(--orange) !important; }
+tr.explain td { background: var(--note-bg); font-size: 14px; border-top: none; padding-top: 4px; }
+tr.explain[hidden] { display: none; }
+.explain .model { font-weight: 700; }
+.trap[hidden] { display: none; }
+.trap { display: inline-block; font-size: 12px; font-weight: 700; color: #1A1A1A; background: var(--orange); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 2px; }
+.foot { color: var(--muted); font-size: 14px; margin-top: 16px; }
+@media (max-width: 720px) {
+  table, thead, tbody, tr, td { display: block; min-width: 0; }
+  thead { display: none; }
+  .wrap { border: none; background: transparent; overflow: visible; }
+  tr.row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; padding: 6px 0; }
+  tr.explain { background: var(--note-bg); border-radius: 0 0 10px 10px; margin-top: -8px; }
+  td { border-top: none; padding: 6px 14px; }
+  td[data-label]::before { content: attr(data-label); display: block; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .timer { margin-left: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ok, .bad { transition: background-color .2s; }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Field, Type, Length, Check</h1>
+  <p class="lede">For each field, pick the data type, type a sensible length, and pick the validation check that suits it best. Then check your answers. You’ll need all of this later for the data structure table.</p>
+
+  <div class="bar">
+    <button class="primary" id="checkBtn" type="button">Check my answers</button>
+    <button class="reveal" id="revealBtn" type="button">Reveal all</button>
+    <button id="resetBtn" type="button">Start again</button>
+    <span class="score" id="score" aria-live="polite"></span>
+    <div class="timer">
+      <span class="clock" id="clock" aria-live="off">8:00</span>
+      <button id="timerBtn" type="button">Start timer</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <table>
+      <thead><tr><th style="width:28%">Field</th><th style="width:24%">Data type</th><th style="width:16%">Length</th><th style="width:32%">Validation check</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <p class="foot">Lengths: any value in a sensible range counts. These are reasonable choices, not the only correct ones; in the exam any realistic length and any suitable, named check is credited.</p>
+</main>
+
+<script>
+const TYPES = ["String", "Integer", "Real", "Date", "Boolean"];
+const CHECKS = ["Presence", "Length", "Range", "Format", "Lookup", "Type"];
+const FIELDS = [
+  { name: "Postcode", eg: "e.g. CF10 5AL", type: ["String"], len: [7, 8], check: ["Format"],
+    model: "String · 8 · Format check (LL00 0LL)",
+    why: "It mixes letters, digits and a space, so it’s text. A format check catches a postcode typed in the wrong pattern." },
+  { name: "Mobile number", eg: "e.g. 07712 345678", type: ["String"], len: [11, 11], check: ["Length", "Format"], trap: true,
+    model: "String · 11 · Length check (exactly 11 digits)",
+    why: "It starts with 0, and an Integer would drop it. You never do maths with a phone number, so it’s text. Format is also accepted." },
+  { name: "Date of birth", eg: "e.g. 14/03/2009", type: ["Date"], len: [8, 10], check: ["Range"],
+    model: "Date · 10 (DD/MM/YYYY) · Range check (e.g. aged 16 or over)",
+    why: "A range check stops impossible or unsuitable dates, such as one in the future." },
+  { name: "Price", eg: "e.g. £3.50", type: ["Real"], len: [4, 8], check: ["Range"], trap: true,
+    model: "Real (or Currency) · e.g. 6 · Range check (e.g. £0.50–£20.00)",
+    why: "It needs decimals, so Real, not Integer. A range check stops £0.00 or £350 by mistake. Some answers give single/double instead of a length; mark schemes have accepted that." },
+  { name: "Quantity", eg: "e.g. 2", type: ["Integer"], len: [1, 3], check: ["Range"],
+    model: "Integer · 2 · Range check (1–20)",
+    why: "A whole number you might calculate with. A range check stops 0 or 200 being ordered." },
+  { name: "Title", eg: "e.g. Mr, Mrs, Ms, Dr", type: ["String"], len: [3, 5], check: ["Lookup"],
+    model: "String · 4 · Lookup check (Mr, Mrs, Miss, Ms, Mx, Dr)",
+    why: "There’s a fixed list of allowed values, which is exactly what a lookup check tests." },
+  { name: "Vegetarian?", eg: "yes or no", type: ["Boolean"], len: [1, 1], check: ["Lookup", "Presence", "Type"],
+    model: "Boolean · 1 · Lookup (Y/N) or Presence",
+    why: "Only two possible values, so Boolean. The type itself limits the values, so a lookup or presence check is enough." },
+  { name: "Email address", eg: "e.g. sam@example.com", type: ["String"], len: [30, 100], check: ["Format"],
+    model: "String · 50 · Format check (contains @ and a full stop after it)",
+    why: "A format check catches an address with no @ or no domain." }
+];
+
+const tbody = document.getElementById("rows");
+function opts(list) {
+  return '<option value="">Choose…</option>' + list.map(v => `<option value="${v}">${v}</option>`).join("");
+}
+FIELDS.forEach((f, i) => {
+  const tr = document.createElement("tr");
+  tr.className = "row";
+  tr.innerHTML =
+    `<td class="field"><b>${f.name}${f.trap ? '<span class="trap" hidden>watch out</span>' : ""}</b><span>${f.eg}</span></td>` +
+    `<td data-label="Data type"><select id="t${i}" aria-label="Data type for ${f.name}">${opts(TYPES)}</select></td>` +
+    `<td data-label="Length"><input id="l${i}" type="number" min="1" max="999" inputmode="numeric" aria-label="Length for ${f.name}"></td>` +
+    `<td data-label="Validation check"><select id="c${i}" aria-label="Validation check for ${f.name}">${opts(CHECKS)}</select></td>`;
+  const ex = document.createElement("tr");
+  ex.className = "explain"; ex.id = "e" + i; ex.hidden = true;
+  ex.innerHTML = `<td colspan="4"><span class="model">${f.model}.</span> ${f.why}</td>`;
+  tbody.append(tr, ex);
+});
+
+function mark(el, good) { el.classList.remove("ok", "bad"); if (good !== null) el.classList.add(good ? "ok" : "bad"); }
+function check() {
+  let score = 0;
+  FIELDS.forEach((f, i) => {
+    const t = document.getElementById("t" + i), l = document.getElementById("l" + i), c = document.getElementById("c" + i);
+    const tOk = f.type.includes(t.value);
+    const n = Number(l.value);
+    const lOk = l.value !== "" && n >= f.len[0] && n <= f.len[1];
+    const cOk = f.check.includes(c.value);
+    mark(t, tOk); mark(l, lOk); mark(c, cOk);
+    score += tOk + lOk + cOk;
+  });
+  document.getElementById("score").textContent = `${score} / ${FIELDS.length * 3}`;
+  return score;
+}
+function reveal() {
+  check();
+  FIELDS.forEach((f, i) => { document.getElementById("e" + i).hidden = false; });
+  document.querySelectorAll(".trap").forEach(t => { t.hidden = false; });
+}
+function reset() {
+  FIELDS.forEach((f, i) => {
+    ["t", "l", "c"].forEach(p => { const el = document.getElementById(p + i); el.value = ""; mark(el, null); });
+    document.getElementById("e" + i).hidden = true;
+  });
+  document.querySelectorAll(".trap").forEach(t => { t.hidden = true; });
+  document.getElementById("score").textContent = "";
+}
+document.getElementById("checkBtn").addEventListener("click", check);
+document.getElementById("revealBtn").addEventListener("click", reveal);
+document.getElementById("resetBtn").addEventListener("click", reset);
+
+// 8-minute timer
+let remaining = 480, ticking = null;
+const clock = document.getElementById("clock"), timerBtn = document.getElementById("timerBtn");
+function show() { clock.textContent = Math.floor(remaining / 60) + ":" + String(remaining % 60).padStart(2, "0"); clock.classList.toggle("done", remaining === 0); }
+timerBtn.addEventListener("click", () => {
+  if (ticking) { clearInterval(ticking); ticking = null; timerBtn.textContent = "Resume timer"; return; }
+  if (remaining === 0) { remaining = 480; show(); }
+  timerBtn.textContent = "Pause timer";
+  ticking = setInterval(() => {
+    remaining = Math.max(0, remaining - 1); show();
+    if (remaining === 0) { clearInterval(ticking); ticking = null; timerBtn.textContent = "Restart timer"; }
+  }, 1000);
+});
+show();
+</script>
+</body>
+</html>

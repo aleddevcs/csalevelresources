@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 8: ERD Peer Check</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&display=swap">
+<style>
+:root {
+  --navy: #1F2A44; --teal: #0F7C80; --orange: #E8772E;
+  --bg: #F3F5F8; --surface: #FFFFFF; --ink: #1A2233; --muted: #5A6372; --line: #D5DBE3;
+  --done-bg: #DDF1EF; --done-ink: #0B5F62; --fix-bg: #FCE6D6; --fix-ink: #8A3D10;
+  --note-bg: #EEF4F8; --btn-border: #1F2A44; --btn-primary: #0F7C80; --meter: #E1E6ED;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD; --line: #33405A;
+    --done-bg: #12403F; --done-ink: #9FE3DD; --fix-bg: #4A2A16; --fix-ink: #FFC39A;
+    --note-bg: #202A40; --btn-border: #5A6B8C; --teal: #3BB3B0; --orange: #F29350; --meter: #2B3650;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD; --line: #33405A;
+  --done-bg: #12403F; --done-ink: #9FE3DD; --fix-bg: #4A2A16; --fix-ink: #FFC39A;
+  --note-bg: #202A40; --btn-border: #5A6B8C; --teal: #3BB3B0; --orange: #F29350; --meter: #2B3650;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, Arial, sans-serif; }
+main { max-width: 860px; margin: 0 auto; padding: 28px 20px 48px; }
+h1 { font-family: "Space Grotesk", Arial, sans-serif; font-size: clamp(28px, 4vw, 38px); line-height: 1.1; margin: 0 0 8px; }
+h2 { font-family: "Space Grotesk", Arial, sans-serif; font-size: 22px; margin: 28px 0 4px; }
+.lede, .sub { color: var(--muted); margin: 0 0 16px; max-width: 68ch; }
+.sub { margin-bottom: 12px; font-size: 15px; }
+.scoreboard { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 0 0 8px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.tally { display: flex; align-items: baseline; gap: 8px; }
+.tally strong { font: 700 34px "Space Grotesk", Arial, sans-serif; font-variant-numeric: tabular-nums; }
+.tally span { color: var(--muted); font-size: 14px; }
+.meter { flex: 1; min-width: 160px; height: 10px; background: var(--meter); border-radius: 999px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--teal); }
+ol.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.check { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--line); border-radius: 10px; }
+.check label { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; cursor: pointer; }
+.check input { width: 24px; height: 24px; margin: 2px 0 0; accent-color: var(--teal); flex: none; }
+.check .text b { display: block; }
+.check .text small { color: var(--muted); font-size: 14px; }
+.check.ticked { background: var(--done-bg); border-left-color: var(--teal); }
+.check.ticked .text b { color: var(--done-ink); }
+.check.blocked { opacity: .55; }
+.fix { display: none; margin: 0 16px 14px 54px; padding: 10px 12px; border-radius: 8px; background: var(--fix-bg); color: var(--fix-ink); font-size: 14px; }
+.show-fixes .check:not(.ticked) { border-left-color: var(--orange); }
+.show-fixes .check:not(.ticked) .fix { display: block; }
+.bar { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 0; }
+button { font: 600 15px Inter, Arial, sans-serif; border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 2px solid var(--btn-border); background: var(--surface); color: var(--ink); }
+button.primary { background: var(--btn-primary); border-color: var(--btn-primary); color: #FFFFFF; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.verdict { margin-top: 18px; padding: 14px 16px; border-radius: 10px; background: var(--note-bg); }
+.verdict:empty { display: none; }
+.foot { color: var(--muted); font-size: 13px; margin-top: 22px; }
+@media (prefers-reduced-motion: no-preference) { .meter i { transition: width .25s; } .check { transition: background-color .15s; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>ERD peer check</h1>
+  <p class="lede">Swap screens with your partner. Tick each point their ERD earns. Then press <b>Show what to fix</b> and hand the screen back.</p>
+
+  <div class="scoreboard" aria-live="polite">
+    <div class="tally"><strong id="marks">0 / 6</strong><span>exam-style marks</span></div>
+    <div class="meter" aria-hidden="true"><i id="bar"></i></div>
+    <div class="tally"><strong id="habits">0 / 2</strong><span>good habits</span></div>
+  </div>
+
+  <h2>The marks</h2>
+  <p class="sub">Six marks, in the style of the 2026 paper’s ERD question.</p>
+  <ol class="checks" id="markList"></ol>
+
+  <h2>Good habits</h2>
+  <p class="sub">Not marked in 2026, but they earned marks in 2025 and take seconds.</p>
+  <ol class="checks" id="habitList"></ol>
+
+  <div class="bar">
+    <button class="primary" id="fixBtn" type="button">Show what to fix</button>
+    <button id="resetBtn" type="button">Start again</button>
+  </div>
+  <div class="verdict" id="verdict" aria-live="polite"></div>
+
+  <p class="foot">Mark points are paraphrased in the style of the WJEC mark schemes; the official schemes are the authority. A four-table answer (Customer, Order, OrderItem, MenuItem) is fine: treat Order and OrderItem together as the linking tables.</p>
+</main>
+
+<script>
+const MARKS = [
+  { id: "cust", text: "There’s a customer table with a sensible name", hint: "e.g. Customer", fix: "Add a box for the customers and give it a name that fits, like Customer." },
+  { id: "menu", text: "There’s a menu item table with a sensible name", hint: "e.g. MenuItem, Item", fix: "Add a box for the things on the menu, named something like MenuItem." },
+  { id: "link", text: "There’s a linking table between them, named after the event", hint: "e.g. OrderItem, Order — not Table3, Link or a direct line between Customer and MenuItem", fix: "Customer and MenuItem are many-to-many (ask the two-way question). Put a linking table between them, named after what happens: an order." },
+  { id: "rel1", needs: "link", text: "Customer to the linking table is 1:M, with the many end at the linking table", hint: "crow’s foot, or 1 and M labels", fix: "Mark the many end on this link: a crow’s foot at the linking table, or 1 at Customer and M at the linking table." },
+  { id: "rel2", needs: "link", text: "Menu item to the linking table is 1:M, with the many end at the linking table", hint: "crow’s foot, or 1 and M labels", fix: "Mark the many end on this link too. The many end is always at the linking table." },
+  { id: "erd", text: "It’s drawn as an ERD, with the relationships clearly shown", hint: "boxes joined by lines, not a list or a table", fix: "Draw it as boxes joined by lines, so each relationship can be seen." }
+];
+const HABITS = [
+  { id: "pk", text: "Every table shows its primary key", hint: "underlined, (PK) or *", fix: "Add the primary key to each box: CustomerID, ItemCode, and the linking table’s own ID." },
+  { id: "fk", text: "The linking table holds both foreign keys", hint: "CustomerID and ItemCode", fix: "List both foreign keys in the linking table: CustomerID and ItemCode (with the four-table version, the FKs that match your ERD)." }
+];
+const ticks = {};
+
+function build(list, el) {
+  list.forEach(item => {
+    const li = document.createElement("li");
+    li.className = "check"; li.id = "row-" + item.id;
+    li.innerHTML = `<label><input type="checkbox" id="cb-${item.id}"><span class="text"><b>${item.text}</b><small>${item.hint}</small></span></label><div class="fix">${item.fix}</div>`;
+    el.append(li);
+    li.querySelector("input").addEventListener("change", e => { ticks[item.id] = e.target.checked; update(); });
+  });
+}
+build(MARKS, document.getElementById("markList"));
+build(HABITS, document.getElementById("habitList"));
+
+function update() {
+  // A link can only earn its mark if there is a linking table.
+  MARKS.filter(m => m.needs).forEach(m => {
+    const blocked = !ticks[m.needs];
+    const row = document.getElementById("row-" + m.id), cb = document.getElementById("cb-" + m.id);
+    row.classList.toggle("blocked", blocked);
+    cb.disabled = blocked;
+    if (blocked && cb.checked) { cb.checked = false; ticks[m.id] = false; }
+  });
+  [...MARKS, ...HABITS].forEach(m => document.getElementById("row-" + m.id).classList.toggle("ticked", !!ticks[m.id]));
+  const marks = MARKS.filter(m => ticks[m.id]).length;
+  const habits = HABITS.filter(h => ticks[h.id]).length;
+  document.getElementById("marks").textContent = `${marks} / 6`;
+  document.getElementById("habits").textContent = `${habits} / 2`;
+  document.getElementById("bar").style.width = (marks / 6 * 100) + "%";
+  if (document.querySelector("main").classList.contains("show-fixes")) verdict();
+  return { marks, habits };
+}
+function verdict() {
+  const { marks, habits } = { marks: MARKS.filter(m => ticks[m.id]).length, habits: HABITS.filter(h => ticks[h.id]).length };
+  const toFix = 8 - marks - habits;
+  let msg;
+  if (toFix === 0) msg = "Full marks and both habits. Nothing to fix — try the extension on the practice sheet.";
+  else if (marks === 6) msg = habits === 1 ? "All 6 marks. Fix the one habit shown in orange so it’s automatic in the exam." : "All 6 marks. Fix the two habits shown in orange so they’re automatic in the exam.";
+  else msg = `${marks} of 6 marks. Fix the ${toFix} point${toFix === 1 ? "" : "s"} shown in orange before you move on.`;
+  document.getElementById("verdict").textContent = msg;
+}
+document.getElementById("fixBtn").addEventListener("click", () => {
+  document.querySelector("main").classList.add("show-fixes"); verdict();
+  const first = document.querySelector(".show-fixes .check:not(.ticked)");
+  if (first) first.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  Object.keys(ticks).forEach(k => ticks[k] = false);
+  document.querySelectorAll(".check input").forEach(cb => cb.checked = false);
+  document.querySelector("main").classList.remove("show-fixes");
+  document.getElementById("verdict").textContent = "";
+  update();
+});
+update();
+</script>
+</body>
+</html>
