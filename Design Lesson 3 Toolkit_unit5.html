@@ -1,0 +1,587 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Design Lesson 3 Toolkit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+
+
+  :root {
+    --ink: #16232a; --ink-soft: #3c4c53; --muted: #5f7076; --faint: #8fa0a4;
+    --surface: #f4f8f8; --raised: #ffffff; --sunken: #ebf1f0; --border: #d6e1df;
+    --accent: #0b7a85; --accent-soft: #d9eff0; --accent-ink: #ffffff;
+    --good: #1f7d56; --good-soft: #d9f0e5;
+    --warn: #a3491b; --warn-soft: #f8e3d6;
+    --amb: #8a5a00; --amb-soft: #f7ecc8; --bad: #b3392f; --bad-soft: #f8dcd8;
+    --focus: #2b6f8f;
+    --t-html: #a8480f; --t-html-soft: #f7e3d4;
+    --t-css: #1f6a8c; --t-css-soft: #dcebf2;
+    --t-js: #7d6200; --t-js-soft: #f5ecc9;
+    --t-php: #5c4b8a; --t-php-soft: #e8e3f5;
+    --t-sql: #9c3b54; --t-sql-soft: #f6dfe5;
+    --t-tool: #3c4c53; --t-tool-soft: #e3eaea;
+    --p-browser: #0b7a85; --p-server: #1f7d56; --p-db: #44558a;
+    --shadow: 0 1px 2px rgba(22,35,42,.06), 0 6px 20px rgba(22,35,42,.06);
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --codebg: #0f2a2e; --codeink: #d6efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+      --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+      --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+      --good: #4fbb8c; --good-soft: #153626;
+      --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+      --focus: #6cb6d8;
+      --t-html: #ec9d70; --t-html-soft: #3a2517;
+      --t-css: #6cb6d8; --t-css-soft: #16262c;
+      --t-js: #e3c04d; --t-js-soft: #342c10;
+      --t-php: #b3a3e8; --t-php-soft: #2b2440;
+      --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+      --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+      --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --codebg: #0a1517; --codeink: #cfeae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7edec; --ink-soft: #c3cecc; --muted: #9aaaa8; --faint: #6b7d7f;
+    --surface: #0f1819; --raised: #162123; --sunken: #0b1213; --border: #263335;
+    --accent: #5cc9d1; --accent-soft: #123235; --accent-ink: #0b1213;
+    --good: #4fbb8c; --good-soft: #153626;
+    --warn: #e5975f; --warn-soft: #3a2413;
+      --amb: #e3b24d; --amb-soft: #3a2e12; --bad: #ef8f85; --bad-soft: #3d1c19;
+    --focus: #6cb6d8;
+    --t-html: #ec9d70; --t-html-soft: #3a2517;
+    --t-css: #6cb6d8; --t-css-soft: #16262c;
+    --t-js: #e3c04d; --t-js-soft: #342c10;
+    --t-php: #b3a3e8; --t-php-soft: #2b2440;
+    --t-sql: #e58aa3; --t-sql-soft: #3a1f26;
+    --t-tool: #b9c7c6; --t-tool-soft: #202c2e;
+    --p-browser: #5cc9d1; --p-server: #4fbb8c; --p-db: #93a5e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --codebg: #0a1517; --codeink: #cfeae4;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--surface); color: var(--ink); font-family: var(--sans); margin: 0; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--raised); }
+  .topbar b { font-size: 17px; }
+  .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 70px; }
+  h1 { font-size: 27px; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 70ch; margin: 0 0 22px; }
+  .panel { background: var(--raised); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink);
+    font: 500 13.5px var(--sans); cursor: pointer; }
+  .btn:hover { background: var(--sunken); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
+  .t-html { background: var(--t-html-soft); color: var(--t-html); }
+  .t-css { background: var(--t-css-soft); color: var(--t-css); }
+  .t-js { background: var(--t-js-soft); color: var(--t-js); }
+  .t-php { background: var(--t-php-soft); color: var(--t-php); }
+  .t-sql { background: var(--t-sql-soft); color: var(--t-sql); }
+  .t-tool { background: var(--t-tool-soft); color: var(--t-tool); }
+  .p-browser { background: var(--accent-soft); color: var(--p-browser); }
+  .p-server { background: var(--good-soft); color: var(--p-server); }
+  .p-db { background: var(--sunken); color: var(--p-db); }
+  .fb { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-top: 12px; }
+  .fb.good { background: var(--good-soft); color: var(--ink); border: 1px solid var(--good); }
+  .fb.warn { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn); }
+  .fb.info { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+  .fb b { font-weight: 600; }
+  .code { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 13px/1.7 var(--mono);
+    overflow-x: auto; white-space: pre; margin: 0; }
+  .progress { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--raised); color: var(--ink-soft);
+    font: 500 13px var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 560px) { .wrap { padding: 20px 16px 60px; } .topbar { padding: 12px 16px; } h1 { font-size: 23px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  .txt { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 14px var(--sans); }
+  textarea.txt { resize: vertical; min-height: 64px; line-height: 1.45; }
+  .hint { font-size: 13px; color: var(--muted); margin: 4px 0; }
+  .lab { display: block; font: 600 12px var(--mono); color: var(--muted); letter-spacing: .04em; margin: 12px 0 5px; text-transform: uppercase; }
+  .stack { display: grid; gap: 12px; }
+  .chip { display: inline-block; font: 600 12px var(--sans); padding: 3px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--sunken); color: var(--ink-soft); margin: 2px 6px 2px 0; }
+  .chip.ok { background: var(--good-soft); border-color: var(--good); color: var(--ink); }
+  .chip.gap { background: var(--bad-soft); border-color: var(--bad); color: var(--ink); }
+  .chip.warn { background: var(--amb-soft); border-color: var(--amb); color: var(--ink); }
+  .chip.info { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sg { padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--ink); font: 600 13px var(--sans); cursor: pointer; }
+  .sg:hover { background: var(--sunken); }
+  .sg[aria-pressed="true"] { color: var(--ink); border-width: 2px; padding: 7px 12px; }
+  .sg.s-good[aria-pressed="true"] { border-color: var(--good); background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"] { border-color: var(--amb); background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"] { border-color: var(--bad); background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .savedp { margin-top: 22px; background: var(--sunken); box-shadow: none; }
+  .del { background: transparent; border: 0; color: var(--muted); font: 600 13px var(--sans); cursor: pointer; text-decoration: underline; padding: 4px; }
+  .sumbar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--sunken); margin: 10px 0 6px; }
+  .sumbar i { display: block; height: 100%; }
+
+
+  .mtabs { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; overflow-x: auto; background: var(--surface);
+    border-bottom: 1px solid var(--border); padding: 0 24px; scrollbar-width: thin; }
+  .mtab { flex: none; padding: 14px 16px 12px; border: 0; border-bottom: 3px solid transparent; background: transparent;
+    color: var(--muted); font: 600 14px var(--sans); cursor: pointer; white-space: nowrap; }
+  .mtab:hover { color: var(--ink); }
+  .mtab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .phase { display: inline-block; margin-bottom: 12px; }
+  .tool > h1 { margin-top: 0; }
+  @media (max-width: 560px) { .mtabs { padding: 0 8px; } .mtab { padding: 12px 12px 10px; font-size: 13px; } }
+
+  .qrow { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); }
+  .qrow.right { border-color: var(--good); }
+  .qrow.wrong { border-color: var(--bad); }
+  .qrow .qt { font-weight: 600; font-size: 15px; }
+  .qrow .qfb { grid-column: 1 / -1; font-size: 13.5px; color: var(--ink-soft); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .sg:disabled { cursor: default; opacity: .8; }
+  .sg:disabled:hover { background: var(--raised); }
+  .sg[aria-pressed="true"]:disabled:hover { background: inherit; }
+  .sg.s-good[aria-pressed="true"]:disabled:hover { background: var(--good-soft); }
+  .sg.s-amb[aria-pressed="true"]:disabled:hover { background: var(--amb-soft); }
+  .sg.s-bad[aria-pressed="true"]:disabled:hover { background: var(--bad-soft); }
+  .sg.s-acc[aria-pressed="true"]:disabled:hover { background: var(--accent-soft); }
+  .sec { margin-top: 10px; }
+  .sec > h2 { margin: 18px 0 4px; }
+  .stem { background: var(--codebg); color: var(--codeink); border-radius: 10px; padding: 14px 16px; font: 15px/1.6 var(--sans); }
+  .stem b { color: var(--accent); font-weight: 600; }
+  :root[data-theme="dark"] .stem b { color: #7fe3d0; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 22px; }
+  .scenario { margin: 0 0 6px; color: var(--ink-soft); font-size: 14.5px; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .cols3 { grid-template-columns: 1fr; } }
+  .big { font: 700 24px var(--sans); margin: 2px 0 4px; }
+  [hidden] { display: none !important; }
+  .ord { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 14.5px; }
+  .btn.step { text-align: left; width: 100%; }
+  .code.trace { padding: 12px 6px; }
+  .code .ln { display: block; padding: 0 12px 0 0; opacity: .55; }
+  .code .ln i { font-style: normal; display: inline-block; width: 30px; text-align: right; margin-right: 12px; opacity: .6; }
+  .code .ln.ran { opacity: 1; }
+  .code .ln.now { opacity: 1; background: rgba(2,195,154,.28); box-shadow: inset 3px 0 0 #02c39a; }
+  .vars { margin-top: 10px; }
+  .vr { display: flex; gap: 12px; padding: 5px 10px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .vk { font: 600 13px var(--mono); min-width: 110px; }
+  .vv { font: 13px var(--mono); color: var(--ink-soft); overflow-wrap: anywhere; }
+  select.txt { max-width: 100%; }
+  .sec, .stack, .tool, .wrap, .qrow > div { min-width: 0; max-width: 100%; }
+  .qrow { grid-template-columns: minmax(0, 1fr) auto; }
+  @media (max-width: 640px) { .qrow { grid-template-columns: minmax(0, 1fr); } }
+  select.txt { width: 100%; }
+
+</style>
+<div class="topbar"><b>Design Lesson 3 Toolkit</b><span class="tag">Unit 5 NEA · Design · Lesson 3</span></div>
+<nav class="mtabs" role="tablist" aria-label="Design Lesson 3 tools"><button class="mtab" role="tab" id="mt-t-1" data-t="t-1" data-slug="prose-to-steps" aria-controls="t-1" aria-selected="true" tabindex="0">Prose to Steps</button><button class="mtab" role="tab" id="mt-t-2" data-t="t-2" data-slug="spot-the-gap" aria-controls="t-2" aria-selected="false" tabindex="-1">Spot the Gap</button><button class="mtab" role="tab" id="mt-t-3" data-t="t-3" data-slug="trace-it" aria-controls="t-3" aria-selected="false" tabindex="-1">Trace It</button></nav>
+<div class="wrap">
+<section class="tool" id="t-1" role="tabpanel" aria-labelledby="mt-t-1"><span class="tag phase">Part 3 · Writing a routine</span><h1>Prose to steps</h1><p class="lede">Sort lines into the five blocks, put the steps in order, then turn your own routine into plain steps.</p><div id="a1" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 3.</p></section>
+<section class="tool" id="t-2" role="tabpanel" aria-labelledby="mt-t-2" hidden><span class="tag phase">Part 3 · Reading a routine</span><h1>Spot the gap</h1><p class="lede">Read a routine the way a competent third party would. Find what is missing, then check the link notes.</p><div id="a2" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 3.</p></section>
+<section class="tool" id="t-3" role="tabpanel" aria-labelledby="mt-t-3" hidden><span class="tag phase">Part 3 · Tracing a routine</span><h1>Trace it</h1><p class="lede">Step through CreateAccount line by line with a pass and a fail, then predict what it returns.</p><div id="a3" class="stack"></div><p class="note">Nothing on this page is saved. Put your real work in the Design Workbook, Part 3.</p></section>
+</div>
+<script>
+function h(tag, a, kids){
+  var e = document.createElement(tag);
+  if (a) Object.keys(a).forEach(function(k){
+    var v = a[k];
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k === "value") e.value = v;
+    else if (k.slice(0, 2) === "on") e[k] = v;
+    else if (v !== false && v !== null && v !== undefined) e.setAttribute(k, v === true ? "" : v);
+  });
+  (kids || []).forEach(function(c){ if (c === null || c === undefined) return; e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+function chip(cls, text){ return h("span", { class: "chip " + cls, text: text }); }
+function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
+
+/* Generic pick-one quiz: rows of items, one choice each, check, feedback, summary. */
+function quiz(cfg){
+  var wrap = h("div", { class: "stack" });
+  var list = h("div", { class: "stack" });
+  var ans = {}, checked = false, rows = [];
+  var btn = h("button", { class: "btn primary", type: "button" });
+  var sum = h("div");
+  function label(k){ for (var i = 0; i < cfg.options.length; i++) if (cfg.options[i].k === k) return cfg.options[i].label; return k; }
+  cfg.items.forEach(function(it, i){
+    var row = h("div", { class: "qrow" });
+    var left = h("div", {}, [h("div", { class: "qt", text: it.t })]);
+    if (it.sub) left.appendChild(h("div", { class: "hint", text: it.sub }));
+    if (it.code) left.appendChild(h("pre", { class: "code", text: it.code, style: "margin-top:8px" }));
+    var seg = h("div", { class: "seg", role: "group", "aria-label": it.t });
+    var bs = cfg.options.map(function(o){
+      var b = h("button", { class: "sg " + o.cls, type: "button", text: o.label, "aria-pressed": "false" });
+      b.onclick = function(){
+        if (checked) return;
+        ans[i] = o.k;
+        bs.forEach(function(x, j){ x.setAttribute("aria-pressed", cfg.options[j].k === o.k ? "true" : "false"); });
+        update();
+      };
+      seg.appendChild(b);
+      return b;
+    });
+    var fb = h("div", { class: "qfb", hidden: true });
+    row.appendChild(left); row.appendChild(seg); row.appendChild(fb);
+    list.appendChild(row);
+    rows.push({ row: row, bs: bs, fb: fb });
+  });
+  function answered(){ return Object.keys(ans).length; }
+  function update(){
+    var n = answered(), t = cfg.items.length;
+    btn.textContent = checked ? "Try again" : "Check my answers (" + n + " of " + t + " chosen)";
+    btn.disabled = !checked && n < t;
+  }
+  btn.onclick = function(){
+    if (checked) { reset(); return; }
+    checked = true;
+    var score = 0;
+    cfg.items.forEach(function(it, i){
+      var r = rows[i], ok = ans[i] === it.a;
+      if (ok) score++;
+      r.row.className = "qrow " + (ok ? "right" : "wrong");
+      r.bs.forEach(function(b){ b.disabled = true; });
+      clear(r.fb);
+      r.fb.appendChild(chip(ok ? "ok" : "gap", ok ? "Right" : "Not quite: " + label(it.a)));
+      r.fb.appendChild(document.createTextNode(it.why));
+      r.fb.hidden = false;
+    });
+    clear(sum); sum.appendChild(cfg.summary(score, cfg.items.length));
+    update();
+    try { sum.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {}
+  };
+  function reset(){
+    ans = {}; checked = false; clear(sum);
+    rows.forEach(function(r){ r.row.className = "qrow"; r.fb.hidden = true; r.bs.forEach(function(b){ b.disabled = false; b.setAttribute("aria-pressed", "false"); }); });
+    update();
+  }
+  wrap.appendChild(list);
+  wrap.appendChild(h("div", { class: "row" }, [btn]));
+  wrap.appendChild(sum);
+  update();
+  return wrap;
+}
+function result(score, total, good, ok, low){
+  var cls = score >= good ? "good" : score >= ok ? "info" : "warn";
+  var msg = score >= good ? low[0] : score >= ok ? low[1] : low[2];
+  return h("div", { class: "fb " + cls }, [h("div", { class: "big", text: score + " out of " + total }), msg]);
+}
+
+/* ---------- shared: the CreateAccount routine ---------- */
+var CA = [
+  'function CreateAccount(firstName, email, password)',
+  '  if len(firstName) < 1 or len(firstName) > 50 then',
+  '    return "First name must be 1 to 50 characters"',
+  '  end if',
+  '  if len(email) < 5 or len(email) > 100 then',
+  '    return "Email must be 5 to 100 characters"',
+  '  end if',
+  '  if len(password) < 8 or len(password) > 72 then',
+  '    return "Password must be 8 to 72 characters"',
+  '  end if',
+  '  set found to fetch CustomerID from Customer where Email = email',
+  '  if found exists then',
+  '    return "That email is already registered"',
+  '  end if',
+  '  set hashed to HashPassword(password)',
+  '  try',
+  '    insert into Customer (FirstName, Email, PasswordHash) values (firstName, email, hashed)',
+  '  on error',
+  '    return "Account could not be saved. Try again."',
+  '  end try',
+  '  return none',
+  'end function'
+];
+
+/* ---------- Tool 1: Prose to Steps ---------- */
+var BLOCKS = [
+  { k: "header", label: "Header", cls: "s-acc" }, { k: "validation", label: "Validation", cls: "s-acc" },
+  { k: "data", label: "Data access", cls: "s-acc" }, { k: "errors", label: "Errors", cls: "s-acc" }, { k: "outcome", label: "Outcome", cls: "s-acc" }];
+var LINES = [
+  { t: "function CreateAccount(firstName, email, password)", a: "header", why: "It names the routine and says what it is given." },
+  { t: "if len(email) < 5 or len(email) > 100 then", a: "validation", why: "A length check on a value before anything else happens." },
+  { t: "set found to fetch CustomerID from Customer where Email = email", a: "data", why: "It reads a table. The value is passed by name, not joined into a query." },
+  { t: "return \"That email is already registered\"", a: "errors", why: "This is what happens when the duplicate check fails." },
+  { t: "insert into Customer (FirstName, Email, PasswordHash) values (firstName, email, hashed)", a: "data", why: "It writes to a table." },
+  { t: "on error", a: "errors", why: "It handles the case where saving fails." },
+  { t: "if len(password) < 8 or len(password) > 72 then", a: "validation", why: "Another length check, this time on the password." },
+  { t: "return none", a: "outcome", why: "It says what comes back when everything worked." },
+  { t: "if len(firstName) < 1 or len(firstName) > 50 then", a: "validation", why: "A presence and length check on the first name." },
+];
+var STEPS = [
+  { t: "Name the routine and list what it is given", why: "Start with the header. A reader needs to know what comes in." },
+  { t: "Check the first name, email and password lengths", why: "Validate before you touch the database." },
+  { t: "Look the email up to see if it already exists", why: "You can only look it up once the email has passed validation." },
+  { t: "Stop with a message if it does", why: "The error path comes straight after the check that triggers it." },
+  { t: "Hash the password", why: "Only hash after you know the account will be created." },
+  { t: "Save the new customer, with a message if saving fails", why: "Save last, and say what happens if it fails." },
+  { t: "Return none to say it worked", why: "The outcome is the last thing a reader sees." },
+];
+function orderer(){
+  var wrap = h("div", { class: "stack" });
+  var order = STEPS.map(function(s, i){ return i; });
+  var shuf = [3, 5, 0, 6, 2, 4, 1];
+  var next = 0, wrongs = 0;
+  var placed = h("ol", { class: "ord", "aria-label": "Your order" });
+  var pool = h("div", { class: "stack", role: "group", "aria-label": "Steps to place" });
+  var msg = h("div", { class: "fb info", hidden: true, role: "status" });
+  var done = h("div");
+  var btns = {};
+  shuf.forEach(function(si){
+    var b = h("button", { class: "btn step", type: "button", text: STEPS[si].t });
+    b.onclick = function(){
+      if (si === next) {
+        placed.appendChild(h("li", { text: STEPS[si].t }));
+        b.hidden = true; next++; msg.hidden = true;
+        if (next === STEPS.length) finish();
+      } else {
+        wrongs++; clear(msg);
+        msg.appendChild(h("b", { text: "Not yet. " }));
+        msg.appendChild(document.createTextNode("Which step has to come before this one? Step " + (next + 1) + " of 7 is still to place."));
+        msg.hidden = false;
+      }
+    };
+    btns[si] = b; pool.appendChild(b);
+  });
+  function finish(){
+    clear(done);
+    done.appendChild(h("div", { class: "fb good" }, [h("div", { class: "big", text: wrongs === 0 ? "In order first time" : "In order after " + wrongs + " wrong " + (wrongs === 1 ? "try" : "tries") }),
+      "Notice the shape: header, validation, data access, error path, outcome. Every routine you write follows it."]));
+    STEPS.forEach(function(s, i){ done.appendChild(h("div", { class: "hint", style: "margin-top:4px", text: (i + 1) + ". " + s.why })); });
+    done.appendChild(h("div", { class: "row", style: "margin-top:10px" }, [h("button", { class: "btn", type: "button", text: "Try again", onclick: reset })]));
+  }
+  function reset(){
+    next = 0; wrongs = 0; clear(placed); clear(done); msg.hidden = true;
+    Object.keys(btns).forEach(function(k){ btns[k].hidden = false; });
+  }
+  wrap.appendChild(h("span", { class: "lab", text: "Steps to place (click the one that comes next)" }));
+  wrap.appendChild(pool); wrap.appendChild(msg);
+  wrap.appendChild(h("span", { class: "lab", text: "Your routine so far" }));
+  wrap.appendChild(placed); wrap.appendChild(done);
+  return wrap;
+}
+function tool1(){
+  var app = document.getElementById("a1");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Round 1: which block?" }),
+    h("p", { class: "hint", text: "Every routine has five blocks. Which one does each line belong to?" }),
+    quiz({ items: LINES, options: BLOCKS, summary: function(score, total){
+      return result(score, total, 8, 6, ["Strong. You can see the five blocks.", "Good. Check the ones marked Not quite. Is the line checking, reading or writing, or saying what happens?", "Ask what the line does: names the routine, checks a value, reads or writes a table, handles a failure, or returns."]); } })]);
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Round 2: put the steps in order" }),
+    h("p", { class: "hint", text: "Seven plain-English steps for CreateAccount. Place them in the order a reader needs." }), orderer()]);
+  var s3 = h("div", { class: "sec" }, [h("h2", { text: "Round 3: your turn" }),
+    h("p", { class: "hint", text: "Pick one routine from your own system. Write it as plain steps, one per line, before you write any pseudocode." })]);
+  var ta = h("textarea", { id: "ps-text", class: "txt", style: "min-height:130px", placeholder: "1. Take the book ID and quantity\n2. Check the quantity is 1 to 10\n3. If not, stop with a message\n4. ...", "aria-label": "Your steps" });
+  var chips = h("div", { style: "margin-top:10px" });
+  function check(){
+    clear(chips);
+    var v = ta.value, lines = v.split(/\n/).map(function(x){ return x.trim(); }).filter(Boolean);
+    if (!lines.length) { chips.appendChild(h("span", { class: "hint", text: "Write your steps and five quick checks appear." })); return; }
+    function add(ok, yes, no){ chips.appendChild(chip(ok ? "ok" : "gap", ok ? yes : no)); }
+    add(lines.length >= 5, "Five or more steps", "Add steps: aim for five or more");
+    add(/\b(check|validate|must|between|at least|no more than|not empty|length)\b/i.test(v), "Has a check", "Add a validation step");
+    add(/\b(look up|fetch|find|read|get|save|insert|update|store|write|add to)\b/i.test(v), "Reads or writes data", "Say where data is read or saved");
+    add(/\b(if not|otherwise|stop|fails?|error|message|already|not found|does not exist)\b/i.test(v), "Has an error path", "Say what happens when a check fails");
+    add(/\b(return|show|output|tell|send back|result)\b/i.test(v), "Says what comes back", "Say what the routine gives back at the end");
+  }
+  ta.oninput = check; check();
+  s3.appendChild(ta); s3.appendChild(chips);
+  s3.appendChild(h("p", { class: "hint", text: "These checks look for the shape of good steps. They can't judge whether your routine is right. Read it to your partner." }));
+  app.appendChild(s1); app.appendChild(s2); app.appendChild(s3);
+}
+
+/* ---------- Tool 2: Spot the Gap ---------- */
+var GAPS = [
+  { k: "ok", label: "Looks right", cls: "s-good" }, { k: "check", label: "Missing check", cls: "s-bad" }, { k: "error", label: "No error path", cls: "s-bad" },
+  { k: "name", label: "Wrong name", cls: "s-amb" }, { k: "joined", label: "Joined query", cls: "s-bad" }];
+var ROUTINES = [
+  { t: "CheckCredentials", code: 'function CheckCredentials(email, password)\n  set row to fetch CustomerID, PasswordHash from Customer where Email = email\n  return VerifyHash(password, row.PasswordHash)\nend function',
+    a: "error", why: "What if no customer has that email? row is empty and the next line has nothing to read. Add: if row does not exist then return none." },
+  { t: "SearchBooks", code: 'function SearchBooks(term)\n  set sql to "SELECT * FROM Book WHERE Title LIKE \'%" + term + "%\'"\n  return run(sql)\nend function',
+    a: "joined", why: "The user's text is joined into the query. Pass term by name instead: fetch ... where Title contains term." },
+  { t: "CreateAccount (short version)", code: 'function CreateAccount(firstName, email, password)\n  if len(firstName) < 1 or len(firstName) > 50 then\n    return "First name must be 1 to 50 characters"\n  end if\n  if len(password) < 8 or len(password) > 72 then\n    return "Password must be 8 to 72 characters"\n  end if\n  insert into Customer (FirstName, Email, PasswordHash) values (firstName, email, HashPassword(password))\n  return none\nend function',
+    a: "check", why: "The email is never checked. The table says Email is 5 to 100 characters, so the routine must too." },
+  { t: "Duplicate check", sub: "Customer columns: CustomerID, FirstName, Email, PasswordHash", code: 'set found to fetch CustomerID from Customer where EmailAddress = email',
+    a: "name", why: "The table calls the column Email, not EmailAddress. A third party could not build this." },
+  { t: "AddToBasket", code: 'function AddToBasket(customerID, bookID, quantity)\n  if quantity < 1 or quantity > 10 then\n    return "Quantity must be 1 to 10"\n  end if\n  set stock to fetch StockLevel from Book where BookID = bookID\n  if stock does not exist then\n    return "That book no longer exists"\n  end if\n  if quantity > stock then\n    return "Only " + stock + " in stock"\n  end if\n  insert into BasketItem (CustomerID, BookID, Quantity) values (customerID, bookID, quantity)\n  return none\nend function',
+    a: "ok", why: "A header, a range check, a lookup with a not-found path, a stock check, a save, and a return. Nothing missing." },
+  { t: "UpdateStock", code: 'function UpdateStock(bookID, change)\n  update Book set StockLevel = StockLevel + change where BookID = bookID\nend function',
+    a: "check", why: "Nothing stops StockLevel going below 0, and nothing is returned. Check the result first, then return none or a message." },
+  { t: "ShowMyOrders", code: 'function ShowMyOrders(customerID)\n  set orders to fetch OrderID, OrderDate, Total from Orders where CustomerID = customerID\n  if orders is empty then\n    output "You have no orders yet"\n  else\n    for each order in orders\n      output order.OrderDate + " " + order.Total\n    next\n  end if\nend function',
+    a: "ok", why: "An empty result is handled, and the loop is clear. It shows data rather than returning, which is fine for a display routine." },
+];
+var LINKS = [
+  { t: "CreateAccount", code: 'fetch ... from Customer\ninsert into Customer ...\nHashPassword(password)', sub: "Link note: Reads Customer. Writes Customer. Calls HashPassword.", a: "match", why: "Every table and call in the routine appears in the note." },
+  { t: "ShowBook", code: 'fetch Title, Author, Price from Book where BookID = bookID', sub: "Link note: Reads Book. Writes Book.", a: "differs", why: "The routine only reads. It never writes to Book." },
+  { t: "CheckCredentials", code: 'fetch CustomerID, PasswordHash from Customer where Email = email\nVerifyHash(password, row.PasswordHash)', sub: "Link note: Reads Customer. Calls VerifyHash.", a: "match", why: "One table read and one call, and both are in the note." },
+  { t: "AddToBasket", code: 'fetch StockLevel from Book where BookID = bookID\ninsert into BasketItem ...', sub: "Link note: Reads BasketItem. Writes BasketItem.", a: "differs", why: "The routine reads Book and writes BasketItem. The note has the read on the wrong table." },
+  { t: "CheckOut", code: 'CalculateBasketTotal(customerID)\nfetch ... from BasketItem, Book', sub: "Link note: Calls CalculateBasketTotal. Reads BasketItem, Book.", a: "match", why: "The call and both tables are listed." },
+  { t: "CreateAccount", code: 'The Sign-up form button calls CreateAccount.', sub: "Link note: Called by the Login form.", a: "differs", why: "It is called by the Sign-up form. The note names the wrong caller." },
+];
+function tool2(){
+  var app = document.getElementById("a2");
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Round 1: what is the gap?" }),
+    h("p", { class: "hint", text: "Read each routine as someone who has to build it from your page alone. One option fits each." }),
+    quiz({ items: ROUTINES, options: GAPS, summary: function(score, total){
+      return result(score, total, 6, 5, ["Strong. You read it the way a third party will.", "Good. Reread the ones marked Not quite. What happens when the lookup finds nothing?", "Check each routine for four things: a rule for every input, an answer for not found, names that match the table, and values passed by name."]); } })]);
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Round 2: does the link note match?" }),
+    h("p", { class: "hint", text: "The link note says what a routine reads, writes, calls and is called by. Does it match the routine?" }),
+    quiz({ items: LINKS, options: [{ k: "match", label: "Match", cls: "s-good" }, { k: "differs", label: "Doesn't match", cls: "s-bad" }], summary: function(score, total){
+      return result(score, total, 6, 5, ["Strong. This is exactly the check your partner does in the swap.", "Nearly. Compare each table and call in the code with the note.", "List the tables and calls in the code first. Then tick them off against the note."]); } })]);
+  var s3 = h("div", { class: "sec" }, [h("h2", { text: "Round 3: write a link note" }),
+    h("p", { class: "hint", text: "Pick one of your routines. Write each part, or write none." })]);
+  var F = [["ln-by", "Called by", "e.g. Sign-up form"], ["ln-calls", "Calls", "e.g. HashPassword, or none"], ["ln-reads", "Reads", "e.g. Customer"], ["ln-writes", "Writes", "e.g. Customer, or none"]];
+  var chips = h("div", { style: "margin-top:10px" });
+  var inputs = F.map(function(f){ return h("input", { id: f[0], class: "txt", type: "text", placeholder: f[2], "aria-label": f[1] }); });
+  function check(){
+    clear(chips);
+    var vals = inputs.map(function(i){ return i.value.trim(); });
+    if (!vals.some(Boolean)) { chips.appendChild(h("span", { class: "hint", text: "Fill in the four parts and the checks appear." })); return; }
+    F.forEach(function(f, i){ chips.appendChild(chip(vals[i] ? "ok" : "gap", vals[i] ? f[1] + " given" : f[1] + ": write a name, or none")); });
+    if (vals[2] && /^[a-z]/.test(vals[2]) && !/none/i.test(vals[2])) chips.appendChild(chip("warn", "Table names start with a capital in your table design. Check the spelling"));
+    if (/\b(it|something|stuff|data)\b/i.test(vals.join(" "))) chips.appendChild(chip("warn", "Name the exact table or routine, not “it” or “data”"));
+  }
+  inputs.forEach(function(i){ i.oninput = check; });
+  F.forEach(function(f, i){ s3.appendChild(h("span", { class: "lab", text: f[1] })); s3.appendChild(inputs[i]); });
+  check(); s3.appendChild(chips);
+  s3.appendChild(h("p", { class: "hint", text: "These checks look for the shape of a good note. Check every name against your table design." }));
+  app.appendChild(s1); app.appendChild(s2); app.appendChild(s3);
+}
+
+/* ---------- Tool 3: Trace It ---------- */
+function S(line, vars, note){ return { line: line, vars: vars, note: note }; }
+var TRACES = [
+  { id: "pass", label: "Pass: Sam, a good email, a good password", inputs: { firstName: "Sam", email: "sam@example.com", password: "Tr0ub4dor&3" }, steps: [
+    S(1, { firstName: "Sam", email: "sam@example.com", password: "Tr0ub4dor&3" }, "The routine starts with three values passed in."),
+    S(2, {}, "len(firstName) is 3. Not under 1, not over 50, so the condition is false. Skip to line 5."),
+    S(5, {}, "len(email) is 15. Between 5 and 100, so false. Skip to line 8."),
+    S(8, {}, "len(password) is 11. Between 8 and 72, so false. Skip to line 11."),
+    S(11, { found: "nothing" }, "No customer has this email, so found is empty."),
+    S(12, {}, "found does not exist, so the condition is false. Skip to line 15."),
+    S(15, { hashed: "9f2c...e1" }, "The password is hashed. The plain password is never stored."),
+    S(16, {}, "Enter the try block."),
+    S(17, {}, "The new customer is saved. No error."),
+    S(20, {}, "end try. The on error block is skipped."),
+    S(21, {}, "Returns none. The account was created.") ] },
+  { id: "short", label: "Fail: the email is too short", inputs: { firstName: "Sam", email: "a@b", password: "password1" }, steps: [
+    S(1, { firstName: "Sam", email: "a@b", password: "password1" }, "Three values passed in."),
+    S(2, {}, "len(firstName) is 3, so false. Skip to line 5."),
+    S(5, {}, "len(email) is 3, which is under 5, so true. Go into the block."),
+    S(6, {}, "Returns the email message. Nothing below this line runs.") ] },
+  { id: "pw", label: "Fail: the password is too short", inputs: { firstName: "Sam", email: "sam@example.com", password: "abc" }, steps: [
+    S(1, { firstName: "Sam", email: "sam@example.com", password: "abc" }, "Three values passed in."),
+    S(2, {}, "len(firstName) is 3, so false. Skip to line 5."),
+    S(5, {}, "len(email) is 15, so false. Skip to line 8."),
+    S(8, {}, "len(password) is 3, which is under 8, so true."),
+    S(9, {}, "Returns the password message. The database is never touched.") ] },
+  { id: "dup", label: "Fail: the email is already registered", inputs: { firstName: "Sam", email: "sam@example.com", password: "Tr0ub4dor&3" }, steps: [
+    S(1, { firstName: "Sam", email: "sam@example.com", password: "Tr0ub4dor&3" }, "Three values passed in."),
+    S(2, {}, "False. Skip to line 5."),
+    S(5, {}, "False. Skip to line 8."),
+    S(8, {}, "False. Skip to line 11."),
+    S(11, { found: "CustomerID 42" }, "A customer with this email already exists, so found has a value."),
+    S(12, {}, "found exists, so the condition is true."),
+    S(13, {}, "Returns the already-registered message. Nothing is saved.") ] },
+];
+var PREDICT = [
+  { t: "firstName = \"\" (empty), email = \"sam@example.com\", password = \"Tr0ub4dor&3\"", a: "first", why: "len(firstName) is 0, which is under 1. The first check fails." },
+  { t: "firstName = \"Ana\", email = \"ana@x.com\", password = \"12345\"", a: "pw", why: "The first name and email pass. The password has 5 characters, under 8." },
+  { t: "firstName = \"Ana\", email = \"ana@x\", password = \"longenough1\". No customer has that email yet.", a: "ok", why: "len(email) is 6, which passes (5 to 100). With a new email, it is saved and returns none. The shape of the email is not checked here, only its length." },
+  { t: "firstName = \"Ana\", email = \"abcd\", password = \"longenough1\"", a: "email", why: "len(email) is 4, under 5. The email check fails before the password is looked at." },
+  { t: "All three valid, but Customer already has this email", a: "dup", why: "Validation passes, then the lookup finds a customer, so the routine stops with the duplicate message." },
+  { t: "firstName is 60 characters long, everything else valid", a: "first", why: "len(firstName) is 60, over 50. The first check fails." },
+];
+var OUTS = [{ k: "first", label: "First name message", cls: "s-acc" }, { k: "email", label: "Email message", cls: "s-acc" }, { k: "pw", label: "Password message", cls: "s-acc" },
+  { k: "dup", label: "Already registered", cls: "s-acc" }, { k: "ok", label: "none", cls: "s-good" }];
+function tool3(){
+  var app = document.getElementById("a3");
+  var cur = 0, pos = 0;
+  var s1 = h("div", { class: "sec" }, [h("h2", { text: "Part 1: step through it" }),
+    h("p", { class: "hint", text: "Choose a set of inputs. Step through and watch which lines run and which are skipped." })]);
+  var sel = h("select", { id: "tr-case", class: "txt", "aria-label": "Inputs" }, TRACES.map(function(t, i){ return h("option", { value: i, text: t.label }); }));
+  var codeBox = h("pre", { class: "code trace", "aria-label": "CreateAccount pseudocode" });
+  var vars = h("div", { class: "vars", "aria-live": "polite" });
+  var note = h("div", { class: "fb info", "aria-live": "polite" });
+  var back = h("button", { class: "btn", type: "button", text: "Back" });
+  var fwd = h("button", { class: "btn primary", type: "button", text: "Step" });
+  var rst = h("button", { class: "btn", type: "button", text: "Start again" });
+  var visited = {};
+  function render(){
+    var tr = TRACES[cur], st = tr.steps[pos], seen = {}, all = {}, i;
+    for (i = 0; i <= pos; i++) { seen[tr.steps[i].line] = true; Object.keys(tr.steps[i].vars).forEach(function(k){ all[k] = tr.steps[i].vars[k]; }); }
+    clear(codeBox);
+    CA.forEach(function(l, k){
+      var n = k + 1, cls = "ln" + (n === st.line ? " now" : seen[n] ? " ran" : "");
+      codeBox.appendChild(h("span", { class: cls }, [h("i", { text: (n < 10 ? " " : "") + n }), document.createTextNode(l + "\n")]));
+    });
+    clear(vars);
+    var keys = Object.keys(all);
+    var rowsEl = keys.map(function(k){ return h("div", { class: "vr" }, [h("span", { class: "vk", text: k }), h("span", { class: "vv", text: String(all[k]) })]); });
+    vars.appendChild(h("span", { class: "lab", text: "Values so far" }));
+    rowsEl.forEach(function(r){ vars.appendChild(r); });
+    clear(note);
+    note.appendChild(h("b", { text: "Line " + st.line + ". " }));
+    note.appendChild(document.createTextNode(st.note));
+    if (pos === tr.steps.length - 1) {
+      var ret = CA[st.line - 1].indexOf("return") >= 0 ? CA[st.line - 1].trim() : "";
+      note.appendChild(h("div", { style: "margin-top:6px" }, [h("b", { text: "Finished. " }), document.createTextNode(ret ? ret + ". " : ""), document.createTextNode("Lines run: " + tr.steps.length + " of 22.")]));
+    }
+    back.disabled = pos === 0; fwd.disabled = pos === tr.steps.length - 1;
+  }
+  sel.onchange = function(){ cur = +sel.value; pos = 0; render(); };
+  fwd.onclick = function(){ if (pos < TRACES[cur].steps.length - 1) { pos++; render(); } };
+  back.onclick = function(){ if (pos > 0) { pos--; render(); } };
+  rst.onclick = function(){ pos = 0; render(); };
+  s1.appendChild(sel);
+  s1.appendChild(h("div", { class: "row", style: "margin:10px 0" }, [back, fwd, rst]));
+  s1.appendChild(codeBox); s1.appendChild(note); s1.appendChild(vars);
+  s1.appendChild(h("p", { class: "hint", text: "Lines with a dim number were skipped or not reached. This is the table you draw in the Design Workbook, one row per line that runs." }));
+  var s2 = h("div", { class: "sec" }, [h("h2", { text: "Part 2: what does it return?" }),
+    h("p", { class: "hint", text: "No stepping this time. Work out which line returns first." }),
+    quiz({ items: PREDICT, options: OUTS, summary: function(score, total){
+      return result(score, total, 6, 5, ["Strong. You can trace it in your head.", "Nearly. Check the ones marked Not quite. The checks run top to bottom and the first failure returns.", "Work down from line 2. The first check that is true returns, and nothing below it runs."]); } })]);
+  app.appendChild(s1); app.appendChild(s2);
+  render();
+}
+
+tool1(); tool2(); tool3();
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".mtab"));
+  function show(i, focus){
+    tabs.forEach(function(t, k){
+      var on = k === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.dataset.t).hidden = !on;
+    });
+    var nav = tabs[i].parentNode; nav.scrollLeft = Math.max(0, tabs[i].offsetLeft - 16);
+    if (focus) tabs[i].focus();
+    try { history.replaceState(null, "", "#" + tabs[i].dataset.slug); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener("click", function(){ show(i); });
+    t.addEventListener("keydown", function(e){
+      if (e.key === "ArrowRight") { e.preventDefault(); show((i + 1) % tabs.length, true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); show((i + tabs.length - 1) % tabs.length, true); }
+    });
+  });
+  var hh = (location.hash || "").replace("#", "");
+  tabs.forEach(function(t, i){ if (t.dataset.slug === hh) show(i); });
+})();
+
+</script>
+
+</body></html>
