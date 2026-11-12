@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter: Topic 5 Lesson 1 recall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B;
+  --good-soft:#E3F4EA; --bad-soft:#F8E3E0;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:20px 24px 22px}
+.head-inner,main{max-width:860px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 6px;font-size:30px;line-height:1.15}
+.sub{margin:0;color:#C9D3E6;max-width:62ch}
+main{padding:22px 24px 48px}
+.bar{position:sticky;top:0;z-index:5;background:var(--paper);padding:10px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:16px}
+.track{flex:1;min-width:160px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--teal);transition:width .2s}
+.count{font-weight:700;color:var(--navy);white-space:nowrap}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.q.right{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
+.q.wrong{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad) inset}
+.qhead{display:flex;gap:12px;align-items:baseline}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:grid;place-items:center;font-size:15px}
+.tag{font-size:13px;color:var(--teal);font-weight:700}
+.qtext{margin:0 0 10px;font-weight:700;font-size:18px}
+.opts{display:grid;gap:8px;margin-left:42px}
+.opt{text-align:left;border:2px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;color:var(--ink)}
+.opt:hover:not([disabled]){border-color:var(--teal)}
+.opt[aria-pressed="true"]{border-color:var(--navy);background:var(--teal-soft);font-weight:700}
+.opt.is-right{border-color:var(--good);background:var(--good-soft)}
+.opt.is-wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.why{display:none;margin:10px 0 0 42px;font-size:15px;color:var(--ink);background:var(--paper);border-radius:10px;padding:10px 12px}
+.why.show{display:block}
+.why b{color:var(--navy)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:10px 18px;font-weight:700}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary[disabled]{opacity:.45;cursor:not-allowed}
+.hint{color:var(--muted);font-size:15px}
+.result{display:none;background:var(--navy);color:#fff;border-radius:16px;padding:20px 22px;margin-bottom:18px}
+.result.show{display:block}
+.score{font-size:44px;font-weight:700;line-height:1}
+.score small{font-size:18px;font-weight:400;color:#C9D3E6}
+.result h2{font-size:18px;margin:14px 0 6px;color:var(--orange)}
+.result ul{margin:0;padding-left:20px}
+.result p{margin:8px 0 0;color:#E4EAF4}
+@media (max-width:600px){.opts,.why{margin-left:0}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Starter, Topic 5 Lesson 2</p>
+    <h1>Lesson 1 recall: arrays and records</h1>
+    <p class="sub">Twelve questions on your own. Arrays start at index 0, and 2D references are [row, column]. Trace any code on paper before you choose, then check.</p>
+  </div>
+</header>
+<main>
+  <div class="result" id="result" aria-live="polite"></div>
+  <div class="bar"><div class="track" aria-hidden="true"><div class="fill" id="fill"></div></div><span class="count" id="count">0 of 12 answered</span></div>
+  <div id="qs"></div>
+  <div class="actions">
+    <button class="btn primary" id="check" disabled>Check my answers</button>
+    <button class="btn" id="again" style="display:none">Try again</button>
+    <span class="hint" id="hint">Answer all 12 to unlock the check.</span>
+  </div>
+</main>
+<script>
+// [topic, question, correct, [wrong...], explanation]
+const Q=[
+ ["Data structures","What is a data structure?","A collection of related data, organised so it can be processed as one item",
+  ["A single value stored in memory","A way of making code run faster","A list of instructions for the CPU"],
+  "The 2023 mark scheme: a group of related data, and a convenient way to organise data for a real problem."],
+ ["1D arrays","Which statement about an array is true?","Every element has the same data type",
+  ["Elements can have different data types","It grows automatically when it is full","The first index is always 1"],
+  "An array has one identifier, a fixed size and one data type. In WJEC papers the first index is 0."],
+ ["1D arrays","heights = [152, 168, 147, 175, 160], declared heights[0 to 4]. What is heights[1]?","168",
+  ["152","147","1"],
+  "The index starts at 0, so heights[1] is the second element: 168. 152 is heights[0]."],
+ ["1D arrays","How many elements does declare heights[0 to 4] create?","5",
+  ["4","6","0"],
+  "Indices 0, 1, 2, 3 and 4: five elements. The last index is one less than the size."],
+ ["1D arrays","heights = [152, 168, 147, 175, 160], declared heights[0 to 4]. What is output by: set count = 0, for i = 0 to 4, if heights[i] > 155 then set count = count + 1, next i, output count?","3",
+  ["2","5","503"],
+  "168, 175 and 160 are greater than 155, so count = 3. 503 is their total, not their count."],
+ ["1D arrays","heights = [152, 168, 147, 175, 160], declared heights[0 to 4]. What happens when the program runs output heights[5]?","An error, because index 5 is out of range",
+  ["It outputs 160","It outputs 0","It outputs 152"],
+  "There are five elements, indexed 0 to 4. Index 5 does not exist."],
+ ["2D arrays","t is a 2D array t[0 to 2, 0 to 3]. Row 0: 5, 2, 8, 1. Row 1: 3, 9, 4, 6. Row 2: 7, 0, 2, 5. What is t[2, 1]?","0",
+  ["4","9","3"],
+  "Row 2, then column 1: 0. 4 is t[1, 2], with the row and column swapped."],
+ ["2D arrays","t is a 2D array t[0 to 2, 0 to 3]. Row 0: 5, 2, 8, 1. Row 1: 3, 9, 4, 6. Row 2: 7, 0, 2, 5. Which reference gives the value 9?","t[1, 1]",
+  ["t[2, 2]","t[1, 2]","t[0, 1]"],
+  "9 is in row 1, column 1."],
+ ["2D arrays","t is a 2D array t[0 to 2, 0 to 3]. Row 0: 5, 2, 8, 1. Row 1: 3, 9, 4, 6. Row 2: 7, 0, 2, 5. What is the total of column 3?","12",
+  ["22","14","7"],
+  "Column 3 holds 1, 6 and 5: total 12. 22 is the total of row 1."],
+ ["Choosing structures","Handset totals for each member of staff for each month are stored. Which structure is most suitable, and why?","A 2D array, because only one data type is required",
+  ["A record, because it holds different data types","A 1D array, because there is only one member of staff","A record, because it is about one entity"],
+  "The 2018 Q6 mark scheme: a two-dimensional array, because only one data type (integer) is required."],
+ ["Records","What is a record?","A collection of fields, which can have different data types, all about one entity",
+  ["A list of values that all have one data type","A single item of data, such as a name","A grid of rows and columns"],
+  "The 2023 mark scheme: a collection of fields all related to a single entity."],
+ ["Records","A shop stores ProductCode, Name, Price and Colour for each product. Which field is the most suitable primary key?","ProductCode",
+  ["Name","Price","Colour"],
+  "A primary key must be unique for every record. Names, prices and colours can repeat."]
+];
+const L="ABCD";
+let answers=new Array(Q.length).fill(null), order=[], checked=false;
+const qs=document.getElementById('qs');
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function build(){
+  qs.innerHTML='';answers.fill(null);checked=false;
+  order=Q.map(q=>shuffle([q[2],...q[3]]));
+  Q.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='q';d.id='q'+i;
+    d.innerHTML='<div class="qhead"><span class="num">'+(i+1)+'</span><div><div class="tag">'+q[0]+'</div><p class="qtext">'+q[1]+'</p></div></div><div class="opts" role="group" aria-label="Question '+(i+1)+' options"></div><div class="why"></div>';
+    const box=d.querySelector('.opts');
+    order[i].forEach((o,k)=>{
+      const b=document.createElement('button');b.className='opt';b.setAttribute('aria-pressed','false');
+      b.textContent=L[k]+'.  '+o;b.dataset.v=o;
+      b.onclick=()=>{if(checked)return;answers[i]=o;box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b));update()};
+      box.append(b);
+    });
+    qs.append(d);
+  });
+  document.getElementById('result').className='result';
+  document.getElementById('check').style.display='';document.getElementById('again').style.display='none';
+  update();
+}
+function update(){
+  const n=answers.filter(a=>a!==null).length;
+  document.getElementById('fill').style.width=(n/Q.length*100)+'%';
+  document.getElementById('count').textContent=n+' of '+Q.length+' answered';
+  const c=document.getElementById('check');c.disabled=n<Q.length;
+  document.getElementById('hint').textContent=checked?'':n<Q.length?'Answer all 12 to unlock the check.':'Ready when you are.';
+}
+document.getElementById('check').onclick=()=>{
+  checked=true;let score=0;const miss={};
+  Q.forEach((q,i)=>{
+    const d=document.getElementById('q'+i),ok=answers[i]===q[2];
+    if(ok)score++;else miss[q[0]]=(miss[q[0]]||0)+1;
+    d.classList.add(ok?'right':'wrong');
+    d.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.v===q[2])b.classList.add('is-right');else if(b.dataset.v===answers[i])b.classList.add('is-wrong')});
+    const w=d.querySelector('.why');w.innerHTML='<b>'+(ok?'Correct.':'Not this time.')+'</b> '+q[4];w.classList.add('show');
+  });
+  const r=document.getElementById('result');
+  const topics=Object.keys(miss);
+  r.innerHTML='<div class="score">'+score+' <small>out of '+Q.length+'</small></div>'+
+    (topics.length?'<h2>Topics to look back at</h2><ul>'+topics.map(t=>'<li>'+t+' ('+miss[t]+' wrong)</li>').join('')+'</ul><p>Write these down. You need all of this today.</p>'
+      :'<p>Full marks. You are ready to manipulate arrays and records.</p>');
+  r.classList.add('show');
+  document.getElementById('check').style.display='none';document.getElementById('again').style.display='';
+  update();window.scrollTo({top:0,behavior:'smooth'});
+};
+document.getElementById('again').onclick=()=>{build();window.scrollTo({top:0})};
+build();
+</script>
+</body>
+</html>

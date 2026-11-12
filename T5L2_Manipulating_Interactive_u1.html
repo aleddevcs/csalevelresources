@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manipulating arrays and records: Topic 5, Lesson 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B; --bad-soft:#F8E3E0; --good-soft:#E3F4EA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+.head-inner{max-width:1120px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 14px;font-size:30px;line-height:1.15}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#C9D3E6;padding:10px 16px;border-radius:10px 10px 0 0;font-weight:700}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+nav button:hover:not([aria-selected="true"]){color:#fff;background:var(--navy-2)}
+main{max-width:1120px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+h2{font-size:24px;margin:0 0 4px;color:var(--navy)}
+h3{font-size:18px;margin:0 0 10px;color:var(--navy)}
+.lede{color:var(--muted);margin:0 0 18px;max-width:76ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:8px 16px;font-weight:700}
+.btn:hover{background:var(--teal-soft)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy-2)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.btn.small{padding:4px 10px;font-size:15px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.seg{display:inline-flex;border:2px solid var(--navy);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:#fff;color:var(--navy);padding:7px 13px;font-weight:700}
+.seg button+button{border-left:2px solid var(--navy)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.label{font-weight:700;color:var(--navy)}
+.small{font-size:15px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+input.num{width:90px;padding:7px 10px;border:2px solid var(--line);border-radius:10px;font-family:var(--mono)}
+input.txt{width:150px;padding:7px 10px;border:2px solid var(--line);border-radius:10px;font-family:var(--mono)}
+.fb{min-height:26px;font-weight:700;margin-top:10px}
+.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+.two{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+
+.arr{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+.cw{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cell{width:70px;height:62px;border:2px solid var(--navy);border-radius:10px;background:#fff;font-family:var(--mono);font-size:24px;font-weight:700;color:var(--navy);display:grid;place-items:center;transition:background .2s}
+.cell.empty{border-style:dashed;color:var(--muted);background:var(--paper)}
+.cell.hl{background:var(--orange);border-color:var(--orange);color:#fff}
+.cell.src{background:var(--teal-soft)}
+.cell.done{background:var(--good-soft);border-color:var(--good)}
+.idx{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.steptext{background:var(--paper);border-radius:10px;padding:10px 14px;min-height:46px;margin-top:10px}
+.steptext b{color:var(--navy)}
+.ops{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.op{background:var(--paper);border-radius:12px;padding:12px}
+.op h4{margin:0 0 8px;color:var(--navy)}
+.op .row{gap:6px}
+pre.code{background:var(--navy);color:#fff;border-radius:12px;padding:12px 0;margin:0;font-family:var(--mono);font-size:14px;line-height:1.75;overflow-x:auto}
+pre.code span{display:block;padding:0 16px;white-space:pre}
+pre.code span.cur{background:var(--orange);color:var(--navy);font-weight:700}
+.vars{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.var{background:var(--paper);border-radius:10px;padding:5px 12px;font-family:var(--mono);font-weight:700;color:var(--navy)}
+.out{margin-top:10px;background:var(--teal-soft);border-radius:10px;padding:10px 14px;font-family:var(--mono);font-weight:700;min-height:44px;white-space:pre-wrap}
+table.g2{border-collapse:separate;border-spacing:6px}
+table.g2 th{font-family:var(--mono);font-size:14px;color:var(--teal);font-weight:700}
+table.g2 th.rh{color:var(--orange);text-align:right;padding-right:6px}
+table.g2 th small{display:block;color:var(--muted);font-family:var(--sans);font-weight:400}
+table.g2 td div{width:70px;height:52px;border:2px solid var(--navy);border-radius:8px;background:#fff;font-family:var(--mono);font-size:20px;font-weight:700;color:var(--navy);display:grid;place-items:center}
+table.g2 td div.hl{background:var(--orange);border-color:var(--orange);color:#fff}
+table.g2 td div.seen{background:var(--teal-soft)}
+table.g2 td div.best{background:var(--good);border-color:var(--good);color:#fff}
+
+/* parsons */
+.parsons{display:flex;flex-direction:column;gap:5px}
+.pl{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;background:var(--navy);color:#fff;border-radius:8px;padding:5px 8px;font-family:var(--mono);font-size:14px;border:3px solid transparent}
+.pl .n{color:#9FD9DA;font-size:13px;text-align:right}
+.pl .t{white-space:pre;overflow-x:auto;font-size:13px}
+.pl.ok{border-color:var(--good)}
+.pl.no{border-color:var(--bad)}
+.pl .mv{display:flex;gap:4px}
+.pl .mv button{background:#fff;color:var(--navy);border:0;border-radius:6px;width:30px;height:28px;font-weight:700}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.ck{background:var(--paper);border-radius:8px;padding:6px 10px;font-size:15px;display:flex;gap:8px;align-items:center}
+.ck span.b{width:22px;height:22px;border-radius:50%;background:var(--line);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.ck.on span.b{background:var(--good)}
+table.ld{border-collapse:collapse;font-size:14px;margin:6px 0;width:100%}
+table.ld th{background:var(--teal);color:#fff;padding:5px 9px;text-align:left}
+table.ld td{border:1px solid var(--line);padding:4px 9px;font-family:var(--mono)}
+table.ld tr.hit td{background:var(--orange-soft)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.right{border-left-color:var(--good)}.card.wrong{border-left-color:var(--bad)}
+.card p{margin:0}
+.choices{display:flex;gap:5px;flex-wrap:wrap}
+.choices button{flex:1 1 auto;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;padding:5px 8px;font-weight:700;font-size:14px}
+.choices button.picked-right{background:var(--good);border-color:var(--good);color:#fff}
+.choices button.picked-wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.model{display:none;background:var(--teal-soft);border-radius:8px;padding:8px 10px;font-size:15px}
+.model.show{display:block}
+.formula{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;font-weight:700;margin-bottom:14px}
+.formula span{color:var(--orange)}
+.tally{font-weight:700;color:var(--navy)}
+@media (max-width:900px){.two,.ops,.checklist{grid-template-columns:1fr}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Unit 1, Topic 5: Data structures (5.1)</p>
+    <h1>Manipulating arrays and records</h1>
+    <nav role="tablist" aria-label="Activities">
+      <button role="tab" aria-selected="true" aria-controls="p-ops" id="t-ops">Array operations</button>
+      <button role="tab" aria-selected="false" aria-controls="p-2d" id="t-2d">2D search</button>
+      <button role="tab" aria-selected="false" aria-controls="p-login" id="t-login">Login builder</button>
+      <button role="tab" aria-selected="false" aria-controls="p-ch" id="t-ch">Structure chooser</button>
+    </nav>
+  </div>
+</header>
+<main>
+<!-- ================= ARRAY OPERATIONS ================= -->
+<section class="panel active" id="p-ops" role="tabpanel" aria-labelledby="t-ops">
+  <h2>Array operations</h2>
+  <p class="lede">The array has a fixed size of 6. Choose an operation and step through it. Say each step out loud before you press Next: that is how you describe the manipulation in an exam.</p>
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><span class="label mono">declare scores[0 to 5] as integer</span><span class="small" id="sizeInfo"></span></div>
+    <div class="arr" id="arr"></div>
+    <div class="steptext" id="stepText" aria-live="polite">Choose an operation below.</div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="opNext" disabled>Next step</button><button class="btn" id="opAll" disabled>Finish</button><button class="btn" id="opReset">Reset array</button></div>
+    <div class="ops">
+      <div class="op"><h4>Insert</h4><div class="row"><span class="small">value</span><input class="num" id="insV" value="13" aria-label="Value to insert"><span class="small">at index</span><input class="num" id="insI" value="2" aria-label="Index to insert at"></div><button class="btn small" id="insGo" style="margin-top:8px">Insert</button></div>
+      <div class="op"><h4>Delete</h4><div class="row"><span class="small">index</span><input class="num" id="delI" value="1" aria-label="Index to delete"></div><button class="btn small" id="delGo" style="margin-top:8px">Delete</button></div>
+      <div class="op"><h4>Update</h4><div class="row"><span class="small">index</span><input class="num" id="updI" value="3" aria-label="Index to update"><span class="small">value</span><input class="num" id="updV" value="10" aria-label="New value"></div><button class="btn small" id="updGo" style="margin-top:8px">Update</button></div>
+    </div>
+  </div>
+  <div class="box">
+    <h3>Search with a flag</h3>
+    <div class="row"><span class="label">Search for</span><input class="num" id="sT" value="9" aria-label="Value to search for"><button class="btn small" id="sGo">Load</button></div>
+    <div class="two" style="margin-top:10px">
+      <div><pre class="code" id="sCode"></pre></div>
+      <div><div class="vars" id="sVars"></div><div class="steptext" id="sMsg"></div><div class="out" id="sOut">Output:</div>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="sNext">Next step</button><button class="btn" id="sAll">Run to the end</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2D SEARCH ================= -->
+<section class="panel" id="p-2d" role="tabpanel" aria-labelledby="t-2d">
+  <h2>2D search</h2>
+  <p class="lede">Nested loops visit every element: the outer loop picks a row, the inner loop runs along it. Step through and watch the order the cells are visited.</p>
+  <div class="box">
+    <div class="row"><span class="label">Program</span><div class="seg" id="g2p"><button data-v="total" aria-pressed="true">Grand total</button><button data-v="largest" aria-pressed="false">Largest and where</button><button data-v="find" aria-pressed="false">Find a value</button></div>
+      <span id="g2tw" class="row" style="display:none"><span class="label">Find</span><input class="num" id="g2t" value="40" aria-label="Value to find"></span></div>
+    <div class="two" style="margin-top:12px">
+      <div><table class="g2" id="g2"></table><div class="vars" id="g2vars"></div><div class="out" id="g2out">Output:</div></div>
+      <div><pre class="code" id="g2code"></pre><div class="steptext" id="g2msg"></div></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="g2next">Next step</button><button class="btn" id="g2row">Next row</button><button class="btn" id="g2all">Run to the end</button><button class="btn" id="g2reset">Start again</button></div>
+  </div>
+</section>
+
+<!-- ================= LOGIN BUILDER ================= -->
+<section class="panel" id="p-login" role="tabpanel" aria-labelledby="t-login">
+  <h2>Login builder: 2022, Q7</h2>
+  <p class="lede">Put the lines of the mark scheme’s answer in order using the arrows. Then test it with the three logins and tick off the 8 marking points. The array is read as loginDetails(column, row), as in the mark scheme.</p>
+  <div class="two">
+    <div class="box">
+      <h3>1. Put the lines in order</h3>
+      <div class="parsons" id="parsons"></div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="pCheck">Check order</button><button class="btn" id="pHint">Place the next line for me</button><button class="btn" id="pShuffle">Shuffle</button></div>
+      <div class="fb" id="pFb" aria-live="polite"></div>
+    </div>
+    <div class="box">
+      <h3>2. Test it</h3>
+      <table class="ld" id="ld"></table>
+      <div class="row" style="margin-top:8px"><span class="label">Username</span><input class="txt" id="lu" value="AliZ" aria-label="Username"><span class="label">Password</span><input class="txt" id="lp" value="1234" aria-label="Password"></div>
+      <div class="row" style="margin-top:8px"><button class="btn small" data-t="AliZ|1234">AliZ / 1234</button><button class="btn small" data-t="AliZ|9999">AliZ / 9999</button><button class="btn small" data-t="SmithJ|abc">SmithJ / abc</button></div>
+      <div class="row" style="margin-top:10px"><span class="label">Version</span><div class="seg" id="ver"><button data-v="ms" aria-pressed="true">Mark scheme</button><button data-v="fix" aria-pressed="false">Fixed</button></div><button class="btn primary" id="lRun">Run</button></div>
+      <div class="out" id="lOut">Output:</div>
+      <p class="small" id="lNote" style="margin:8px 0 0"></p>
+      <h3 style="margin-top:14px">The 8 marking points</h3>
+      <div class="checklist" id="ck"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STRUCTURE CHOOSER ================= -->
+<section class="panel" id="p-ch" role="tabpanel" aria-labelledby="t-ch">
+  <h2>Structure chooser</h2>
+  <p class="lede">For each situation, say your justification out loud using the formula, then choose. The model answer appears after you click.</p>
+  <div class="formula"><span>Structure</span> + because + <span>reason about data types or entities</span></div>
+  <p class="tally" id="cTally"></p>
+  <div class="cards" id="cCards"></div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="cReset">Shuffle and start again</button></div>
+</section>
+</main>
+
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.addEventListener('click',()=>tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).classList.toggle('active',x===t)})));
+function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.setAttribute('aria-pressed',x===b));cb(b.dataset.v)}))}
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const CAP=6;
+
+/* ================= ARRAY OPERATIONS ================= */
+let A=[12,7,15,9,20,null], size=5, ops=[], oi=0;
+function drawA(marks={}){
+  const box=document.getElementById('arr');box.innerHTML='';
+  A.forEach((v,i)=>{const w=document.createElement('div');w.className='cw';const c=document.createElement('div');c.className='cell'+(v===null?' empty':'')+(marks[i]?' '+marks[i]:'');c.textContent=v===null?'\u2013':v;const l=document.createElement('div');l.className='idx';l.textContent='['+i+']';w.append(c,l);box.append(w)});
+  document.getElementById('sizeInfo').textContent='Elements in use: '+size+' of '+CAP;
+}
+function runOps(list){ops=list;oi=0;document.getElementById('opNext').disabled=false;document.getElementById('opAll').disabled=false;stepOp()}
+function stepOp(){
+  if(oi>=ops.length)return;
+  const s=ops[oi++];s.act&&s.act();drawA(s.marks||{});
+  document.getElementById('stepText').innerHTML=s.msg;
+  if(oi>=ops.length){document.getElementById('opNext').disabled=true;document.getElementById('opAll').disabled=true}
+}
+document.getElementById('opNext').onclick=stepOp;
+document.getElementById('opAll').onclick=()=>{while(oi<ops.length)stepOp()};
+document.getElementById('opReset').onclick=()=>{A=[12,7,15,9,20,null];size=5;ops=[];document.getElementById('opNext').disabled=true;document.getElementById('opAll').disabled=true;drawA();document.getElementById('stepText').textContent='Array reset. Choose an operation below.';loadSearch()};
+const intIn=id=>parseInt(document.getElementById(id).value,10);
+document.getElementById('insGo').onclick=()=>{
+  const v=intIn('insV'),k=intIn('insI'),t=document.getElementById('stepText');
+  if(isNaN(v)||isNaN(k)){t.innerHTML='Type a whole-number value and index.';return}
+  if(size===CAP){t.innerHTML='<b>Step 1: is there a free space?</b> No: all '+CAP+' elements are in use. A fixed-size array cannot grow, so the value cannot be inserted. Delete something first.';drawA();return}
+  if(k<0||k>size){t.innerHTML='Insert at an index from 0 to '+size+' (the next free position is '+size+').';return}
+  const L=[{msg:'<b>Step 1: check there is a free space.</b> '+size+' of '+CAP+' elements are in use, so index '+size+' is free.',marks:{[size]:'src'}}];
+  for(let j=size;j>k;j--){const jj=j;L.push({act:()=>{A[jj]=A[jj-1]},marks:{[jj]:'hl',[jj-1]:'src'},msg:'<b>Shift right:</b> copy scores['+(jj-1)+'] into scores['+jj+']. We start at the end so no value is overwritten before it has moved.'})}
+  L.push({act:()=>{A[k]=v;size++},marks:{[k]:'done'},msg:'<b>Place the new value:</b> set scores['+k+'] = '+v+'. Elements in use: '+(size+1)+'.'});
+  runOps(L);
+};
+document.getElementById('delGo').onclick=()=>{
+  const k=intIn('delI'),t=document.getElementById('stepText');
+  if(isNaN(k)||k<0||k>=size){t.innerHTML='Delete an index from 0 to '+(size-1)+'.';return}
+  const old=A[k];const L=[{msg:'<b>Step 1:</b> the value to remove is scores['+k+'] = '+old+'.',marks:{[k]:'hl'}}];
+  for(let j=k;j<size-1;j++){const jj=j;L.push({act:()=>{A[jj]=A[jj+1]},marks:{[jj]:'hl',[jj+1]:'src'},msg:'<b>Shift left:</b> copy scores['+(jj+1)+'] into scores['+jj+'].'})}
+  L.push({act:()=>{A[size-1]=null;size--},marks:{},msg:'<b>Free the last space:</b> scores['+(size-1)+'] is now empty. Elements in use: '+(size-1)+'.'});
+  runOps(L);
+};
+document.getElementById('updGo').onclick=()=>{
+  const k=intIn('updI'),v=intIn('updV'),t=document.getElementById('stepText');
+  if(isNaN(k)||isNaN(v)||k<0||k>=size){t.innerHTML='Update an index from 0 to '+(size-1)+' with a whole number.';return}
+  const old=A[k];runOps([{act:()=>{A[k]=v},marks:{[k]:'done'},msg:'<b>Update:</b> scores['+k+'] was '+old+' and is now '+v+'. Nothing else moves: an update just overwrites one element.'}]);
+};
+/* search with flag */
+let ss=[],ssi=0;
+function sLines(t){return ['set found = FALSE','set target = '+t,'for i = 0 to '+(size-1),'  if scores[i] = target then','    set found = TRUE','    output "Found at index ", i','  end if','next i','if found = FALSE then','  output "Not found"','end if']}
+function loadSearch(){
+  const t=intIn('sT');ss=[];let f='FALSE',out=[];
+  const P=(line,i,msg,mk)=>ss.push({line,vars:{found:f,...(i!==null?{i}:{})},out:out.slice(),msg,mk});
+  P(0,null,'Before the loop, set the flag to FALSE.');P(1,null,'The value to look for is '+t+'.');
+  for(let i=0;i<size;i++){P(2,i,'i = '+i+'.',{[i]:'src'});const m=A[i]===t;P(3,i,'Is scores['+i+'] ('+A[i]+') = '+t+'? '+(m?'Yes.':'No.'),{[i]:m?'hl':'src'});
+    if(m){f='TRUE';P(4,i,'Set the flag to TRUE.',{[i]:'hl'});out.push('Found at index '+i);P(5,i,'Output the index.',{[i]:'done'})}P(7,i,'next i.',{})}
+  P(8,null,'After the loop: is found still FALSE? '+(f==='FALSE'?'Yes.':'No, so skip the message.'));
+  if(f==='FALSE'){out.push('Not found');P(9,null,'Output "Not found", once, after the loop.')}
+  P(10,null,'End.');ssi=0;sRender();
+}
+function sRender(){
+  const t=intIn('sT'),s=ssi>0?ss[ssi-1]:null;
+  document.getElementById('sCode').innerHTML=sLines(t).map((l,k)=>'<span class="'+(s&&s.line===k?'cur':'')+'">'+esc(l)+'</span>').join('');
+  document.getElementById('sVars').innerHTML=s?Object.entries(s.vars).map(([k,v])=>'<span class="var">'+k+' = '+v+'</span>').join(''):'';
+  document.getElementById('sMsg').textContent=s?s.msg:'Press Next step.';
+  document.getElementById('sOut').textContent='Output: '+(s?s.out.join('  |  '):'');
+  drawA(s&&s.mk?s.mk:{});
+  document.getElementById('sNext').disabled=ssi>=ss.length;
+}
+document.getElementById('sGo').onclick=loadSearch;
+document.getElementById('sNext').onclick=()=>{if(ssi<ss.length){ssi++;sRender()}};
+document.getElementById('sAll').onclick=()=>{ssi=ss.length;sRender()};
+drawA();loadSearch();
+
+/* ================= 2D SEARCH ================= */
+const HS=[[34,43,23,51],[26,47,54,14],[31,28,40,37]],STAFF=['001','002','003'],MON=['Jan','Feb','Mar','Apr'];
+let gp='total',gs=[],gi=0;
+function gLines(){
+  const t=document.getElementById('g2t').value;
+  if(gp==='total')return['set total = 0','for staff = 0 to 2','  for month = 0 to 3','    set total = total + handsets[staff, month]','  next month','next staff','output total'];
+  if(gp==='largest')return['set largest = handsets[0, 0]','set bestRow = 0','set bestCol = 0','for staff = 0 to 2','  for month = 0 to 3','    if handsets[staff, month] > largest then','      set largest = handsets[staff, month]','      set bestRow = staff','      set bestCol = month','    end if','  next month','next staff','output largest, bestRow, bestCol'];
+  return['set found = FALSE','for staff = 0 to 2','  for month = 0 to 3','    if handsets[staff, month] = '+t+' then','      output "Found at row ", staff, " column ", month','      set found = TRUE','    end if','  next month','next staff','if found = FALSE then','  output "Not found"','end if'];
+}
+function gBuild(){
+  gs=[];const seen=[];let out=[];
+  const P=(line,v,cur,msg,best,newRow)=>gs.push({line,v:{...v},cur,seen:seen.slice(),out:out.slice(),msg,best,newRow});
+  if(gp==='total'){let v={total:0};P(0,v,null,'total starts at 0.');
+    for(let r=0;r<3;r++){v.staff=r;P(1,v,null,'Outer loop: staff = '+r+'.',null,true);for(let c=0;c<4;c++){v.month=c;P(2,v,[r,c],'Inner loop: month = '+c+'.');v.total+=HS[r][c];P(3,v,[r,c],'total = '+(v.total-HS[r][c])+' + '+HS[r][c]+' = '+v.total+'.');seen.push(r+','+c)}P(5,v,null,'The inner loop has finished row '+r+'.')}
+    out=[String(v.total)];P(6,v,null,'Output the grand total.')}
+  else if(gp==='largest'){let v={largest:HS[0][0],bestRow:0,bestCol:0};P(0,v,[0,0],'Start with the first element as the largest.',[0,0]);
+    for(let r=0;r<3;r++){v.staff=r;P(3,v,null,'Outer loop: staff = '+r+'.',[v.bestRow,v.bestCol],true);for(let c=0;c<4;c++){v.month=c;const big=HS[r][c]>v.largest;P(5,v,[r,c],'Is '+HS[r][c]+' > '+v.largest+'? '+(big?'Yes.':'No.'),[v.bestRow,v.bestCol]);
+      if(big){v.largest=HS[r][c];v.bestRow=r;v.bestCol=c;P(8,v,[r,c],'Store the value and its row and column.',[r,c])}seen.push(r+','+c)}}
+    out=[v.largest+', '+v.bestRow+', '+v.bestCol];P(12,v,null,'Output the largest value and where it is.',[v.bestRow,v.bestCol])}
+  else{const t=parseInt(document.getElementById('g2t').value,10);let v={found:'FALSE'};P(0,v,null,'Set the flag to FALSE.');
+    for(let r=0;r<3;r++){v.staff=r;P(1,v,null,'Outer loop: staff = '+r+'.',null,true);for(let c=0;c<4;c++){v.month=c;const m=HS[r][c]===t;P(3,v,[r,c],'Is '+HS[r][c]+' = '+t+'? '+(m?'Yes.':'No.'));
+      if(m){out.push('Found at row '+r+' column '+c);P(4,v,[r,c],'Output where it was found.',[r,c]);v.found='TRUE';P(5,v,[r,c],'Set the flag to TRUE.',[r,c])}seen.push(r+','+c)}}
+    P(9,v,null,'After both loops: is found still FALSE? '+(v.found==='FALSE'?'Yes.':'No.'));if(v.found==='FALSE'){out.push('Not found');P(10,v,null,'Output "Not found".')}}
+  gi=0;gRender();
+}
+function gRender(){
+  const s=gi>0?gs[gi-1]:null;
+  let h='<tr><th></th>'+MON.map((m,j)=>'<th>['+j+']<small>'+m+'</small></th>').join('')+'</tr>';
+  HS.forEach((row,i)=>{h+='<tr><th class="rh">'+STAFF[i]+' ['+i+']</th>'+row.map((v,j)=>{let c='';if(s){if(s.seen.includes(i+','+j))c='seen';if(s.best&&s.best[0]===i&&s.best[1]===j)c='best';if(s.cur&&s.cur[0]===i&&s.cur[1]===j)c='hl'}return '<td><div class="'+c+'">'+v+'</div></td>'}).join('')+'</tr>'});
+  document.getElementById('g2').innerHTML=h;
+  document.getElementById('g2code').innerHTML=gLines().map((l,k)=>'<span class="'+(s&&s.line===k?'cur':'')+'">'+esc(l)+'</span>').join('');
+  document.getElementById('g2vars').innerHTML=s?Object.entries(s.v).map(([k,v])=>'<span class="var">'+k+' = '+v+'</span>').join(''):'';
+  document.getElementById('g2out').textContent='Output: '+(s?s.out.join('  |  '):'');
+  document.getElementById('g2msg').textContent=s?s.msg:'Press Next step. Watch the order the cells are visited.';
+  document.getElementById('g2next').disabled=gi>=gs.length;
+}
+seg('g2p',v=>{gp=v;document.getElementById('g2tw').style.display=v==='find'?'':'none';gBuild()});
+document.getElementById('g2t').addEventListener('change',gBuild);
+document.getElementById('g2next').onclick=()=>{if(gi<gs.length){gi++;gRender()}};
+document.getElementById('g2row').onclick=()=>{if(gi>=gs.length)return;do{gi++}while(gi<gs.length&&!gs[gi-1].newRow);gRender()};
+document.getElementById('g2all').onclick=()=>{gi=gs.length;gRender()};
+document.getElementById('g2reset').onclick=()=>{gi=0;gRender()};
+gBuild();
+
+/* ================= LOGIN BUILDER ================= */
+const LD=[['MurahanA','152599','Alice Murahan'],['JonesT','p@ssword12134','Tim Jones'],['MurrayB','Fred1985','Benjamin Murray'],['AliZ','1234','Zaheer Ali'],['DaviesD','#12356!','Denzil Davies']];
+const SOL=['set flag = FALSE','output "Please enter username"','input username','output "Please enter password"','input password','for i = 0 to 4','  if username = loginDetails(0,i) AND password = loginDetails(1,i) then','    output "You have successfully logged in ", loginDetails(2,i)','    set flag = TRUE','  else if username = loginDetails(0,i) AND password <> loginDetails(1,i) then','    output "Incorrect password"','  end if','next i','if flag = FALSE then','  output "User not found"','end if'];
+let order=[];
+function shuffleP(){order=SOL.map((_,i)=>i);do{order.sort(()=>Math.random()-.5)}while(order.every((v,i)=>v===i));document.getElementById('pFb').textContent='';drawP()}
+function drawP(marks){
+  const box=document.getElementById('parsons');box.innerHTML='';
+  order.forEach((li,pos)=>{const d=document.createElement('div');d.className='pl'+(marks?(marks[pos]?' ok':' no'):'');
+    d.innerHTML='<span class="n">'+(pos+1)+'</span><span class="t">'+esc(SOL[li])+'</span><span class="mv"><button aria-label="Move up">\u2191</button><button aria-label="Move down">\u2193</button></span>';
+    const [up,dn]=d.querySelectorAll('button');
+    up.onclick=()=>{if(pos>0){[order[pos-1],order[pos]]=[order[pos],order[pos-1]];drawP()}};
+    dn.onclick=()=>{if(pos<order.length-1){[order[pos+1],order[pos]]=[order[pos],order[pos+1]];drawP()}};
+    box.append(d)});
+}
+document.getElementById('pCheck').onclick=()=>{
+  const marks=order.map((li,pos)=>li===pos);const n=marks.filter(Boolean).length;drawP(marks);
+  const f=document.getElementById('pFb');
+  if(n===SOL.length){f.className='fb good';f.textContent='All '+SOL.length+' lines are in order. Now test it.'}
+  else{f.className='fb bad';f.textContent=n+' of '+SOL.length+' lines are in the right place (green). Think: initialise, input, loop, compare, output, then check the flag after the loop.'}
+};
+document.getElementById('pHint').onclick=()=>{const pos=order.findIndex((li,p)=>li!==p);if(pos<0)return;const from=order.indexOf(pos);[order[pos],order[from]]=[order[from],order[pos]];drawP();document.getElementById('pFb').className='fb';document.getElementById('pFb').textContent='Line '+(pos+1)+' placed.'};
+document.getElementById('pShuffle').onclick=shuffleP;
+document.getElementById('ld').innerHTML='<tr><th></th><th>Username [0]</th><th>Password [1]</th><th>Full name [2]</th></tr>'+LD.map((r,i)=>'<tr id="ld'+i+'"><td>['+i+']</td>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('');
+const POINTS=['Initialise variables','Input username and password','Loop structure and increment','Username comparison','Password comparison','Success message with full name','Incorrect password message','User not found message'];
+document.getElementById('ck').innerHTML=POINTS.map((p,i)=>'<div class="ck" id="ck'+i+'"><span class="b">'+(i+1)+'</span>'+p+'</div>').join('');
+let ver='ms';seg('ver',v=>{ver=v});
+function runLogin(u,p){
+  const out=[],hit=new Set([0,1,2]);let flag=false;
+  for(let i=0;i<5;i++){
+    if(ver==='ms'){
+      if(u===LD[i][0]&&p===LD[i][1]){out.push('You have successfully logged in '+LD[i][2]);flag=true;hit.add(3);hit.add(4);hit.add(5)}
+      else if(u===LD[i][0]&&p!==LD[i][1]){out.push('Incorrect password');hit.add(3);hit.add(4);hit.add(6)}
+    }else{
+      if(u===LD[i][0]){flag=true;hit.add(3);if(p===LD[i][1]){out.push('Welcome '+LD[i][2]);hit.add(4);hit.add(5)}else{out.push('Incorrect password');hit.add(4);hit.add(6)}}
+    }
+  }
+  if(!flag){out.push('User not found');hit.add(7)}
+  return {out,hit,row:LD.findIndex(r=>r[0]===u)};
+}
+document.getElementById('lRun').onclick=()=>{
+  const u=document.getElementById('lu').value,p=document.getElementById('lp').value,r=runLogin(u,p);
+  document.getElementById('lOut').textContent='Output:\n'+r.out.join('\n');
+  LD.forEach((_,i)=>document.getElementById('ld'+i).classList.toggle('hit',i===r.row));
+  POINTS.forEach((_,i)=>document.getElementById('ck'+i).classList.toggle('on',r.hit.has(i)));
+  const n=document.getElementById('lNote');
+  if(ver==='ms'&&r.out.length===2&&r.out[0]==='Incorrect password')n.textContent='Bug: the flag is only set to TRUE on a successful login, so "User not found" is printed as well. Switch to the Fixed version and run it again.';
+  else if(ver==='fix'&&r.out[0]==='Incorrect password')n.textContent='Fixed: the flag is set as soon as the username matches, so only the correct message appears.';
+  else n.textContent='Green points are the marking points this test exercised. Run all three tests to cover all 8.';
+};
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const [u,p]=b.dataset.t.split('|');document.getElementById('lu').value=u;document.getElementById('lp').value=p;document.getElementById('lRun').click()});
+shuffleP();
+
+/* ================= STRUCTURE CHOOSER ================= */
+const OPTS=['1D array','2D array','Record','Array of records'];
+const SC=[
+  ['The scores given by 6 judges to one diver','1D array','A 1D array, because it is a single list of values that are all the same data type (real).'],
+  ['Daily step counts for 4 weeks, recorded by week and day','2D array','A 2D array, because all the values are integers arranged in rows (weeks) and columns (days).'],
+  ['One flight\u2019s number, destination, departure time and whether it is delayed','Record','A record, because the fields have different data types (string, Boolean) and all relate to a single flight.'],
+  ['The number, destination, departure time and delay status of all 200 flights today','Array of records','An array of records, because there are many flights and each has fields of different data types.'],
+  ['The names of the 11 players in a team','1D array','A 1D array, because it is a list of values that are all strings.'],
+  ['A noughts and crosses board','2D array','A 2D array, because the board is a grid of rows and columns, and every square holds the same data type (a character).'],
+  ['One car\u2019s registration, make, mileage and price','Record','A record, because the fields have different data types (string, integer, real) and all describe a single car.'],
+  ['The code, name, quantity and price of every item a shop stocks','Array of records','An array of records, because there are many items and each has fields of different data types.']
+];
+let cR=0,cD=0;
+function buildC(){
+  const box=document.getElementById('cCards');box.innerHTML='';cR=0;cD=0;cTally();
+  SC.map((_,i)=>i).sort(()=>Math.random()-.5).forEach(idx=>{
+    const [txt,ans,model]=SC[idx];const c=document.createElement('div');c.className='card';
+    const p=document.createElement('p');p.textContent=txt;const ch=document.createElement('div');ch.className='choices';const m=document.createElement('div');m.className='model';m.innerHTML='<b>Model answer:</b> '+esc(model);
+    OPTS.forEach(o=>{const b=document.createElement('button');b.textContent=o;b.onclick=()=>{if(c.dataset.done)return;c.dataset.done=1;cD++;
+      if(o===ans){b.classList.add('picked-right');c.classList.add('right');cR++}else{b.classList.add('picked-wrong');c.classList.add('wrong');[...ch.children].find(x=>x.textContent===ans).classList.add('picked-right')}
+      m.classList.add('show');cTally()};ch.append(b)});
+    c.append(p,ch,m);box.append(c)});
+}
+function cTally(){document.getElementById('cTally').textContent=cD<SC.length?cD+' of '+SC.length+' answered, '+cR+' correct':'All done: '+cR+' out of '+SC.length+' correct.'}
+document.getElementById('cReset').onclick=buildC;buildC();
+</script>
+</body>
+</html>
