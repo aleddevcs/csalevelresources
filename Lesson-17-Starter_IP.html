@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 17 Starter — Warm-up and Ready to Hand In?</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --white:#FFFFFF;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  main{
+    max-width:780px;
+    margin:-1.2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    margin-bottom:1.6rem;
+    padding:1.5rem 1.6rem;
+  }
+  .intro{
+    display:flex;
+    align-items:flex-start;
+    gap:0.9rem;
+  }
+  .intro .dot{
+    width:36px;
+    height:36px;
+    background:var(--second);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:1.1rem;
+    flex-shrink:0;
+  }
+  .intro p{
+    margin:0;
+    font-size:0.98rem;
+    line-height:1.5;
+  }
+  .section-title{
+    font-size:1.1rem;
+    font-weight:bold;
+    color:var(--dark);
+    margin:0 0 1rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .section-title .num{
+    background:var(--primary);
+    color:white;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  .part-label{
+    font-size:0.75rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 0.3rem;
+  }
+
+  /* submission check */
+  .status-q{
+    font-size:1rem;
+    margin:0 0 0.9rem;
+  }
+  .status-opts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.6rem;
+  }
+  .status-btn{
+    flex:1;
+    min-width:150px;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.85rem 0.8rem;
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+  }
+  .status-btn:hover{ border-color:var(--second); }
+  .status-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .status-msg{
+    display:none;
+    margin-top:1rem;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.95rem;
+    line-height:1.5;
+  }
+  .status-msg.show{ display:block; }
+  .status-msg.good{ background:var(--greenbg); color:var(--green); }
+  .status-msg.act{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .status-msg b{ display:block; margin-bottom:0.2rem; }
+  .privacy{
+    margin:0.9rem 0 0;
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  /* retrieval */
+  .q{
+    margin-bottom:1.3rem;
+  }
+  .q:last-child{
+    margin-bottom:0;
+  }
+  .q .prompt{
+    font-size:0.98rem;
+    margin-bottom:0.6rem;
+  }
+  .row{
+    display:flex;
+    gap:0.6rem;
+    align-items:center;
+  }
+  .row input[type=text]{
+    flex:1;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.5rem 0.7rem;
+    font-family:"Courier New", monospace;
+    font-size:0.95rem;
+  }
+  .row button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .row button:hover{
+    background:var(--primary);
+  }
+  .answer{
+    display:none;
+    margin-top:0.6rem;
+    padding:0.7rem 0.9rem;
+    border-radius:8px;
+    font-size:0.9rem;
+    background:var(--greenbg);
+    color:var(--green);
+  }
+  .answer.show{
+    display:block;
+  }
+  code{
+    font-family:"Courier New", monospace;
+    background:var(--light);
+    padding:0.05rem 0.3rem;
+    border-radius:4px;
+    font-size:0.9em;
+  }
+  .today-card{
+    background:var(--primary);
+    color:white;
+  }
+  .today-card .section-title{
+    color:white;
+  }
+  .today-card .section-title .num{
+    background:white;
+    color:var(--primary);
+  }
+  .today-card ul{
+    margin:0;
+    padding-left:1.2rem;
+    font-size:0.95rem;
+    line-height:1.9;
+  }
+  footer{
+    max-width:780px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  pre.snippet{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.92rem;
+    line-height:1.6;
+    margin:0 0 0.8rem;
+    overflow-x:auto;
+  }
+  .stage-list{
+    display:flex;
+    flex-direction:column;
+    gap:0.55rem;
+  }
+  .stage-btn{
+    text-align:left;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.8rem 1rem;
+    font-size:0.96rem;
+    color:var(--text);
+    cursor:pointer;
+    display:flex;
+    gap:0.8rem;
+    align-items:flex-start;
+  }
+  .stage-btn .n{
+    font-weight:bold;
+    color:var(--second);
+    min-width:1.2rem;
+  }
+  .stage-btn:hover{ border-color:var(--second); }
+  .stage-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .stage-btn.sel .n{ color:#CADCFC; }
+
+  .pick{
+    display:flex;
+    flex-direction:column;
+    gap:0.3rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:0.8rem;
+    margin:0 0 0.9rem;
+  }
+  .cl{
+    font-family:"Courier New", monospace;
+    font-size:0.92rem;
+    color:#F4F8FA;
+    background:rgba(255,255,255,0.04);
+    border:2px solid transparent;
+    border-radius:6px;
+    padding:0.35rem 0.6rem;
+    text-align:left;
+    white-space:pre;
+    cursor:pointer;
+  }
+  .cl:hover{ border-color:#5B7FA6; }
+  .cl.sel{ border-color:#F9E795; background:rgba(249,231,149,0.14); }
+  .cl.right{ border-color:#6FCF97; background:rgba(111,207,151,0.2); }
+  .cl.missed{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.18); }
+  .cl.wrong{ border-color:#F0997B; background:rgba(240,153,123,0.22); }
+  .cl.locked{ cursor:default; }
+  .pick-actions{
+    display:flex;
+    gap:0.6rem;
+    margin-bottom:0.2rem;
+  }
+  .pick-actions button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1.1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .pick-actions button.secondary{
+    background:var(--light);
+    color:var(--text);
+    border:1px solid #D8E2E8;
+  }
+  .pick-actions button:hover{ background:var(--primary); color:#fff; }
+  .legend-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.9rem;
+    font-size:0.78rem;
+    color:var(--muted);
+    margin:0.5rem 0 0;
+  }
+  .legend-row span::before{
+    content:"";
+    display:inline-block;
+    width:0.8rem;
+    height:0.8rem;
+    border-radius:3px;
+    margin-right:0.35rem;
+    vertical-align:-0.1rem;
+    border:2px solid;
+  }
+  .legend-row .l-right::before{ border-color:#6FCF97; background:rgba(111,207,151,0.35); }
+  .legend-row .l-missed::before{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.3); }
+  .legend-row .l-wrong::before{ border-color:#F0997B; background:rgba(240,153,123,0.4); }
+  .legend-row{ display:none; }
+  .legend-row.show{ display:flex; }
+
+  .gs-info{ display:none; margin:0.9rem 0 0; }
+  .gs-info.show{ display:block; }
+  .gs-info .what{
+    background:var(--light); border-radius:10px; padding:0.8rem 1rem; font-size:0.93rem; line-height:1.5; margin-bottom:0.7rem;
+  }
+  .chips-label{ font-size:0.82rem; color:var(--muted); margin:0 0 0.4rem; }
+  .chips{ display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.4rem; }
+  .chip{
+    text-align:left; background:#FBF0E7; border:1px solid var(--amber); color:#8A4A1E; border-radius:8px;
+    padding:0.5rem 0.8rem; font-size:0.9rem; cursor:pointer; line-height:1.4;
+  }
+  .chip:hover{ background:#F8E3D0; }
+  .action-label{ display:block; font-weight:bold; font-size:0.95rem; margin:1.1rem 0 0.4rem; color:var(--dark); }
+  textarea.action{
+    width:100%; min-height:5.5rem; border:1px solid #D8E2E8; border-radius:8px; padding:0.6rem 0.75rem;
+    font-family:inherit; font-size:0.95rem; line-height:1.5; resize:vertical; box-sizing:border-box;
+  }
+  .a-row{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.6rem; align-items:center; }
+  .a-row button{
+    background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .a-row button.secondary{ background:var(--light); color:var(--text); border:1px solid #D8E2E8; }
+  .a-row button:hover{ filter:brightness(1.08); }
+  .a-row .note{ font-size:0.85rem; color:var(--green); display:none; }
+  .a-row .note.show{ display:inline; }
+  .selfeval{
+    display:flex; gap:0.7rem; align-items:flex-start; margin-top:1.1rem; padding:0.8rem 1rem;
+    background:var(--light); border-radius:10px; font-size:0.93rem; line-height:1.45; cursor:pointer;
+  }
+  .selfeval input{ width:20px; height:20px; margin-top:0.1rem; accent-color:var(--second); flex-shrink:0; }
+  .selfeval.done{ background:var(--greenbg); color:var(--green); }
+  .fb{ margin-top:0.7rem; }
+
+  .qfb{ margin-top:0.7rem; }
+  .answer.fix{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .answer b{ font-weight:bold; }
+  .important{
+    margin-top:0.6rem; padding:0.6rem 0.8rem; border-radius:8px; background:var(--light); font-size:0.9rem; line-height:1.45; color:var(--text);
+    border-left:4px solid var(--second);
+  }
+  textarea.free{
+    width:100%; min-height:4.2rem; border:1px solid #D8E2E8; border-radius:8px; padding:0.6rem 0.75rem; font-family:inherit;
+    font-size:0.95rem; line-height:1.5; box-sizing:border-box; resize:vertical;
+  }
+  .qbtn{
+    margin-top:0.5rem; background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .qbtn:hover{ filter:brightness(1.08); }
+
+  .optlist{ display:grid; gap:0.5rem; margin-top:0.6rem; }
+  .opt{
+    text-align:left; background:var(--light); border:1px solid #D8E2E8; border-radius:10px; padding:0.65rem 0.9rem;
+    font-size:0.95rem; color:var(--text); cursor:pointer; font-family:inherit; line-height:1.4;
+  }
+  .opt code{ background:#E3EEF5; padding:0.05rem 0.35rem; border-radius:4px; }
+  .opt:hover{ border-color:var(--second); }
+  .opt.right{ background:var(--greenbg); border-color:var(--green); color:var(--green); font-weight:bold; }
+  .opt.wrong{ background:var(--amberbg); border-color:var(--amber); color:#8A4A1E; }
+  .opt[disabled]{ cursor:default; }
+  .bridge{
+    margin-top:0.2rem; padding:0.8rem 1rem; border-radius:10px; background:var(--light); border-left:4px solid var(--second);
+    font-size:0.95rem; line-height:1.5; color:var(--text);
+  }
+  .notice{
+    margin:0.9rem 0 0; padding:0.7rem 0.95rem; border-radius:10px; background:var(--amberbg); border:1px solid var(--amber);
+    color:#8A4A1E; font-size:0.92rem; line-height:1.45;
+  }
+
+  .checklist{ list-style:none; margin:0.6rem 0 0; padding:0; display:grid; gap:0.5rem; }
+  .checklist li{ margin:0; }
+  .checklist label{
+    display:flex; gap:0.75rem; align-items:flex-start; padding:0.7rem 0.9rem; border:1px solid #D8E2E8; border-radius:10px;
+    background:var(--light); cursor:pointer; font-size:0.95rem; line-height:1.45;
+  }
+  .checklist label:hover{ border-color:var(--second); }
+  .checklist input[type=checkbox]{ margin-top:0.2rem; width:1.15rem; height:1.15rem; accent-color:var(--second); flex:none; }
+  .checklist li.done label{ background:var(--greenbg); border-color:var(--green); color:var(--green); }
+  .checklist code{ background:#E3EEF5; padding:0.05rem 0.35rem; border-radius:4px; }
+  .readycount{ margin:0.9rem 0 0.2rem; font-size:0.9rem; color:var(--muted); font-weight:bold; }
+  .readybar{ height:8px; border-radius:6px; background:#E1E9EE; overflow:hidden; }
+  .readybar > div{ height:100%; width:0; background:var(--second); transition:width .25s ease; }
+  .status-msg ul{ margin:0.35rem 0 0; padding-left:1.2rem; }
+  .status-msg li{ margin:0.15rem 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 17 starter</h1>
+  <p>Warm-up — and are you ready to hand in?</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="intro">
+      <span class="dot">?</span>
+      <p>Two quick parts. First, <b>four questions</b> to warm up — no notes. Then check <b>whether you're ready to hand in</b> Assignment 2, which is due <b>tomorrow</b>.</p>
+    </div>
+  </div>
+
+  <!-- PART A -->
+  <div class="card">
+    <p class="part-label">Part A</p>
+    <p class="section-title"><span class="num">1</span>Warm-up</p>
+
+    <div class="q">
+      <div class="prompt"><b>Question 1</b> — lists from yesterday. What does this print?</div>
+      <pre class="snippet">scores = [5, 8, 3]
+scores.append(9)
+print(scores[1], len(scores))</pre>
+      <div class="row">
+        <input type="text" id="p1" placeholder="Type your prediction">
+        <button onclick="checkQ(1)">Check</button>
+      </div>
+      <div class="answer qfb" id="a1" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 2</b> — the list now has four items. What happens with <code>print(scores[len(scores)])</code>?</div>
+      <div class="optlist" id="o2">
+        <button class="opt" data-k="a">It prints <code>9</code>, the last item</button>
+        <button class="opt" data-k="b">It prints <code>4</code></button>
+        <button class="opt" data-k="c">An <code>IndexError</code> — there is no position 4</button>
+        <button class="opt" data-k="d">A <code>TypeError</code></button>
+      </div>
+      <div class="answer qfb" id="a2" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 3</b> — recursion. What does this print?</div>
+      <pre class="snippet">def sum_to(n):
+    if n == 0:
+        return 0
+    else:
+        return n + sum_to(n - 1)
+
+print(sum_to(3))</pre>
+      <div class="row">
+        <input type="text" id="p3" placeholder="Type your prediction">
+        <button onclick="checkQ(3)">Check</button>
+      </div>
+      <div class="answer qfb" id="a3" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 4</b> — a nested loop. How many times does <code>print</code> run?</div>
+      <pre class="snippet">for i in range(2):
+    for j in range(3):
+        print(i, j)</pre>
+      <div class="row">
+        <input type="text" id="p4" placeholder="Type your prediction">
+        <button onclick="checkQ(4)">Check</button>
+      </div>
+      <div class="answer qfb" id="a4" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="bridge"><b>Hold that thought:</b> an <b>outer</b> loop picks something; an <b>inner</b> loop works through it. Today we use exactly that — on a <b>grid</b>.</div>
+  </div>
+
+  <!-- PART B -->
+  <div class="card">
+    <p class="part-label">Part B</p>
+    <p class="section-title"><span class="num">2</span>Ready to hand in?</p>
+    <p class="status-q">Assignment 2 is due <b>tomorrow, Friday 13/11</b>. Tick what you've <b>already done</b>. Be honest — anything left unticked is what to work on in the surgery.</p>
+
+    <ul class="checklist" id="checklist">
+      <li><label><input type="checkbox" data-i="0"><span>The programme runs, and the <b>tests are run and screenshotted</b></span></label></li>
+      <li><label><input type="checkbox" data-i="1"><span>The Python file is named <code>Library_Management_YourName.py</code></span></label></li>
+      <li><label><input type="checkbox" data-i="2"><span>The report has <b>a section for each criterion</b> (AC 2.1 to 2.4), captioned screenshots, and references</span></label></li>
+      <li><label><input type="checkbox" data-i="3"><span>The <b>READ ME page and every amber guidance box</b> are deleted from the report template</span></label></li>
+      <li><label><input type="checkbox" data-i="4"><span>The <b>cover sheet is signed</b> — the declaration</span></label></li>
+      <li><label><input type="checkbox" data-i="5"><span>I know how to hand in: through Teams as a <b>&ldquo;handed in&rdquo; piece of work</b> — <b>not</b> a channel post</span></label></li>
+    </ul>
+
+    <p class="readycount" id="readyCount">0 of 6 ticked</p>
+    <div class="readybar"><div id="readyFill"></div></div>
+    <div class="status-msg" id="readyMsg" role="status" aria-live="polite"></div>
+
+    <p class="privacy">This is just for you — nothing you tick here is sent anywhere.</p>
+  </div>
+
+  <div class="card today-card">
+    <p class="section-title"><span class="num">→</span>Today</p>
+    <ul>
+      <li><b>Assignment 2 final push</b> — 15 minutes to finish and check</li>
+      <li><b>Lists of lists</b> — a grid, with rows and columns</li>
+      <li><b>Nested loops</b> — visiting every value in the grid</li>
+      <li><b>Explain it</b> — row first, then column</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>Lesson 17 · Imperative Programming · Access to HE Applied Computing</footer>
+
+<script>
+  const NEED = 'Type your prediction first \u2014 it\'s the prediction that does the learning.';
+  const WORDS = { zero:'0', one:'1', two:'2', three:'3', four:'4', five:'5', six:'6', seven:'7', eight:'8', nine:'9' };
+
+  function put(id, html, ok){
+    const out = document.getElementById(id);
+    out.innerHTML = html;
+    out.classList.remove('fix');
+    if (ok === false) out.classList.add('fix');
+    out.classList.add('show');
+  }
+  // pull the numbers out of what was typed, reading number words too
+  function nums(v){
+    let t = v.toLowerCase().replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine)\b/g, w => WORDS[w]);
+    return (t.match(/-?\d+/g)) || [];
+  }
+
+  /* ---------- Question 2: choose ---------- */
+  const Q2 = { right: 'c', fb: {
+    a: '<b>Close \u2014 but no.</b> The last item is <code>scores[len(scores) - 1]</code>. <code>len(scores)</code> is 4, and there is no position 4.',
+    b: '<b>That\'s <code>len(scores)</code> itself.</b> Here it is being used as a <i>position</i> \u2014 and position 4 doesn\'t exist.',
+    c: '<b>Yes.</b> Four items means positions <b>0 to 3</b>. <code>len(scores)</code> is 4, but the last position is one <i>less</i>.',
+    d: '<b>Not a type problem.</b> A whole number is a perfectly good position \u2014 it\'s just one that doesn\'t exist.'
+  } };
+  const list2 = document.getElementById('o2');
+  list2.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.k;
+      list2.querySelectorAll('.opt').forEach(b => b.classList.remove('wrong'));
+      if (k === Q2.right) {
+        list2.querySelectorAll('.opt').forEach(b => { b.classList.toggle('right', b === btn); b.disabled = true; });
+        put('a2', Q2.fb[k], true);
+      } else {
+        btn.classList.add('wrong');
+        put('a2', Q2.fb[k] + ' Try another.', false);
+      }
+    });
+  });
+
+  /* ---------- Questions 1, 3 and 4: predict ---------- */
+  const checks = {
+    1(v){
+      const k = nums(v).join(' ');
+      if (k === '8 4') return [true, '<b>Yes \u2014 8 4.</b> After <code>append</code>, <code>scores</code> is <code>[5, 8, 3, 9]</code>: position 1 is 8, and there are 4 items.'];
+      if (k === '5 4') return [false, '<b>Counting starts at 0.</b> <code>scores[1]</code> is the <i>second</i> item, which is 8 \u2014 not 5. And there are 4 items.'];
+      if (k === '8 3') return [false, '<b>You\'ve forgotten the <code>append</code>.</b> It adds 9, so there are <b>4</b> items now. The answer is <code>8 4</code>.'];
+      if (k === '5 3') return [false, '<b>Two things:</b> <code>append</code> adds 9 (so 4 items), and counting starts at 0 (so <code>scores[1]</code> is 8). The answer is <code>8 4</code>.'];
+      if (k === '8') return [false, '<b>You have the first value.</b> The <code>print</code> shows <i>two</i> things: <code>scores[1]</code> (which is 8) and <code>len(scores)</code>. After the <code>append</code> there are 4 items: <code>8 4</code>.'];
+      if (k === '4') return [false, '<b>You have the second value.</b> The <code>print</code> shows <i>two</i> things: <code>scores[1]</code> first (position 1 is 8), then <code>len(scores)</code> (4). The answer is <code>8 4</code>.'];
+      return [false, 'The answer is <code>8 4</code>. After <code>append</code>, <code>scores</code> is <code>[5, 8, 3, 9]</code>: position 1 is 8, and there are 4 items.'];
+    },
+    3(v){
+      const k = nums(v).join(' ');
+      if (k === '6') return [true, '<b>Yes \u2014 6.</b> <code>3 + 2 + 1 + 0</code>: each call adds its own <code>n</code> on the way back up.'];
+      if (k === '0') return [false, '<b>0 is what the base case returns</b> \u2014 but each earlier call adds its own <code>n</code> on the way back: 3 + 2 + 1 + 0 = <code>6</code>.'];
+      if (k === '3') return [false, '<b>That\'s <code>n</code> in the first call.</b> The function returns <code>n + sum_to(n - 1)</code>, so it adds 3 + 2 + 1 + 0 = <code>6</code>.'];
+      return [false, 'The answer is <code>6</code>. The calls go down (3, 2, 1, 0) and the answers come back up, adding as they go: 3 + 2 + 1 + 0.'];
+    },
+    4(v){
+      const k = nums(v).join(' ');
+      if (k === '6') return [true, '<b>Yes \u2014 6.</b> The inner loop runs <b>3</b> times for <i>each</i> of the <b>2</b> outer passes: 2 \u00D7 3.'];
+      if (k === '3') return [false, '<b>That\'s just the inner loop.</b> It runs again for <i>each</i> outer pass \u2014 2 \u00D7 3 = <code>6</code>.'];
+      if (k === '2') return [false, '<b>That\'s just the outer loop.</b> For each of its 2 passes, the inner loop runs 3 times \u2014 2 \u00D7 3 = <code>6</code>.'];
+      if (k === '5') return [false, '<b>That adds them \u2014 but nested loops multiply.</b> 2 \u00D7 3 = <code>6</code>.'];
+      return [false, 'The answer is <code>6</code>. The inner loop runs 3 times for each of the 2 outer passes: 2 \u00D7 3.'];
+    }
+  };
+  function checkQ(n){
+    const v = document.getElementById('p' + n).value;
+    if (!v.trim()) { put('a' + n, NEED, false); return; }
+    const [ok, html] = checks[n](v);
+    put('a' + n, html, ok);
+  }
+
+  /* ---------- Part B: ready to hand in? ---------- */
+  const TIPS = [
+    'Run the programme and test it, then <strong>screenshot</strong> the tests as you go.',
+    'Rename the file to <code>Library_Management_YourName.py</code> \u2014 your own name.',
+    'Check the report has a section for <strong>AC 2.1, 2.2, 2.3 and 2.4</strong>, with captions and references.',
+    'Delete the <strong>READ ME page</strong> and every <strong>amber guidance box</strong> from the template.',
+    'Sign the <strong>declaration</strong> on the cover sheet \u2014 it can\'t be marked without it.',
+    'In Teams, open the assignment and use <strong>Hand in</strong>. A channel post doesn\'t count.'
+  ];
+  const boxes = Array.from(document.querySelectorAll('#checklist input[type=checkbox]'));
+  function updateReady(){
+    const done = boxes.filter(b => b.checked).length, total = boxes.length;
+    boxes.forEach(b => b.closest('li').classList.toggle('done', b.checked));
+    document.getElementById('readyCount').textContent = done + ' of ' + total + ' ticked';
+    document.getElementById('readyFill').style.width = Math.round(done / total * 100) + '%';
+    const msg = document.getElementById('readyMsg');
+    if (done === 0) { msg.className = 'status-msg'; msg.innerHTML = ''; return; }
+    if (done === total) {
+      msg.className = 'status-msg show good';
+      msg.innerHTML = '<b>You\'re ready to hand in.</b>Do it today if you can \u2014 not at the deadline. Then use the surgery to help someone else.';
+      return;
+    }
+    const left = boxes.map((b, i) => b.checked ? '' : '<li>' + TIPS[i] + '</li>').join('');
+    msg.className = 'status-msg show act';
+    msg.innerHTML = '<b>Still to do (' + (total - done) + '):</b><ul>' + left + '</ul>Use the surgery for these.';
+  }
+  boxes.forEach(b => b.addEventListener('change', updateReady));
+</script>
+
+</body>
+</html>
