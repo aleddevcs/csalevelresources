@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Files: design and organisation: Topic 6, Lesson 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B; --bad-soft:#F8E3E0; --good-soft:#E3F4EA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+.head-inner{max-width:1140px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 14px;font-size:30px;line-height:1.15}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#C9D3E6;padding:10px 16px;border-radius:10px 10px 0 0;font-weight:700}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+nav button:hover:not([aria-selected="true"]){color:#fff;background:var(--navy-2)}
+main{max-width:1140px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+h2{font-size:24px;margin:0 0 4px;color:var(--navy)}
+h3{font-size:18px;margin:0 0 10px;color:var(--navy)}
+.lede{color:var(--muted);margin:0 0 18px;max-width:78ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:8px 16px;font-weight:700}
+.btn:hover{background:var(--teal-soft)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy-2)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.btn.small{padding:4px 10px;font-size:15px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.seg{display:inline-flex;border:2px solid var(--navy);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:#fff;color:var(--navy);padding:7px 13px;font-weight:700}
+.seg button+button{border-left:2px solid var(--navy)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.label{font-weight:700;color:var(--navy)}
+.small{font-size:15px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+input.num{width:70px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-family:var(--mono)}
+input.txt{width:170px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-family:var(--mono)}
+.fields{display:flex;gap:10px;flex-wrap:wrap}
+.fdef{background:var(--paper);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px}
+.fdef b{color:var(--navy)}
+.recs{display:flex;flex-direction:column;gap:12px;margin-top:14px;overflow-x:auto;padding-bottom:4px}
+.rec{display:flex;align-items:center;gap:10px}
+.rec .lbl{width:84px;flex:none;font-weight:700;color:var(--navy);font-size:15px}
+.chars{display:flex;gap:0;flex-wrap:nowrap;align-items:center}
+.fg{display:flex;margin-right:8px;position:relative}
+.c{width:22px;height:32px;border:1px solid #9FB4C7;display:grid;place-items:center;font-family:var(--mono);font-size:14px;font-weight:700;background:#fff;color:var(--navy)}
+.c.pad{background:var(--paper);color:var(--muted);font-weight:400}
+.c.sep{background:var(--orange);color:#fff;border-color:var(--orange)}
+.cut{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--bad);text-decoration:line-through;margin-left:3px;align-self:center}
+.rlen{font-family:var(--mono);font-size:14px;color:var(--teal);font-weight:700;white-space:nowrap;margin-left:6px}
+.rm{border:0;background:transparent;color:var(--muted);font-size:18px}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+.readout{background:var(--paper);border-radius:12px;padding:12px 16px}
+.readout .name{font-size:14px;color:var(--muted)}
+.readout .val{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--navy)}
+.readout.bad .val{color:var(--bad)}
+.verdict{margin-top:12px;border-radius:10px;padding:10px 14px;background:var(--teal-soft)}
+.verdict b{color:var(--navy)}
+/* sim */
+.org{background:var(--paper);border-radius:12px;padding:12px;margin-top:12px}
+.org h4{margin:0 0 8px;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+.org h4 span{font-family:var(--mono);color:var(--teal)}
+.strip{display:flex;gap:4px;flex-wrap:wrap}
+.k{min-width:48px;height:36px;border:2px solid var(--navy);border-radius:7px;background:#fff;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:15px;color:var(--navy);transition:background .15s}
+.k.read{background:var(--teal-soft)}
+.k.cur{background:var(--orange);border-color:var(--orange);color:#fff}
+.k.hit{background:var(--good);border-color:var(--good);color:#fff}
+.k.idx{border-style:dashed;color:var(--teal)}
+.blocks{display:flex;gap:12px;flex-wrap:wrap}
+.blk{border:2px dashed var(--line);border-radius:10px;padding:6px;display:flex;gap:4px;flex-direction:column}
+.blk small{color:var(--muted);font-size:12px}
+.blk .strip{flex-wrap:nowrap}
+.idxt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ie{border:2px solid var(--teal);border-radius:7px;padding:3px 8px;font-family:var(--mono);font-size:14px;background:#fff;color:var(--navy)}
+.ie.cur{background:var(--orange);border-color:var(--orange);color:#fff}
+.msg{font-size:15px;color:var(--ink);margin-top:6px;min-height:22px}
+table.res{border-collapse:collapse;width:100%;margin-top:12px;font-size:16px}
+table.res th{background:var(--navy);color:#fff;padding:7px 10px;text-align:left}
+table.res td{border:1px solid var(--line);padding:6px 10px}
+table.res td.m{font-family:var(--mono);font-weight:700}
+table.res tr.best td{background:var(--good-soft)}
+/* sort */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.right{border-left-color:var(--good)}.card.wrong{border-left-color:var(--bad)}
+.card p{margin:0}
+.card .eg{font-family:var(--mono);color:var(--muted);font-size:14px}
+.choices{display:flex;gap:6px}
+.choices button{flex:1;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;padding:6px 8px;font-weight:700}
+.choices button.picked-right{background:var(--good);border-color:var(--good);color:#fff}
+.choices button.picked-wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.why{font-size:14px;color:var(--muted)}
+.tally{font-weight:700;color:var(--navy)}
+@media (max-width:900px){.summary{grid-template-columns:1fr 1fr}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Unit 1, Topic 6: Organisation of data</p>
+    <h1>Files: design and organisation</h1>
+    <nav role="tablist" aria-label="Activities">
+      <button role="tab" aria-selected="true" aria-controls="p-rec" id="t-rec">Record size explorer</button>
+      <button role="tab" aria-selected="false" aria-controls="p-sim" id="t-sim">File access</button>
+      <button role="tab" aria-selected="false" aria-controls="p-fv" id="t-fv">Fixed or variable?</button>
+    </nav>
+  </div>
+</header>
+<main>
+<!-- ================= RECORD SIZE ================= -->
+<section class="panel active" id="p-rec" role="tabpanel" aria-labelledby="t-rec">
+  <h2>Record size explorer</h2>
+  <p class="lede">The same member records stored two ways. Change the field lengths or add your own records, then compare. Grey dots are wasted space, red text has been truncated, and orange cells are separators.</p>
+  <div class="box">
+    <div class="row" style="justify-content:space-between">
+      <div class="row"><span class="label">Show</span><div class="seg" id="mode"><button data-v="fixed" aria-pressed="true">Fixed length</button><button data-v="var" aria-pressed="false">Variable length</button></div></div>
+      <span class="small" id="recLenInfo"></span>
+    </div>
+    <h3 style="margin-top:14px">Fixed field lengths (characters)</h3>
+    <div class="fields" id="fields"></div>
+    <div class="recs" id="recs"></div>
+    <div class="row" style="margin-top:14px">
+      <span class="label">Add a record</span>
+      <input class="txt" id="nID" placeholder="MemberID" style="width:100px" aria-label="MemberID">
+      <input class="txt" id="nSur" placeholder="Surname" aria-label="Surname">
+      <input class="txt" id="nDOB" placeholder="DOB e.g. 01012000" style="width:150px" aria-label="Date of birth">
+      <input class="txt" id="nPh" placeholder="Phone" style="width:140px" aria-label="Phone">
+      <button class="btn small" id="addRec">Add</button>
+    </div>
+    <div class="summary">
+      <div class="readout"><div class="name">Fixed length total</div><div class="val" id="sFixed"></div></div>
+      <div class="readout"><div class="name">Variable length total</div><div class="val" id="sVar"></div></div>
+      <div class="readout"><div class="name">Wasted characters (fixed)</div><div class="val" id="sWaste"></div></div>
+      <div class="readout" id="sCutBox"><div class="name">Truncated characters (fixed)</div><div class="val" id="sCut"></div></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="tryWide">Try: widen Surname to 20</button><button class="btn" id="tryLong">Try: add a very long surname</button><button class="btn" id="recReset">Reset</button></div>
+  </div>
+</section>
+
+<!-- ================= FILE ACCESS ================= -->
+<section class="panel" id="p-sim" role="tabpanel" aria-labelledby="t-sim">
+  <h2>File access simulator</h2>
+  <p class="lede">The same 20 records organised four ways. Search for a key and count how many reads each organisation needs. Then try a key that is not in the file.</p>
+  <div class="box">
+    <div class="row">
+      <span class="label">Search for key</span><input class="num" id="key" value="152" aria-label="Key to search for">
+      <button class="btn primary" id="runAll">Search all four</button>
+      <button class="btn" id="pickHit">Random key in the file</button>
+      <button class="btn" id="pickMiss">Random key not in the file</button>
+      <button class="btn" id="newFile">New file</button>
+    </div>
+    <div class="org" id="oSerial"><h4>Serial: in the order records were added <span id="rSerial"></span></h4><div class="strip" id="stSerial"></div><div class="msg" id="mSerial"></div></div>
+    <div class="org" id="oSeq"><h4>Sequential: in key order <span id="rSeq"></span></h4><div class="strip" id="stSeq"></div><div class="msg" id="mSeq"></div></div>
+    <div class="org" id="oIdx"><h4>Indexed sequential: index of blocks (5 records each) <span id="rIdx"></span></h4><div class="idxt" id="idxT"></div><div class="blocks" id="stIdx"></div><div class="msg" id="mIdx"></div></div>
+    <div class="org" id="oDir"><h4>Direct (random): location calculated from the key <span id="rDir"></span></h4><div class="msg" id="mDir"></div></div>
+    <table class="res" id="res"></table>
+  </div>
+</section>
+
+<!-- ================= FIXED OR VARIABLE ================= -->
+<section class="panel" id="p-fv" role="tabpanel" aria-labelledby="t-fv">
+  <h2>Fixed or variable?</h2>
+  <p class="lede">For each data item, decide whether a fixed length or variable length field suits it better. Ask: is this data always the same length?</p>
+  <p class="tally" id="fvTally"></p>
+  <div class="cards" id="fvCards"></div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="fvReset">Shuffle and start again</button></div>
+</section>
+</main>
+
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.addEventListener('click',()=>tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).classList.toggle('active',x===t)})));
+function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.setAttribute('aria-pressed',x===b));cb(b.dataset.v)}))}
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ================= RECORD SIZE ================= */
+const DEF_FIELDS=[['MemberID',5],['Surname',12],['DOB',8],['Phone',11]];
+const DEF_RECS=[['M0001','Ng','15031998','07700900123'],['M0002','Llewellyn-Jones','02112001','07700900456'],['M0003','Owen','28072000','07700900789']];
+let F=DEF_FIELDS.map(f=>[...f]), R=DEF_RECS.map(r=>[...r]), mode='fixed';
+function drawFields(){
+  const box=document.getElementById('fields');box.innerHTML='';
+  F.forEach((f,i)=>{const d=document.createElement('label');d.className='fdef';d.innerHTML='<b>'+f[0]+'</b>';const inp=document.createElement('input');inp.className='num';inp.type='number';inp.min=1;inp.max=40;inp.value=f[1];inp.setAttribute('aria-label',f[0]+' length');inp.addEventListener('input',()=>{const n=parseInt(inp.value,10);if(n>=1&&n<=40){F[i][1]=n;drawRecs()}});d.append(inp);box.append(d)});
+}
+function cell(ch,cls){const c=document.createElement('div');c.className='c'+(cls?' '+cls:'');c.textContent=ch;return c}
+function drawRecs(){
+  const box=document.getElementById('recs');box.innerHTML='';
+  const recLen=F.reduce((a,f)=>a+f[1],0);
+  let fixedTot=0,varTot=0,waste=0,cut=0;
+  R.forEach((r,ri)=>{
+    const row=document.createElement('div');row.className='rec';
+    const l=document.createElement('div');l.className='lbl';l.textContent='Record '+(ri+1);row.append(l);
+    const chars=document.createElement('div');chars.className='chars';
+    const vlen=r.reduce((a,v)=>a+v.length,0)+(F.length-1)+1;
+    fixedTot+=recLen;varTot+=vlen;
+    F.forEach((f,fi)=>{const v=r[fi]||'';waste+=Math.max(0,f[1]-v.length);cut+=Math.max(0,v.length-f[1])});
+    if(mode==='fixed'){
+      F.forEach((f,fi)=>{const v=r[fi]||'';const g=document.createElement('div');g.className='fg';
+        for(let k=0;k<f[1];k++)g.append(k<v.length?cell(v[k]):cell('\u00B7','pad'));
+        chars.append(g);
+        if(v.length>f[1]){const c=document.createElement('span');c.className='cut';c.textContent=v.slice(f[1]);c.title='Truncated';chars.append(c);const sp=document.createElement('span');sp.style.width='8px';chars.append(sp)}
+      });
+      const t=document.createElement('span');t.className='rlen';t.textContent=recLen+' chars';chars.append(t);
+    }else{
+      r.forEach((v,fi)=>{for(const ch of v)chars.append(cell(ch));chars.append(cell(fi<r.length-1?',':'#','sep'))});
+      const t=document.createElement('span');t.className='rlen';t.textContent=vlen+' chars';chars.append(t);
+    }
+    row.append(chars);
+    const rm=document.createElement('button');rm.className='rm';rm.textContent='\u2715';rm.setAttribute('aria-label','Remove record '+(ri+1));rm.onclick=()=>{if(R.length>1){R.splice(ri,1);drawRecs()}};row.append(rm);
+    box.append(row);
+  });
+  document.getElementById('recLenInfo').textContent=mode==='fixed'?'Every record is '+recLen+' characters':'Each record is as long as its data, plus '+(F.length-1)+' separators and an end marker';
+  document.getElementById('sFixed').textContent=fixedTot;
+  document.getElementById('sVar').textContent=varTot;
+  document.getElementById('sWaste').textContent=waste;
+  document.getElementById('sCut').textContent=cut;
+  document.getElementById('sCutBox').classList.toggle('bad',cut>0);
+  const v=document.getElementById('verdict');
+  let msg;
+  if(cut>0&&fixedTot<=varTot)msg='<b>Fixed length looks smaller ('+fixedTot+' vs '+varTot+'), but only because '+cut+' character'+(cut>1?'s were':' was')+' truncated.</b> Data has been lost. Widen the fields to avoid truncation and fixed length will use more space.';
+  else if(cut>0)msg='<b>Fixed length is larger ('+fixedTot+' vs '+varTot+') and still truncates '+cut+' character'+(cut>1?'s':'')+'.</b> The fields are too short for some data but too long for most of it.';
+  else if(fixedTot>varTot)msg='<b>Variable length saves '+(fixedTot-varTot)+' characters</b> ('+varTot+' vs '+fixedTot+'). Fixed length wastes '+waste+' characters of blank space, but every record starts at a known position, so it is quicker to read and write.';
+  else msg='<b>Fixed length is no bigger here ('+fixedTot+' vs '+varTot+')</b> because the data almost fills each field, and the separators in the variable length version cost space too.';
+  v.innerHTML=msg;
+}
+seg('mode',v=>{mode=v;drawRecs()});
+document.getElementById('addRec').onclick=()=>{
+  const vals=['nID','nSur','nDOB','nPh'].map(id=>document.getElementById(id).value.trim().replace(/[,#]/g,''));
+  if(!vals[0]||!vals[1])return;
+  R.push(vals);['nID','nSur','nDOB','nPh'].forEach(id=>document.getElementById(id).value='');drawRecs();
+};
+document.getElementById('tryWide').onclick=()=>{F[1][1]=20;drawFields();drawRecs()};
+document.getElementById('tryLong').onclick=()=>{R.push(['M0004','Fitzgerald-Montgomery','11091999','07700900321']);drawRecs()};
+document.getElementById('recReset').onclick=()=>{F=DEF_FIELDS.map(f=>[...f]);R=DEF_RECS.map(r=>[...r]);drawFields();drawRecs()};
+drawFields();drawRecs();
+
+/* ================= FILE ACCESS ================= */
+let serial=[],seq=[];const BS=5;
+function newFile(){
+  const set=new Set();while(set.size<20)set.add(100+Math.floor(Math.random()*100));
+  serial=[...set];seq=[...serial].sort((a,b)=>a-b);
+  if(!set.has(152)){serial[7]=152;seq=[...serial].sort((a,b)=>a-b)}
+  drawSim();
+}
+function drawSim(marks={}){
+  const mk=(arr,id,m)=>{const st=document.getElementById(id);st.innerHTML='';arr.forEach((k,i)=>{const d=document.createElement('div');d.className='k'+(m&&m[i]?' '+m[i]:'');d.textContent=k;st.append(d)})};
+  mk(serial,'stSerial',marks.serial);mk(seq,'stSeq',marks.seq);
+  const it=document.getElementById('idxT');it.innerHTML='<span class="small" style="align-self:center">Index:</span>';
+  const bl=document.getElementById('stIdx');bl.innerHTML='';
+  for(let b=0;b*BS<seq.length;b++){const blk=seq.slice(b*BS,b*BS+BS);
+    const e=document.createElement('span');e.className='ie'+(marks.idxEntry===b?' cur':'');e.textContent='B'+(b+1)+' \u2264 '+blk[blk.length-1];it.append(e);
+    const d=document.createElement('div');d.className='blk';d.innerHTML='<small>Block '+(b+1)+'</small>';const s=document.createElement('div');s.className='strip';
+    blk.forEach((k,j)=>{const x=document.createElement('div');const mm=marks.idx&&marks.idx[b*BS+j];x.className='k'+(mm?' '+mm:'');x.textContent=k;s.append(x)});d.append(s);bl.append(d)}
+}
+function search(key){
+  const res={};const marks={serial:{},seq:{},idx:{}};
+  // serial
+  let r=0,found=false;for(let i=0;i<serial.length;i++){r++;marks.serial[i]='read';if(serial[i]===key){marks.serial[i]='hit';found=true;break}}
+  res.serial={reads:r,found,msg:found?'Read from the start until '+key+' was found.':'Read all '+r+' records: only reaching the end proves '+key+' is not there.'};
+  // sequential
+  r=0;found=false;let stopped=false;for(let i=0;i<seq.length;i++){r++;marks.seq[i]='read';if(seq[i]===key){marks.seq[i]='hit';found=true;break}if(seq[i]>key){stopped=true;break}}
+  res.seq={reads:r,found,msg:found?'Read in key order until '+key+' was found.':(stopped?'Stopped at '+seq[r-1]+': it is bigger than '+key+', so '+key+' cannot be further on.':'Read every record: '+key+' is bigger than every key.')};
+  // indexed sequential
+  r=1;found=false;let b=-1;for(let i=0;i*BS<seq.length;i++){const last=seq[Math.min(seq.length,(i+1)*BS)-1];if(key<=last){b=i;break}}
+  marks.idxEntry=b;
+  if(b<0){res.idx={reads:1,found:false,msg:'Read the index: '+key+' is bigger than every block\u2019s highest key, so it is not in the file.'}}
+  else{let stoppedI=false;for(let j=b*BS;j<Math.min(seq.length,(b+1)*BS);j++){r++;marks.idx[j]='read';if(seq[j]===key){marks.idx[j]='hit';found=true;break}if(seq[j]>key){stoppedI=true;break}}
+    res.idx={reads:r,found,msg:'1 read for the index (block '+(b+1)+'), then '+(r-1)+' read'+(r-1===1?'':'s')+' in that block. '+(found?key+' found.':key+' is not in the block, so it is not in the file.')}}
+  // direct
+  const inFile=seq.includes(key);
+  res.dir={reads:1,found:inFile,msg:'The location is calculated from the key, so one read goes straight there. '+(inFile?key+' found.':'Nothing is stored there, so '+key+' is not in the file.')+' Lesson 3 shows how the location is calculated (hashing) and what happens when two keys clash.'};
+  return {res,marks};
+}
+function runAll(){
+  const key=parseInt(document.getElementById('key').value,10);if(isNaN(key))return;
+  const {res,marks}=search(key);drawSim(marks);
+  document.getElementById('rSerial').textContent=res.serial.reads+' reads';document.getElementById('mSerial').textContent=res.serial.msg;
+  document.getElementById('rSeq').textContent=res.seq.reads+' reads';document.getElementById('mSeq').textContent=res.seq.msg;
+  document.getElementById('rIdx').textContent=res.idx.reads+' reads';document.getElementById('mIdx').textContent=res.idx.msg;
+  document.getElementById('rDir').textContent='1 read';document.getElementById('mDir').textContent=res.dir.msg;
+  const rows=[['Serial',res.serial],['Sequential',res.seq],['Indexed sequential',res.idx],['Direct (random)',res.dir]];
+  const min=Math.min(...rows.map(r=>r[1].reads));
+  document.getElementById('res').innerHTML='<tr><th>Organisation</th><th>Reads to search for '+key+'</th><th>Result</th></tr>'+rows.map(r=>'<tr class="'+(r[1].reads===min?'best':'')+'"><td>'+r[0]+'</td><td class="m">'+r[1].reads+'</td><td>'+(r[1].found?'Found':'Not in the file')+'</td></tr>').join('');
+}
+document.getElementById('runAll').onclick=runAll;
+document.getElementById('key').addEventListener('keydown',e=>{if(e.key==='Enter')runAll()});
+document.getElementById('pickHit').onclick=()=>{document.getElementById('key').value=serial[Math.floor(Math.random()*serial.length)];runAll()};
+document.getElementById('pickMiss').onclick=()=>{let k;do{k=100+Math.floor(Math.random()*100)}while(seq.includes(k));document.getElementById('key').value=k;runAll()};
+document.getElementById('newFile').onclick=()=>{newFile();runAll()};
+newFile();runAll();
+
+/* ================= FIXED OR VARIABLE ================= */
+const FV=[
+  ['Date of birth','15031998','Fixed','Always 8 characters (DDMMYYYY).'],
+  ['Surname','Llewellyn-Jones','Variable','Surnames vary a lot in length: fixed would waste space or truncate.'],
+  ['National Insurance number','QQ123456C','Fixed','Always the same format and length.'],
+  ['Address','12 Heol y Felin, Penarth','Variable','Addresses vary hugely in length.'],
+  ['UK mobile number','07700900123','Fixed','Always 11 digits.'],
+  ['Product description','Wireless optical mouse','Variable','Descriptions can be short or long.'],
+  ['Membership ID','M0042','Fixed','IDs are designed to be a set length.'],
+  ['Email address','a.jones@example.com','Variable','Email addresses vary in length.'],
+  ['Postcode (stored without the space)','CF641AB','Variable','UK postcodes are 5 to 7 characters, so lengths vary. A fixed field of 7 would also work, but would waste space on shorter postcodes.'],
+  ['Has paid? (Y/N)','Y','Fixed','Always exactly one character.']
+];
+let fR=0,fD=0;
+function buildFV(){
+  const box=document.getElementById('fvCards');box.innerHTML='';fR=0;fD=0;fvTally();
+  FV.map((_,i)=>i).sort(()=>Math.random()-.5).forEach(idx=>{
+    const [item,eg,ans,why]=FV[idx];const c=document.createElement('div');c.className='card';
+    c.innerHTML='<p><b>'+esc(item)+'</b></p><p class="eg">e.g. '+esc(eg)+'</p>';
+    const ch=document.createElement('div');ch.className='choices';const w=document.createElement('p');w.className='why';
+    ['Fixed','Variable'].forEach(o=>{const b=document.createElement('button');b.textContent=o;b.onclick=()=>{if(c.dataset.done)return;c.dataset.done=1;fD++;
+      if(o===ans){b.classList.add('picked-right');c.classList.add('right');fR++;w.textContent='Correct. '+why}else{b.classList.add('picked-wrong');c.classList.add('wrong');[...ch.children].find(x=>x.textContent===ans).classList.add('picked-right');w.textContent='Better: '+ans.toLowerCase()+'. '+why}fvTally()};ch.append(b)});
+    c.append(ch,w);box.append(c)});
+}
+function fvTally(){document.getElementById('fvTally').textContent=fD<FV.length?fD+' of '+FV.length+' answered, '+fR+' correct':'All done: '+fR+' out of '+FV.length+' correct.'}
+document.getElementById('fvReset').onclick=buildFV;buildFV();
+</script>
+</body>
+</html>
