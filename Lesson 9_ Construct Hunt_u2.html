@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -136,9 +137,9 @@ const CODE = [
 ];
 const CONS = [
   { name: "Annotation", lines: [1], role: "Line 1: <code>{hire length and charge}</code> is a note for a human reader, ignored when the program runs.", hint: "Look for text in braces { }." },
-  { name: "Constant", lines: [2], role: "Line 2: <code>HOURLYRATE = 4</code> holds the hourly rate, which can’t change while the program runs.", hint: "Look for the word constant." },
+  { name: "Constant", lines: [2], role: "Line 2: <code>HOURLYRATE = 4</code> holds the hourly rate, which can’t change while the program runs. It’s declared outside any subroutine, so it’s global as well.", hint: "Look for the word constant." },
   { name: "Self-documenting identifier", lines: [1, 2, 4, 5, 11], role: "e.g. <code>HOURLYRATE</code>, <code>calcCharge</code>, <code>multiplier</code>: the name says what it holds or does, so it needs no extra comment.", hint: "Find a line that declares a name which explains itself." },
-  { name: "Global variable", lines: [1], role: "Line 1: <code>charges</code> is declared outside any subroutine, so the whole program can use it.", hint: "Which variable is declared outside every subroutine and the main program?" },
+  { name: "Global variable", lines: [1, 2], role: "Line 1: <code>charges</code> is a global array — an array is a variable that holds several values — declared outside any subroutine, so the whole program can use it. Line 2’s <code>HOURLYRATE</code> is declared there too, so it’s a global constant.", hint: "What is declared at the top, outside every subroutine and the main program?" },
   { name: "Local variable", lines: [5, 11], role: "Line 5: <code>charge</code> exists only inside calcCharge. (Line 11’s <code>multiplier</code> is local to the main program.)", hint: "Look for a variable declared inside a subroutine." },
   { name: "Assignment", lines: [6, 15, 16], role: "e.g. line 6: <code>charge = hours * HOURLYRATE * multiplier</code> gives a variable a value.", hint: "Look for a line with = that stores a value." },
   { name: "Repetition", lines: [12, 17], role: "Lines 12–17: <code>for i = 1 to 4 … next i</code> repeats the input and calculation four times.", hint: "Look for where a loop starts or ends." },
@@ -244,3 +245,5 @@ setTarget(0);
 </script>
 </body>
 </html>
+
+</body></html>
