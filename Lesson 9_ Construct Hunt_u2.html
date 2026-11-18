@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 9: Construct Hunt</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root {
+  --navy: #1F2A44; --teal: #0F7C80; --orange: #E8772E;
+  --bg: #F3F5F8; --surface: #FFFFFF; --ink: #1A2233; --muted: #5A6372; --line: #D5DBE3;
+  --code-bg: #EEF1F5; --num: #8A94A3; --hover: #E1E8F0;
+  --done-bg: #DDF1EF; --done-ink: #0B5F62; --bad-bg: #FCE6D6; --bad-ink: #8A3D10;
+  --target-bg: #FFF4D6; --btn-border: #1F2A44; --btn-primary: #0F7C80;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD; --line: #33405A;
+    --code-bg: #161E2E; --num: #6F7A8D; --hover: #24304A;
+    --done-bg: #12403F; --done-ink: #9FE3DD; --bad-bg: #4A2A16; --bad-ink: #FFC39A;
+    --target-bg: #3A3220; --btn-border: #5A6B8C; --teal: #3BB3B0; --orange: #F29350;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD; --line: #33405A;
+  --code-bg: #161E2E; --num: #6F7A8D; --hover: #24304A;
+  --done-bg: #12403F; --done-ink: #9FE3DD; --bad-bg: #4A2A16; --bad-ink: #FFC39A;
+  --target-bg: #3A3220; --btn-border: #5A6B8C; --teal: #3BB3B0; --orange: #F29350;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, Arial, sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; }
+h1 { font-family: "Space Grotesk", Arial, sans-serif; font-size: clamp(28px, 4vw, 38px); line-height: 1.1; margin: 0 0 8px; }
+.lede { color: var(--muted); margin: 0 0 18px; max-width: 75ch; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.target { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--target-bg); border: 2px solid var(--orange); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.target small { display: block; color: var(--muted); font-size: 13px; font-weight: 600; }
+.target strong { font: 700 22px "Space Grotesk", Arial, sans-serif; }
+.feedback { min-height: 1.5em; margin: 6px 0 0; font-size: 15px; }
+.feedback.ok { color: var(--done-ink); font-weight: 600; }
+.feedback.bad { color: var(--bad-ink); font-weight: 600; }
+.code { overflow-x: auto; background: var(--code-bg); border-radius: 12px; border: 1px solid var(--line); padding: 8px 0; }
+.code ol { list-style: none; margin: 0; padding: 0; min-width: 560px; }
+.code button.ln { all: unset; box-sizing: border-box; display: flex; width: 100%; gap: 14px; padding: 4px 14px; cursor: pointer; font: 15px/1.55 "JetBrains Mono", "Courier New", monospace; white-space: pre; color: var(--ink); }
+.code button.ln:hover { background: var(--hover); }
+.code button.ln:focus-visible { outline: 3px solid var(--orange); outline-offset: -3px; }
+.code button.ln .n { color: var(--num); min-width: 2ch; text-align: right; user-select: none; }
+.code button.ln.flash-ok { background: var(--done-bg); }
+.code button.ln.flash-bad { background: var(--bad-bg); }
+
+.code li.blank button.ln { cursor: default; }
+.progress { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+.progress strong { font: 700 26px "Space Grotesk", Arial, sans-serif; font-variant-numeric: tabular-nums; }
+.meter { flex: 1; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--teal); }
+ul.cons { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.con { border: 1px solid var(--line); border-left: 6px solid var(--line); border-radius: 10px; background: var(--surface); }
+.con button.pick { all: unset; box-sizing: border-box; display: flex; width: 100%; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+.con button.pick:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; border-radius: 8px; }
+.con .tag { font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.con.current { border-color: var(--orange); border-left-color: var(--orange); background: var(--target-bg); }
+.con.done { border-left-color: var(--teal); background: var(--done-bg); }
+.con.done .tag { color: var(--done-ink); }
+.con .role { display: none; padding: 0 14px 12px; font-size: 14px; color: var(--ink); }
+.con.done .role { display: block; }
+.con .role code { font-family: "JetBrains Mono", "Courier New", monospace; font-size: 13px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+button.btn { font: 600 15px Inter, Arial, sans-serif; border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 2px solid var(--btn-border); background: var(--surface); color: var(--ink); }
+button.btn.primary { background: var(--btn-primary); border-color: var(--btn-primary); color: #FFFFFF; }
+button.btn:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+button.btn[hidden] { display: none; }
+.foot { color: var(--muted); font-size: 13px; margin-top: 20px; }
+@media (max-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: no-preference) { .code button.ln, .con { transition: background-color .15s; } .meter i { transition: width .25s; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Construct Hunt</h1>
+  <p class="lede">Listing B: Pedal Penarth hire charges. Pick a construct from the list, then click the line of code where you find it. When you find it, you’ll see what it does in this program.</p>
+
+  <div class="layout">
+    <section aria-label="Listing B">
+      <div class="target" aria-live="polite">
+        <small>Find this construct</small>
+        <strong id="targetName">Annotation</strong>
+        <p class="feedback" id="feedback">Click the line where you find it.</p>
+      </div>
+      <div class="code panel"><ol id="code"></ol></div>
+      <div class="bar">
+        <button class="btn" id="showBtn" type="button" hidden>Show me</button>
+        <button class="btn" id="revealBtn" type="button">Reveal all</button>
+        <button class="btn" id="resetBtn" type="button">Start again</button>
+      </div>
+    </section>
+
+    <section aria-label="Constructs">
+      <div class="progress"><strong id="count">0 / 11</strong><div class="meter" aria-hidden="true"><i id="bar"></i></div></div>
+      <ul class="cons" id="cons"></ul>
+    </section>
+  </div>
+
+  <p class="foot">In the exam, give the line number and the code; if you’re asked for its role, say what it does in this program. Roles here are paraphrased in the style of the WJEC mark schemes.</p>
+</main>
+
+<script>
+const CODE = [
+  "declare charges[4,2] as real    {hire length and charge}",
+  "declare constant HOURLYRATE = 4",
+  "",
+  "declare subroutine calcCharge(hours, multiplier)",
+  "    declare charge as real",
+  "    charge = hours * HOURLYRATE * multiplier",
+  "    return charge",
+  "end subroutine",
+  "",
+  "startMainProg",
+  "    declare multiplier as real",
+  "    for i = 1 to 4",
+  "        output \"Enter the price multiplier\"",
+  "        input multiplier",
+  "        charges[i,1] = i",
+  "        charges[i,2] = calcCharge(i, multiplier)",
+  "    next i",
+  "    output \"Charges table complete\"",
+  "endMainProg"
+];
+const CONS = [
+  { name: "Annotation", lines: [1], role: "Line 1: <code>{hire length and charge}</code> is a note for a human reader, ignored when the program runs.", hint: "Look for text in braces { }." },
+  { name: "Constant", lines: [2], role: "Line 2: <code>HOURLYRATE = 4</code> holds the hourly rate, which can’t change while the program runs.", hint: "Look for the word constant." },
+  { name: "Self-documenting identifier", lines: [1, 2, 4, 5, 11], role: "e.g. <code>HOURLYRATE</code>, <code>calcCharge</code>, <code>multiplier</code>: the name says what it holds or does, so it needs no extra comment.", hint: "Find a line that declares a name which explains itself." },
+  { name: "Global variable", lines: [1], role: "Line 1: <code>charges</code> is declared outside any subroutine, so the whole program can use it.", hint: "Which variable is declared outside every subroutine and the main program?" },
+  { name: "Local variable", lines: [5, 11], role: "Line 5: <code>charge</code> exists only inside calcCharge. (Line 11’s <code>multiplier</code> is local to the main program.)", hint: "Look for a variable declared inside a subroutine." },
+  { name: "Assignment", lines: [6, 15, 16], role: "e.g. line 6: <code>charge = hours * HOURLYRATE * multiplier</code> gives a variable a value.", hint: "Look for a line with = that stores a value." },
+  { name: "Repetition", lines: [12, 17], role: "Lines 12–17: <code>for i = 1 to 4 … next i</code> repeats the input and calculation four times.", hint: "Look for where a loop starts or ends." },
+  { name: "String literal", lines: [13, 18], role: "e.g. line 13: <code>\"Enter the price multiplier\"</code> is fixed text, in quotation marks, output to the user.", hint: "Look for text inside quotation marks." },
+  { name: "Procedure calling", lines: [16], role: "Line 16: <code>calcCharge(i, multiplier)</code> runs the calcCharge subroutine.", hint: "Where does the main program use calcCharge?" },
+  { name: "Parameter passing", lines: [16, 4], role: "Line 16: the values <code>i</code> and <code>multiplier</code> are sent into calcCharge, which receives them as hours and multiplier (line 4).", hint: "Where are values sent into a subroutine?" },
+  { name: "Return a value", lines: [7], role: "Line 7: <code>return charge</code> sends the charge back to line 16, where it’s stored.", hint: "Look for the word return." }
+];
+
+const state = { current: 0, done: CONS.map(() => false), tries: 0 };
+const codeEl = document.getElementById("code"), consEl = document.getElementById("cons");
+const fb = document.getElementById("feedback"), showBtn = document.getElementById("showBtn");
+
+CODE.forEach((text, i) => {
+  const li = document.createElement("li");
+  if (!text) li.className = "blank";
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "ln"; b.dataset.line = i + 1;
+  if (!text) { b.tabIndex = -1; b.setAttribute("aria-hidden", "true"); }
+  else b.setAttribute("aria-label", `Line ${i + 1}: ${text.trim()}`);
+  b.innerHTML = `<span class="n">${i + 1}</span><span>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;") || " "}</span>`;
+  if (text) b.addEventListener("click", () => choose(i + 1, b));
+  li.append(b); codeEl.append(li);
+});
+
+CONS.forEach((c, k) => {
+  const li = document.createElement("li");
+  li.className = "con"; li.id = "con" + k;
+  li.innerHTML = `<button type="button" class="pick"><span>${c.name}</span><span class="tag" id="tag${k}">not found</span></button><p class="role">${c.role}</p>`;
+  li.querySelector("button").addEventListener("click", () => setTarget(k));
+  consEl.append(li);
+});
+
+function setTarget(k) {
+  state.current = k; state.tries = 0;
+  document.getElementById("targetName").textContent = CONS[k].name;
+  fb.className = "feedback";
+  fb.textContent = state.done[k] ? "Already found — pick another, or click a line to check." : "Click the line where you find it.";
+  showBtn.hidden = true;
+  render();
+}
+function flash(btn, cls) {
+  btn.classList.add(cls);
+  setTimeout(() => btn.classList.remove(cls), 900);
+}
+function choose(line, btn) {
+  const c = CONS[state.current];
+  if (c.lines.includes(line)) {
+    state.done[state.current] = true; state.tries = 0;
+    fb.className = "feedback ok"; fb.textContent = `Yes — line ${line}. ${c.name} found.`;
+    showBtn.hidden = true;
+    flash(btn, "flash-ok"); btn.classList.add("found");
+    render();
+    const next = nextOpen();
+    if (next !== null) { const keep = fb.textContent; setTarget(next); fb.className = "feedback ok"; fb.textContent = keep + " Next: " + CONS[next].name + "."; }
+    else { fb.className = "feedback ok"; fb.textContent = "All eleven found. Read the roles in the list — that’s what “describe its role” wants."; }
+  } else {
+    state.tries++;
+    fb.className = "feedback bad";
+    fb.textContent = `Not line ${line}. Hint: ${c.hint}`;
+    flash(btn, "flash-bad");
+    showBtn.hidden = state.tries < 2;
+  }
+}
+function nextOpen() {
+  for (let s = 1; s <= CONS.length; s++) { const k = (state.current + s) % CONS.length; if (!state.done[k]) return k; }
+  return null;
+}
+function render() {
+  const n = state.done.filter(Boolean).length;
+  document.getElementById("count").textContent = `${n} / ${CONS.length}`;
+  document.getElementById("bar").style.width = (n / CONS.length * 100) + "%";
+  CONS.forEach((c, k) => {
+    const el = document.getElementById("con" + k);
+    el.classList.toggle("done", state.done[k]);
+    el.classList.toggle("current", k === state.current);
+    document.getElementById("tag" + k).textContent = state.done[k] ? "found ✓" : (k === state.current ? "finding…" : "not found");
+  });
+}
+function markFound(k) {
+  state.done[k] = true;
+  const btn = codeEl.querySelector(`button[data-line="${CONS[k].lines[0]}"]`);
+  btn.classList.add("found");
+}
+showBtn.addEventListener("click", () => {
+  const k = state.current; markFound(k);
+  const first = CONS[k].lines[0];
+  flash(codeEl.querySelector(`button[data-line="${first}"]`), "flash-ok");
+  fb.className = "feedback ok"; fb.textContent = `It’s line ${first}. Read why in the list.`;
+  showBtn.hidden = true; render();
+});
+document.getElementById("revealBtn").addEventListener("click", () => {
+  CONS.forEach((c, k) => markFound(k));
+  fb.className = "feedback ok"; fb.textContent = "All revealed. The roles are in the list.";
+  showBtn.hidden = true; render();
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  state.done = CONS.map(() => false);
+  codeEl.querySelectorAll(".found").forEach(b => b.classList.remove("found"));
+  setTarget(0);
+});
+setTarget(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 9 Starter: What Will It Output?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root {
+  --navy: #1F2A44; --teal: #0F7C80; --orange: #E8772E;
+  --bg: #F3F5F8; --surface: #FFFFFF; --ink: #1A2233; --muted: #5A6372; --line: #D5DBE3;
+  --code-bg: #EEF1F5; --ok-bg: #DDF1EF; --ok-ink: #0B5F62; --bad-bg: #FCE6D6; --bad-ink: #8A3D10;
+  --note-bg: #EEF4F8; --pick-bg: #E3ECF7; --btn-border: #1F2A44; --btn-primary: #0F7C80;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD; --line: #33405A;
+    --code-bg: #161E2E; --ok-bg: #12403F; --ok-ink: #9FE3DD; --bad-bg: #4A2A16; --bad-ink: #FFC39A;
+    --note-bg: #202A40; --pick-bg: #26365A; --btn-border: #5A6B8C; --teal: #3BB3B0; --orange: #F29350;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121826; --surface: #1B2335; --ink: #E7EBF2; --muted: #A3ADBD; --line: #33405A;
+  --code-bg: #161E2E; --ok-bg: #12403F; --ok-ink: #9FE3DD; --bad-bg: #4A2A16; --bad-ink: #FFC39A;
+  --note-bg: #202A40; --pick-bg: #26365A; --btn-border: #5A6B8C; --teal: #3BB3B0; --orange: #F29350;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, Arial, sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 48px; }
+h1 { font-family: "Space Grotesk", Arial, sans-serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0 0 8px; }
+.lede { color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
+.bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 0 0 18px; }
+button.btn { font: 600 15px Inter, Arial, sans-serif; border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 2px solid var(--btn-border); background: var(--surface); color: var(--ink); }
+button.btn.primary { background: var(--btn-primary); border-color: var(--btn-primary); color: #FFFFFF; }
+button.btn.reveal { background: var(--orange); border-color: var(--orange); color: #1A1A1A; }
+button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.timer { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.clock { font: 700 28px "Space Grotesk", Arial, sans-serif; font-variant-numeric: tabular-nums; min-width: 4.2ch; text-align: right; }
+.clock.done { color: var(--orange); }
+.score { font-weight: 700; padding: 8px 14px; border-radius: 8px; background: var(--note-bg); }
+.score:empty { display: none; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.q { background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--teal); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.q.recall { border-top-color: var(--orange); }
+.q .head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.q .head b { font: 700 18px "Space Grotesk", Arial, sans-serif; }
+.q .head span { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); white-space: nowrap; }
+.q p { margin: 0; }
+pre { margin: 0; background: var(--code-bg); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 14px/1.55 "JetBrains Mono", "Courier New", monospace; color: var(--ink); }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.opts button { font: 600 15px Inter, Arial, sans-serif; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.opts button[aria-pressed="true"] { background: var(--pick-bg); border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); }
+:root[data-theme="dark"] .opts button[aria-pressed="true"] { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .opts button[aria-pressed="true"] { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); } }
+.opts button.ok { background: var(--ok-bg); color: var(--ok-ink); border-color: var(--teal); }
+.opts button.bad { background: var(--bad-bg); color: var(--bad-ink); border-color: var(--orange); }
+.why { display: none; background: var(--note-bg); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.revealed .why { display: block; }
+.foot { color: var(--muted); font-size: 14px; margin-top: 18px; }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } .timer { margin-left: 0; } }
+@media (prefers-reduced-motion: no-preference) { .opts button { transition: background-color .15s; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>What will it output?</h1>
+  <p class="lede">Six quick questions. Two are from last lesson; four ask you to run some pseudocode in your head. Pick an answer for each, then check.</p>
+
+  <div class="bar">
+    <button class="btn primary" id="checkBtn" type="button">Check my answers</button>
+    <button class="btn reveal" id="revealBtn" type="button">Reveal all</button>
+    <button class="btn" id="resetBtn" type="button">Start again</button>
+    <span class="score" id="score" aria-live="polite"></span>
+    <div class="timer">
+      <span class="clock" id="clock">8:00</span>
+      <button class="btn" id="timerBtn" type="button">Start timer</button>
+    </div>
+  </div>
+
+  <div class="grid" id="qs"></div>
+
+  <p class="foot">Pseudocode is written in the style of WJEC past papers.</p>
+</main>
+
+<script>
+const QS = [
+  { tag: "Lesson 8 recall", recall: true,
+    text: "Customer and OrderItem are linked 1:M. On an ERD, where does the crow’s foot (the many side) go?",
+    opts: ["At the Customer end", "At the OrderItem end", "At both ends", "It isn’t needed"], answer: 1,
+    why: "One customer can have many order items, so the many end is at OrderItem — the linking table. A line with no many side loses the mark." },
+  { tag: "Lesson 8 recall", recall: true,
+    text: "In Customer, CustomerID is an Integer of length 6. In OrderItem, the foreign key CustomerID should be…",
+    opts: ["String, length 6", "Integer, length 8", "Integer, length 6", "Any type: it’s only a link"], answer: 2,
+    why: "A foreign key copies the data type and length of the primary key it links to." },
+  { tag: "Repetition",
+    code: "set total = 0\nfor i = 1 to 3\n    total = total + i\nnext i\noutput total",
+    opts: ["3", "4", "6", "0"], answer: 2,
+    why: "i takes 1, 2 and 3, so total = 0 + 1 + 2 + 3 = 6. Today you’ll trace loops like this in a table." },
+  { tag: "Selection",
+    code: "set temp = 25\nif temp > 25 then\n    output \"Hot\"\nelse\n    output \"Mild\"\nend if",
+    opts: ["Hot", "Mild", "Nothing", "An error"], answer: 1,
+    why: "25 is not greater than 25, so the else runs. Boundaries like this cost marks in the algorithm question." },
+  { tag: "Selection",
+    code: "set score = 1000\nif score > 1500 then\n    output \"A\"\nelse if score >= 1000 then\n    output \"B\"\nelse\n    output \"C\"\nend if",
+    opts: ["A", "B", "C", "B then C"], answer: 1,
+    why: "1000 fails > 1500, then passes >= 1000, so B. Only one branch of an if … else if … else ever runs." },
+  { tag: "Repetition",
+    code: "set count = 0\nrepeat\n    count = count + 2\nuntil count = 6",
+    prompt: "How many times does the loop run?",
+    opts: ["2", "3", "6", "It never stops"], answer: 1,
+    why: "count goes 2, 4, 6 and stops when it reaches 6: three times. A repeat … until always runs at least once." }
+];
+
+const qsEl = document.getElementById("qs");
+const picks = QS.map(() => null);
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+QS.forEach((q, i) => {
+  const d = document.createElement("section");
+  d.className = "q" + (q.recall ? " recall" : ""); d.id = "q" + i;
+  d.setAttribute("aria-labelledby", "qh" + i);
+  d.innerHTML =
+    `<div class="head"><b id="qh${i}">Q${i + 1}</b><span>${q.tag}</span></div>` +
+    (q.text ? `<p>${esc(q.text)}</p>` : "") +
+    (q.code ? `<pre>${esc(q.code)}</pre><p>${q.prompt ? esc(q.prompt) : "What is output?"}</p>` : "") +
+    `<div class="opts" role="group" aria-label="Answers for question ${i + 1}">` +
+    q.opts.map((o, k) => `<button type="button" data-q="${i}" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("") +
+    `</div><p class="why"><b>${esc(q.opts[q.answer])}.</b> ${esc(q.why)}</p>`;
+  qsEl.append(d);
+});
+qsEl.addEventListener("click", e => {
+  const b = e.target.closest(".opts button"); if (!b) return;
+  const i = +b.dataset.q, k = +b.dataset.k;
+  picks[i] = k;
+  document.querySelectorAll(`#q${i} .opts button`).forEach(x => { x.setAttribute("aria-pressed", String(+x.dataset.k === k)); x.classList.remove("ok", "bad"); });
+});
+function check() {
+  let s = 0;
+  QS.forEach((q, i) => {
+    document.querySelectorAll(`#q${i} .opts button`).forEach(x => {
+      x.classList.remove("ok", "bad");
+      const k = +x.dataset.k;
+      if (k === picks[i]) x.classList.add(k === q.answer ? "ok" : "bad");
+    });
+    if (picks[i] === q.answer) s++;
+  });
+  document.getElementById("score").textContent = `${s} / ${QS.length}`;
+}
+function reveal() {
+  check();
+  QS.forEach((q, i) => {
+    document.getElementById("q" + i).classList.add("revealed");
+    document.querySelector(`#q${i} .opts button[data-k="${q.answer}"]`).classList.add("ok");
+  });
+}
+function reset() {
+  picks.fill(null);
+  document.querySelectorAll(".opts button").forEach(x => { x.setAttribute("aria-pressed", "false"); x.classList.remove("ok", "bad"); });
+  document.querySelectorAll(".q").forEach(q => q.classList.remove("revealed"));
+  document.getElementById("score").textContent = "";
+}
+document.getElementById("checkBtn").addEventListener("click", check);
+document.getElementById("revealBtn").addEventListener("click", reveal);
+document.getElementById("resetBtn").addEventListener("click", reset);
+
+let remaining = 480, ticking = null;
+const clock = document.getElementById("clock"), timerBtn = document.getElementById("timerBtn");
+function show() { clock.textContent = Math.floor(remaining / 60) + ":" + String(remaining % 60).padStart(2, "0"); clock.classList.toggle("done", remaining === 0); }
+timerBtn.addEventListener("click", () => {
+  if (ticking) { clearInterval(ticking); ticking = null; timerBtn.textContent = "Resume timer"; return; }
+  if (remaining === 0) { remaining = 480; show(); }
+  timerBtn.textContent = "Pause timer";
+  ticking = setInterval(() => {
+    remaining = Math.max(0, remaining - 1); show();
+    if (remaining === 0) { clearInterval(ticking); ticking = null; timerBtn.textContent = "Restart timer"; }
+  }, 1000);
+});
+show();
+</script>
+</body>
+</html>
+
+</body></html>
