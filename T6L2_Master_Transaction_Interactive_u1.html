@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Master and transaction files: Topic 6, Lesson 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B; --bad-soft:#F8E3E0; --good-soft:#E3F4EA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+.head-inner{max-width:1140px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 14px;font-size:30px;line-height:1.15}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#C9D3E6;padding:10px 16px;border-radius:10px 10px 0 0;font-weight:700}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+nav button:hover:not([aria-selected="true"]){color:#fff;background:var(--navy-2)}
+main{max-width:1140px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+h2{font-size:24px;margin:0 0 4px;color:var(--navy)}
+h3{font-size:17px;margin:0 0 8px;color:var(--navy)}
+.lede{color:var(--muted);margin:0 0 18px;max-width:78ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:8px 16px;font-weight:700}
+.btn:hover{background:var(--teal-soft)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy-2)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.btn.small{padding:4px 10px;font-size:15px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.label{font-weight:700;color:var(--navy)}
+.small{font-size:15px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+input.num{width:80px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-family:var(--mono)}
+.msg{background:var(--paper);border-radius:10px;padding:10px 14px;min-height:46px;margin-top:12px}
+.msg b{color:var(--navy)}
+.msg.warn{background:var(--orange-soft)}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.right{border-left-color:var(--good)}.card.wrong{border-left-color:var(--bad)}
+.card p{margin:0}
+.choices{display:flex;gap:6px}
+.choices button{flex:1;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;padding:6px 8px;font-weight:700}
+.choices button.picked-right{background:var(--good);border-color:var(--good);color:#fff}
+.choices button.picked-wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.why{font-size:14px;color:var(--muted)}
+.tally{font-weight:700;color:var(--navy)}
+/* files */
+.files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.outs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.file{background:var(--paper);border-radius:12px;padding:10px 12px}
+.file h3{display:flex;justify-content:space-between;align-items:center}
+.file h3 span{font-size:13px;color:var(--muted);font-weight:400}
+.rec{display:grid;grid-template-columns:52px 1fr auto;gap:8px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:8px;padding:4px 8px;margin-bottom:5px;font-family:var(--mono);font-size:14px;transition:background .15s}
+.rec .k{font-weight:700;color:var(--navy)}
+.rec.cur{border-color:var(--orange);background:var(--orange-soft)}
+.rec.done{opacity:.5}
+.rec.new{border-color:var(--good);background:var(--good-soft)}
+.rec.err{border-color:var(--bad);background:var(--bad-soft)}
+.rec .x{border:0;background:transparent;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;font-style:italic}
+.badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:13px;font-weight:700}
+.badge.sorted{background:var(--good-soft);color:var(--good)}.badge.unsorted{background:var(--orange-soft);color:#9a5a12}
+/* insert */
+.strip{display:flex;gap:6px;flex-wrap:wrap;min-height:46px}
+.kb{min-width:56px;height:42px;border:2px solid var(--navy);border-radius:8px;background:#fff;display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:var(--navy)}
+.kb.cur{background:var(--orange);border-color:var(--orange);color:#fff}
+.kb.read{opacity:.45}
+.kb.newk{background:var(--teal);border-color:var(--teal);color:#fff}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+pre.code{background:var(--navy);color:#fff;border-radius:12px;padding:10px 0;margin:0;font-family:var(--mono);font-size:13.5px;line-height:1.7;overflow-x:auto}
+pre.code span{display:block;padding:0 14px;white-space:pre}
+pre.code span.cur{background:var(--orange);color:var(--navy);font-weight:700}
+/* gfs */
+.gens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+.gen{border-radius:12px;padding:14px;text-align:center;background:var(--paper)}
+.gen .role{font-weight:700;color:var(--navy)}
+.gen .ver{font-family:var(--mono);font-size:26px;font-weight:700;margin-top:6px}
+.gen.son{background:var(--teal);color:#fff}.gen.son .role{color:#fff}
+.gen.father{background:var(--teal-soft)}
+.gen.bad{background:var(--bad);color:#fff}.gen.bad .role{color:#fff}
+.offsite{font-size:13px;margin-top:4px}
+.log{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.le{border:2px solid var(--orange);border-radius:8px;padding:6px 10px;background:#fff;font-size:15px}
+.le.on{background:var(--orange);color:var(--navy);font-weight:700}
+.le.base{border-color:var(--navy);background:var(--navy);color:#fff}
+.bal{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--navy)}
+input[type=range]{width:100%;accent-color:var(--teal)}
+@media (max-width:900px){.files,.outs,.two,.gens{grid-template-columns:1fr}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Unit 1, Topic 6: Organisation of data</p>
+    <h1>Master files, transaction files and file security</h1>
+    <nav role="tablist" aria-label="Activities">
+      <button role="tab" aria-selected="true" aria-controls="p-mt" id="t-mt">Master or transaction?</button>
+      <button role="tab" aria-selected="false" aria-controls="p-up" id="t-up">Update run</button>
+      <button role="tab" aria-selected="false" aria-controls="p-ins" id="t-ins">Insert via temp file</button>
+      <button role="tab" aria-selected="false" aria-controls="p-gen" id="t-gen">Generations and logs</button>
+    </nav>
+  </div>
+</header>
+<main>
+<!-- ============ MASTER OR TRANSACTION ============ -->
+<section class="panel active" id="p-mt" role="tabpanel" aria-labelledby="t-mt">
+  <h2>Master or transaction?</h2>
+  <p class="lede">Is each item long-term data about an entity (master file), or a change or event that happened (transaction file)? One go per card.</p>
+  <p class="tally" id="mtTally"></p>
+  <div class="cards" id="mtCards"></div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="mtReset">Shuffle and start again</button></div>
+</section>
+
+<!-- ============ UPDATE RUN ============ -->
+<section class="panel" id="p-up" role="tabpanel" aria-labelledby="t-up">
+  <h2>Update run: payroll</h2>
+  <p class="lede">The master file is in key order. The week’s timesheets arrive in any order. Sort them, then step through the update: each step compares one master record with one transaction.</p>
+  <div class="box">
+    <div class="files">
+      <div class="file"><h3>Old master file <span>sequential: ID, name, rate, pay to date</span></h3><div id="fMaster"></div></div>
+      <div class="file"><h3>Transaction file <span id="txState"></span></h3><div id="fTx"></div>
+        <div class="row" style="margin-top:6px"><span class="small">Add timesheet:</span><input class="num" id="aId" placeholder="ID" aria-label="Employee ID"><input class="num" id="aHrs" placeholder="hours" aria-label="Hours"><button class="btn small" id="aAdd">Add</button></div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn accent" id="sortTx">Sort the transactions</button>
+      <button class="btn primary" id="upNext">Next step</button>
+      <button class="btn" id="upAll">Run to the end</button>
+      <button class="btn" id="upReset">Start again</button>
+    </div>
+    <div class="msg" id="upMsg" aria-live="polite"></div>
+    <div class="outs">
+      <div class="file"><h3>New master file</h3><div id="fNew"><p class="empty">Empty</p></div></div>
+      <div class="file"><h3>Payslips</h3><div id="fSlips"><p class="empty">Empty</p></div></div>
+      <div class="file"><h3>Error file</h3><div id="fErr"><p class="empty">Empty</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INSERT VIA TEMP FILE ============ -->
+<section class="panel" id="p-ins" role="tabpanel" aria-labelledby="t-ins">
+  <h2>Insert via temporary file</h2>
+  <p class="lede">Records in a sequential file are stored one after another, so there is no gap for a new record. The file is copied into a temporary file, with the new record written in the right place.</p>
+  <div class="box">
+    <div class="row"><span class="label">New record key</span><input class="num" id="insKey" value="105" aria-label="New record key"><button class="btn small" id="insLoad">Load</button><button class="btn small" id="insRand">Random original file</button></div>
+    <div class="two" style="margin-top:12px">
+      <div>
+        <h3>Original file</h3><div class="strip" id="sOld"></div>
+        <h3 style="margin-top:14px">Temporary file</h3><div class="strip" id="sTmp"></div>
+        <div class="msg" id="insMsg" aria-live="polite"></div>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="insNext">Next step</button><button class="btn" id="insAll">Run to the end</button><button class="btn" id="insReset">Start again</button></div>
+        <p class="small" id="insCount" style="margin:8px 0 0"></p>
+      </div>
+      <div><pre class="code" id="insCode"></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GENERATIONS AND LOGS ============ -->
+<section class="panel" id="p-gen" role="tabpanel" aria-labelledby="t-gen">
+  <h2>Generations and transaction logs</h2>
+  <p class="lede">Two ways to recover from accidental data loss. Run some updates and watch the generations move. Then corrupt the son and recover it. Below, restore an account to any point in time by replaying the transaction log.</p>
+  <div class="box">
+    <h3>Grandfather, father, son</h3>
+    <div class="gens" id="gens"></div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="gRun">Run an update</button><button class="btn accent" id="gCorrupt">Corrupt the son</button><button class="btn" id="gRecover" disabled>Recover the son</button><button class="btn" id="gReset">Reset</button></div>
+    <div class="msg" id="gMsg" aria-live="polite"></div>
+  </div>
+  <div class="box">
+    <h3>Restore with a transaction log</h3>
+    <p class="small" style="margin:0 0 6px">A full backup was taken on Monday night. Every change since then is recorded in the transaction log.</p>
+    <div class="log" id="log"></div>
+    <div class="row" style="margin-top:14px"><span class="label">Restore to the end of:</span><span class="mono" id="tlDay"></span></div>
+    <input type="range" id="tl" min="0" max="4" value="4" aria-label="Restore point">
+    <div class="row" style="justify-content:space-between;margin-top:6px"><span class="small" id="tlSteps"></span><span class="bal" id="tlBal"></span></div>
+    <div class="msg" id="tlMsg"></div>
+  </div>
+</section>
+</main>
+
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.addEventListener('click',()=>tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).classList.toggle('active',x===t)})));
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const money=n=>'\u00A3'+n.toFixed(2);
+
+/* ============ MASTER OR TRANSACTION ============ */
+const MT=[
+  ['An employee\u2019s name and address','Master','Long-term data about the employee.'],
+  ['Hours worked this week','Transaction','A change that happened this week, used to update pay to date.'],
+  ['A customer\u2019s account number and tariff','Master','Long-term data about the customer.'],
+  ['A meter reading taken on 23 November','Transaction','An event: it updates the customer\u2019s usage to date.'],
+  ['Total pay so far this tax year','Master','Stored in the master record and updated by each run.'],
+  ['A book borrowed today','Transaction','An event that updates the member\u2019s loans.'],
+  ['A library member\u2019s name and date joined','Master','Long-term data about the member.'],
+  ['A payment received from a customer','Transaction','A change to the customer\u2019s balance.'],
+  ['A product\u2019s name, price and stock level','Master','Long-term data about the product.'],
+  ['Items sold at the till today','Transaction','Events that will update the stock levels.']
+];
+let mR=0,mD=0;
+function buildMT(){
+  const box=document.getElementById('mtCards');box.innerHTML='';mR=0;mD=0;mtTally();
+  MT.map((_,i)=>i).sort(()=>Math.random()-.5).forEach(idx=>{
+    const [txt,ans,why]=MT[idx];const c=document.createElement('div');c.className='card';
+    const p=document.createElement('p');p.textContent=txt;const ch=document.createElement('div');ch.className='choices';const w=document.createElement('p');w.className='why';
+    ['Master','Transaction'].forEach(o=>{const b=document.createElement('button');b.textContent=o;b.onclick=()=>{if(c.dataset.done)return;c.dataset.done=1;mD++;
+      if(o===ans){b.classList.add('picked-right');c.classList.add('right');mR++;w.textContent='Correct. '+why}else{b.classList.add('picked-wrong');c.classList.add('wrong');[...ch.children].find(x=>x.textContent===ans).classList.add('picked-right');w.textContent='It is a '+ans.toLowerCase()+' item. '+why}mtTally()};ch.append(b)});
+    c.append(p,ch,w);box.append(c)});
+}
+function mtTally(){document.getElementById('mtTally').textContent=mD<MT.length?mD+' of '+MT.length+' answered, '+mR+' correct':'All done: '+mR+' out of '+MT.length+' correct.'}
+document.getElementById('mtReset').onclick=buildMT;buildMT();
+
+/* ============ UPDATE RUN ============ */
+const MASTER0=[[101,'Hughes',12.50,1200],[103,'Patel',14.00,980],[107,'Owen',11.75,1500],[110,'Rees',13.20,860],[114,'Khan',12.00,1320]];
+const TX0=[[110,20],[103,30],[108,15],[107,25]];
+let TX=TX0.map(t=>[...t]),sorted=false,steps=[],si=0;
+const isSorted=()=>TX.every((t,i)=>i===0||TX[i-1][0]<=t[0]);
+function buildSteps(){
+  steps=[];let m=0,t=0;const NEW=[],SL=[],ER=[];
+  const P=(msg,mi,ti)=>steps.push({msg,mi,ti,NEW:NEW.map(r=>[...r]),SL:SL.slice(),ER:ER.slice()});
+  while(m<MASTER0.length||t<TX.length){
+    const mr=MASTER0[m],tr=TX[t];
+    if(mr&&(!tr||mr[0]<tr[0])){NEW.push([...mr,'copy']);P('<b>Master '+mr[0]+'</b> '+(tr?'is smaller than transaction '+tr[0]+': ':'and there are no more transactions: ')+'no change for this employee, so copy the record to the new master file unchanged.',m,t);m++}
+    else if(mr&&tr&&mr[0]===tr[0]){const pay=Math.round(tr[1]*mr[2]*100)/100;const nr=[mr[0],mr[1],mr[2],Math.round((mr[3]+pay)*100)/100,'upd'];NEW.push(nr);SL.push(mr[1]+' ('+mr[0]+'): '+tr[1]+' h \u00D7 '+money(mr[2])+' = '+money(pay));
+      P('<b>Keys match: '+mr[0]+'.</b> Update pay to date: '+money(mr[3])+' + '+money(pay)+' = '+money(nr[3])+'. Write the updated record and produce a payslip.',m,t);m++;t++}
+    else{ER.push(tr[0]+' ('+tr[1]+' hours): no matching master record');P('<b>Transaction '+tr[0]+'</b> '+(mr?'is smaller than master '+mr[0]+', so there is no master record for it':'comes after the last master record')+': write it to the error file.',m,t);t++}
+  }
+  P('<b>Both files have been read once, from start to end.</b> The new master file replaces the old one (and the old one becomes the father generation).',-1,-1);
+  si=0;
+}
+function recDiv(cls,k,body,extra){return '<div class="rec '+cls+'"><span class="k">'+k+'</span><span>'+body+'</span>'+(extra||'<span></span>')+'</div>'}
+function drawUp(){
+  const st=si>0?steps[si-1]:null;
+  const nextM=st?st.mi:-1,nextT=st?st.ti:-1;
+  document.getElementById('fMaster').innerHTML=MASTER0.map((r,i)=>recDiv(st&&i===nextM?'cur':(st&&st.mi>i||st&&st.mi===-1?'done':''),r[0],r[1]+'  '+money(r[2])+'/h  '+money(r[3]))).join('');
+  document.getElementById('fTx').innerHTML=TX.length?TX.map((r,i)=>recDiv(st&&i===nextT?'cur':(st&&(st.ti>i||st.ti===-1)?'done':''),r[0],r[1]+' hours','<button class="x" data-i="'+i+'" aria-label="Remove">\u2715</button>')).join(''):'<p class="empty">No transactions</p>';
+  document.querySelectorAll('#fTx .x').forEach(b=>b.onclick=()=>{if(si>0)return;TX.splice(+b.dataset.i,1);sorted=isSorted();refreshUp()});
+  document.getElementById('txState').innerHTML='<span class="badge '+(isSorted()?'sorted':'unsorted')+'">'+(isSorted()?'sorted by ID':'serial: not sorted')+'</span>';
+  const N=st?st.NEW:[],S=st?st.SL:[],E=st?st.ER:[];
+  document.getElementById('fNew').innerHTML=N.length?N.map(r=>recDiv(r[4]==='upd'?'new':'',r[0],r[1]+'  '+money(r[3]))).join(''):'<p class="empty">Empty</p>';
+  document.getElementById('fSlips').innerHTML=S.length?S.map(t=>'<div class="rec new"><span class="k">\u2709</span><span>'+esc(t)+'</span><span></span></div>').join(''):'<p class="empty">Empty</p>';
+  document.getElementById('fErr').innerHTML=E.length?E.map(t=>'<div class="rec err"><span class="k">!</span><span>'+esc(t)+'</span><span></span></div>').join(''):'<p class="empty">Empty</p>';
+  const m=document.getElementById('upMsg');
+  if(!isSorted()){m.className='msg warn';m.innerHTML='<b>The transactions are not sorted.</b> The master file is in key order, so the transactions must be sorted into the same order before the update. Otherwise the program would have to search the whole master file for every transaction.'}
+  else{m.className='msg';m.innerHTML=st?st.msg:'Ready. Press Next step to compare the first master record with the first transaction.'}
+  document.getElementById('upNext').disabled=!isSorted()||si>=steps.length;
+  document.getElementById('upAll').disabled=!isSorted()||si>=steps.length;
+  document.getElementById('sortTx').disabled=isSorted()||si>0;
+}
+function refreshUp(){si=0;if(isSorted())buildSteps();drawUp()}
+document.getElementById('sortTx').onclick=()=>{TX.sort((a,b)=>a[0]-b[0]);refreshUp()};
+document.getElementById('upNext').onclick=()=>{if(si<steps.length){si++;drawUp()}};
+document.getElementById('upAll').onclick=()=>{si=steps.length;drawUp()};
+document.getElementById('upReset').onclick=()=>{TX=TX0.map(t=>[...t]);refreshUp()};
+document.getElementById('aAdd').onclick=()=>{
+  const id=parseInt(document.getElementById('aId').value,10),h=parseFloat(document.getElementById('aHrs').value);
+  if(isNaN(id)||isNaN(h)||h<=0||si>0)return;
+  if(TX.some(t=>t[0]===id)){document.getElementById('upMsg').innerHTML='<b>One timesheet per employee per week</b> in this simulation: '+id+' already has one.';return}
+  TX.push([id,h]);document.getElementById('aId').value='';document.getElementById('aHrs').value='';refreshUp();
+};
+refreshUp();
+
+/* ============ INSERT VIA TEMP FILE ============ */
+let OLD=[101,103,107,110],NK=105,ist=[],ii=0;
+const ICODE=['open oldFile for reading','open tempFile for writing','set inserted = FALSE','while not end of oldFile','  read record from oldFile','  if inserted = FALSE AND record.key > newRecord.key then','    write newRecord to tempFile','    set inserted = TRUE','  end if','  write record to tempFile','end while','if inserted = FALSE then','  write newRecord to tempFile','end if','close oldFile and tempFile','replace oldFile with tempFile'];
+function buildIns(){
+  ist=[];let tmp=[],ins=false,reads=0,writes=0;
+  const P=(line,cur,msg)=>ist.push({line,cur,tmp:tmp.slice(),msg,ins,reads,writes});
+  P(0,-1,'Open the original file for reading and an empty temporary file for writing.');P(2,-1,'No new record written yet: inserted = FALSE.');
+  OLD.forEach((k,i)=>{
+    reads++;P(4,i,'Read record '+k+' from the original file.');
+    if(!ins&&k>NK){P(5,i,k+' > '+NK+' and the new record has not been written: this is the insertion point.');tmp.push(NK);writes++;ins=true;P(6,i,'Write the new record '+NK+' to the temporary file.')}
+    else P(5,i,ins?'The new record has already been written.':k+' is not bigger than '+NK+', so keep copying.');
+    tmp.push(k);writes++;P(9,i,'Write record '+k+' to the temporary file.');
+  });
+  if(!ins){P(11,-1,'End of the original file and the new record has not been written: '+NK+' is bigger than every key.');tmp.push(NK);writes++;ins=true;P(12,-1,'Write '+NK+' at the end of the temporary file.')}
+  else P(11,-1,'End of the original file. The new record has already been written.');
+  P(15,-1,'Close both files. The temporary file replaces the original file.');
+  ii=0;
+}
+function kb(k,cls){return '<div class="kb '+(cls||'')+'">'+k+'</div>'}
+function drawIns(){
+  const s=ii>0?ist[ii-1]:null;
+  document.getElementById('sOld').innerHTML=OLD.map((k,i)=>kb(k,s&&i===s.cur?'cur':(s&&(s.cur>i||s.cur===-1&&ii>2)?'read':''))).join('');
+  document.getElementById('sTmp').innerHTML=s?(s.tmp.length?s.tmp.map(k=>kb(k,k===NK?'newk':'')).join(''):'<span class="small">empty</span>'):'<span class="small">not created yet</span>';
+  document.getElementById('insCode').innerHTML=ICODE.map((l,k)=>'<span class="'+(s&&s.line===k?'cur':'')+'">'+esc(l)+'</span>').join('');
+  document.getElementById('insMsg').innerHTML=s?s.msg:'Press Next step. The original file is never changed until the very end.';
+  document.getElementById('insCount').textContent=s?'Reads from the original: '+s.reads+'   Writes to the temporary file: '+s.writes:'';
+  document.getElementById('insNext').disabled=ii>=ist.length;document.getElementById('insAll').disabled=ii>=ist.length;
+  if(s&&ii===ist.length){document.getElementById('sOld').innerHTML=s.tmp.map(k=>kb(k,k===NK?'newk':'')).join('');document.getElementById('sTmp').innerHTML='<span class="small">replaced the original</span>'}
+}
+document.getElementById('insNext').onclick=()=>{if(ii<ist.length){ii++;drawIns()}};
+document.getElementById('insAll').onclick=()=>{ii=ist.length;drawIns()};
+document.getElementById('insReset').onclick=()=>{ii=0;drawIns()};
+document.getElementById('insLoad').onclick=()=>{const k=parseInt(document.getElementById('insKey').value,10);if(isNaN(k))return;if(OLD.includes(k)){document.getElementById('insMsg').innerHTML='<b>'+k+' is already in the file.</b> Keys must be unique.';return}NK=k;buildIns();drawIns()};
+document.getElementById('insRand').onclick=()=>{const s=new Set();while(s.size<6)s.add(100+Math.floor(Math.random()*40));OLD=[...s].sort((a,b)=>a-b);let k;do{k=95+Math.floor(Math.random()*50)}while(OLD.includes(k));NK=k;document.getElementById('insKey').value=k;buildIns();drawIns()};
+buildIns();drawIns();
+
+/* ============ GENERATIONS AND LOGS ============ */
+let G=[1,2,3],corrupt=false,runs=0;
+function drawGen(){
+  const roles=['Grandfather','Father','Son'];
+  document.getElementById('gens').innerHTML=G.map((v,i)=>'<div class="gen '+(i===2?(corrupt?'bad':'son'):i===1?'father':'')+'"><div class="role">'+roles[i]+'</div><div class="ver">'+(i===2&&corrupt?'\u2716 v'+v:'Master v'+v)+'</div>'+(i===0?'<div class="offsite">kept off site</div>':'')+'</div>').join('');
+  document.getElementById('gRun').disabled=corrupt;document.getElementById('gCorrupt').disabled=corrupt;document.getElementById('gRecover').disabled=!corrupt;
+}
+document.getElementById('gRun').onclick=()=>{const old=G[0];G=[G[1],G[2],G[2]+1];runs++;drawGen();document.getElementById('gMsg').innerHTML='<b>Update run:</b> the father (v'+G[1]+') and this week\u2019s transactions produced a new son, <b>v'+G[2]+'</b>. The old son became the father, and the father became the grandfather. Master v'+old+' is no longer kept, so its storage is reused.'};
+document.getElementById('gCorrupt').onclick=()=>{corrupt=true;drawGen();document.getElementById('gMsg').innerHTML='<b>The son, v'+G[2]+', is corrupted.</b> Without generations, the data would be lost. How can it be recovered?'};
+document.getElementById('gRecover').onclick=()=>{corrupt=false;drawGen();document.getElementById('gMsg').innerHTML='<b>Recovered:</b> the update run was repeated using the father (v'+G[1]+') and the transaction file from that run, recreating the son v'+G[2]+'. If the father were corrupted too, the grandfather and two sets of transactions could be used.'};
+document.getElementById('gReset').onclick=()=>{G=[1,2,3];corrupt=false;drawGen();document.getElementById('gMsg').textContent=''};
+drawGen();
+const LOG=[['Mon','Full backup',500],['Tue','Deposit \u00A3200',200],['Wed','Withdrawal \u00A350',-50],['Thu','Deposit \u00A3120',120],['Fri','Withdrawal \u00A3300',-300]];
+function drawLog(){
+  const k=+document.getElementById('tl').value;
+  document.getElementById('log').innerHTML=LOG.map((e,i)=>'<div class="le '+(i===0?'base':i<=k?'on':'')+'">'+e[0]+': '+e[1]+'</div>').join('');
+  let bal=LOG[0][2];for(let i=1;i<=k;i++)bal+=LOG[i][2];
+  document.getElementById('tlDay').textContent=LOG[k][0];
+  document.getElementById('tlBal').textContent='\u00A3'+bal;
+  document.getElementById('tlSteps').textContent=k===0?'Backup only, no log entries replayed':'Backup + '+k+' log entr'+(k===1?'y':'ies')+' replayed';
+  document.getElementById('tlMsg').innerHTML='Restore the Monday backup (\u00A3500), then <b>replay the transaction log</b> in order up to the end of '+LOG[k][0]+'. Only the changes are stored, so the log is small and quick to write: an <b>incremental</b> method that saves storage space and is faster than a full backup after every change.';
+}
+document.getElementById('tl').addEventListener('input',drawLog);drawLog();
+</script>
+</body>
+</html>
