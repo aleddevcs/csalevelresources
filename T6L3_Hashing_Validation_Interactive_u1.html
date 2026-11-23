@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Direct access and validation: Topic 6, Lesson 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B; --bad-soft:#F8E3E0; --good-soft:#E3F4EA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+.head-inner{max-width:1140px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 14px;font-size:30px;line-height:1.15}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#C9D3E6;padding:10px 16px;border-radius:10px 10px 0 0;font-weight:700}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+nav button:hover:not([aria-selected="true"]){color:#fff;background:var(--navy-2)}
+main{max-width:1140px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+h2{font-size:24px;margin:0 0 4px;color:var(--navy)}
+h3{font-size:17px;margin:0 0 8px;color:var(--navy)}
+.lede{color:var(--muted);margin:0 0 18px;max-width:78ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:8px 16px;font-weight:700}
+.btn:hover{background:var(--teal-soft)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy-2)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.label{font-weight:700;color:var(--navy)}
+.small{font-size:15px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+input.num{width:100px;padding:7px 10px;border:2px solid var(--line);border-radius:10px;font-family:var(--mono)}
+.msg{background:var(--paper);border-radius:10px;padding:10px 14px;min-height:46px;margin-top:12px}
+.msg b{color:var(--navy)}
+.msg.bad{background:var(--bad-soft)}.msg.good{background:var(--good-soft)}
+/* hash */
+.calc{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--navy);min-height:32px;margin-top:10px}
+.slots{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:3px}
+.slot .a{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.slot .v{width:64px;height:50px;border:2px solid var(--navy);border-radius:8px;background:var(--paper);display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:var(--navy);transition:background .15s}
+.slot .v.full{background:var(--teal-soft)}
+.slot .v.hit{background:var(--orange);border-color:var(--orange);color:#fff}
+.slot .v.found{background:var(--good);border-color:var(--good);color:#fff}
+.ov{margin-top:14px;background:var(--orange-soft);border-radius:12px;padding:10px 12px}
+.ov h3{display:flex;justify-content:space-between}
+.ovs{display:flex;gap:6px;flex-wrap:wrap;min-height:46px}
+.ovs .v{width:64px;height:44px;border:2px solid var(--orange);border-radius:8px;background:#fff;display:grid;place-items:center;font-family:var(--mono);font-weight:700}
+.ovs .v.read{background:var(--orange);color:#fff}
+.ovs .v.found{background:var(--good);border-color:var(--good);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.stat{background:var(--paper);border-radius:12px;padding:10px 14px}
+.stat .n{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--navy)}
+.stat .t{font-size:14px;color:var(--muted)}
+.stat.warn .n{color:var(--bad)}
+/* validation */
+.two{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px}
+.field{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.field label.l{font-weight:700;color:var(--navy);display:block;margin-bottom:4px}
+.field input,.field select{width:100%;padding:7px 10px;border:2px solid var(--line);border-radius:8px;font-family:var(--mono)}
+.field.ok input,.field.ok select{border-color:var(--good)}
+.field.no input,.field.no select{border-color:var(--bad)}
+.checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ck{font-size:13px;border-radius:999px;padding:2px 10px;background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+.ck.pass{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.ck.fail{background:var(--bad-soft);color:var(--bad);border-color:var(--bad);font-weight:700}
+.err{font-size:14px;color:var(--bad);margin-top:4px;min-height:20px}
+.source{background:#FFFDF6;border:2px dashed #C8B98B;border-radius:12px;padding:14px;font-family:var(--mono);font-size:15px}
+.source h3{font-family:var(--sans)}
+.source div{padding:2px 0}
+.source .mm{background:var(--bad-soft);color:var(--bad);font-weight:700}
+/* sort */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.right{border-left-color:var(--good)}.card.wrong{border-left-color:var(--bad)}
+.card p{margin:0}
+.choices{display:flex;gap:6px}
+.choices button{flex:1;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;padding:6px 8px;font-weight:700}
+.choices button.picked-right{background:var(--good);border-color:var(--good);color:#fff}
+.choices button.picked-wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.why{font-size:14px;color:var(--muted)}
+.tally{font-weight:700;color:var(--navy)}
+@media (max-width:900px){.two,.stats{grid-template-columns:1fr}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Unit 1, Topic 6: Organisation of data</p>
+    <h1>Direct access, validation and verification</h1>
+    <nav role="tablist" aria-label="Activities">
+      <button role="tab" aria-selected="true" aria-controls="p-h" id="t-h">Hashing</button>
+      <button role="tab" aria-selected="false" aria-controls="p-v" id="t-v">Validation tester</button>
+      <button role="tab" aria-selected="false" aria-controls="p-s" id="t-s">Validation or verification?</button>
+    </nav>
+  </div>
+</header>
+<main>
+<!-- ============ HASHING ============ -->
+<section class="panel active" id="p-h" role="tabpanel" aria-labelledby="t-h">
+  <h2>Hashing</h2>
+  <p class="lede">Each record's address is calculated from its key: address = key MOD (number of addresses). Add keys and watch for collisions. Then search for a record and count the reads. When overflow builds up, reorganise the file.</p>
+  <div class="box">
+    <div class="row">
+      <span class="label">Key</span><input class="num" id="hKey" value="105" aria-label="Key">
+      <button class="btn primary" id="hAdd">Add record</button>
+      <button class="btn" id="hFind">Find record</button>
+      <button class="btn" id="hLesson">Load the lesson keys</button>
+      <button class="btn" id="hRand">Add 5 random keys</button>
+      <button class="btn accent" id="hReorg">Reorganise: bigger file</button>
+      <button class="btn" id="hReset">Empty file</button>
+    </div>
+    <div class="calc" id="hCalc" aria-live="polite"></div>
+    <div class="slots" id="hSlots"></div>
+    <div class="ov"><h3><span>Overflow area</span><span class="small" id="hOvN"></span></h3><div class="ovs" id="hOv"></div></div>
+    <div class="msg" id="hMsg" aria-live="polite">Type a key and press Add record. Try the lesson keys: 105, 213, 327, 441, then 116.</div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="sAlg">MOD 11</div><div class="t">Hashing algorithm</div></div>
+      <div class="stat"><div class="n" id="sRec">0</div><div class="t">Records stored</div></div>
+      <div class="stat" id="sOvBox"><div class="n" id="sOv">0</div><div class="t">Records in overflow</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VALIDATION TESTER ============ -->
+<section class="panel" id="p-v" role="tabpanel" aria-labelledby="t-v">
+  <h2>Validation tester</h2>
+  <p class="lede">A new employee is being added to the payroll file from a paper form. Type the details and see which validation checks pass. Then verify: compare with the source document and use double entry. Can you enter data that passes every validation check but is still wrong?</p>
+  <div class="two">
+    <div class="box">
+      <h3>Data entry screen</h3>
+      <div class="field" id="fId"><label class="l" for="vId">Employee ID</label><input id="vId" value="E1234"><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fSur"><label class="l" for="vSur">Surname</label><input id="vSur" value="Pritchard"><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fDob"><label class="l" for="vDob">Date of birth (DD/MM/YYYY)</label><input id="vDob" value="12/03/2001"><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fHrs"><label class="l" for="vHrs">Contracted hours per week</label><input id="vHrs" value="37"><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fDept"><label class="l" for="vDept">Department</label><select id="vDept"><option></option><option>Admin</option><option>IT</option><option selected>Sales</option><option>Finance</option></select><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fPh"><label class="l" for="vPh">Phone number</label><input id="vPh" value="07700900456"><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fEm"><label class="l" for="vEm">Email</label><input id="vEm" value="g.pritchard@example.com"><div class="checks"></div><div class="err"></div></div>
+      <div class="field" id="fEm2"><label class="l" for="vEm2">Confirm email (double entry)</label><input id="vEm2" value="g.pritchard@example.com"><div class="checks"></div><div class="err"></div></div>
+      <div class="row"><button class="btn primary" id="vSave">Save record</button><button class="btn" id="vBad">Try invalid data</button><button class="btn" id="vWrong">Try valid but wrong</button></div>
+      <div class="msg" id="vMsg" aria-live="polite"></div>
+    </div>
+    <div>
+      <div class="source" id="src">
+        <h3>Source document: paper form</h3>
+        <div data-k="vId">Employee ID: E1234</div>
+        <div data-k="vSur">Surname: Pritchard</div>
+        <div data-k="vDob">Date of birth: 21/03/2001</div>
+        <div data-k="vHrs">Hours per week: 37</div>
+        <div data-k="vDept">Department: Sales</div>
+        <div data-k="vPh">Phone: 07700900456</div>
+        <div data-k="vEm">Email: g.pritchard@example.com</div>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn accent" id="vVis">Visual check against the form</button></div>
+      <div class="msg" id="vVisMsg">Validation is done by the program. Verification compares the data with its source. Press the button to verify.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SORT ============ -->
+<section class="panel" id="p-s" role="tabpanel" aria-labelledby="t-s">
+  <h2>Validation or verification?</h2>
+  <p class="lede">Validation: does the program accept the data as reasonable? Verification: has it been entered or copied correctly from its source? One go per card.</p>
+  <p class="tally" id="sTally"></p>
+  <div class="cards" id="sCards"></div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="sReset">Shuffle and start again</button></div>
+</section>
+</main>
+
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.addEventListener('click',()=>tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).classList.toggle('active',x===t)})));
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $=id=>document.getElementById(id);
+
+/* ============ HASHING ============ */
+let N=11,slots=[],ov=[];
+function resetFile(n){N=n;slots=Array(N).fill(null);ov=[]}
+resetFile(11);
+function draw(mark={}){
+  $('hSlots').innerHTML=slots.map((v,a)=>'<div class="slot"><span class="a">'+a+'</span><div class="v '+(mark.found===a?'found':mark.hit===a?'hit':v!==null?'full':'')+'">'+(v===null?'':v)+'</div></div>').join('');
+  $('hOv').innerHTML=ov.length?ov.map((v,i)=>'<div class="v '+(mark.ovFound===i?'found':(mark.ovRead!==undefined&&i<=mark.ovRead)?'read':'')+'">'+v+'</div>').join(''):'<span class="small" style="align-self:center">empty</span>';
+  const stored=slots.filter(v=>v!==null).length+ov.length;
+  $('sAlg').textContent='MOD '+N;$('sRec').textContent=stored;$('sOv').textContent=ov.length;$('hOvN').textContent=ov.length+' record'+(ov.length===1?'':'s');
+  $('sOvBox').classList.toggle('warn',ov.length>=3);
+}
+function exists(k){return slots.includes(k)||ov.includes(k)}
+function add(k,quiet){
+  const a=k%N, q=Math.floor(k/N);
+  $('hCalc').textContent=k+' MOD '+N+' = '+a+'   ('+N+' × '+q+' = '+N*q+', remainder '+a+')';
+  if(exists(k)){$('hMsg').className='msg bad';$('hMsg').innerHTML='<b>'+k+' is already in the file.</b> Keys must be unique.';draw();return}
+  if(slots[a]===null){slots[a]=k;if(!quiet){$('hMsg').className='msg';$('hMsg').innerHTML='<b>Stored at address '+a+'.</b> One read will find it.'}draw({hit:a})}
+  else{ov.push(k);if(!quiet){$('hMsg').className='msg bad';$('hMsg').innerHTML='<b>Collision:</b> address '+a+' already holds '+slots[a]+'. Two keys have hashed to the same location, so '+k+' is stored in the <b>overflow area</b>.'+(ov.length>=3?' The overflow area is filling up, so access is getting slower. Time to reorganise?':'')}draw({hit:a})}
+}
+$('hAdd').onclick=()=>{const k=parseInt($('hKey').value,10);if(isNaN(k)||k<0){$('hMsg').textContent='Type a whole-number key.';return}add(k)};
+$('hKey').addEventListener('keydown',e=>{if(e.key==='Enter')$('hAdd').click()});
+$('hFind').onclick=()=>{
+  const k=parseInt($('hKey').value,10);if(isNaN(k))return;
+  const a=k%N;$('hCalc').textContent=k+' MOD '+N+' = '+a;
+  if(slots[a]===k){draw({found:a});$('hMsg').className='msg good';$('hMsg').innerHTML='<b>Found in 1 read:</b> hash the key, go straight to address '+a+'.';return}
+  const i=ov.indexOf(k);
+  if(i>=0){draw({hit:a,ovRead:i,ovFound:i});$('hMsg').className='msg bad';$('hMsg').innerHTML='<b>Found in '+(2+i)+' reads:</b> address '+a+' holds '+slots[a]+', not '+k+', so the overflow area is searched in order until '+k+' is found.';return}
+  draw({hit:a,ovRead:ov.length-1});$('hMsg').className='msg';$('hMsg').innerHTML='<b>Not in the file.</b> Address '+a+(slots[a]===null?' is empty':' holds '+slots[a])+(slots[a]===null?', so the record does not exist (1 read).':', so the whole overflow area had to be searched as well ('+(1+ov.length)+' reads).');
+};
+$('hLesson').onclick=()=>{resetFile(11);[105,213,327,441,116].forEach(k=>add(k,true));$('hMsg').className='msg bad';$('hMsg').innerHTML='Lesson keys loaded with MOD 11: 105, 213, 327 and 441 are stored at their addresses, but <b>116 MOD 11 = 6</b> collides with 105 and goes to overflow. Now add 250, 362, 474 and 97.';$('hCalc').textContent=''};
+$('hRand').onclick=()=>{let n=0;while(n<5){const k=100+Math.floor(Math.random()*900);if(!exists(k)){add(k,true);n++}}$('hCalc').textContent='';$('hMsg').className='msg';$('hMsg').innerHTML='5 random keys added. '+ov.length+' record'+(ov.length===1?' is':'s are')+' now in overflow.'};
+$('hReorg').onclick=()=>{
+  const all=[...slots.filter(v=>v!==null),...ov].sort((a,b)=>a-b);const oldN=N,oldOv=ov.length;
+  const next=N===11?17:N===17?23:N===23?31:N+12;
+  resetFile(next);all.forEach(k=>add(k,true));$('hCalc').textContent='';
+  $('hMsg').className='msg good';$('hMsg').innerHTML='<b>Reorganised:</b> a new hashing algorithm (MOD '+N+') and a larger file. Every record was rehashed into its new address. Overflow went from '+oldOv+' to '+ov.length+'.';
+};
+$('hReset').onclick=()=>{resetFile(11);draw();$('hCalc').textContent='';$('hMsg').className='msg';$('hMsg').textContent='File emptied: MOD 11, 11 addresses.'};
+draw();
+
+/* ============ VALIDATION ============ */
+const DEPTS=['Admin','IT','Sales','Finance'];
+function realDate(s){const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s);if(!m)return false;const d=+m[1],mo=+m[2],y=+m[3];const dt=new Date(y,mo-1,d);return dt.getFullYear()===y&&dt.getMonth()===mo-1&&dt.getDate()===d}
+const RULES={
+  vId:[['Presence',v=>v!=='','Employee ID must be entered.'],['Format',v=>/^[A-Z]\d{4}$/.test(v),'Format: one capital letter then 4 digits, e.g. E1234.']],
+  vSur:[['Presence',v=>v!=='','Surname must be entered.'],['Length',v=>v.length<=30,'Surname must be 30 characters or fewer.'],['Type',v=>/^[A-Za-z' -]*$/.test(v),'Surname can only contain letters, spaces, hyphens and apostrophes.']],
+  vDob:[['Presence',v=>v!=='','Date of birth must be entered.'],['Format',v=>/^\d{2}\/\d{2}\/\d{4}$/.test(v),'Format must be DD/MM/YYYY.'],['Range',v=>{if(!realDate(v))return false;const y=+v.slice(6);return y>=1940&&y<=2010},'Must be a real date with a year from 1940 to 2010.']],
+  vHrs:[['Presence',v=>v!=='','Hours must be entered.'],['Type',v=>/^\d+(\.\d+)?$/.test(v),'Hours must be a number.'],['Range',v=>+v>=1&&+v<=48,'Hours must be between 1 and 48.']],
+  vDept:[['Presence',v=>v!=='','Choose a department.'],['Look-up',v=>DEPTS.includes(v),'Department must be in the list.']],
+  vPh:[['Type',v=>/^\d*$/.test(v),'Phone number can only contain digits.'],['Length',v=>v.length===11,'Phone number must be 11 digits.']],
+  vEm:[['Presence',v=>v!=='','Email must be entered.'],['Format',v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v),'Email must look like name@domain.com.']],
+  vEm2:[['Double entry',v=>v===$('vEm').value,'The two emails do not match: re-enter them.']]
+};
+const FMAP={vId:'fId',vSur:'fSur',vDob:'fDob',vHrs:'fHrs',vDept:'fDept',vPh:'fPh',vEm:'fEm',vEm2:'fEm2'};
+function checkField(id){
+  const v=$(id).value.trim(),f=$(FMAP[id]);let ok=true,msg='';
+  const res=RULES[id].map(([n,fn,m])=>{let p;if(ok){p=fn(v);if(!p){ok=false;msg=m}}else p=null;return [n,p]});
+  f.querySelector('.checks').innerHTML=res.map(([n,p])=>'<span class="ck '+(p===true?'pass':p===false?'fail':'')+'">'+(p===true?'✓ ':p===false?'✗ ':'')+n+(id==='vEm2'?' (verification)':'')+'</span>').join('');
+  f.querySelector('.err').textContent=msg;f.className='field '+(ok?'ok':'no');return ok;
+}
+function checkAll(){return Object.keys(RULES).map(checkField).every(Boolean)}
+Object.keys(RULES).forEach(id=>{$(id).addEventListener('input',()=>{checkField(id);if(id==='vEm')checkField('vEm2')});$(id).addEventListener('change',()=>checkField(id))});
+$('vSave').onclick=()=>{const m=$('vMsg');if(checkAll()){m.className='msg good';m.innerHTML='<b>Record accepted.</b> Every validation check passed. But is the data <i>correct</i>? Validation can’t tell you: verify it against the paper form.'}else{m.className='msg bad';m.innerHTML='<b>Record rejected.</b> Fix the fields marked in red. The program will not save data that fails validation.'}};
+const SET=(o)=>{Object.entries(o).forEach(([k,v])=>$(k).value=v);checkAll();$('vMsg').className='msg';$('vMsg').textContent='';[...$('src').children].forEach(d=>d.classList.remove('mm'))};
+$('vBad').onclick=()=>{SET({vId:'e12345',vSur:'',vDob:'31/02/2001',vHrs:'70',vDept:'',vPh:'0770090045',vEm:'g.pritchard.example.com',vEm2:'g.pritchard@example.com'});$('vMsg').className='msg bad';$('vMsg').innerHTML='Invalid data loaded. Each red check shows the error message the program would display.'};
+$('vWrong').onclick=()=>{SET({vId:'E1234',vSur:'Pritchard',vDob:'12/03/2001',vHrs:'37',vDept:'Sales',vPh:'07700900465',vEm:'g.pritchard@example.com',vEm2:'g.pritchard@example.com'});$('vMsg').className='msg good';$('vMsg').innerHTML='<b>Every validation check passes</b>, but two values have been mistyped. Can you spot them? Now press <b>Visual check against the form</b>.'};
+$('vVis').onclick=()=>{
+  let n=0;[...$('src').children].forEach(d=>{const k=d.dataset.k;if(!k)return;const want=d.textContent.split(': ').slice(1).join(': ');const got=$(k).value.trim();const bad=want!==got;d.classList.toggle('mm',bad);if(bad)n++});
+  const m=$('vVisMsg');
+  if(n){m.className='msg bad';m.innerHTML='<b>Verification found '+n+' mismatch'+(n>1?'es':'')+'</b> (highlighted on the form). '+(checkAll()?'This data passed validation, so only verification could catch the mistake: <b>valid does not mean correct</b>.':'Some of these also fail validation.')}
+  else{m.className='msg good';m.innerHTML='<b>Verified:</b> the entered data matches the source document exactly.'}
+};
+$('vDob').value='21/03/2001';checkAll();
+
+/* ============ SORT ============ */
+const SC=[
+  ['A user types their new password twice and the two are compared','Verification','Double entry: checks the data was entered as intended.'],
+  ['Hours worked must be between 0 and 60','Validation','Range check, done automatically by the program.'],
+  ['A clerk reads the screen back against the paper application form','Verification','Visual check: compares the data with its source document.'],
+  ['A postcode must match the pattern of letters and digits','Validation','Format check.'],
+  ['The surname field cannot be left blank','Validation','Presence check.'],
+  ['An email address is entered in two boxes and must match','Verification','Double entry.'],
+  ['A department must be chosen from Admin, IT, Sales or Finance','Validation','Look-up check against a list.'],
+  ['The last digit of a barcode is recalculated from the other digits','Validation','Check digit: a calculation by the program, not a comparison with a source.'],
+  ['An order is proofread against the customer’s handwritten order before it is processed','Verification','Visual check / proofreading against the source.'],
+  ['A phone number must be exactly 11 characters','Validation','Length check.']
+];
+let sR=0,sD=0;
+function build(){
+  const box=$('sCards');box.innerHTML='';sR=0;sD=0;tally();
+  SC.map((_,i)=>i).sort(()=>Math.random()-.5).forEach(idx=>{
+    const [t,ans,why]=SC[idx];const c=document.createElement('div');c.className='card';
+    const p=document.createElement('p');p.textContent=t;const ch=document.createElement('div');ch.className='choices';const w=document.createElement('p');w.className='why';
+    ['Validation','Verification'].forEach(o=>{const b=document.createElement('button');b.textContent=o;b.onclick=()=>{if(c.dataset.done)return;c.dataset.done=1;sD++;
+      if(o===ans){b.classList.add('picked-right');c.classList.add('right');sR++;w.textContent='Correct. '+why}else{b.classList.add('picked-wrong');c.classList.add('wrong');[...ch.children].find(x=>x.textContent===ans).classList.add('picked-right');w.textContent='It is '+ans.toLowerCase()+'. '+why}tally()};ch.append(b)});
+    c.append(p,ch,w);box.append(c)});
+}
+function tally(){$('sTally').textContent=sD<SC.length?sD+' of '+SC.length+' answered, '+sR+' correct':'All done: '+sR+' out of '+SC.length+' correct.'}
+$('sReset').onclick=build;build();
+</script>
+</body>
+</html>

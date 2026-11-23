@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter: Topic 6 Lesson 2 recall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#22335A; --teal:#0F8B8D; --teal-soft:#D6EFEF;
+  --orange:#F28C28; --orange-soft:#FDE9D4; --paper:#F3F6FA; --card:#FFFFFF;
+  --ink:#1B2433; --muted:#5A667A; --line:#D5DCE6; --good:#1E8A4C; --bad:#C0392B;
+  --good-soft:#E3F4EA; --bad-soft:#F8E3E0;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+header{background:var(--navy);color:#fff;padding:20px 24px 22px}
+.head-inner,main{max-width:860px;margin:0 auto}
+.kicker{color:#9FD9DA;font-size:15px;margin:0}
+h1{margin:2px 0 6px;font-size:30px;line-height:1.15}
+.sub{margin:0;color:#C9D3E6;max-width:62ch}
+main{padding:22px 24px 48px}
+.bar{position:sticky;top:0;z-index:5;background:var(--paper);padding:10px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:16px}
+.track{flex:1;min-width:160px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--teal);transition:width .2s}
+.count{font-weight:700;color:var(--navy);white-space:nowrap}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.q.right{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
+.q.wrong{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad) inset}
+.qhead{display:flex;gap:12px;align-items:baseline}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:grid;place-items:center;font-size:15px}
+.tag{font-size:13px;color:var(--teal);font-weight:700}
+.qtext{margin:0 0 10px;font-weight:700;font-size:18px}
+.opts{display:grid;gap:8px;margin-left:42px}
+.opt{text-align:left;border:2px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;color:var(--ink)}
+.opt:hover:not([disabled]){border-color:var(--teal)}
+.opt[aria-pressed="true"]{border-color:var(--navy);background:var(--teal-soft);font-weight:700}
+.opt.is-right{border-color:var(--good);background:var(--good-soft)}
+.opt.is-wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.why{display:none;margin:10px 0 0 42px;font-size:15px;color:var(--ink);background:var(--paper);border-radius:10px;padding:10px 12px}
+.why.show{display:block}
+.why b{color:var(--navy)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.btn{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;padding:10px 18px;font-weight:700}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary[disabled]{opacity:.45;cursor:not-allowed}
+.hint{color:var(--muted);font-size:15px}
+.result{display:none;background:var(--navy);color:#fff;border-radius:16px;padding:20px 22px;margin-bottom:18px}
+.result.show{display:block}
+.score{font-size:44px;font-weight:700;line-height:1}
+.score small{font-size:18px;font-weight:400;color:#C9D3E6}
+.result h2{font-size:18px;margin:14px 0 6px;color:var(--orange)}
+.result ul{margin:0;padding-left:20px}
+.result p{margin:8px 0 0;color:#E4EAF4}
+@media (max-width:600px){.opts,.why{margin-left:0}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <p class="kicker">Starter, Topic 6 Lesson 3</p>
+    <h1>Lesson 2 recall: master files, transactions and file security</h1>
+    <p class="sub">Twelve questions on your own. A gym keeps a master file of members and a transaction file of visits. Work each answer out before you choose, then check.</p>
+  </div>
+</header>
+<main>
+  <div class="result" id="result" aria-live="polite"></div>
+  <div class="bar"><div class="track" aria-hidden="true"><div class="fill" id="fill"></div></div><span class="count" id="count">0 of 12 answered</span></div>
+  <div id="qs"></div>
+  <div class="actions">
+    <button class="btn primary" id="check" disabled>Check my answers</button>
+    <button class="btn" id="again" style="display:none">Try again</button>
+    <span class="hint" id="hint">Answer all 12 to unlock the check.</span>
+  </div>
+</main>
+<script>
+// [topic, question, correct, [wrong...], explanation]
+const Q=[
+ ["Master and transaction files","In the gym system, which item belongs in the transaction file?","A visit made today",
+  ["A member\u2019s name and address","A member\u2019s membership type","A member\u2019s date of joining"],
+  "Transactions are changes or events. The other three are long-term data about the member, so they belong in the master file."],
+ ["Master and transaction files","How is a transaction file organised before it is sorted?","Serially: in the order the transactions happened",
+  ["Sequentially: in key order","Indexed sequential","At addresses calculated from the key"],
+  "2019 mark scheme: transaction files are serial; master files are sequential."],
+ ["The update run","Which two files are the inputs to an update run?","The old master file and the sorted transaction file",
+  ["The new master file and the error file","The transaction file and the payslips","The old master file and the error file"],
+  "Two inputs: old master and sorted transactions. The new master file, documents and error file are outputs."],
+ ["The update run","Why is the transaction file sorted before the update?","So both files are in key order and can be read once, side by side",
+  ["To remove duplicate transactions","To make the transaction file smaller","So the transactions can be archived"],
+  "Sorting puts the transactions in the same order as the master file: a single pass through both."],
+ ["The update run","Master records 301, 305, 309. Sorted transactions 305, 307. What happens to 307?","It is written to the error file",
+  ["It becomes a new master record","It updates record 309","It is copied to the new master file unchanged"],
+  "There is no master record 307, so the transaction cannot be matched: it goes to the error file."],
+ ["The update run","In the same run, what happens to master record 301?","It is copied to the new master file unchanged",
+  ["It is deleted","It is written to the error file","It is updated by transaction 305"],
+  "301 has no transaction, so it is copied across unchanged."],
+ ["Adding a record","A sequential file holds 12, 18, 25, 31. Record 20 is added. What order is the temporary file written in?","12, 18, 20, 25, 31",
+  ["12, 18, 25, 31, 20","20, 12, 18, 25, 31","12, 20, 18, 25, 31"],
+  "Copy 12 and 18, write 20 before the first bigger key (25), then copy 25 and 31."],
+ ["Adding a record","What is the last step when adding a record to a sequential file?","The temporary file replaces the original file",
+  ["The original file is sorted again","The new record is moved to the end","The transaction file is deleted"],
+  "2023 mark scheme: the temporary file then replaces the original file."],
+ ["Batch processing","Which is a feature of batch processing?","Data is collected and then processed in one single operation, with no user interaction",
+  ["Each transaction is processed the moment it happens","The user must confirm every record","It must run when demand for the computer is highest"],
+  "Batch processing can run off-peak, and errors are stored in a file for later."],
+ ["File security","In grandfather, father, son, the son file is corrupted. How is it recovered?","Rerun the update using the father file and that run\u2019s transactions",
+  ["Copy the grandfather over the son","Re-sort the transaction file","Restore the error file"],
+  "The father plus the transactions that created the son can recreate it."],
+ ["File security","How is a transaction log used to restore a file?","Restore the last backup, then replay the logged changes up to the required point",
+  ["Copy the log over the master file","Delete every change made since the backup","Restore the oldest generation of the file"],
+  "A transaction log is incremental: only the changes are recorded, then replayed."],
+ ["Archiving","Which statement describes archiving?","Moving files no longer in use, but which may be needed in future, to long-term storage",
+  ["Making a copy of current files to restore after loss","Deleting files that are no longer needed","Keeping three generations of the master file"],
+  "2022 mark scheme wording. A backup is a copy of current data; an archive is old data moved out of the live system."]
+];
+const L="ABCD";
+let answers=new Array(Q.length).fill(null), order=[], checked=false;
+const qs=document.getElementById('qs');
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function build(){
+  qs.innerHTML='';answers.fill(null);checked=false;
+  order=Q.map(q=>shuffle([q[2],...q[3]]));
+  Q.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='q';d.id='q'+i;
+    d.innerHTML='<div class="qhead"><span class="num">'+(i+1)+'</span><div><div class="tag">'+q[0]+'</div><p class="qtext">'+q[1]+'</p></div></div><div class="opts" role="group" aria-label="Question '+(i+1)+' options"></div><div class="why"></div>';
+    const box=d.querySelector('.opts');
+    order[i].forEach((o,k)=>{
+      const b=document.createElement('button');b.className='opt';b.setAttribute('aria-pressed','false');
+      b.textContent=L[k]+'.  '+o;b.dataset.v=o;
+      b.onclick=()=>{if(checked)return;answers[i]=o;box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b));update()};
+      box.append(b);
+    });
+    qs.append(d);
+  });
+  document.getElementById('result').className='result';
+  document.getElementById('check').style.display='';document.getElementById('again').style.display='none';
+  update();
+}
+function update(){
+  const n=answers.filter(a=>a!==null).length;
+  document.getElementById('fill').style.width=(n/Q.length*100)+'%';
+  document.getElementById('count').textContent=n+' of '+Q.length+' answered';
+  const c=document.getElementById('check');c.disabled=n<Q.length;
+  document.getElementById('hint').textContent=checked?'':n<Q.length?'Answer all 12 to unlock the check.':'Ready when you are.';
+}
+document.getElementById('check').onclick=()=>{
+  checked=true;let score=0;const miss={};
+  Q.forEach((q,i)=>{
+    const d=document.getElementById('q'+i),ok=answers[i]===q[2];
+    if(ok)score++;else miss[q[0]]=(miss[q[0]]||0)+1;
+    d.classList.add(ok?'right':'wrong');
+    d.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.v===q[2])b.classList.add('is-right');else if(b.dataset.v===answers[i])b.classList.add('is-wrong')});
+    const w=d.querySelector('.why');w.innerHTML='<b>'+(ok?'Correct.':'Not this time.')+'</b> '+q[4];w.classList.add('show');
+  });
+  const r=document.getElementById('result');
+  const topics=Object.keys(miss);
+  r.innerHTML='<div class="score">'+score+' <small>out of '+Q.length+'</small></div>'+
+    (topics.length?'<h2>Topics to look back at</h2><ul>'+topics.map(t=>'<li>'+t+' ('+miss[t]+' wrong)</li>').join('')+'</ul><p>Write these down and add them to your Topic 6 checklist later in the lesson.</p>'
+      :'<p>Full marks. Lesson 2 is secure.</p>');
+  r.classList.add('show');
+  document.getElementById('check').style.display='none';document.getElementById('again').style.display='';
+  update();window.scrollTo({top:0,behavior:'smooth'});
+};
+document.getElementById('again').onclick=()=>{build();window.scrollTo({top:0})};
+build();
+</script>
+</body>
+</html>
