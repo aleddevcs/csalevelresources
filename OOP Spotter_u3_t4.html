@@ -1,0 +1,414 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OOP Spotter</title>
+<style>
+:root {
+  --navy: #003366; --amber: #CC9900;
+  --bg: #F3F6FA; --surface: #FFFFFF; --surface-2: #E8EEF5; --text: #1A1A1A; --muted: #4A5A70;
+  --heading: #003366; --accent: #CC9900; --accent-text: #7A5C00; --line: #C9D3E0;
+  --code-bg: #003366; --code-text: #FFFFFF; --code-cmt: #F2D88A;
+  --tok: rgba(204,153,0,0.28); --tok-line: #CC9900; --tok-sel: #CC9900;
+  --right: #2E7D32; --right-bg: #E6F2E7; --wrong: #B23A3A; --wrong-bg: #F8E6E6; --soft: #FAF1D6;
+  --d-head: #003366; --d-head-text: #FFFFFF; --d-box: #FFFFFF; --d-line: #003366; --d-text: #1A1A1A;
+  color-scheme: light; box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+    --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+    --code-bg: #0A1422; --code-text: #F2F5FA; --code-cmt: #E0B23A;
+    --tok: rgba(224,178,58,0.22); --tok-line: #E0B23A; --tok-sel: #E0B23A;
+    --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24; --soft: #2E2814;
+    --d-head: #2E5A8C; --d-head-text: #FFFFFF; --d-box: #16263D; --d-line: #A9B8CC; --d-text: #E9EEF5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+  --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+  --code-bg: #0A1422; --code-text: #F2F5FA; --code-cmt: #E0B23A;
+  --tok: rgba(224,178,58,0.22); --tok-line: #E0B23A; --tok-sel: #E0B23A;
+  --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24; --soft: #2E2814;
+  --d-head: #2E5A8C; --d-head-text: #FFFFFF; --d-box: #16263D; --d-line: #A9B8CC; --d-text: #E9EEF5;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 1.05rem; line-height: 1.5; }
+h1, h2, h3 { font-family: Cambria, Caladea, Georgia, "Times New Roman", serif; color: var(--heading); line-height: 1.25; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--navy); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--navy); color: #FFFFFF; }
+.bar-inner { max-width: 1200px; margin: 0 auto; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.bar h1 { color: #FFFFFF; margin: 0; font-size: 1.45rem; flex: 1 1 12rem; }
+.bar h1 small { display: block; font-family: Calibri, Carlito, Arial, sans-serif; font-weight: 400; font-size: 0.85rem; color: #F2D88A; }
+.stat { font-size: 0.95rem; white-space: nowrap; } .stat b { font-size: 1.2rem; }
+.bar button { font: inherit; font-size: 0.92rem; padding: 0.42rem 0.8rem; border-radius: 6px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.55); }
+.bar button:hover { background: rgba(255,255,255,0.12); }
+.modes { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem 0.6rem; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.modes button { font: inherit; font-size: 0.95rem; padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.45); }
+.modes button[aria-selected="true"] { background: var(--amber); border-color: var(--amber); color: #1A1A1A; font-weight: 700; }
+
+main { max-width: 1200px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+.intro { color: var(--muted); margin: 0 0 0.9rem; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.15rem; }
+.panel + .panel { margin-top: 1rem; }
+.panel h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 0.8rem 0.9rem; font-family: "Courier New", Courier, monospace; font-size: 0.95rem; line-height: 1.75; overflow-x: auto; }
+pre.code .c { color: var(--code-cmt); }
+.tok { font: inherit; color: inherit; background: var(--tok); border: none; border-bottom: 2px solid var(--tok-line); border-radius: 3px; padding: 0 2px; cursor: pointer; }
+.tok:hover { outline: 2px solid var(--tok-line); }
+.tok.sel { outline: 3px solid var(--tok-sel); }
+.tok.ok { background: transparent; border-bottom-color: var(--right); }
+.tok .badge { font-family: Calibri, Carlito, Arial, sans-serif; font-size: 0.68rem; font-weight: 700; color: #FFFFFF; background: var(--right); border-radius: 999px; padding: 0 0.35rem; margin-left: 0.2rem; vertical-align: 0.15em; }
+.labels { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.45rem; margin: 0.5rem 0; }
+.lbtn { font: inherit; font-weight: 700; cursor: pointer; padding: 0.55rem 0.7rem; border-radius: 8px; text-align: left; background: var(--surface-2); color: var(--text); border: 2px solid transparent; }
+.lbtn:hover:not(:disabled) { border-color: var(--accent); }
+.lbtn:disabled { opacity: 0.5; cursor: default; }
+.lbtn.wrong { background: var(--wrong-bg); border-color: var(--wrong); opacity: 1; }
+.pick { color: var(--muted); }
+.sel-tok { font-family: "Courier New", Courier, monospace; font-weight: 700; background: var(--soft); padding: 0.1rem 0.4rem; border-radius: 4px; }
+.fb { margin-top: 0.6rem; padding: 0.55rem 0.8rem; border-radius: 8px; border: 2px solid var(--line); }
+.fb.ok { border-color: var(--right); background: var(--right-bg); }
+.fb.no { border-color: var(--wrong); background: var(--wrong-bg); }
+.progress { display: flex; gap: 5px; flex-wrap: wrap; margin: 0.2rem 0 0.6rem; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); }
+.dot.ok { background: var(--right); border-color: var(--right); }
+.dot.half { background: var(--accent); border-color: var(--accent); }
+.dot.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.diagram { overflow-x: auto; }
+.diagram svg { display: block; width: 100%; height: auto; max-width: 640px; margin: 0 auto; }
+.d-head { fill: var(--d-head); stroke: var(--d-line); stroke-width: 1.5; }
+.d-box { fill: var(--d-box); stroke: var(--d-line); stroke-width: 1.5; }
+.d-name { fill: var(--d-head-text); font-family: Cambria, Caladea, Georgia, serif; font-weight: 700; font-size: 15px; }
+.d-item { fill: var(--d-text); font-family: "Courier New", Courier, monospace; font-size: 13px; }
+.d-line { stroke: var(--d-line); stroke-width: 2; fill: none; }
+.d-tri { fill: var(--d-box); stroke: var(--d-line); stroke-width: 2; }
+.qtext { font-family: Cambria, Caladea, Georgia, serif; font-size: 1.2rem; color: var(--heading); margin: 0.2rem 0 0.7rem; }
+.opts { display: grid; gap: 0.45rem; }
+.obtn { font: inherit; text-align: left; cursor: pointer; padding: 0.6rem 0.8rem; border-radius: 8px; background: var(--surface-2); color: var(--text); border: 2px solid transparent; display: flex; gap: 0.6rem; }
+.obtn .letter { font-weight: 700; color: var(--heading); flex: none; }
+.obtn:hover:not(:disabled) { border-color: var(--accent); }
+.obtn:disabled { cursor: default; }
+.obtn.right { background: var(--right-bg); border-color: var(--right); }
+.obtn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+.obtn.faded { opacity: 0.5; }
+.btn { font: inherit; font-weight: 700; cursor: pointer; padding: 0.5rem 1.05rem; border-radius: 8px; border: 2px solid var(--accent); background: var(--accent); color: #1A1A1A; margin-top: 0.8rem; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.summary ol { padding-left: 1.3rem; } .summary li { margin: 0.3rem 0; }
+.log ol { margin: 0; padding: 0; list-style: none; max-height: 18rem; overflow-y: auto; }
+.log li { padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-size: 0.93rem; }
+.log li:last-child { border-bottom: none; }
+.log li.exam { border-left: 4px solid var(--accent); padding-left: 0.55rem; }
+.hidden { display: none !important; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-inner">
+    <h1>OOP Spotter<small>Unit 3 Topic 4, Lesson 2: class, object, method and friends</small></h1>
+    <span class="stat">Score <b id="score">0</b> / <span id="max">10</span></span>
+    <button type="button" id="restartBtn">Restart round</button>
+    <button type="button" id="themeBtn">Dark mode</button>
+  </div>
+  <div class="modes" role="tablist" aria-label="Rounds">
+    <button type="button" role="tab" data-mode="r1" aria-selected="true">Round 1: label the code</button>
+    <button type="button" role="tab" data-mode="r2" aria-selected="false">Round 2: read class diagrams</button>
+  </div>
+</header>
+
+<main>
+  <p class="intro" id="intro"></p>
+  <div class="grid">
+    <div id="left"></div>
+    <div>
+      <section class="panel" id="right" aria-live="polite"></section>
+      <section class="panel log">
+        <h2>Exam-sentence log <span style="font-family:Calibri,Carlito,Arial,sans-serif;font-size:0.9rem;font-weight:400;color:var(--muted)">(newest first)</span></h2>
+        <ol id="log"></ol>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var LABELS = ["Class", "Object", "Attribute", "Method", "Instantiation", "Inheritance", "Private (encapsulation)"];
+
+  // ---------- Round 1 ----------
+  // Lines with {{id|text}} tokens
+  var CODE = [
+    "{{t1|class Account}}:",
+    "    def __init__(self, owner):",
+    "        {{t2|self.__owner}} = owner",
+    "        {{t3|self.balance}} = 0",
+    "",
+    "    def {{t4|deposit}}(self, amount):",
+    "        self.balance = self.balance + amount",
+    "",
+    "class Savings{{t5|(Account)}}:",
+    "    def {{t6|addInterest}}(self):",
+    "        self.balance = self.balance * 1.02",
+    "",
+    "{{t7|acc1}} = Account(\"Gwen\")",
+    "{{t9|acc2}} = {{t8|Savings(\"Dafydd\")}}",
+    "{{t10|acc2.deposit(50)}}"
+  ];
+  var T = {
+    t1: { ans: "Class", why: "A class is the written code used to define a template for an object. It defines the attributes and methods every Account object will have." },
+    t2: { ans: "Private (encapsulation)", why: "The double underscore makes __owner private: only Account’s own methods can access it. A method can only access data within its own object (encapsulation).",
+      near: { "Attribute": "It is an attribute, but look at the __ at the start. What does that do to who can access it?" } },
+    t3: { ans: "Attribute", why: "balance is an attribute (property): a variable that belongs to the object and holds its data. With no __ it is public.",
+      near: { "Private (encapsulation)": "No __ at the start, so this attribute is not private. It is an ordinary (public) attribute." } },
+    t4: { ans: "Method", why: "deposit is a method: a programmed behaviour or subroutine within an object, which acts on that object’s data." },
+    t5: { ans: "Inheritance", why: "Savings(Account) means Savings inherits all of Account’s attributes and methods. Savings is the subclass; Account is the superclass." },
+    t6: { ans: "Method", why: "addInterest is a method that only Savings objects have: the subclass adds its own behaviour to what it inherits." },
+    t7: { ans: "Object", why: "acc1 is an object: an instance of the Account class, an actual thing created using the template." },
+    t8: { ans: "Instantiation", why: "Savings(\"Dafydd\") calls the constructor to create a new object from the class. Creating an object from a class is called instantiation.",
+      near: { "Object": "Close: this expression creates the object. What is the name for creating an object from a class?" } },
+    t9: { ans: "Object", why: "acc2 is an object: an instance of the Savings class. It is also an Account, because Savings inherits from Account." },
+    t10: { ans: "Method", why: "acc2.deposit(50) calls a method on the acc2 object. deposit was written in Account, but acc2 can use it because Savings inherits it." }
+  };
+  var ORDER = ["t1","t2","t3","t4","t5","t6","t7","t8","t9","t10"];
+
+  // ---------- Round 2 ----------
+  var DIAGRAMS = {
+    game: { sup: { name: "Character", attrs: ["Name", "Model"], meths: ["setName()", "getName()", "setModel()", "getModel()"] },
+      subs: [ { name: "NPC", attrs: ["Location", "Dialogue"], meths: ["setLocation()", "interact()", "setDialogue()"] },
+              { name: "Player", attrs: ["Controls", "Health"], meths: ["setHealth()", "getHealth()", "move()"] } ] },
+    library: { sup: { name: "LibraryItem", attrs: ["Title", "ItemID"], meths: ["getTitle()", "checkOut()", "returnItem()", "describe()"] },
+      subs: [ { name: "Book", attrs: ["Author", "Pages"], meths: ["getAuthor()", "describe()"] },
+              { name: "DVD", attrs: ["Runtime", "Certificate"], meths: ["getRuntime()", "describe()"] } ] }
+  };
+  var R2 = [
+    { d: "game", q: "Which class is the superclass?", o: ["NPC", "Player", "Character", "All three"], a: 2,
+      why: "Character is the superclass: the hollow triangle points to it. NPC and Player are its subclasses.",
+      sent: "Character is the superclass; NPC and Player are subclasses that inherit its attributes and methods." },
+    { d: "game", q: "How many attributes does a Player object have in total?", o: ["2", "3", "4", "6"], a: 2,
+      why: "4: Name and Model are inherited from Character, plus Controls and Health written in Player. Don’t count only the subclass box.",
+      sent: "A Player object has Name and Model (inherited from Character) plus its own Controls and Health." },
+    { d: "game", q: "Which methods can an NPC object call?", o: ["setLocation(), interact() and setDialogue() only", "Character’s four methods, plus setLocation(), interact() and setDialogue()", "Every method in the diagram", "interact() only"], a: 1,
+      why: "An NPC inherits all of Character’s methods and adds its own three. It does not get Player’s methods: subclasses inherit from their superclass, not from each other.",
+      sent: "Methods can be inherited from parent classes: an NPC can use setName() even though it is written in Character." },
+    { d: "game", q: "Does a Player object have a Dialogue attribute?", o: ["Yes, because NPC and Player are both Characters", "Yes, because every class shares every attribute", "No, because Dialogue is private", "No, because Dialogue belongs to NPC, and Player only inherits from Character"], a: 3,
+      why: "Dialogue is written in NPC. Player inherits from Character, not from NPC, so it has Name, Model, Controls and Health only.",
+      sent: "A subclass inherits from its superclass only, not from other subclasses." },
+    { d: "game", q: "What does the hollow triangle between the classes show?", o: ["NPC and Player are objects created from Character", "NPC and Player inherit from Character (each “is a” Character)", "Character calls the methods of NPC and Player", "Data flows from NPC and Player into Character"], a: 1,
+      why: "The hollow triangle points to the superclass and means “inherits from”: an NPC is a Character. They are classes, not objects; objects are made from them.",
+      sent: "In a class diagram, a hollow triangle points from the subclass to the superclass and means “inherits from”." },
+    { d: "library", q: "Book is a subclass of which class?", o: ["DVD", "LibraryItem", "Book is not a subclass", "Author"], a: 1,
+      why: "The triangle points to LibraryItem, so Book inherits from LibraryItem. Author is an attribute, not a class.",
+      sent: "Book inherits from LibraryItem, so every Book has a Title and an ItemID without them being written again." },
+    { d: "library", q: "describe() appears in all three classes. What does this show?", o: ["A mistake: a method name can only be used once", "Encapsulation: describe() is private", "Polymorphism: Book and DVD override describe(), so the same call behaves differently depending on the object", "Instantiation: describe() creates objects"], a: 2,
+      why: "Book and DVD each override describe() with their own version. Calling describe() on a Book and on a DVD gives different results: polymorphism.",
+      sent: "Polymorphism: different objects respond in their own way to the same method call, because subclasses can override a method." },
+    { d: "library", q: "How many different methods can a DVD object call?", o: ["2", "5", "6", "7"], a: 1,
+      why: "5: getTitle(), checkOut(), returnItem() and describe() from LibraryItem, plus getRuntime(). DVD’s describe() overrides the inherited one, so it still counts once.",
+      sent: "A subclass has every method of its superclass plus its own; an overridden method replaces the inherited version rather than adding a new one." },
+    { d: "library", q: "The library adds magazines. Each needs a Title, an ItemID and an IssueNumber. What is the best design?", o: ["Copy LibraryItem’s code into a new Magazine class", "Add IssueNumber to LibraryItem so every item has one", "Make Magazine a subclass of LibraryItem and add IssueNumber to it", "Make Magazine a subclass of Book"], a: 2,
+      why: "Magazine inherits Title and ItemID from LibraryItem and adds only IssueNumber. That reuses code and reduces duplication. A magazine is not a book, and not every item needs an issue number.",
+      sent: "Inheritance reduces code duplication: a new subclass reuses the superclass’s attributes and methods and adds only what is new." }
+  ];
+
+  var mode = "r1", r = {}, logItems = [];
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function log(h, exam) { logItems.unshift({ h: h, exam: !!exam }); renderLog(); }
+  function renderLog() { document.getElementById("log").innerHTML = logItems.length ? logItems.map(function (l) { return '<li' + (l.exam ? ' class="exam"' : '') + '>' + l.h + '</li>'; }).join("") : "<li>Nothing yet.</li>"; }
+
+  function newRound(m) {
+    if (m === "r1") r.r1 = { sel: null, res: {}, wrong: {}, fb: null };
+    else r.r2 = { i: 0, res: R2.map(function () { return null; }), wrong: [], done: false };
+  }
+  function score(m) {
+    if (m === "r1") return ORDER.filter(function (k) { return r.r1.res[k] === true; }).length;
+    return r.r2.res.filter(function (x) { return x === true; }).length;
+  }
+  function max(m) { return m === "r1" ? ORDER.length : R2.length; }
+
+  // ---------- render Round 1 ----------
+  function codeHtml() {
+    return CODE.map(function (line) {
+      var out = "", re = /\{\{(t\d+)\|([^}]*)\}\}/g, last = 0, mm;
+      while ((mm = re.exec(line))) {
+        out += esc(line.slice(last, mm.index));
+        var k = mm[1], st = r.r1.res[k];
+        var cls = "tok" + (r.r1.sel === k ? " sel" : "") + (st !== undefined ? " ok" : "");
+        out += '<button type="button" class="' + cls + '" data-tok="' + k + '" aria-label="Code part ' + esc(mm[2]) + '">' + esc(mm[2]) + (st !== undefined ? '<span class="badge">' + esc(T[k].ans.replace(" (encapsulation)", "")) + '</span>' : '') + '</button>';
+        last = mm.index + mm[0].length;
+      }
+      return out + esc(line.slice(last));
+    }).join("\n");
+  }
+  function renderR1() {
+    var R = r.r1;
+    document.getElementById("left").innerHTML = '<section class="panel"><h2>The program</h2><div class="progress">' +
+      ORDER.map(function (k) { var x = R.res[k]; return '<span class="dot' + (x === true ? ' ok' : x === false ? ' half' : '') + (R.sel === k ? ' cur' : '') + '"></span>'; }).join("") +
+      '</div><pre class="code">' + codeHtml() + '</pre></section>';
+    var h = '<h2>Label it</h2>';
+    var left = ORDER.filter(function (k) { return R.res[k] === undefined; }).length;
+    if (!R.sel) {
+      h += left ? '<p class="pick">Tap a highlighted part of the program. ' + left + ' left to label.</p>' : summaryR1();
+    } else {
+      var tokText = CODE.join("\n").match(new RegExp("\\{\\{" + R.sel + "\\|([^}]*)\\}\\}"))[1];
+      h += '<p>What is <span class="sel-tok">' + esc(tokText) + '</span>?</p><div class="labels">' + LABELS.map(function (l) {
+        var w = (R.wrong[R.sel] || []).indexOf(l) >= 0;
+        var dis = R.res[R.sel] !== undefined || w;
+        return '<button type="button" class="lbtn' + (w ? ' wrong' : '') + '" data-label="' + esc(l) + '"' + (dis ? ' disabled' : '') + '>' + esc(l) + '</button>';
+      }).join("") + '</div>';
+    }
+    if (R.fb) h += '<div class="fb ' + R.fb.cls + '">' + R.fb.html + '</div>';
+    document.getElementById("right").innerHTML = h;
+  }
+  function summaryR1() {
+    return '<div class="summary"><h3 style="margin:0.2rem 0">Round 1 complete: ' + score("r1") + ' / 10 first time</h3><p>The relationship to learn:</p><ol>' +
+      '<li>A <strong>class</strong> is a template that defines attributes and methods.</li>' +
+      '<li>An <strong>object</strong> is an instance of a class; creating it is <strong>instantiation</strong>.</li>' +
+      '<li>A <strong>method</strong> is a programmed behaviour within an object.</li>' +
+      '<li>A <strong>private</strong> attribute can only be accessed by the object’s own methods (encapsulation).</li>' +
+      '<li>A subclass <strong>inherits</strong> its superclass’s attributes and methods.</li></ol>' +
+      '<button type="button" class="btn" data-go="r2">Go to Round 2</button></div>';
+  }
+  function pickLabel(l) {
+    var R = r.r1, k = R.sel, t = T[k];
+    if (l === t.ans) {
+      if (R.res[k] === undefined) R.res[k] = !(R.wrong[k] && R.wrong[k].length);
+      R.fb = { cls: "ok", html: "<strong>" + esc(t.ans) + ".</strong> " + esc(t.why) };
+      log("<strong>" + esc(t.ans) + ":</strong> " + esc(t.why), true);
+      R.sel = null;
+    } else {
+      (R.wrong[k] = R.wrong[k] || []).push(l);
+      var hint = (t.near && t.near[l]) || ("Not " + l.toLowerCase().replace(" (encapsulation)", "") + ". Look at where it sits in the program and what it does.");
+      R.fb = { cls: "no", html: "<strong>Not quite.</strong> " + esc(hint) };
+    }
+    render();
+  }
+
+  // ---------- render Round 2 ----------
+  function diagramSvg(key) {
+    var D = DIAGRAMS[key], W = 640, bw = 180, lh = 19, hh = 30;
+    function boxH(c) { return hh + c.attrs.length * lh + 12 + c.meths.length * lh + 12; }
+    function box(c, x, y) {
+      var s = '<rect class="d-head" x="' + x + '" y="' + y + '" width="' + bw + '" height="' + hh + '"/>' +
+        '<text class="d-name" x="' + (x + bw / 2) + '" y="' + (y + 20) + '" text-anchor="middle">' + c.name + '</text>';
+      var ay = y + hh, ah = c.attrs.length * lh + 12;
+      s += '<rect class="d-box" x="' + x + '" y="' + ay + '" width="' + bw + '" height="' + ah + '"/>';
+      c.attrs.forEach(function (a, i) { s += '<text class="d-item" x="' + (x + bw / 2) + '" y="' + (ay + 19 + i * lh) + '" text-anchor="middle">' + a + '</text>'; });
+      var my = ay + ah, mh = c.meths.length * lh + 12;
+      s += '<rect class="d-box" x="' + x + '" y="' + my + '" width="' + bw + '" height="' + mh + '"/>';
+      c.meths.forEach(function (m, i) { s += '<text class="d-item" x="' + (x + bw / 2) + '" y="' + (my + 19 + i * lh) + '" text-anchor="middle">' + m + '</text>'; });
+      return s;
+    }
+    var supX = (W - bw) / 2, supY = 10, supH = boxH(D.sup), subY = supY + supH + 70;
+    var subXs = [70, W - 70 - bw];
+    var subH = Math.max.apply(null, D.subs.map(boxH));
+    var H = subY + subH + 10;
+    var cx = W / 2, triTop = supY + supH, triH = 16, junction = triTop + triH + 24;
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Class diagram: ' + D.sup.name + ' is the superclass of ' + D.subs.map(function (c) { return c.name; }).join(" and ") + '">';
+    s += '<path class="d-line" d="M' + cx + ' ' + (triTop + triH) + ' V' + junction + ' M' + (subXs[0] + bw / 2) + ' ' + junction + ' H' + (subXs[1] + bw / 2) + ' M' + (subXs[0] + bw / 2) + ' ' + junction + ' V' + subY + ' M' + (subXs[1] + bw / 2) + ' ' + junction + ' V' + subY + '"/>';
+    s += '<polygon class="d-tri" points="' + cx + ',' + triTop + ' ' + (cx - 11) + ',' + (triTop + triH) + ' ' + (cx + 11) + ',' + (triTop + triH) + '"/>';
+    s += box(D.sup, supX, supY);
+    D.subs.forEach(function (c, i) { s += box(c, subXs[i], subY); });
+    return s + '</svg>';
+  }
+  function renderR2() {
+    var R = r.r2;
+    if (R.done) {
+      document.getElementById("left").innerHTML = '<section class="panel"><h2>Library system</h2><div class="diagram">' + diagramSvg("library") + '</div></section>';
+      document.getElementById("right").innerHTML = '<div class="summary"><h2>Round 2 complete: ' + score("r2") + ' / ' + R2.length + ' first time</h2><p>Sentences to learn:</p><ol>' +
+        R2.map(function (x) { return '<li>' + esc(x.sent) + '</li>'; }).join("") + '</ol><button type="button" class="btn ghost" data-again="1">Try Round 2 again</button></div>';
+      return;
+    }
+    var x = R2[R.i];
+    document.getElementById("left").innerHTML = '<section class="panel"><h2>' + (x.d === "game" ? "Game characters" : "Library system (new)") + '</h2><div class="diagram">' + diagramSvg(x.d) + '</div></section>';
+    var answered = R.res[R.i] !== null && (R.res[R.i] === true || R.wrong.indexOf(x.a) < 0 && R.picked === x.a);
+    var h = '<div class="progress">' + R2.map(function (_, k) { var v = R.res[k]; return '<span class="dot' + (v === true ? ' ok' : v === false && k < R.i ? ' half' : '') + (k === R.i ? ' cur' : '') + '"></span>'; }).join("") + '</div>';
+    h += '<p class="pick">Question ' + (R.i + 1) + ' of ' + R2.length + '</p><p class="qtext">' + esc(x.q) + '</p><div class="opts">';
+    var solved = R.solved;
+    x.o.forEach(function (o, k) {
+      var cls = "obtn", dis = "";
+      if (solved) { dis = " disabled"; cls += k === x.a ? " right" : (R.wrong.indexOf(k) >= 0 ? " wrong" : " faded"); }
+      else if (R.wrong.indexOf(k) >= 0) { cls += " wrong"; dis = " disabled"; }
+      h += '<button type="button" class="' + cls + '" data-opt="' + k + '"' + dis + '><span class="letter">' + "ABCD"[k] + '</span><span>' + esc(o) + '</span></button>';
+    });
+    h += '</div>';
+    if (R.fb) h += '<div class="fb ' + R.fb.cls + '">' + R.fb.html + '</div>';
+    if (solved) h += '<button type="button" class="btn" data-next="1">' + (R.i === R2.length - 1 ? "See my results" : "Next question") + '</button>';
+    document.getElementById("right").innerHTML = h;
+  }
+  function pickOpt(k) {
+    var R = r.r2, x = R2[R.i];
+    if (R.solved) return;
+    if (k === x.a) {
+      if (R.res[R.i] === null) R.res[R.i] = true;
+      R.solved = true;
+      R.fb = { cls: "ok", html: "<strong>Correct.</strong> " + esc(x.why) };
+      log(esc(x.sent), true);
+    } else {
+      R.wrong.push(k);
+      if (R.res[R.i] === null) R.res[R.i] = false;
+      R.fb = { cls: "no", html: "<strong>Not quite.</strong> Look at the diagram again: follow the triangle, and remember a subclass has everything its superclass has." };
+    }
+    render();
+  }
+  function nextQ() {
+    var R = r.r2;
+    if (R.i === R2.length - 1) { R.done = true; log("<strong>Round 2 finished:</strong> " + score("r2") + " / " + R2.length + " first time."); }
+    else { R.i++; R.wrong = []; R.solved = false; R.fb = null; }
+    render();
+    window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  var INTROS = {
+    r1: "Round 1: tap each highlighted part of the program and choose what it is. First-time answers score. Read the feedback: it is written in mark-scheme language.",
+    r2: "Round 2: read the class diagram and answer. Remember: the hollow triangle points to the superclass, and a subclass has everything its superclass has, plus its own."
+  };
+  function render() {
+    document.querySelectorAll(".modes button").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-mode") === mode)); });
+    document.getElementById("intro").textContent = INTROS[mode];
+    document.getElementById("score").textContent = score(mode);
+    document.getElementById("max").textContent = max(mode);
+    if (mode === "r1") renderR1(); else renderR2();
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.hasAttribute("data-mode")) { mode = b.getAttribute("data-mode"); history.replaceState(null, "", mode === "r1" ? "#round1" : "#round2"); render(); return; }
+    if (b.hasAttribute("data-tok")) { var k = b.getAttribute("data-tok"); if (r.r1.res[k] === undefined) { r.r1.sel = k; r.r1.fb = null; render(); } return; }
+    if (b.hasAttribute("data-label")) { pickLabel(b.getAttribute("data-label")); return; }
+    if (b.hasAttribute("data-opt")) { pickOpt(Number(b.getAttribute("data-opt"))); return; }
+    if (b.hasAttribute("data-next")) { nextQ(); return; }
+    if (b.hasAttribute("data-go")) { mode = "r2"; history.replaceState(null, "", "#round2"); render(); window.scrollTo(0, 0); return; }
+    if (b.hasAttribute("data-again") || b.id === "restartBtn") { newRound(mode); log("Restarted " + (mode === "r1" ? "Round 1" : "Round 2") + "."); render(); }
+  });
+
+  var themeBtn = document.getElementById("themeBtn");
+  function isDark() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t === "dark"; return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; }
+  function labelTheme() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  themeBtn.addEventListener("click", function () {
+    var nx = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", nx);
+    try { localStorage.setItem("u3t4-spotter-theme", nx); } catch (err) {}
+    labelTheme();
+  });
+  try { var sv = localStorage.getItem("u3t4-spotter-theme"); if (sv === "light" || sv === "dark") document.documentElement.setAttribute("data-theme", sv); } catch (err) {}
+  labelTheme();
+
+  newRound("r1"); newRound("r2");
+  if (location.hash === "#round2") mode = "r2";
+  window.addEventListener("hashchange", function () { mode = location.hash === "#round2" ? "r2" : "r1"; render(); });
+  renderLog(); render();
+  window.__spotter = { r: r, T: T, R2: R2, ORDER: ORDER };
+})();
+</script>
+</body>
+</html>
+
+</body></html>
