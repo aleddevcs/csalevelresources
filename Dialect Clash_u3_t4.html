@@ -1,0 +1,450 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dialect Clash</title>
+<style>
+:root {
+  --navy: #003366; --amber: #CC9900;
+  --bg: #F3F6FA; --surface: #FFFFFF; --surface-2: #E8EEF5; --text: #1A1A1A; --muted: #4A5A70;
+  --heading: #003366; --accent: #CC9900; --accent-text: #7A5C00; --line: #C9D3E0;
+  --code-bg: #003366; --code-text: #FFFFFF;
+  --right: #2E7D32; --right-bg: #E6F2E7; --wrong: #B23A3A; --wrong-bg: #F8E6E6; --soft: #FAF1D6; --diff: #FAF1D6;
+  color-scheme: light; box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+    --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+    --code-bg: #0A1422; --code-text: #F2F5FA;
+    --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24; --soft: #2E2814; --diff: #2E2814;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+  --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+  --code-bg: #0A1422; --code-text: #F2F5FA;
+  --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24; --soft: #2E2814; --diff: #2E2814;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 1.05rem; line-height: 1.5; }
+h1, h2, h3 { font-family: Cambria, Caladea, Georgia, "Times New Roman", serif; color: var(--heading); line-height: 1.25; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--navy); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--navy); color: #FFFFFF; }
+.bar-inner { max-width: 1200px; margin: 0 auto; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.bar h1 { color: #FFFFFF; margin: 0; font-size: 1.45rem; flex: 1 1 12rem; }
+.bar h1 small { display: block; font-family: Calibri, Carlito, Arial, sans-serif; font-weight: 400; font-size: 0.85rem; color: #F2D88A; }
+.stat { font-size: 0.95rem; white-space: nowrap; } .stat b { font-size: 1.2rem; }
+.bar button { font: inherit; font-size: 0.92rem; padding: 0.42rem 0.8rem; border-radius: 6px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.55); }
+.bar button:hover { background: rgba(255,255,255,0.12); }
+.modes { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem 0.6rem; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.modes button { font: inherit; font-size: 0.95rem; padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.45); }
+.modes button[aria-selected="true"] { background: var(--amber); border-color: var(--amber); color: #1A1A1A; font-weight: 700; }
+main { max-width: 1200px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+.intro { color: var(--muted); margin: 0 0 0.9rem; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.2rem 1.2rem; }
+.panel + .panel { margin-top: 1rem; }
+.panel h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+.panel h3 { margin: 1rem 0 0.4rem; font-size: 1.1rem; }
+.two { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 1rem; align-items: start; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 0.8rem 0.9rem; font-family: "Courier New", Courier, monospace; font-size: 0.98rem; line-height: 1.5; overflow-x: auto; }
+.note { font-size: 0.92rem; color: var(--muted); margin: 0.5rem 0 0; }
+.step { font-weight: 700; color: var(--accent-text); margin: 0.9rem 0 0.45rem; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.98rem; }
+th, td { border: 1px solid var(--line); padding: 0.45rem 0.6rem; text-align: left; vertical-align: middle; }
+th { background: var(--navy); color: #FFFFFF; font-weight: 700; }
+td.mono { font-family: "Courier New", Courier, monospace; }
+tr.diff td { background: var(--diff); }
+td.yours { font-weight: 700; }
+select { font: inherit; font-size: 0.95rem; padding: 0.3rem 0.4rem; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); max-width: 100%; }
+.btn { font: inherit; font-weight: 700; cursor: pointer; padding: 0.5rem 1.05rem; border-radius: 8px; border: 2px solid var(--accent); background: var(--accent); color: #1A1A1A; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); font-weight: 400; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.actions { display: flex; gap: 0.6rem; margin-top: 0.9rem; flex-wrap: wrap; }
+.cause { background: var(--surface-2); border-radius: 10px; padding: 0.7rem 0.85rem; margin-top: 0.6rem; }
+.cause .q { margin: 0 0 0.45rem; }
+.cause .q code { font-family: "Courier New", Courier, monospace; font-weight: 700; }
+.opts { display: grid; gap: 0.4rem; }
+.obtn { font: inherit; text-align: left; cursor: pointer; padding: 0.5rem 0.75rem; border-radius: 8px; background: var(--surface); color: var(--text); border: 2px solid var(--line); display: flex; gap: 0.6rem; }
+.obtn .letter { font-weight: 700; color: var(--heading); flex: none; }
+.obtn:hover:not(:disabled) { border-color: var(--accent); }
+.obtn:disabled { cursor: default; }
+.obtn.right { background: var(--right-bg); border-color: var(--right); }
+.obtn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+.obtn.faded { opacity: 0.5; }
+.fb { margin-top: 0.55rem; padding: 0.5rem 0.75rem; border-radius: 8px; border: 2px solid var(--line); }
+.fb.ok { border-color: var(--right); background: var(--right-bg); }
+.fb.no { border-color: var(--wrong); background: var(--wrong-bg); }
+.fb.info { border-color: var(--accent); background: var(--soft); }
+.companies { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.6rem; }
+.co { font: inherit; text-align: left; cursor: pointer; padding: 0.75rem 0.85rem; border-radius: 10px; background: var(--surface-2); color: var(--text); border: 2px solid transparent; }
+.co strong { display: block; font-family: Cambria, Caladea, Georgia, serif; font-size: 1.1rem; color: var(--heading); }
+.co span { font-size: 0.92rem; color: var(--muted); }
+.co:hover { border-color: var(--accent); }
+.vote { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.vbtn { font: inherit; font-size: 0.92rem; cursor: pointer; padding: 0.3rem 0.65rem; border-radius: 7px; background: var(--surface-2); color: var(--text); border: 2px solid var(--line); }
+.vbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #1A1A1A; font-weight: 700; }
+.vbtn:disabled { cursor: default; }
+.out-ok { color: var(--right); font-weight: 700; }
+.out-no { color: var(--wrong); font-weight: 700; }
+.sort-item { background: var(--surface-2); border-radius: 10px; padding: 0.7rem 0.85rem; margin-top: 0.6rem; border: 2px solid transparent; }
+.sort-item.done-ok { border-color: var(--right); background: var(--right-bg); }
+.sort-item.done-half { border-color: var(--accent); }
+.sort-item p { margin: 0 0 0.45rem; font-weight: 700; }
+.cats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
+@media (max-width: 760px) { .cats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cbtn { font: inherit; font-size: 0.92rem; cursor: pointer; padding: 0.4rem 0.5rem; border-radius: 7px; background: var(--surface); color: var(--text); border: 2px solid var(--line); }
+.cbtn:hover:not(:disabled) { border-color: var(--accent); }
+.cbtn:disabled { cursor: default; }
+.cbtn.right { background: var(--right-bg); border-color: var(--right); font-weight: 700; }
+.cbtn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+.cbtn.faded { opacity: 0.45; }
+.summary ol, .summary ul { padding-left: 1.3rem; } .summary li { margin: 0.3rem 0; }
+.log ol { margin: 0; padding: 0; list-style: none; max-height: 18rem; overflow-y: auto; }
+.log li { padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-size: 0.93rem; }
+.log li:last-child { border-bottom: none; }
+.log li.exam { border-left: 4px solid var(--accent); padding-left: 0.55rem; }
+.hidden { display: none !important; }
+button:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-inner">
+    <h1>Dialect Clash<small>Unit 3 Topic 4, Lesson 3: why computer languages need standards</small></h1>
+    <span class="stat">Score <b id="score">0</b> / <span id="max">4</span></span>
+    <button type="button" id="restartBtn">Restart part</button>
+    <button type="button" id="themeBtn">Dark mode</button>
+  </div>
+  <div class="modes" role="tablist" aria-label="Parts">
+    <button type="button" role="tab" data-mode="1" aria-selected="true">Part 1: three compilers</button>
+    <button type="button" role="tab" data-mode="2" aria-selected="false">Part 2: standards committee</button>
+    <button type="button" role="tab" data-mode="3" aria-selected="false">Part 3: sort it</button>
+  </div>
+</header>
+
+<main>
+  <p class="intro" id="intro"></p>
+  <section class="panel" id="panel" aria-live="polite"></section>
+  <section class="panel log">
+    <h2>Committee log <span style="font-family:Calibri,Carlito,Arial,sans-serif;font-size:0.9rem;font-weight:400;color:var(--muted)">(newest first; amber = exam sentence)</span></h2>
+    <ol id="log"></ol>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var PROGRAM = 'set a = 7\nset b = 2\noutput a / b\noutput round(2.5)\nset names = ["Ann", "Ben", "Cai"]\noutput names[1]\nif "A" = "a" then\n   output "same"\nelse\n   output "different"\nend if';
+  var COMPILERS = ["North", "South", "West"];
+  var LINES = [
+    { code: "a / b", choices: ["3", "3.5", "4"], out: ["3", "3.5", "3.5"], cause: 0,
+      real: "Real example: in Python 2, 7 / 2 gave 3 (integer division). Python 3 changed it to 3.5. The same source code gave a different answer after an upgrade." },
+    { code: "round(2.5)", choices: ["2", "3"], out: ["3", "2", "3"], cause: 1,
+      real: "Real example: Python 3’s round(2.5) gives 2, because it rounds halves to the nearest even number (“banker’s rounding”). Many other languages give 3." },
+    { code: "names[1]", choices: ["Ann", "Ben", "Cai"], out: ["Ben", "Ann", "Ben"], cause: 2,
+      real: "Real example: Python, Java and C count array positions from 0, so names[1] is the second item. Lua counts from 1, so names[1] is the first." },
+    { code: "\"A\" = \"a\"", choices: ["same", "different"], out: ["different", "different", "same"], cause: 3,
+      real: "Real example: Python compares text case-sensitively, so \"A\" == \"a\" is False. Many database systems compare text case-insensitively by default, so they would treat them as the same." }
+  ];
+  var CAUSES = [
+    "Whether / does whole-number (integer) division or real division",
+    "Whether a half rounds up, or to the nearest even number",
+    "Whether array positions start at 0 or at 1",
+    "Whether comparing text takes capital letters into account",
+    "One of the compilers has a bug"
+  ];
+
+  var RULES = [
+    { k: "div", title: "What does 7 / 2 give?", opts: { int: "3 (integer division)", real: "3.5 (real division)" } },
+    { k: "base", title: "Where do arrays start?", opts: { "0": "Position 0", "1": "Position 1" } },
+    { k: "round", title: "What does round(2.5) give?", opts: { up: "3 (half rounds up)", even: "2 (half to even)" } },
+    { k: "case", title: "Is \"A\" = \"a\"?", opts: { sens: "No (case-sensitive)", insens: "Yes (case-insensitive)" } }
+  ];
+  var COS = [
+    { k: "north", name: "NorthSoft", desc: "Makes the North compiler. Millions of lines of customer code depend on how North behaves now.",
+      wants: { div: "int", base: "0", round: "up", "case": "sens" },
+      why: { div: "Our customers’ programs expect 7 / 2 to be 3.", base: "All our customers’ arrays start at 0.", round: "Our customers expect 2.5 to round to 3.", "case": "Our customers’ passwords are case-sensitive." } },
+    { k: "south", name: "SouthData", desc: "Makes the South compiler, used mostly by banks.",
+      wants: { div: "real", base: "1", round: "even", "case": "sens" },
+      why: { div: "Money calculations must keep the .5.", base: "Our customers’ account tables start at 1.", round: "Banks round halves to even so rounding errors don’t build up.", "case": "Account codes are case-sensitive." } },
+    { k: "west", name: "WestWeb", desc: "Makes the West compiler, built into web browsers.",
+      wants: { div: "real", base: "0", round: "up", "case": "insens" },
+      why: { div: "Web pages need exact division for layouts.", base: "Our browser code starts arrays at 0.", round: "Users expect 2.5 to round to 3.", "case": "Users type email addresses in any case." } },
+    { k: "schools", name: "Schools Consortium", desc: "Teachers who want the language to be easy for beginners to learn.",
+      wants: { div: "real", base: "1", round: "up", "case": "insens" },
+      why: { div: "Beginners expect 7 / 2 to be 3.5.", base: "Beginners count from 1, not 0.", round: "Beginners were taught that 2.5 rounds to 3.", "case": "Beginners get confused when \"Yes\" isn’t equal to \"yes\"." } }
+  ];
+  var DEBRIEF = [
+    { q: "Rule 2 (where arrays start) could never reach consensus. Which mark-scheme difficulty explains this?",
+      o: ["Computers can’t follow rules about arrays", "Companies only agree to standards when it is in their own best interests, and they have different goals", "The rule wasn’t written in pseudo-code", "Arrays don’t need a standard"], a: 1,
+      sent: "Agreeing standards is difficult because companies only agree when it is in their own best interests, and different companies have different targets and goals." },
+    { q: "Suppose NorthSoft gives in and agrees that 7 / 2 = 3.5. What problem does this cause when the standard is implemented?",
+      o: ["None: the new rule is better", "The North compiler will run faster", "Existing programs written for the old behaviour now give different results, so they must be checked and rewritten, which is expensive", "Programmers will need new computers"], a: 2,
+      sent: "Implementing a standard is difficult because existing (legacy) programs written for the old behaviour may give different results and must be rewritten, which is expensive." },
+    { q: "The committee asks for a full written description of rounding for every type of number, in every situation. Why is this a difficulty?",
+      o: ["Standards must be very detailed so they are implemented consistently, which costs a lot of time and money", "Rounding can’t be written down", "Only one company understands rounding", "Detailed standards are always ambiguous"], a: 0,
+      sent: "Standards must be very detailed to ensure they are implemented consistently, which has high costs in terms of time and money." }
+  ];
+
+  var CATS = ["Need for standards", "Advantage of standards", "Difficulty agreeing", "Difficulty implementing"];
+  var SORT = [
+    { s: "New hardware and software must be compatible with existing hardware and software.", c: 0 },
+    { s: "Products made by different companies must meet standards to work across platforms.", c: 0 },
+    { s: "Products must be interoperable so they can exchange and use data.", c: 0 },
+    { s: "Programs can be moved to different hardware, because compilers for the standard language exist for many platforms.", c: 1 },
+    { s: "A programmer’s skills transfer to other platforms and employers.", c: 1 },
+    { s: "Standard libraries are written and tested by experts, so code can be re-used.", c: 1 },
+    { s: "Companies only agree to a standard when it is in their own best interests.", c: 2 },
+    { s: "Standards must be very detailed, which costs a lot of time and money.", c: 2 },
+    { s: "A standard must be broad enough for many problems but specific enough to be implemented correctly.", c: 2 },
+    { s: "Existing programs written for an older version may stop working or give different results.", c: 3 },
+    { s: "Compiler and browser makers add their own extra features that other compilers don’t support.", c: 3 },
+    { s: "Some compilers only support part of a new standard at first.", c: 3 }
+  ];
+  var SORT_WHY = [
+    "Needs (2022 Q9(a)): compatibility, working across platforms, interoperability, working as part of a larger system.",
+    "Advantages (2018 Q12): portability of programs and programmers, easier maintenance, business acceptability, faster development, standard libraries and algorithms.",
+    "Difficulties agreeing (2022 Q9(b)): cost of detail, self-interest, different goals, broad but specific.",
+    "Difficulties implementing: legacy code, vendor extensions, uneven or partial support, breaking changes."
+  ];
+
+  var mode = "1", st = {}, logItems = [];
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function log(h, exam) { logItems.unshift({ h: h, exam: !!exam }); renderLog(); }
+  function renderLog() { document.getElementById("log").innerHTML = logItems.length ? logItems.map(function (l) { return '<li' + (l.exam ? ' class="exam"' : '') + '>' + l.h + '</li>'; }).join("") : "<li>Nothing yet.</li>"; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function reduced() { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
+
+  function reset(m) {
+    if (m === "1") st["1"] = { pred: LINES.map(function () { return ""; }), ran: false, res: LINES.map(function () { return null; }), wrong: LINES.map(function () { return []; }), trust: null };
+    if (m === "2") st["2"] = { co: null, votes: {}, held: false, res: DEBRIEF.map(function () { return null; }), wrong: DEBRIEF.map(function () { return []; }) };
+    if (m === "3") st["3"] = { items: shuffle(SORT), res: SORT.map(function () { return null; }), wrong: SORT.map(function () { return []; }), done: SORT.map(function () { return false; }) };
+  }
+  function score(m) { return st[m].res.filter(function (x) { return x === true; }).length; }
+  function max(m) { return m === "1" ? LINES.length : m === "2" ? DEBRIEF.length : SORT.length; }
+
+  function optButtons(prefix, idx, opts, ans, wrong, solved) {
+    return '<div class="opts">' + opts.map(function (o, k) {
+      var cls = "obtn", dis = "";
+      if (solved) { dis = " disabled"; cls += k === ans ? " right" : wrong.indexOf(k) >= 0 ? " wrong" : " faded"; }
+      else if (wrong.indexOf(k) >= 0) { cls += " wrong"; dis = " disabled"; }
+      return '<button type="button" class="' + cls + '" data-' + prefix + '="' + idx + ':' + k + '"' + dis + '><span class="letter">' + "ABCDE"[k] + '</span><span>' + esc(o) + '</span></button>';
+    }).join("") + '</div>';
+  }
+
+  // ---------- Part 1 ----------
+  function render1() {
+    var R = st["1"];
+    var h = '<div class="two"><div><h2>The program</h2><pre class="code">' + esc(PROGRAM) + '</pre><p class="note">North, South and West are made-up compilers for one language, with no standard. Every behaviour they show is real in at least one language today.</p></div><div>';
+    h += '<p class="step">Step 1: predict what each output line will show</p><div class="tablewrap"><table><thead><tr><th>Line</th><th>Your prediction</th>' + (R.ran ? COMPILERS.map(function (c) { return '<th>' + c + '</th>'; }).join("") : "") + '</tr></thead><tbody>';
+    LINES.forEach(function (L, i) {
+      h += '<tr' + (R.ran ? ' class="diff"' : '') + '><td class="mono">' + esc(L.code) + '</td><td class="yours">';
+      if (R.ran) h += esc(R.pred[i]);
+      else h += '<label class="hidden" for="p' + i + '">Prediction for ' + esc(L.code) + '</label><select id="p' + i + '" data-pred="' + i + '"><option value="">Choose…</option>' + L.choices.map(function (c) { return '<option' + (R.pred[i] === c ? " selected" : "") + '>' + esc(c) + '</option>'; }).join("") + '</select>';
+      h += '</td>' + (R.ran ? L.out.map(function (o) { return '<td class="mono">' + esc(o) + '</td>'; }).join("") : "") + '</tr>';
+    });
+    h += '</tbody></table></div>';
+    if (!R.ran) h += '<div class="actions"><button type="button" class="btn" id="runBtn"' + (R.pred.some(function (p) { return !p; }) ? " disabled" : "") + '>Run on all three compilers</button></div>';
+    else {
+      var matches = COMPILERS.map(function (_, c) { return LINES.filter(function (L, i) { return L.out[c] === R.pred[i]; }).length; });
+      h += '<div class="fb info"><strong>Every line gave different results on different compilers.</strong> Your predictions matched North on ' + matches[0] + ', South on ' + matches[1] + ' and West on ' + matches[2] + ' of the 4 lines.</div>';
+    }
+    h += '</div></div>';
+    if (R.ran) {
+      h += '<h3>Step 2: what causes each difference?</h3>';
+      LINES.forEach(function (L, i) {
+        var solved = R.res[i] !== null && R.wrong[i].indexOf(L.cause) < 0 && R.solvedFlag && R.solvedFlag[i];
+        h += '<div class="cause"><p class="q">Why does <code>' + esc(L.code) + '</code> give ' + L.out.map(function (o, c) { return COMPILERS[c] + ": " + esc(o); }).join(", ") + '?</p>' + optButtons("c", i, CAUSES, L.cause, R.wrong[i], solved);
+        if (solved) h += '<div class="fb ok"><strong>Correct.</strong> ' + esc(L.real) + '</div>';
+        else if (R.wrong[i].length) h += '<div class="fb no"><strong>Not quite.</strong> All three compilers did exactly what their makers decided. Look at what the line does.</div>';
+        h += '</div>';
+      });
+      var allSolved = LINES.every(function (_, i) { return R.solvedFlag && R.solvedFlag[i]; });
+      if (allSolved) {
+        h += '<h3>Step 3: which compiler is right?</h3>';
+        var TO = ["North", "South", "West", "None of them is wrong: without a standard, each maker chose its own rules"];
+        h += '<div class="opts">' + TO.map(function (o, k) {
+          var cls = "obtn" + (R.trust === null ? "" : k === 3 ? " right" : k === R.trust ? " wrong" : " faded");
+          return '<button type="button" class="' + cls + '" data-trust="' + k + '"' + (R.trust !== null ? " disabled" : "") + '><span class="letter">' + "ABCD"[k] + '</span><span>' + esc(o) + '</span></button>';
+        }).join("") + '</div>';
+        if (R.trust !== null) h += '<div class="fb ' + (R.trust === 3 ? "ok" : "info") + '">' + (R.trust === 3 ? "<strong>Exactly.</strong> " : "<strong>Think again.</strong> ") + "No compiler made a mistake. Without a standard there is no “right” answer, so a program that works on one compiler can give different results on another. A standard fixes one meaning for every statement, so programs are portable between compilers and platforms.</div>" +
+          '<div class="actions"><button type="button" class="btn" data-go="2">Go to Part 2: standards committee</button></div>';
+      }
+    }
+    return h;
+  }
+  function run() {
+    var R = st["1"]; R.ran = true; R.solvedFlag = LINES.map(function () { return false; });
+    log("Ran the program on North, South and West: all four output lines differed between compilers.");
+    render();
+  }
+  function pickCause(i, k) {
+    var R = st["1"], L = LINES[i];
+    if (R.solvedFlag[i]) return;
+    if (k === L.cause) {
+      if (R.res[i] === null) R.res[i] = true;
+      R.solvedFlag[i] = true;
+      log("<strong>" + esc(L.code) + ":</strong> the compilers disagree on " + esc(CAUSES[L.cause].charAt(0).toLowerCase() + CAUSES[L.cause].slice(1)) + ". " + esc(L.real));
+    } else { R.wrong[i].push(k); if (R.res[i] === null) R.res[i] = false; }
+    render();
+  }
+  function trust(k) {
+    var R = st["1"]; R.trust = k;
+    log("<strong>Portability of programs:</strong> without a standard, the same program gave different results on different compilers. A standardised language means compilers for many platforms all give the same results, so programs can be moved between them.", true);
+    render();
+  }
+
+  // ---------- Part 2 ----------
+  function render2() {
+    var R = st["2"];
+    if (!R.co) {
+      return '<h2>Choose your company</h2><p>Your pair represents one company on the committee that is writing a standard for this language. The other three companies are played by the computer. <strong>A rule is only agreed if all four companies vote the same way (consensus).</strong></p><div class="companies">' +
+        COS.map(function (c, k) { return '<button type="button" class="co" data-co="' + k + '"><strong>' + esc(c.name) + '</strong><span>' + esc(c.desc) + '</span></button>'; }).join("") + '</div>';
+    }
+    var me = COS[R.co];
+    var h = '<h2>You are ' + esc(me.name) + '</h2><p class="note" style="margin-top:0">' + esc(me.desc) + ' You can vote however you like, but your company’s view is shown.</p>';
+    h += '<div class="tablewrap" style="margin-top:0.6rem"><table><thead><tr><th>Rule</th><th>What ' + esc(me.name) + ' wants, and why</th><th>Your vote</th>' + (R.held ? '<th>Other companies</th><th>Outcome</th>' : '') + '</tr></thead><tbody>';
+    RULES.forEach(function (rule) {
+      var w = me.wants[rule.k];
+      h += '<tr><td><strong>' + esc(rule.title) + '</strong></td><td>' + esc(rule.opts[w]) + '<br><span class="note">' + esc(me.why[rule.k]) + '</span></td><td><div class="vote">' +
+        Object.keys(rule.opts).map(function (ok) { return '<button type="button" class="vbtn" data-vote="' + rule.k + ':' + ok + '" aria-pressed="' + (R.votes[rule.k] === ok) + '"' + (R.held ? " disabled" : "") + '>' + esc(rule.opts[ok]) + '</button>'; }).join("") + '</div></td>';
+      if (R.held) {
+        var others = COS.filter(function (_, k) { return k !== R.co; });
+        var all = others.map(function (c) { return c.wants[rule.k]; }).concat([R.votes[rule.k]]);
+        var agreed = all.every(function (v) { return v === all[0]; });
+        h += '<td>' + others.map(function (c) { return esc(c.name) + ": " + esc(rule.opts[c.wants[rule.k]]); }).join("<br>") + '</td><td class="' + (agreed ? "out-ok" : "out-no") + '">' + (agreed ? "Agreed: " + esc(rule.opts[all[0]]) : "Stalled: no consensus") + '</td>';
+      }
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+    var allVoted = RULES.every(function (r) { return R.votes[r.k]; });
+    if (!R.held) h += '<div class="actions"><button type="button" class="btn" id="holdBtn"' + (allVoted ? "" : " disabled") + '>Hold the vote</button><button type="button" class="btn ghost" id="changeCo">Choose a different company</button></div>';
+    else {
+      var agreedN = RULES.filter(function (rule) {
+        var all = COS.filter(function (_, k) { return k !== R.co; }).map(function (c) { return c.wants[rule.k]; }).concat([R.votes[rule.k]]);
+        return all.every(function (v) { return v === all[0]; });
+      }).length;
+      var gaveIn = RULES.filter(function (r) { return R.votes[r.k] !== me.wants[r.k]; }).map(function (r) { return r.title; });
+      h += '<div class="fb info"><strong>' + agreedN + ' of 4 rules agreed.</strong> ' + (gaveIn.length ? "You voted against your company’s view on " + gaveIn.length + " rule" + (gaveIn.length > 1 ? "s" : "") + ": your customers’ existing code that relies on " + (gaveIn.length > 1 ? "those rules" : "that rule") + " will need changing." : "You voted for your company every time, like the other three companies.") + '</div>';
+      h += '<h3>What went wrong? Choose the mark-scheme reason.</h3>';
+      DEBRIEF.forEach(function (d, i) {
+        var solved = R.solved && R.solved[i];
+        h += '<div class="cause"><p class="q">' + esc(d.q) + '</p>' + optButtons("d", i, d.o, d.a, R.wrong[i], solved);
+        if (solved) h += '<div class="fb ok"><strong>Correct.</strong> ' + esc(d.sent) + '</div>';
+        else if (R.wrong[i].length) h += '<div class="fb no"><strong>Not quite.</strong> Think about what each company wanted, and what it would cost them to change.</div>';
+        h += '</div>';
+      });
+      if (DEBRIEF.every(function (_, i) { return R.solved && R.solved[i]; })) h += '<div class="actions"><button type="button" class="btn" data-go="3">Go to Part 3: sort it</button></div>';
+    }
+    return h;
+  }
+  function hold() {
+    var R = st["2"]; R.held = true; R.solved = DEBRIEF.map(function () { return false; });
+    log("Committee vote held as " + esc(COS[R.co].name) + ". Rules about where arrays start and case-sensitivity could never reach consensus.");
+    render();
+  }
+  function pickDebrief(i, k) {
+    var R = st["2"], d = DEBRIEF[i];
+    if (R.solved[i]) return;
+    if (k === d.a) { if (R.res[i] === null) R.res[i] = true; R.solved[i] = true; log(esc(d.sent), true); }
+    else { R.wrong[i].push(k); if (R.res[i] === null) R.res[i] = false; }
+    render();
+  }
+
+  // ---------- Part 3 ----------
+  function render3() {
+    var R = st["3"];
+    var h = '<h2>Sort each statement</h2><p class="note" style="margin-top:0">Is it a need for standards, an advantage of standards, a difficulty agreeing them, or a difficulty implementing them?</p>';
+    R.items.forEach(function (it, i) {
+      var cls = "sort-item" + (R.done[i] ? (R.res[i] ? " done-ok" : " done-half") : "");
+      h += '<div class="' + cls + '"><p>' + esc(it.s) + '</p><div class="cats">' + CATS.map(function (c, k) {
+        var b = "cbtn", dis = "";
+        if (R.done[i]) { dis = " disabled"; b += k === it.c ? " right" : R.wrong[i].indexOf(k) >= 0 ? " wrong" : " faded"; }
+        else if (R.wrong[i].indexOf(k) >= 0) { b += " wrong"; dis = " disabled"; }
+        return '<button type="button" class="' + b + '" data-s="' + i + ':' + k + '"' + dis + '>' + esc(c) + '</button>';
+      }).join("") + '</div>';
+      if (!R.done[i] && R.wrong[i].length) h += '<div class="fb no">Not quite: this isn’t a ' + esc(CATS[R.wrong[i][R.wrong[i].length - 1]].toLowerCase()) + '. Try again.</div>';
+      h += '</div>';
+    });
+    if (R.done.every(Boolean)) {
+      h += '<div class="summary" style="margin-top:1rem"><h3>Part 3 complete: ' + score("3") + ' / 12 first time</h3><ul>' + SORT_WHY.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join("") + '</ul></div>';
+    }
+    return h;
+  }
+  function pickSort(i, k) {
+    var R = st["3"], it = R.items[i];
+    if (R.done[i]) return;
+    if (k === it.c) {
+      if (R.res[i] === null) R.res[i] = true; R.done[i] = true;
+      log("<strong>" + CATS[k] + ":</strong> " + esc(it.s), true);
+    } else { R.wrong[i].push(k); if (R.res[i] === null) R.res[i] = false; }
+    render();
+  }
+
+  var INTROS = {
+    "1": "Part 1: one program, three compilers, no standard. Predict the outputs, run it, then find what causes each difference. First-try answers score.",
+    "2": "Part 2: your pair is a company on the standards committee. Vote on four rules, hold the vote, then explain what went wrong using mark-scheme reasons.",
+    "3": "Part 3: sort 12 statements into needs, advantages, difficulties agreeing and difficulties implementing. First-try answers score."
+  };
+  function render() {
+    document.querySelectorAll(".modes button").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-mode") === mode)); });
+    document.getElementById("intro").textContent = INTROS[mode];
+    document.getElementById("score").textContent = score(mode);
+    document.getElementById("max").textContent = max(mode);
+    document.getElementById("panel").innerHTML = mode === "1" ? render1() : mode === "2" ? render2() : render3();
+  }
+  function setMode(m) { mode = m; history.replaceState(null, "", "#part" + m); render(); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var v;
+    if (b.hasAttribute("data-mode")) return setMode(b.getAttribute("data-mode"));
+    if (b.hasAttribute("data-go")) return setMode(b.getAttribute("data-go"));
+    if (b.id === "runBtn") return run();
+    if ((v = b.getAttribute("data-c"))) { v = v.split(":"); return pickCause(+v[0], +v[1]); }
+    if (b.hasAttribute("data-trust")) return trust(+b.getAttribute("data-trust"));
+    if (b.hasAttribute("data-co")) { st["2"].co = +b.getAttribute("data-co"); st["2"].votes = {}; log("Joined the committee as " + esc(COS[st["2"].co].name) + "."); return render(); }
+    if (b.id === "changeCo") { st["2"].co = null; return render(); }
+    if ((v = b.getAttribute("data-vote"))) { v = v.split(":"); st["2"].votes[v[0]] = v[1]; return render(); }
+    if (b.id === "holdBtn") return hold();
+    if ((v = b.getAttribute("data-d"))) { v = v.split(":"); return pickDebrief(+v[0], +v[1]); }
+    if ((v = b.getAttribute("data-s"))) { v = v.split(":"); return pickSort(+v[0], +v[1]); }
+    if (b.id === "restartBtn") { reset(mode); log("Restarted Part " + mode + "."); render(); }
+  });
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.hasAttribute("data-pred")) { st["1"].pred[+t.getAttribute("data-pred")] = t.value; render(); }
+  });
+
+  var themeBtn = document.getElementById("themeBtn");
+  function isDark() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t === "dark"; return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; }
+  function labelTheme() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  themeBtn.addEventListener("click", function () {
+    var nx = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", nx);
+    try { localStorage.setItem("u3t4-dialect-theme", nx); } catch (err) {}
+    labelTheme();
+  });
+  try { var sv = localStorage.getItem("u3t4-dialect-theme"); if (sv === "light" || sv === "dark") document.documentElement.setAttribute("data-theme", sv); } catch (err) {}
+  labelTheme();
+
+  reset("1"); reset("2"); reset("3");
+  var hm = { "#part1": "1", "#part2": "2", "#part3": "3" };
+  if (hm[location.hash]) mode = hm[location.hash];
+  window.addEventListener("hashchange", function () { if (hm[location.hash]) { mode = hm[location.hash]; render(); } });
+  renderLog(); render();
+  window.__clash = { st: st, LINES: LINES, COS: COS, RULES: RULES, DEBRIEF: DEBRIEF, score: score };
+})();
+</script>
+</body>
+</html>
+
+</body></html>

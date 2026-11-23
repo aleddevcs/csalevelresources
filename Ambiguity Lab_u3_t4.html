@@ -1,0 +1,504 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ambiguity Lab</title>
+<style>
+:root {
+  --navy: #003366; --amber: #CC9900;
+  --bg: #F3F6FA; --surface: #FFFFFF; --surface-2: #E8EEF5; --text: #1A1A1A; --muted: #4A5A70;
+  --heading: #003366; --accent: #CC9900; --accent-text: #7A5C00; --line: #C9D3E0;
+  --code-bg: #003366; --code-text: #FFFFFF;
+  --right: #2E7D32; --right-bg: #E6F2E7; --wrong: #B23A3A; --wrong-bg: #F8E6E6; --soft: #FAF1D6;
+  --grid: #C9D3E0; --cell: #FFFFFF; --robot: #CC9900; --robot-edge: #003366; --path: #003366;
+  color-scheme: light; box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+    --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+    --code-bg: #0A1422; --code-text: #F2F5FA;
+    --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24; --soft: #2E2814;
+    --grid: #2C4466; --cell: #16263D; --robot: #E0B23A; --robot-edge: #F2F5FA; --path: #A9C4E4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A2B; --surface: #16263D; --surface-2: #1E3250; --text: #E9EEF5; --muted: #A9B8CC;
+  --heading: #F2F5FA; --accent: #E0B23A; --accent-text: #E0B23A; --line: #2C4466;
+  --code-bg: #0A1422; --code-text: #F2F5FA;
+  --right: #6CC070; --right-bg: #1C3424; --wrong: #E07A7A; --wrong-bg: #3A1F24; --soft: #2E2814;
+  --grid: #2C4466; --cell: #16263D; --robot: #E0B23A; --robot-edge: #F2F5FA; --path: #A9C4E4;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 1.05rem; line-height: 1.5; }
+h1, h2, h3 { font-family: Cambria, Caladea, Georgia, "Times New Roman", serif; color: var(--heading); line-height: 1.25; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--navy); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--navy); color: #FFFFFF; }
+.bar-inner { max-width: 1200px; margin: 0 auto; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.bar h1 { color: #FFFFFF; margin: 0; font-size: 1.45rem; flex: 1 1 12rem; }
+.bar h1 small { display: block; font-family: Calibri, Carlito, Arial, sans-serif; font-weight: 400; font-size: 0.85rem; color: #F2D88A; }
+.stat { font-size: 0.95rem; white-space: nowrap; } .stat b { font-size: 1.2rem; }
+.bar button { font: inherit; font-size: 0.92rem; padding: 0.42rem 0.8rem; border-radius: 6px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.55); }
+.bar button:hover { background: rgba(255,255,255,0.12); }
+.modes { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem 0.6rem; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.modes button { font: inherit; font-size: 0.95rem; padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; background: transparent; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.45); }
+.modes button[aria-selected="true"] { background: var(--amber); border-color: var(--amber); color: #1A1A1A; font-weight: 700; }
+
+main { max-width: 1200px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+.intro { color: var(--muted); margin: 0 0 0.9rem; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.2rem 1.2rem; }
+.panel + .panel { margin-top: 1rem; }
+.panel h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+.progress-line { display: flex; justify-content: space-between; gap: 1rem; color: var(--muted); font-size: 0.95rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+.dots { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); }
+.dot.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dot.ok { background: var(--right); border-color: var(--right); }
+.dot.half { background: var(--accent); border-color: var(--accent); }
+.dot.no { background: var(--wrong); border-color: var(--wrong); }
+.sentence { font-family: Cambria, Caladea, Georgia, serif; font-size: 1.5rem; color: var(--heading); margin: 0.3rem 0 0.9rem; line-height: 1.35; }
+.spoken { display: inline-block; font-family: Calibri, Carlito, Arial, sans-serif; font-size: 0.85rem; font-weight: 700; background: var(--soft); color: var(--accent-text); padding: 0.1rem 0.55rem; border-radius: 999px; margin-bottom: 0.3rem; }
+.step { font-weight: 700; color: var(--accent-text); margin: 0.9rem 0 0.45rem; }
+.checks { display: grid; gap: 0.45rem; }
+.chk { display: flex; gap: 0.65rem; align-items: flex-start; padding: 0.55rem 0.8rem; border-radius: 8px; background: var(--surface-2); border: 2px solid transparent; cursor: pointer; }
+.chk input { width: 1.15rem; height: 1.15rem; margin-top: 0.2rem; accent-color: var(--accent); flex: none; }
+.chk.right { background: var(--right-bg); border-color: var(--right); }
+.chk.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+.chk.missed { border-color: var(--right); border-style: dashed; }
+.chk.locked { cursor: default; }
+.types { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.45rem; }
+.tbtn, .obtn { font: inherit; text-align: left; cursor: pointer; padding: 0.6rem 0.8rem; border-radius: 8px; background: var(--surface-2); color: var(--text); border: 2px solid transparent; }
+.tbtn strong { display: block; color: var(--heading); }
+.tbtn span { font-size: 0.9rem; color: var(--muted); }
+.tbtn:hover:not(:disabled), .obtn:hover:not(:disabled) { border-color: var(--accent); }
+.tbtn:disabled, .obtn:disabled { cursor: default; }
+.right-sel { background: var(--right-bg) !important; border-color: var(--right) !important; }
+.wrong-sel { background: var(--wrong-bg) !important; border-color: var(--wrong) !important; }
+.faded { opacity: 0.5; }
+.obtns { display: grid; gap: 0.45rem; }
+.obtn { display: flex; gap: 0.6rem; }
+.obtn .letter { font-weight: 700; color: var(--heading); flex: none; }
+.fb { margin-top: 0.7rem; padding: 0.55rem 0.8rem; border-radius: 8px; border: 2px solid var(--line); }
+.fb.ok { border-color: var(--right); background: var(--right-bg); }
+.fb.no { border-color: var(--wrong); background: var(--wrong-bg); }
+.btn { font: inherit; font-weight: 700; cursor: pointer; padding: 0.5rem 1.05rem; border-radius: 8px; border: 2px solid var(--accent); background: var(--accent); color: #1A1A1A; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); font-weight: 400; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.actions { display: flex; gap: 0.6rem; margin-top: 0.9rem; flex-wrap: wrap; }
+
+.readings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 760px) { .readings { grid-template-columns: minmax(0, 1fr); } }
+.reading { background: var(--surface-2); border-radius: 10px; padding: 0.75rem; }
+.reading h3 { margin: 0 0 0.25rem; font-size: 1.08rem; }
+.reading .steps { font-size: 0.92rem; color: var(--muted); margin: 0 0 0.5rem; min-height: 2.6em; }
+.grid-svg { display: block; width: 100%; max-width: 300px; height: auto; margin: 0 auto 0.5rem; }
+.g-cell { fill: var(--cell); stroke: var(--grid); stroke-width: 1.5; }
+.g-path { fill: none; stroke: var(--path); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
+.g-start { fill: none; stroke: var(--path); stroke-width: 2; stroke-dasharray: 4 3; }
+.g-robot { fill: var(--robot); stroke: var(--robot-edge); stroke-width: 2.5; }
+.match { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin-top: 0.4rem; }
+@media (max-width: 760px) { .match { grid-template-columns: minmax(0, 1fr); } }
+.snip { background: var(--surface-2); border-radius: 10px; padding: 0.6rem; border: 2px solid transparent; }
+.snip pre { margin: 0 0 0.5rem; background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 0.55rem 0.7rem; font-family: "Courier New", Courier, monospace; font-size: 0.9rem; line-height: 1.45; overflow-x: auto; }
+.snip .lab { font-weight: 700; color: var(--heading); margin-bottom: 0.3rem; }
+.snip select { font: inherit; font-size: 0.95rem; width: 100%; padding: 0.35rem 0.4rem; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+.snip.right { border-color: var(--right); background: var(--right-bg); }
+.snip.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
+pre.codeq { margin: 0.2rem 0 0.8rem; background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 0.75rem 0.9rem; font-family: "Courier New", Courier, monospace; font-size: 1rem; line-height: 1.5; overflow-x: auto; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+.pair pre.codeq { margin: 0; }
+.pair .cap { font-size: 0.9rem; color: var(--muted); margin: 0 0 0.25rem; }
+@media (max-width: 640px) { .pair { grid-template-columns: minmax(0, 1fr); } .sentence { font-size: 1.25rem; } }
+.summary ol { padding-left: 1.3rem; } .summary li { margin: 0.35rem 0; }
+.log ol { margin: 0; padding: 0; list-style: none; max-height: 18rem; overflow-y: auto; }
+.log li { padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-size: 0.93rem; }
+.log li:last-child { border-bottom: none; }
+.log li.exam { border-left: 4px solid var(--accent); padding-left: 0.55rem; }
+.hidden { display: none !important; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-inner">
+    <h1>Ambiguity Lab<small>Unit 3 Topic 4, Lesson 3: why computer languages need an unambiguous syntax</small></h1>
+    <span class="stat">Score <b id="score">0</b> / <span id="max">16</span></span>
+    <button type="button" id="restartBtn">Restart round</button>
+    <button type="button" id="themeBtn">Dark mode</button>
+  </div>
+  <div class="modes" role="tablist" aria-label="Rounds">
+    <button type="button" role="tab" data-mode="A" aria-selected="true">Round A: how many meanings?</button>
+    <button type="button" role="tab" data-mode="B" aria-selected="false">Round B: robot orders</button>
+    <button type="button" role="tab" data-mode="C" aria-selected="false">Round C: language designer</button>
+  </div>
+</header>
+
+<main>
+  <p class="intro" id="intro"></p>
+  <section class="panel" id="panel" aria-live="polite"></section>
+  <section class="panel log">
+    <h2>Lab log <span style="font-family:Calibri,Carlito,Arial,sans-serif;font-size:0.9rem;font-weight:400;color:var(--muted)">(newest first; amber = exam sentence)</span></h2>
+    <ol id="log"></ol>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var TYPES = [
+    { k: "word", name: "A word with two meanings", hint: "e.g. “bat”" },
+    { k: "sound", name: "Words that sound the same", hint: "only a problem when spoken" },
+    { k: "structure", name: "The structure of the sentence", hint: "words can be grouped two ways" },
+    { k: "reference", name: "What a word refers to", hint: "“it”, “he”, “they”" }
+  ];
+  var TYPE_NAME = { word: "word (lexical) ambiguity", sound: "sound-alike (homophone) ambiguity", structure: "structural ambiguity", reference: "reference ambiguity" };
+
+  var A = [
+    { s: "The bat was in the corner.", t: "word",
+      m: [["A flying animal was in the corner", true], ["A cricket bat was in the corner", true], ["A shop called The Bat was on the corner", false]],
+      why: "“Bat” is one word with two meanings: an animal or a piece of sports equipment." },
+    { s: "I saw the man with the telescope.", t: "structure",
+      m: [["I used a telescope to see the man", true], ["I saw a man who was holding a telescope", true], ["The telescope saw the man", false]],
+      why: "“With the telescope” can be grouped with “saw” or with “the man”: the structure allows two readings." },
+    { s: "Put the book on the table and paint it.", t: "reference",
+      m: [["Paint the book", true], ["Paint the table", true], ["Paint the whole room", false]],
+      why: "“It” could refer to the book or the table. A human uses context; a computer can’t." },
+    { s: "Add /pairz/ to the shopping list.", spoken: true, t: "sound",
+      m: [["Add pears (the fruit)", true], ["Add pairs (e.g. of socks)", true], ["Add peas", false]],
+      why: "“Pears” and “pairs” sound the same. A voice interface hears the sound, not the spelling." },
+    { s: "The chicken is ready to eat.", t: "structure",
+      m: [["The cooked chicken is ready to be eaten", true], ["The chicken is hungry and ready to eat its food", true], ["The chicken has already been eaten", false]],
+      why: "The chicken could be the one doing the eating or the thing being eaten: the structure allows both." },
+    { s: "The teacher told Sam that he had passed.", t: "reference",
+      m: [["Sam had passed", true], ["The teacher had passed", true], ["Everyone in the class had passed", false]],
+      why: "“He” could refer to Sam or to the teacher." },
+    { s: "She walked to the bank.", t: "word",
+      m: [["She walked to a building where money is kept", true], ["She walked to the edge of a river", true], ["She walked to a bench", false]],
+      why: "“Bank” has two meanings: a financial bank or a river bank." },
+    { s: "/rite/ the answer down.", spoken: true, t: "sound",
+      m: [["Write the answer down", true], ["Right, the answer’s down (it has dropped)", true], ["Read the answer out", false]],
+      why: "“Write” and “right” sound the same, so a voice interface could hear either." }
+  ];
+
+  // Round B: robot. Heading 0=N,1=E,2=S,3=W. Start (2,2) facing N.
+  var B = [
+    { instr: "Move forward and turn left twice.",
+      readings: [{ label: "Reading 1", text: "Move forward once, then turn left twice", cmds: "FLL" }, { label: "Reading 2", text: "(Move forward, turn left) and repeat", cmds: "FLFL" }],
+      snips: ["call moveForward()\nfor i = 1 to 2\n   call turnLeft()\nnext i", "for i = 1 to 2\n   call moveForward()\n   call turnLeft()\nnext i", "for i = 1 to 2\n   call turnLeft()\nnext i\ncall moveForward()"],
+      key: [0, 1] },
+    { instr: "Turn right and move forward twice.",
+      readings: [{ label: "Reading 1", text: "Turn right once, then move forward twice", cmds: "RFF" }, { label: "Reading 2", text: "(Turn right, move forward) and repeat", cmds: "RFRF" }],
+      snips: ["for i = 1 to 2\n   call turnRight()\n   call moveForward()\nnext i", "call turnRight()\nfor i = 1 to 2\n   call moveForward()\nnext i", "for i = 1 to 2\n   call moveForward()\nnext i\ncall turnRight()"],
+      key: [1, 0] }
+  ];
+
+  var Cq = [
+    { title: "Precedence", code: "set x = 2 + 3 * 4\noutput x",
+      q: "A human might work left to right and get 20. Python and WJEC pseudo-code always give 14. Which syntax rule makes 14 the only possible answer?",
+      o: ["Operator precedence: * and / are always done before + and -", "The computer picks whichever answer is smaller", "The programmer adds a comment saying which answer they meant", "Numbers are always added first"], a: 0,
+      sent: "An unambiguous syntax defines operator precedence, so 2 + 3 * 4 always evaluates to 14 and never 20." },
+    { title: "Which if owns the else?", code: "if age >= 17 then if licence = true then\noutput \"Drive\" else output \"Too young\"",
+      q: "This could mean the else belongs to either if. Which syntax rule gives it only one meaning?",
+      o: ["The computer guesses which if makes more sense", "A comment explains which if the else belongs to", "Every if block must be closed with end if, so the else belongs to the if whose block it is inside", "else statements are not allowed inside if statements"], a: 2,
+      sent: "WJEC pseudo-code closes every block with end if, so an else can only belong to one if: the syntax removes the ambiguity." },
+    { title: "Assign or compare?", code: "x = 5\nif x = 5 then …",
+      q: "Here “=” means “store 5 in x” in one line and “is x equal to 5?” in the next. How do languages remove this ambiguity?",
+      o: ["They use a different keyword or symbol for each: set x = 5 to assign, == in Python to compare", "They decide from whether x already has a value", "They let the programmer choose each time the program runs", "They don’t: = always means compare"], a: 0,
+      sent: "A computer language must give each symbol one meaning: Python uses = to assign and == to compare, so the two can’t be confused." },
+    { title: "Inside the loop or not?", pair: ["for i in range(3):\n    print(\"Hello\")\nprint(\"Done\")", "for i in range(3):\n    print(\"Hello\")\n    print(\"Done\")"],
+      q: "These Python programs differ only in spaces. The first prints “Done” once; the second prints it three times. What tells Python which lines are inside the loop?",
+      o: ["The blank lines", "Indentation is part of Python’s syntax: the indented lines are the loop body", "Python guesses from the variable names", "Nothing: Python runs both the same way"], a: 1,
+      sent: "In Python, indentation is part of the syntax: it defines exactly which statements are inside a loop, so the code has only one meaning." }
+  ];
+
+  var mode = "A", st = {}, logItems = [];
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function log(h, exam) { logItems.unshift({ h: h, exam: !!exam }); renderLog(); }
+  function renderLog() { document.getElementById("log").innerHTML = logItems.length ? logItems.map(function (l) { return '<li' + (l.exam ? ' class="exam"' : '') + '>' + l.h + '</li>'; }).join("") : "<li>Nothing yet.</li>"; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function reduced() { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
+
+  function reset(m) {
+    if (m === "A") st.A = { i: 0, items: A.map(function (x) { return Object.assign({}, x, { m: shuffle(x.m) }); }), meanScore: A.map(function () { return null; }), typeScore: A.map(function () { return null; }), checked: false, sel: {}, wrongT: [], typed: false, done: false };
+    if (m === "B") st.B = { i: 0, pick: [null, null], checked: false, scores: B.map(function () { return 0; }), tries: 0, played: [false, false], done: false };
+    if (m === "C") st.C = { i: 0, res: Cq.map(function () { return null; }), wrong: [], solved: false, done: false };
+  }
+  function score(m) {
+    if (m === "A") return st.A.meanScore.concat(st.A.typeScore).filter(function (x) { return x === true; }).length;
+    if (m === "B") return st.B.scores.reduce(function (a, b) { return a + b; }, 0);
+    return st.C.res.filter(function (x) { return x === true; }).length;
+  }
+  function max(m) { return m === "A" ? A.length * 2 : m === "B" ? B.length * 2 : Cq.length; }
+
+  // ---------- Round A ----------
+  function renderA() {
+    var R = st.A;
+    if (R.done) return summaryA();
+    var x = R.items[R.i];
+    var h = '<div class="progress-line"><span>Sentence ' + (R.i + 1) + ' of ' + A.length + '</span><div class="dots">' + A.map(function (_, k) {
+      var a = R.meanScore[k], b = R.typeScore[k], c = "dot";
+      if (k === R.i) c += " cur";
+      if (a !== null && b !== null) { var n = (a ? 1 : 0) + (b ? 1 : 0); c += n === 2 ? " ok" : n === 1 ? " half" : " no"; }
+      return '<span class="' + c + '"></span>';
+    }).join("") + '</div></div>';
+    if (x.spoken) h += '<span class="spoken">Spoken to a voice assistant</span>';
+    h += '<p class="sentence">“' + esc(x.s) + '”</p>';
+    h += '<p class="step">Step 1: tick every meaning this could have</p><div class="checks">';
+    x.m.forEach(function (m, k) {
+      var cls = "chk";
+      if (R.checked) { cls += " locked"; if (R.sel[k] && m[1]) cls += " right"; else if (R.sel[k] && !m[1]) cls += " wrong"; else if (!R.sel[k] && m[1]) cls += " missed"; }
+      h += '<label class="' + cls + '"><input type="checkbox" data-m="' + k + '"' + (R.sel[k] ? " checked" : "") + (R.checked ? " disabled" : "") + '><span>' + esc(m[0]) + '</span></label>';
+    });
+    h += '</div>';
+    if (!R.checked) h += '<div class="actions"><button type="button" class="btn" id="checkA">Check my meanings</button></div>';
+    else {
+      h += '<div class="fb ' + (R.meanScore[R.i] ? "ok" : "no") + '">' + (R.meanScore[R.i] ? "<strong>Correct.</strong> Two different meanings, both reasonable." : "<strong>Not quite.</strong> The dashed boxes are meanings you missed; red boxes don’t fit the sentence.") + '</div>';
+      h += '<p class="step">Step 2: what causes the ambiguity?</p><div class="types">';
+      TYPES.forEach(function (t) {
+        var cls = "tbtn", dis = "";
+        if (R.typed) { dis = " disabled"; cls += t.k === x.t ? " right-sel" : R.wrongT.indexOf(t.k) >= 0 ? " wrong-sel" : " faded"; }
+        else if (R.wrongT.indexOf(t.k) >= 0) { cls += " wrong-sel"; dis = " disabled"; }
+        h += '<button type="button" class="' + cls + '" data-t="' + t.k + '"' + dis + '><strong>' + t.name + '</strong><span>' + t.hint + '</span></button>';
+      });
+      h += '</div>';
+      if (R.tfb) h += '<div class="fb ' + R.tfb.cls + '">' + R.tfb.html + '</div>';
+      if (R.typed) h += '<div class="actions"><button type="button" class="btn" id="nextA">' + (R.i === A.length - 1 ? "See my results" : "Next sentence") + '</button></div>';
+    }
+    return h;
+  }
+  function summaryA() {
+    return '<div class="summary"><h2>Round A complete: ' + score("A") + ' / 16</h2><p>Natural language is ambiguous in four ways:</p><ol>' +
+      '<li><strong>Word (lexical):</strong> one word has more than one meaning (“bat”, “bank”).</li>' +
+      '<li><strong>Sound-alike (homophone):</strong> different words sound the same when spoken (“pears”/“pairs”, “write”/“right”).</li>' +
+      '<li><strong>Structure:</strong> the sentence can be grouped in more than one way (“the man with the telescope”).</li>' +
+      '<li><strong>Reference:</strong> it isn’t clear what “it” or “he” refers to.</li></ol>' +
+      '<p>A human uses context to guess. A computer can’t guess, so computer languages need an unambiguous syntax.</p>' +
+      '<div class="actions"><button type="button" class="btn" data-go="B">Go to Round B</button></div></div>';
+  }
+  function checkA() {
+    var R = st.A, x = R.items[R.i];
+    var ok = x.m.every(function (m, k) { return !!R.sel[k] === m[1]; });
+    R.checked = true; R.meanScore[R.i] = ok;
+    log("“" + esc(x.s) + "”: " + (ok ? "both meanings found." : "meanings checked."));
+    render();
+  }
+  function typeA(k) {
+    var R = st.A, x = R.items[R.i];
+    if (k === x.t) {
+      if (R.typeScore[R.i] === null) R.typeScore[R.i] = R.wrongT.length === 0;
+      R.typed = true;
+      R.tfb = { cls: "ok", html: "<strong>Correct.</strong> " + esc(x.why) };
+      log("<strong>" + TYPE_NAME[x.t].charAt(0).toUpperCase() + TYPE_NAME[x.t].slice(1) + ":</strong> “" + esc(x.s) + "” has more than one interpretation. " + esc(x.why), true);
+    } else {
+      R.wrongT.push(k);
+      R.tfb = { cls: "no", html: "<strong>Not quite.</strong> Try again: is it one word, the sound, how the words are grouped, or what a word points back to?" };
+    }
+    render();
+  }
+  function nextA() {
+    var R = st.A;
+    if (R.i === A.length - 1) { R.done = true; log("<strong>Round A finished:</strong> " + score("A") + " / 16."); }
+    else { R.i++; R.checked = false; R.sel = {}; R.wrongT = []; R.typed = false; R.tfb = null; }
+    render(); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
+  }
+
+  // ---------- Round B ----------
+  var DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
+  function simulate(cmds) {
+    var x = 2, y = 2, d = 0, states = [{ x: x, y: y, d: d }];
+    cmds.split("").forEach(function (c) {
+      if (c === "F") { x += DX[d]; y += DY[d]; } else if (c === "L") d = (d + 3) % 4; else if (c === "R") d = (d + 1) % 4;
+      states.push({ x: x, y: y, d: d });
+    });
+    return states;
+  }
+  function gridSvg(states, upto, id) {
+    var cs = 56, pad = 4, n = 5, W = n * cs + pad * 2;
+    var s = '<svg class="grid-svg" id="' + id + '" viewBox="0 0 ' + W + ' ' + W + '" role="img" aria-label="Robot grid">';
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) s += '<rect class="g-cell" x="' + (pad + c * cs) + '" y="' + (pad + r * cs) + '" width="' + cs + '" height="' + cs + '"/>';
+    var cx = function (p) { return pad + p.x * cs + cs / 2; }, cy = function (p) { return pad + p.y * cs + cs / 2; };
+    s += '<rect class="g-start" x="' + (pad + 2 * cs + 6) + '" y="' + (pad + 2 * cs + 6) + '" width="' + (cs - 12) + '" height="' + (cs - 12) + '"/>';
+    var pts = states.slice(0, upto + 1).map(function (p) { return cx(p) + "," + cy(p); }).join(" ");
+    s += '<polyline class="g-path" points="' + pts + '"/>';
+    var p = states[upto], ang = p.d * 90;
+    s += '<polygon class="g-robot" points="0,-18 14,14 0,7 -14,14" transform="translate(' + cx(p) + ',' + cy(p) + ') rotate(' + ang + ')"/>';
+    return s + '</svg>';
+  }
+  var CMD_WORD = { F: "forward", L: "turn left", R: "turn right" };
+  function renderB() {
+    var R = st.B;
+    if (R.done) {
+      return '<div class="summary"><h2>Round B complete: ' + score("B") + ' / 4</h2><p>Each English instruction had two fair readings, and the robot can’t ask which one you meant. Each reading could be written as pseudo-code with exactly one meaning: the <code>for … next</code> loop shows precisely which commands repeat.</p>' +
+        '<p>That is why computer languages need an unambiguous syntax: every statement must be translated into machine code, and must do the same thing every time.</p><div class="actions"><button type="button" class="btn" data-go="C">Go to Round C</button></div></div>';
+    }
+    var x = B[R.i];
+    var h = '<div class="progress-line"><span>Instruction ' + (R.i + 1) + ' of ' + B.length + '</span></div>';
+    h += '<p class="sentence">“' + esc(x.instr) + '”</p><p class="step">Step 1: play both readings. The robot starts in the dashed square, facing up.</p><div class="readings">';
+    x.readings.forEach(function (rd, k) {
+      var states = simulate(rd.cmds);
+      var upto = R.played[k] ? states.length - 1 : 0;
+      h += '<div class="reading"><h3>' + rd.label + '</h3><p class="steps">' + esc(rd.text) + '<br><span style="font-family:Courier New,monospace">' + (R.played[k] ? rd.cmds.split("").map(function (c) { return CMD_WORD[c]; }).join(" → ") : "&nbsp;") + '</span></p>' +
+        '<div id="g' + k + '">' + gridSvg(states, upto, "svg" + k) + '</div><button type="button" class="btn ghost" data-play="' + k + '">' + (R.played[k] ? "Play again" : "Play reading " + (k + 1)) + '</button></div>';
+    });
+    h += '</div>';
+    if (R.played[0] && R.played[1]) {
+      h += '<p class="step">Step 2: which pseudo-code matches each reading? Each one can only be read one way.</p><div class="match">';
+      x.snips.forEach(function (sn, k) {
+        var cls = "snip";
+        var sel = R.pick[0] === k ? "r1" : R.pick[1] === k ? "r2" : "";
+        if (R.checked && sel) { var want = sel === "r1" ? x.key[0] : x.key[1]; cls += want === k ? " right" : " wrong"; }
+        h += '<div class="' + cls + '"><div class="lab">Code ' + "ABC"[k] + '</div><pre>' + esc(sn) + '</pre><label class="hidden" for="sel' + k + '">Match code ' + "ABC"[k] + '</label><select id="sel' + k + '" data-snip="' + k + '"' + (R.checked && R.ok ? " disabled" : "") + '>' +
+          '<option value=""' + (sel === "" ? " selected" : "") + '>Neither reading</option><option value="r1"' + (sel === "r1" ? " selected" : "") + '>Reading 1</option><option value="r2"' + (sel === "r2" ? " selected" : "") + '>Reading 2</option></select></div>';
+      });
+      h += '</div>';
+      if (!(R.checked && R.ok)) h += '<div class="actions"><button type="button" class="btn" id="checkB"' + (R.pick[0] === null || R.pick[1] === null ? " disabled" : "") + '>Check my matches</button></div>';
+      if (R.fb) h += '<div class="fb ' + R.fb.cls + '">' + R.fb.html + '</div>';
+      if (R.checked && R.ok) h += '<div class="actions"><button type="button" class="btn" id="nextB">' + (R.i === B.length - 1 ? "See my results" : "Next instruction") + '</button></div>';
+    }
+    return h;
+  }
+  function play(k) {
+    var R = st.B, x = B[R.i], states = simulate(x.readings[k].cmds);
+    R.played[k] = true;
+    if (reduced()) { render(); return; }
+    var wrap = document.getElementById("g" + k), step = 0;
+    var t = setInterval(function () {
+      step++;
+      wrap.innerHTML = gridSvg(states, Math.min(step, states.length - 1), "svg" + k);
+      if (step >= states.length - 1) { clearInterval(t); setTimeout(render, 350); }
+    }, 550);
+    log(x.readings[k].label + " of “" + esc(x.instr) + "”: " + x.readings[k].cmds.split("").map(function (c) { return CMD_WORD[c]; }).join(", ") + ".");
+  }
+  function setPick(snip, val) {
+    var R = st.B;
+    if (R.pick[0] === snip) R.pick[0] = null;
+    if (R.pick[1] === snip) R.pick[1] = null;
+    if (val === "r1") R.pick[0] = snip;
+    if (val === "r2") R.pick[1] = snip;
+    R.checked = false; R.fb = null;
+    render();
+  }
+  function checkB() {
+    var R = st.B, x = B[R.i];
+    R.tries++;
+    var n = (R.pick[0] === x.key[0] ? 1 : 0) + (R.pick[1] === x.key[1] ? 1 : 0);
+    R.checked = true; R.ok = n === 2;
+    if (R.tries === 1) R.scores[R.i] = n;
+    if (R.ok) {
+      R.fb = { cls: "ok", html: "<strong>Both correct.</strong> The English instruction had two meanings; each pseudo-code version has exactly one, because the loop shows precisely which commands repeat." };
+      log("<strong>Unambiguous syntax:</strong> “" + esc(x.instr) + "” has two readings in English, but each can be written in pseudo-code that the computer can only interpret one way.", true);
+    } else {
+      R.fb = { cls: "no", html: "<strong>" + n + " of 2 correct.</strong> Trace each code line by line: what does the robot do first, and what is inside the loop? Change your matches and check again." };
+    }
+    render();
+  }
+  function nextB() {
+    var R = st.B;
+    if (R.i === B.length - 1) { R.done = true; log("<strong>Round B finished:</strong> " + score("B") + " / 4."); }
+    else { R.i++; R.pick = [null, null]; R.checked = false; R.ok = false; R.fb = null; R.tries = 0; R.played = [false, false]; }
+    render(); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
+  }
+
+  // ---------- Round C ----------
+  function renderC() {
+    var R = st.C;
+    if (R.done) return '<div class="summary"><h2>Round C complete: ' + score("C") + ' / 4</h2><p>Sentences to learn:</p><ol>' + Cq.map(function (q) { return '<li>' + esc(q.sent) + '</li>'; }).join("") + '</ol><div class="actions"><button type="button" class="btn ghost" data-again="1">Try Round C again</button></div></div>';
+    var q = Cq[R.i];
+    var h = '<div class="progress-line"><span>Problem ' + (R.i + 1) + ' of ' + Cq.length + ': ' + esc(q.title) + '</span><div class="dots">' + Cq.map(function (_, k) { var v = R.res[k]; return '<span class="dot' + (k === R.i ? ' cur' : '') + (v === true ? ' ok' : v === false && k < R.i ? ' half' : '') + '"></span>'; }).join("") + '</div></div>';
+    if (q.pair) h += '<div class="pair"><div><p class="cap">Program 1</p><pre class="codeq">' + esc(q.pair[0]) + '</pre></div><div><p class="cap">Program 2</p><pre class="codeq">' + esc(q.pair[1]) + '</pre></div></div>';
+    else h += '<pre class="codeq">' + esc(q.code) + '</pre>';
+    h += '<p style="margin:0.6rem 0 0.6rem;font-size:1.1rem">' + esc(q.q) + '</p><div class="obtns">';
+    q.o.forEach(function (o, k) {
+      var cls = "obtn", dis = "";
+      if (R.solved) { dis = " disabled"; cls += k === q.a ? " right-sel" : R.wrong.indexOf(k) >= 0 ? " wrong-sel" : " faded"; }
+      else if (R.wrong.indexOf(k) >= 0) { cls += " wrong-sel"; dis = " disabled"; }
+      h += '<button type="button" class="' + cls + '" data-o="' + k + '"' + dis + '><span class="letter">' + "ABCD"[k] + '</span><span>' + esc(o) + '</span></button>';
+    });
+    h += '</div>';
+    if (R.fb) h += '<div class="fb ' + R.fb.cls + '">' + R.fb.html + '</div>';
+    if (R.solved) h += '<div class="actions"><button type="button" class="btn" id="nextC">' + (R.i === Cq.length - 1 ? "See my results" : "Next problem") + '</button></div>';
+    return h;
+  }
+  function pickC(k) {
+    var R = st.C, q = Cq[R.i];
+    if (R.solved) return;
+    if (k === q.a) {
+      if (R.res[R.i] === null) R.res[R.i] = true;
+      R.solved = true; R.fb = { cls: "ok", html: "<strong>Correct.</strong> " + esc(q.sent) };
+      log("<strong>" + esc(q.title) + ":</strong> " + esc(q.sent), true);
+    } else {
+      R.wrong.push(k); if (R.res[R.i] === null) R.res[R.i] = false;
+      R.fb = { cls: "no", html: "<strong>Not quite.</strong> A syntax rule must be fixed in the language itself, so every statement has only one meaning: no guessing, and no relying on comments." };
+    }
+    render();
+  }
+  function nextC() {
+    var R = st.C;
+    if (R.i === Cq.length - 1) { R.done = true; log("<strong>Round C finished:</strong> " + score("C") + " / 4."); }
+    else { R.i++; R.wrong = []; R.solved = false; R.fb = null; }
+    render(); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
+  }
+
+  var INTROS = {
+    A: "Round A: each sentence can be read more than one way. Tick every meaning it could have, then decide what causes the ambiguity. 2 marks per sentence, first try.",
+    B: "Round B: the robot only does exactly what it’s told. Play both readings of each English instruction, then match each reading to the pseudo-code that can only mean that one thing. 2 marks per instruction, first try.",
+    C: "Round C: you’re the language designer. Each piece of code could be read more than one way. Choose the syntax rule that gives it one meaning. First-try answers score."
+  };
+  function render() {
+    document.querySelectorAll(".modes button").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-mode") === mode)); });
+    document.getElementById("intro").textContent = INTROS[mode];
+    document.getElementById("score").textContent = score(mode);
+    document.getElementById("max").textContent = max(mode);
+    document.getElementById("panel").innerHTML = mode === "A" ? renderA() : mode === "B" ? renderB() : renderC();
+  }
+  function setMode(m) { mode = m; history.replaceState(null, "", "#round" + m); render(); window.scrollTo(0, 0); }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.hasAttribute("data-mode")) return setMode(b.getAttribute("data-mode"));
+    if (b.hasAttribute("data-go")) return setMode(b.getAttribute("data-go"));
+    if (b.id === "checkA") return checkA();
+    if (b.hasAttribute("data-t")) return typeA(b.getAttribute("data-t"));
+    if (b.id === "nextA") return nextA();
+    if (b.hasAttribute("data-play")) return play(Number(b.getAttribute("data-play")));
+    if (b.id === "checkB") return checkB();
+    if (b.id === "nextB") return nextB();
+    if (b.hasAttribute("data-o")) return pickC(Number(b.getAttribute("data-o")));
+    if (b.id === "nextC") return nextC();
+    if (b.hasAttribute("data-again") || b.id === "restartBtn") { reset(mode); log("Restarted Round " + mode + "."); render(); }
+  });
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.hasAttribute("data-m")) { st.A.sel[Number(t.getAttribute("data-m"))] = t.checked; return; }
+    if (t.hasAttribute("data-snip")) setPick(Number(t.getAttribute("data-snip")), t.value);
+  });
+
+  var themeBtn = document.getElementById("themeBtn");
+  function isDark() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t === "dark"; return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; }
+  function labelTheme() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  themeBtn.addEventListener("click", function () {
+    var nx = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", nx);
+    try { localStorage.setItem("u3t4-ambiguity-theme", nx); } catch (err) {}
+    labelTheme();
+  });
+  try { var sv = localStorage.getItem("u3t4-ambiguity-theme"); if (sv === "light" || sv === "dark") document.documentElement.setAttribute("data-theme", sv); } catch (err) {}
+  labelTheme();
+
+  reset("A"); reset("B"); reset("C");
+  var hm = { "#roundA": "A", "#roundB": "B", "#roundC": "C" };
+  if (hm[location.hash]) mode = hm[location.hash];
+  window.addEventListener("hashchange", function () { if (hm[location.hash]) { mode = hm[location.hash]; render(); } });
+  renderLog(); render();
+  window.__lab = { st: st, A: A, B: B, Cq: Cq, simulate: simulate, score: score };
+})();
+</script>
+</body>
+</html>
+
+</body></html>
