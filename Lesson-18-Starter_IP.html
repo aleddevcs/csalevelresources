@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 18 Starter — Warm-up and Check-in</title>
+<style>
+  :root{
+    --primary:#065A82;
+    --second:#1C7293;
+    --dark:#21295C;
+    --amber:#D9773A;
+    --light:#F3F7FA;
+    --text:#1B1B1B;
+    --muted:#5B6B75;
+    --white:#FFFFFF;
+    --green:#2C5F2D;
+    --greenbg:#E1F0EC;
+    --amberbg:#FBF0E7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Calibri, Arial, sans-serif;
+    background:var(--light);
+    color:var(--text);
+    padding:0 0 4rem;
+  }
+  header{
+    background:var(--dark);
+    color:var(--white);
+    padding:2rem 1.5rem 2.5rem;
+  }
+  header .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#9FB8D9;
+    margin:0 0 0.4rem;
+  }
+  header h1{
+    margin:0 0 0.3rem;
+    font-size:1.9rem;
+  }
+  header p{
+    margin:0;
+    color:#CADCFC;
+    font-size:1rem;
+  }
+  main{
+    max-width:780px;
+    margin:-1.2rem auto 0;
+    padding:0 1.5rem;
+  }
+  .card{
+    background:var(--white);
+    border-radius:14px;
+    border:1px solid #D8E2E8;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    margin-bottom:1.6rem;
+    padding:1.5rem 1.6rem;
+  }
+  .intro{
+    display:flex;
+    align-items:flex-start;
+    gap:0.9rem;
+  }
+  .intro .dot{
+    width:36px;
+    height:36px;
+    background:var(--second);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:1.1rem;
+    flex-shrink:0;
+  }
+  .intro p{
+    margin:0;
+    font-size:0.98rem;
+    line-height:1.5;
+  }
+  .section-title{
+    font-size:1.1rem;
+    font-weight:bold;
+    color:var(--dark);
+    margin:0 0 1rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .section-title .num{
+    background:var(--primary);
+    color:white;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  .part-label{
+    font-size:0.75rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 0.3rem;
+  }
+
+  /* submission check */
+  .status-q{
+    font-size:1rem;
+    margin:0 0 0.9rem;
+  }
+  .status-opts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.6rem;
+  }
+  .status-btn{
+    flex:1;
+    min-width:150px;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.85rem 0.8rem;
+    font-size:0.95rem;
+    font-weight:bold;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+  }
+  .status-btn:hover{ border-color:var(--second); }
+  .status-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .status-msg{
+    display:none;
+    margin-top:1rem;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.95rem;
+    line-height:1.5;
+  }
+  .status-msg.show{ display:block; }
+  .status-msg.good{ background:var(--greenbg); color:var(--green); }
+  .status-msg.act{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .status-msg b{ display:block; margin-bottom:0.2rem; }
+  .privacy{
+    margin:0.9rem 0 0;
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  /* retrieval */
+  .q{
+    margin-bottom:1.3rem;
+  }
+  .q:last-child{
+    margin-bottom:0;
+  }
+  .q .prompt{
+    font-size:0.98rem;
+    margin-bottom:0.6rem;
+  }
+  .row{
+    display:flex;
+    gap:0.6rem;
+    align-items:center;
+  }
+  .row input[type=text]{
+    flex:1;
+    border:1px solid #D8E2E8;
+    border-radius:8px;
+    padding:0.5rem 0.7rem;
+    font-family:"Courier New", monospace;
+    font-size:0.95rem;
+  }
+  .row button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .row button:hover{
+    background:var(--primary);
+  }
+  .answer{
+    display:none;
+    margin-top:0.6rem;
+    padding:0.7rem 0.9rem;
+    border-radius:8px;
+    font-size:0.9rem;
+    background:var(--greenbg);
+    color:var(--green);
+  }
+  .answer.show{
+    display:block;
+  }
+  code{
+    font-family:"Courier New", monospace;
+    background:var(--light);
+    padding:0.05rem 0.3rem;
+    border-radius:4px;
+    font-size:0.9em;
+  }
+  .today-card{
+    background:var(--primary);
+    color:white;
+  }
+  .today-card .section-title{
+    color:white;
+  }
+  .today-card .section-title .num{
+    background:white;
+    color:var(--primary);
+  }
+  .today-card ul{
+    margin:0;
+    padding-left:1.2rem;
+    font-size:0.95rem;
+    line-height:1.9;
+  }
+  footer{
+    max-width:780px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  pre.snippet{
+    font-family:"Courier New", monospace;
+    background:var(--dark);
+    color:#F4F8FA;
+    padding:0.9rem 1.1rem;
+    border-radius:10px;
+    font-size:0.92rem;
+    line-height:1.6;
+    margin:0 0 0.8rem;
+    overflow-x:auto;
+  }
+  .stage-list{
+    display:flex;
+    flex-direction:column;
+    gap:0.55rem;
+  }
+  .stage-btn{
+    text-align:left;
+    background:var(--light);
+    border:2px solid #D8E2E8;
+    border-radius:10px;
+    padding:0.8rem 1rem;
+    font-size:0.96rem;
+    color:var(--text);
+    cursor:pointer;
+    display:flex;
+    gap:0.8rem;
+    align-items:flex-start;
+  }
+  .stage-btn .n{
+    font-weight:bold;
+    color:var(--second);
+    min-width:1.2rem;
+  }
+  .stage-btn:hover{ border-color:var(--second); }
+  .stage-btn.sel{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FFFFFF;
+  }
+  .stage-btn.sel .n{ color:#CADCFC; }
+
+  .pick{
+    display:flex;
+    flex-direction:column;
+    gap:0.3rem;
+    background:var(--dark);
+    border-radius:10px;
+    padding:0.8rem;
+    margin:0 0 0.9rem;
+  }
+  .cl{
+    font-family:"Courier New", monospace;
+    font-size:0.92rem;
+    color:#F4F8FA;
+    background:rgba(255,255,255,0.04);
+    border:2px solid transparent;
+    border-radius:6px;
+    padding:0.35rem 0.6rem;
+    text-align:left;
+    white-space:pre;
+    cursor:pointer;
+  }
+  .cl:hover{ border-color:#5B7FA6; }
+  .cl.sel{ border-color:#F9E795; background:rgba(249,231,149,0.14); }
+  .cl.right{ border-color:#6FCF97; background:rgba(111,207,151,0.2); }
+  .cl.missed{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.18); }
+  .cl.wrong{ border-color:#F0997B; background:rgba(240,153,123,0.22); }
+  .cl.locked{ cursor:default; }
+  .pick-actions{
+    display:flex;
+    gap:0.6rem;
+    margin-bottom:0.2rem;
+  }
+  .pick-actions button{
+    background:var(--second);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:0.5rem 1.1rem;
+    font-size:0.9rem;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .pick-actions button.secondary{
+    background:var(--light);
+    color:var(--text);
+    border:1px solid #D8E2E8;
+  }
+  .pick-actions button:hover{ background:var(--primary); color:#fff; }
+  .legend-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.9rem;
+    font-size:0.78rem;
+    color:var(--muted);
+    margin:0.5rem 0 0;
+  }
+  .legend-row span::before{
+    content:"";
+    display:inline-block;
+    width:0.8rem;
+    height:0.8rem;
+    border-radius:3px;
+    margin-right:0.35rem;
+    vertical-align:-0.1rem;
+    border:2px solid;
+  }
+  .legend-row .l-right::before{ border-color:#6FCF97; background:rgba(111,207,151,0.35); }
+  .legend-row .l-missed::before{ border-color:#D9773A; border-style:dashed; background:rgba(217,119,58,0.3); }
+  .legend-row .l-wrong::before{ border-color:#F0997B; background:rgba(240,153,123,0.4); }
+  .legend-row{ display:none; }
+  .legend-row.show{ display:flex; }
+
+  .gs-info{ display:none; margin:0.9rem 0 0; }
+  .gs-info.show{ display:block; }
+  .gs-info .what{
+    background:var(--light); border-radius:10px; padding:0.8rem 1rem; font-size:0.93rem; line-height:1.5; margin-bottom:0.7rem;
+  }
+  .chips-label{ font-size:0.82rem; color:var(--muted); margin:0 0 0.4rem; }
+  .chips{ display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.4rem; }
+  .chip{
+    text-align:left; background:#FBF0E7; border:1px solid var(--amber); color:#8A4A1E; border-radius:8px;
+    padding:0.5rem 0.8rem; font-size:0.9rem; cursor:pointer; line-height:1.4;
+  }
+  .chip:hover{ background:#F8E3D0; }
+  .action-label{ display:block; font-weight:bold; font-size:0.95rem; margin:1.1rem 0 0.4rem; color:var(--dark); }
+  textarea.action{
+    width:100%; min-height:5.5rem; border:1px solid #D8E2E8; border-radius:8px; padding:0.6rem 0.75rem;
+    font-family:inherit; font-size:0.95rem; line-height:1.5; resize:vertical; box-sizing:border-box;
+  }
+  .a-row{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.6rem; align-items:center; }
+  .a-row button{
+    background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .a-row button.secondary{ background:var(--light); color:var(--text); border:1px solid #D8E2E8; }
+  .a-row button:hover{ filter:brightness(1.08); }
+  .a-row .note{ font-size:0.85rem; color:var(--green); display:none; }
+  .a-row .note.show{ display:inline; }
+  .selfeval{
+    display:flex; gap:0.7rem; align-items:flex-start; margin-top:1.1rem; padding:0.8rem 1rem;
+    background:var(--light); border-radius:10px; font-size:0.93rem; line-height:1.45; cursor:pointer;
+  }
+  .selfeval input{ width:20px; height:20px; margin-top:0.1rem; accent-color:var(--second); flex-shrink:0; }
+  .selfeval.done{ background:var(--greenbg); color:var(--green); }
+  .fb{ margin-top:0.7rem; }
+
+  .qfb{ margin-top:0.7rem; }
+  .answer.fix{ background:var(--amberbg); color:#8A4A1E; border:1px solid var(--amber); }
+  .answer b{ font-weight:bold; }
+  .important{
+    margin-top:0.6rem; padding:0.6rem 0.8rem; border-radius:8px; background:var(--light); font-size:0.9rem; line-height:1.45; color:var(--text);
+    border-left:4px solid var(--second);
+  }
+  textarea.free{
+    width:100%; min-height:4.2rem; border:1px solid #D8E2E8; border-radius:8px; padding:0.6rem 0.75rem; font-family:inherit;
+    font-size:0.95rem; line-height:1.5; box-sizing:border-box; resize:vertical;
+  }
+  .qbtn{
+    margin-top:0.5rem; background:var(--second); color:#fff; border:none; border-radius:8px; padding:0.5rem 1.1rem;
+    font-size:0.9rem; font-weight:bold; cursor:pointer;
+  }
+  .qbtn:hover{ filter:brightness(1.08); }
+
+  .optlist{ display:grid; gap:0.5rem; margin-top:0.6rem; }
+  .opt{
+    text-align:left; background:var(--light); border:1px solid #D8E2E8; border-radius:10px; padding:0.65rem 0.9rem;
+    font-size:0.95rem; color:var(--text); cursor:pointer; font-family:inherit; line-height:1.4;
+  }
+  .opt code{ background:#E3EEF5; padding:0.05rem 0.35rem; border-radius:4px; }
+  .opt:hover{ border-color:var(--second); }
+  .opt.right{ background:var(--greenbg); border-color:var(--green); color:var(--green); font-weight:bold; }
+  .opt.wrong{ background:var(--amberbg); border-color:var(--amber); color:#8A4A1E; }
+  .opt[disabled]{ cursor:default; }
+  .bridge{
+    margin-top:0.2rem; padding:0.8rem 1rem; border-radius:10px; background:var(--light); border-left:4px solid var(--second);
+    font-size:0.95rem; line-height:1.5; color:var(--text);
+  }
+  .notice{
+    margin:0.9rem 0 0; padding:0.7rem 0.95rem; border-radius:10px; background:var(--amberbg); border:1px solid var(--amber);
+    color:#8A4A1E; font-size:0.92rem; line-height:1.45;
+  }
+
+  .checklist{ list-style:none; margin:0.6rem 0 0; padding:0; display:grid; gap:0.5rem; }
+  .checklist li{ margin:0; }
+  .checklist label{
+    display:flex; gap:0.75rem; align-items:flex-start; padding:0.7rem 0.9rem; border:1px solid #D8E2E8; border-radius:10px;
+    background:var(--light); cursor:pointer; font-size:0.95rem; line-height:1.45;
+  }
+  .checklist label:hover{ border-color:var(--second); }
+  .checklist input[type=checkbox]{ margin-top:0.2rem; width:1.15rem; height:1.15rem; accent-color:var(--second); flex:none; }
+  .checklist li.done label{ background:var(--greenbg); border-color:var(--green); color:var(--green); }
+  .checklist code{ background:#E3EEF5; padding:0.05rem 0.35rem; border-radius:4px; }
+  .readycount{ margin:0.9rem 0 0.2rem; font-size:0.9rem; color:var(--muted); font-weight:bold; }
+  .readybar{ height:8px; border-radius:6px; background:#E1E9EE; overflow:hidden; }
+  .readybar > div{ height:100%; width:0; background:var(--second); transition:width .25s ease; }
+  .status-msg ul{ margin:0.35rem 0 0; padding-left:1.2rem; }
+  .status-msg li{ margin:0.15rem 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Access to HE · Applied Computing</p>
+  <h1>Lesson 18 starter</h1>
+  <p>Warm-up — then a quick check-in on grids</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="intro">
+      <span class="dot">?</span>
+      <p>Two quick parts. First, <b>four questions</b> to warm up — no notes. Then a <b>check-in</b>: how did Lesson 17 feel? Today we search a table, change it, and add to it and delete from it.</p>
+    </div>
+  </div>
+
+  <!-- PART A -->
+  <div class="card">
+    <p class="part-label">Part A</p>
+    <p class="section-title"><span class="num">1</span>Warm-up</p>
+
+    <div class="q">
+      <div class="prompt"><b>Question 1</b> — rows of mixed values. What does this print?</div>
+      <pre class="snippet">table = [["a", 5], ["b", 7]]
+print(table[1][0], table[0][1] + table[1][1])</pre>
+      <div class="row">
+        <input type="text" id="p1" placeholder="Type your prediction">
+        <button onclick="checkQ(1)">Check</button>
+      </div>
+      <div class="answer qfb" id="a1" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 2</b> — the reset. What does this print?</div>
+      <pre class="snippet">grid = [[1, 2], [3, 4]]
+for row in grid:
+    total = 0
+    for v in row:
+        total = total + v
+    print(total)</pre>
+      <div class="optlist" id="o2">
+        <button class="opt" data-k="a"><code>3</code> then <code>7</code></button>
+        <button class="opt" data-k="b"><code>3</code> then <code>10</code></button>
+        <button class="opt" data-k="c">Just <code>10</code></button>
+        <button class="opt" data-k="d">An error</button>
+      </div>
+      <div class="answer qfb" id="a2" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 3</b> — input. The user types <code>5</code>. What happens?</div>
+      <pre class="snippet">qty = input("Quantity: ")
+print(qty + 1)</pre>
+      <div class="optlist" id="o3">
+        <button class="opt" data-k="a">It prints <code>6</code></button>
+        <button class="opt" data-k="b">It prints <code>51</code></button>
+        <button class="opt" data-k="c">A <code>TypeError</code> — <code>input</code> gives text, and text can't be added to a number</button>
+        <button class="opt" data-k="d">It prints <code>5</code></button>
+      </div>
+      <div class="answer qfb" id="a3" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="q">
+      <div class="prompt"><b>Question 4</b> — recursion. What does this print?</div>
+      <pre class="snippet">def countdown(n):
+    if n == 0:
+        print("Go")
+    else:
+        print(n)
+        countdown(n - 1)
+
+countdown(3)</pre>
+      <div class="row">
+        <input type="text" id="p4" placeholder="Type the lines, e.g. 1 2 3">
+        <button onclick="checkQ(4)">Check</button>
+      </div>
+      <div class="answer qfb" id="a4" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="status-msg" id="sumMsg" role="status" aria-live="polite"></div>
+
+    <div class="bridge"><b>Hold that thought:</b> today the rows hold <b>different kinds of value</b> — text, whole numbers, decimals — so types matter. And we find a row by its <b>key</b>.</div>
+  </div>
+
+  <!-- PART B -->
+  <div class="card">
+    <p class="part-label">Part B</p>
+    <p class="section-title"><span class="num">2</span>Check-in</p>
+    <p class="status-q">Lesson 17 was about <b>grids</b> — two indexes and nested loops. How did it feel?</p>
+    <div class="status-opts" id="feel">
+      <button class="status-btn" data-k="a">I could explain it to someone</button>
+      <button class="status-btn" data-k="b">I can do it with my notes</button>
+      <button class="status-btn" data-k="c">I need it again</button>
+    </div>
+    <div class="status-msg" id="feelMsg" role="status" aria-live="polite"></div>
+    <p class="privacy">This is just for you — nothing you choose here is sent anywhere.</p>
+  </div>
+
+  <div class="card today-card">
+    <p class="section-title"><span class="num">→</span>Today</p>
+    <ul>
+      <li><b>Search</b> a table by its code</li>
+      <li><b>Amend</b> one value in a row</li>
+      <li><b>Add</b> a row and <b>delete</b> a row</li>
+      <li><b>Explain it</b> — why a search needs a flag, and a delete needs a position</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>Lesson 18 · Imperative Programming · Access to HE Applied Computing</footer>
+
+<script>
+  const NEED = 'Type your prediction first — it\'s the prediction that does the learning.';
+  const WORDS = { zero:'0', one:'1', two:'2', three:'3', four:'4', five:'5', six:'6', seven:'7', eight:'8', nine:'9', twelve:'12' };
+  const firstTry = {};   // question number -> true / false (first attempt only)
+
+  function put(id, html, ok){
+    const out = document.getElementById(id);
+    out.innerHTML = html;
+    out.classList.remove('fix');
+    if (ok === false) out.classList.add('fix');
+    out.classList.add('show');
+  }
+  function record(n, ok){
+    if (!(n in firstTry)) firstTry[n] = ok;
+    summarise();
+  }
+  // tokens: lower-case words and numbers, ignoring quotes, commas and punctuation
+  function toks(v){
+    let t = v.toLowerCase().replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|twelve)\b/g, w => WORDS[w]);
+    return (t.match(/[a-z]+|-?\d+/g)) || [];
+  }
+
+  /* ---------- Multiple-choice questions 2 and 3 ---------- */
+  const MC = {
+    2: { right: 'a', fb: {
+      a: '<b>Yes — two lines, <code>3</code> then <code>7</code>.</b> <code>total = 0</code> is <i>inside</i> the outer loop, so every row starts again from zero.',
+      b: '<b>That\'s what happens if <code>total = 0</code> sits <i>before</i> the outer loop</b> — the total keeps running. Here it is reset for each row, so the second line is <code>7</code>.',
+      c: '<b>The <code>print</code> is inside the outer loop,</b> so it runs once per row — that\'s two lines, not one.',
+      d: '<b>No error.</b> The code is fine — it prints a total for each row: <code>3</code> then <code>7</code>.' } },
+    3: { right: 'c', fb: {
+      a: '<b>Not quite.</b> <code>input</code> always gives back <i>text</i>, even when the user types a number. So <code>qty</code> is <code>"5"</code>, not <code>5</code>.',
+      b: '<b>That would happen with two pieces of text.</b> Here one side is text and the other a number — Python refuses to mix them: a <code>TypeError</code>.',
+      c: '<b>Yes.</b> <code>input</code> gives text. The fix is <code>int(input(...))</code> — and today we read quantities and prices from the user.',
+      d: '<b>The <code>+ 1</code> is still there.</b> Python tries to add 1 to the text <code>"5"</code> — and stops with a <code>TypeError</code>.' } }
+  };
+  [2, 3].forEach(n => {
+    const list = document.getElementById('o' + n);
+    list.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const k = btn.dataset.k, cfg = MC[n];
+        list.querySelectorAll('.opt').forEach(b => b.classList.remove('wrong'));
+        if (k === cfg.right) {
+          list.querySelectorAll('.opt').forEach(b => { b.classList.toggle('right', b === btn); b.disabled = true; });
+          put('a' + n, cfg.fb[k], true); record(n, true);
+        } else {
+          btn.classList.add('wrong');
+          put('a' + n, cfg.fb[k] + ' Try another.', false); record(n, false);
+        }
+      });
+    });
+  });
+
+  /* ---------- Typed questions 1 and 4 ---------- */
+  const checks = {
+    1(v){
+      const t = toks(v), k = t.join(' ');
+      if (k === 'b 12') return [true, '<b>Yes — b 12.</b> <code>table[1][0]</code> is row 1, column 0: <code>"b"</code>. And <code>table[0][1] + table[1][1]</code> is 5 + 7 = 12.'];
+      if (k === '12 b') return [false, '<b>Right values, wrong order.</b> The <code>print</code> shows <code>table[1][0]</code> <i>first</i> — that\'s <code>b</code> — then the sum, <code>12</code>.'];
+      if (k === 'a 12') return [false, '<b>The sum is right, but check the first value.</b> <code>table[1][0]</code> is row <b>1</b> (the second row), column 0 — that\'s <code>"b"</code>, not <code>"a"</code>.'];
+      if (t[0] === 'b' && (k === 'b 5' || k === 'b 7')) return [false, '<b>You have <code>b</code>.</b> But the second value is a <i>sum</i>: <code>table[0][1]</code> (5) plus <code>table[1][1]</code> (7) = <code>12</code>.'];
+      if (t[0] === 'b' && t.length === 3 && t[1] === '5' && t[2] === '7') return [false, '<b>You have <code>b</code>.</b> The two numbers are <i>added</i>, not printed side by side: 5 + 7 = <code>12</code>.'];
+      if (k === 'b') return [false, '<b>You have the first value.</b> The <code>print</code> shows <i>two</i> things; the second is 5 + 7 = <code>12</code>.'];
+      if (k === '12') return [false, '<b>You have the second value.</b> The <code>print</code> shows <code>table[1][0]</code> first — that\'s <code>b</code> — then <code>12</code>.'];
+      return [false, 'The answer is <code>b 12</code>. <code>table[1][0]</code> is row 1, column 0 (<code>"b"</code>); <code>table[0][1] + table[1][1]</code> is 5 + 7 = 12.'];
+    },
+    4(v){
+      const k = toks(v).join(' ');
+      if (k === '3 2 1 go') return [true, '<b>Yes — four lines: 3, 2, 1, Go.</b> Each call prints <code>n</code> <i>before</i> the next call, so it counts down; the base case, <code>n == 0</code>, prints <code>Go</code>.'];
+      if (k === '3 2 1') return [false, '<b>You\'re missing the last line.</b> When <code>n</code> reaches 0 — the base case — it prints <code>Go</code>. So: 3, 2, 1, Go.'];
+      if (k === '1 2 3 go') return [false, '<b>It counts <i>down</i>.</b> <code>print(n)</code> comes <i>before</i> the recursive call, so 3 prints first. Then 2, 1, and finally Go.'];
+      if (k === 'go') return [false, '<b>That\'s the last line only.</b> <code>countdown(3)</code> first prints 3, then calls <code>countdown(2)</code> (prints 2), and so on: 3, 2, 1, Go.'];
+      if (k === '3 2 1 0' || k === '3 2 1 0 go') return [false, '<b>0 is never printed.</b> When <code>n == 0</code>, the function prints <code>Go</code> instead. So: 3, 2, 1, Go.'];
+      return [false, 'The answer is <code>3, 2, 1, Go</code> (four lines). Each call prints <code>n</code> and calls <code>countdown(n - 1)</code>; at <code>n == 0</code> it prints <code>Go</code>.'];
+    }
+  };
+  function checkQ(n){
+    const v = document.getElementById('p' + n).value;
+    if (!v.trim()) { put('a' + n, NEED, false); return; }
+    const [ok, html] = checks[n](v);
+    put('a' + n, html, ok); record(n, ok);
+  }
+
+  /* ---------- Summary after all four have an answer ---------- */
+  const REVIEW = {
+    1: 'two indexes: <strong>row first, then column</strong> (Lesson 17)',
+    2: 'the <strong>reset rule</strong> — where <code>total = 0</code> goes',
+    3: '<strong><code>int(input(...))</code></strong> — input is always text',
+    4: 'recursion — we won\'t need it today, but keep it ticking over'
+  };
+  function summarise(){
+    if (Object.keys(firstTry).length < 4) return;
+    const wrong = [1, 2, 3, 4].filter(n => firstTry[n] === false);
+    const msg = document.getElementById('sumMsg');
+    if (wrong.length === 0) {
+      msg.className = 'status-msg show good';
+      msg.innerHTML = '<b>Four out of four first time.</b>You\'re ready for today.';
+    } else {
+      msg.className = 'status-msg show act';
+      msg.innerHTML = '<b>' + (4 - wrong.length) + ' of 4 first time.</b>Worth a second look:<ul>' + wrong.map(n => '<li>' + REVIEW[n] + '</li>').join('') + '</ul>Today builds on the first three.';
+    }
+  }
+
+  /* ---------- Part B: check-in ---------- */
+  const FEEL = {
+    a: ['good', '<b>Good — that\'s today\'s foundation.</b>Today the rows hold different kinds of value. If you finish early, see if you can explain the reset rule to your neighbour.'],
+    b: ['good', '<b>Fine — notes are there for a reason.</b>Keep the Lesson 17 reminder card open today: <code>[row][column]</code> is still the heart of it.'],
+    c: ['act', '<b>Thank you for being honest.</b>Open the Lesson 17 reminder card, and tell me at the start of Task 1. Two indexes and the nested loop come back all lesson, so we\'ll practise them again.']
+  };
+  document.querySelectorAll('#feel .status-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#feel .status-btn').forEach(b => b.classList.toggle('sel', b === btn));
+      const [cls, html] = FEEL[btn.dataset.k];
+      const m = document.getElementById('feelMsg');
+      m.className = 'status-msg show ' + cls; m.innerHTML = html;
+    });
+  });
+</script>
+
+</body>
+</html>
