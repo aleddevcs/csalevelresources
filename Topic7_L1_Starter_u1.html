@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 7 · Lesson 1 starter: what could go wrong?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14213D;--teal:#0F8B8D;--orange:#F28C28;--light:#EEF3F8;--muted:#5A6A85;--red:#B03024;--green:#23724A;--line:#C9D3E0;
+  --sans:"Atkinson Hyperlegible",system-ui,"Segoe UI",Arial,sans-serif;--mono:"JetBrains Mono",Consolas,"Courier New",monospace}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);color:var(--navy);background:#fff;font-size:17px;line-height:1.45}
+header{background:var(--navy);color:#fff;padding:18px 24px}
+header h1{margin:0;font-size:24px}
+header p{margin:4px 0 0;color:#D5DDEA;font-size:15px}
+main{max-width:980px;margin:0 auto;padding:20px 24px 60px}
+.mins{display:inline-block;background:var(--orange);color:var(--navy);font-weight:700;border-radius:999px;padding:2px 12px;font-size:14px;margin-left:8px;vertical-align:middle}
+section.job{border:2px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0}
+section.job.done{border-color:var(--green)}
+section.job h2{margin:0 0 4px;font-size:20px;display:flex;gap:10px;align-items:center}
+.num{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;align-items:center;justify-content:center;font-size:16px;flex:none}
+.job.done .num{background:var(--green)}
+.tick{color:var(--green);display:none}.job.done .tick{display:inline}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+table{border-collapse:collapse;font-size:15px;width:100%}
+th,td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:middle}
+thead th{background:var(--navy);color:#fff}
+tbody tr:nth-child(even) td{background:var(--light)}
+.tw{overflow-x:auto;margin:8px 0}
+td input{font:inherit;width:100%;min-width:132px;padding:3px 6px;border:2px solid var(--line);border-radius:6px;background:#fff}
+td.bad input{border-color:var(--red);background:#FBE9E7}
+td.new input{border-color:var(--teal)}
+.btn{font:inherit;font-weight:700;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer}
+.btn.alt{background:#fff;color:var(--navy)}
+.btn.sm{padding:2px 10px;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.status{margin:8px 0;padding:8px 12px;border-radius:8px;background:var(--light);border:2px solid var(--line)}
+.status.ok{border-color:var(--green)}.status.bad{border-color:var(--red)}.status.info{border-color:var(--teal)}
+.status b.good{color:var(--green)}.status b.warn{color:var(--red)}
+.panel{background:var(--light);border-radius:10px;padding:8px 14px;margin:8px 0;font-size:15px}
+.panel h3{margin:0 0 4px;font-size:15px;color:var(--teal)}
+.panel ul{margin:0;padding-left:20px}
+select{font:inherit;padding:4px 8px;border:2px solid var(--line);border-radius:8px;background:#fff}
+.q{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:8px 0;padding:8px 12px;border:2px solid var(--line);border-radius:10px}
+.q.ok{border-color:var(--green)}.q.bad{border-color:var(--red)}
+.q span.s{flex:1 1 320px}
+.q .r{flex:1 1 100%;font-size:15px}
+textarea{font:inherit;width:100%;min-height:70px;padding:8px;border:2px solid var(--line);border-radius:8px}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Starter: what could go wrong in a flat file? <span class="mins">10 min</span></h1>
+  <p>Topic 7 · Lesson 1 · Three quick jobs on a one-table database, then name the problems.</p>
+</header>
+<main>
+<p>The Cardiff climbing club keeps <b>every booking in one big table</b> (a flat file). Do each job below and watch what happens.</p>
+
+<section class="job" id="j1" aria-labelledby="h1">
+  <h2 id="h1"><span class="num">1</span>Ffion has a new phone number <span class="tick" aria-label="complete">✓</span></h2>
+  <p>Her new number is <b class="mono" style="font-family:var(--mono)">07700 900199</b>. Update the table. <i>Tip: try changing just the first row, then read the message.</i></p>
+  <div class="tw"><table id="t1"></table></div>
+  <div class="status info" id="s1" role="status" aria-live="polite"></div>
+</section>
+
+<section class="job" id="j2" aria-labelledby="h2">
+  <h2 id="h2"><span class="num">2</span>Two sessions are cancelled this term <span class="tick" aria-label="complete">✓</span></h2>
+  <p>The Beginner Wall and Bouldering sessions will not run. Delete every booking for those two sessions.</p>
+  <div class="tw"><table id="t2"></table></div>
+  <div class="panel"><h3>Instructors the club still has details for</h3><ul id="p2"></ul></div>
+  <div class="status info" id="s2" role="status" aria-live="polite"></div>
+  <div class="row"><button class="btn alt" id="r2">Put the rows back</button></div>
+</section>
+
+<section class="job" id="j3" aria-labelledby="h3">
+  <h2 id="h3"><span class="num">3</span>A new instructor joins <span class="tick" aria-label="complete">✓</span></h2>
+  <p>Cara Lewis (07700 900203) will start teaching next term. She has no sessions yet. Add her to the table.</p>
+  <div class="tw"><table id="t3"></table></div>
+  <div class="row"><button class="btn" id="add3">Save new row</button><button class="btn alt" id="r3">Start again</button></div>
+  <div class="status info" id="s3" role="status" aria-live="polite">Type Cara's details into the empty row, then press Save new row.</div>
+</section>
+
+<section class="job" id="j4" aria-labelledby="h4">
+  <h2 id="h4"><span class="num">4</span>Name the problems <span class="tick" aria-label="complete">✓</span></h2>
+  <p>Two words describe what you saw. <b>Redundancy</b> = the same data stored more than once. <b>Inconsistency</b> = copies of a fact that no longer match. Which word fits each sentence?</p>
+  <div id="qs"></div>
+  <div class="row"><button class="btn" id="c4">Check</button></div>
+  <div class="status info" id="s4" role="status" aria-live="polite" hidden></div>
+  <p><label for="fix"><b>One sentence: how could we fix this?</b></label></p>
+  <textarea id="fix" placeholder="Type your idea. There is no wrong answer yet."></textarea>
+  <div class="row"><button class="btn alt" id="idea">Show the idea</button></div>
+  <div class="status ok" id="ideaBox" hidden>Store each fact once, in its own table, and link the tables with keys. Next: Task 1 in the workbook.</div>
+</section>
+</main>
+<script>
+"use strict";
+const members=[["M1","Ffion Hughes","07700 900101"],["M2","Dev Patel","07700 900102"],["M3","Mia Evans","07700 900103"]];
+const instructors=[["I1","Tom Rees","07700 900201"],["I2","Aisha Khan","07700 900202"]];
+const sessions=[["S1","Beginner Wall","03/12","I1"],["S2","Lead Climbing","05/12","I2"],["S3","Bouldering","10/12","I1"]];
+const bookings=[["B1","M1","S1"],["B2","M1","S2"],["B3","M2","S1"],["B4","M1","S3"],["B5","M2","S3"],["B6","M3","S2"]];
+const by=(a,id)=>a.find(r=>r[0]===id);
+// [ID, Member, Phone, Session, Instructor, Instr. phone, Date]; derived from the relational data so it matches the slides
+const FLAT=bookings.map(([b,m,s])=>{const me=by(members,m),se=by(sessions,s),i=by(instructors,se[3]);return [b,me[1],me[2],se[1],i[1],i[2],se[2]];});
+const HEAD=["ID","Member","Phone","Session","Instructor","Instr. phone","Date"];
+const NEW_NUM="07700 900199";
+const $=(s)=>document.querySelector(s);
+const el=(t,a,x)=>{const e=document.createElement(t);if(a)for(const k in a)k==="class"?e.className=a[k]:e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e;};
+const done=(n)=>$("#j"+n).classList.add("done");
+const set=(id,kind,html)=>{const b=$(id);b.className="status "+kind;b.innerHTML=html;};
+const head=(extra)=>{const t=el("thead"),r=el("tr");HEAD.forEach(h=>r.appendChild(el("th",null,h)));if(extra)r.appendChild(el("th",null,extra));t.appendChild(r);return t;};
+
+/* ---------- 1: update a phone number ---------- */
+let rows1;
+function build1(){
+  rows1=FLAT.map(r=>r.slice());const t=$("#t1");t.innerHTML="";t.appendChild(head());
+  const b=el("tbody");
+  rows1.forEach((r,i)=>{const tr=el("tr");r.forEach((v,j)=>{const td=el("td");
+    if(j===2){const inp=el("input",{type:"text","aria-label":`Phone for booking ${r[0]}, ${r[1]}`});inp.value=v;inp.dataset.i=i;inp.addEventListener("input",()=>{rows1[i][2]=inp.value;eval1();});td.appendChild(inp);}
+    else td.textContent=v;tr.appendChild(td);});b.appendChild(tr);});
+  t.appendChild(b);eval1();
+}
+function eval1(){
+  const ff=rows1.map((r,i)=>[r,i]).filter(([r])=>r[1]==="Ffion Hughes");
+  const vals=[...new Set(ff.map(([r])=>r[2].trim()))];
+  document.querySelectorAll("#t1 td").forEach(td=>td.classList.remove("bad"));
+  const inputs=[...document.querySelectorAll("#t1 input")];
+  if(vals.length===1&&vals[0]===NEW_NUM){
+    set("#s1","ok",`<b class="good">✓ Done.</b> You had to edit <b>${ff.length} rows</b> to change <b>one</b> fact.`);done(1);return;}
+  if(vals.length>1){
+    ff.forEach(([r,i])=>inputs[i].parentElement.classList.add("bad"));
+    set("#s1","bad",`<b class="warn">✗ Ffion now has ${vals.length} different phone numbers in the table.</b> Which one is right? Fix every row.`);return;}
+  set("#s1","info",`Ffion's number appears in ${ff.length} rows. Change it to ${NEW_NUM}.`);
+}
+
+/* ---------- 2: delete rows ---------- */
+let rows2;
+function build2(){rows2=FLAT.map(r=>r.slice());render2();}
+function render2(){
+  const t=$("#t2");t.innerHTML="";t.appendChild(head("Delete"));const b=el("tbody");
+  rows2.forEach((r,i)=>{const tr=el("tr");r.forEach(v=>tr.appendChild(el("td",null,v)));
+    const td=el("td");const bt=el("button",{class:"btn alt sm",type:"button","aria-label":`Delete booking ${r[0]}`},"Delete");
+    bt.addEventListener("click",()=>{rows2.splice(i,1);render2();});td.appendChild(bt);tr.appendChild(td);b.appendChild(tr);});
+  t.appendChild(b);
+  const seen=new Map();rows2.forEach(r=>seen.set(r[4],r[5]));
+  const ul=$("#p2");ul.innerHTML="";
+  instructors.forEach(i=>{const has=seen.has(i[1]);const li=el("li",null,has?`${i[1]} (${i[2]})`:`${i[1]}: no details left`);if(!has)li.style.color="var(--red)";ul.appendChild(li);});
+  const left=rows2.filter(r=>r[3]==="Beginner Wall"||r[3]==="Bouldering").length;
+  const tomGone=!seen.has("Tom Rees");
+  if(left>0)set("#s2","info",`${left} booking${left>1?"s":""} for the cancelled sessions still to delete.`);
+  else if(tomGone)set("#s2","bad",`<b class="warn">✗ Tom Rees is still an instructor, but the club has lost his name and phone number.</b> They only lived inside his bookings.`);
+  else set("#s2","info","Delete every booking for Beginner Wall and Bouldering.");
+  if(left===0&&tomGone)done(2);
+}
+$("#r2").addEventListener("click",()=>{build2();});
+
+/* ---------- 3: add an instructor ---------- */
+let rows3;
+function build3(){
+  rows3=FLAT.map(r=>r.slice());const t=$("#t3");t.innerHTML="";t.appendChild(head());const b=el("tbody");
+  rows3.forEach(r=>{const tr=el("tr");r.forEach(v=>tr.appendChild(el("td",null,v)));b.appendChild(tr);});
+  const tr=el("tr");HEAD.forEach((h,j)=>{const td=el("td",{class:"new"});td.appendChild(el("input",{type:"text",id:"n"+j,"aria-label":`New row: ${h}`}));tr.appendChild(td);});
+  b.appendChild(tr);t.appendChild(b);set("#s3","info","Type Cara's details into the empty row, then press Save new row.");$("#j3").classList.remove("done");
+}
+$("#add3").addEventListener("click",()=>{
+  const v=HEAD.map((_,j)=>$("#n"+j).value.trim());
+  const [id,mem,ph,ses,ins,iph,dt]=v;
+  if(!ins&&!iph){set("#s3","info","Type Cara Lewis in the Instructor column and her number in Instr. phone.");return;}
+  if(!/cara/i.test(ins)||!/900203/.test(iph.replace(/\s/g,""))){set("#s3","bad","Check Cara's details: Cara Lewis, 07700 900203.");return;}
+  const empty=[["ID",id],["Member",mem],["Phone",ph],["Session",ses],["Date",dt]].filter(([,x])=>!x).map(([n])=>n);
+  if(empty.length){
+    set("#s3","bad",`<b class="warn">✗ Every row is a booking.</b> This row has no ${empty.join(", ")}. There is nowhere to store an instructor who has no booking yet.`);done(3);return;}
+  set("#s3","bad",`<b class="warn">✗ You invented a booking just to hold Cara's details.</b> That booking is not real, and it would be counted as one. A flat file forces this workaround.`);done(3);
+});
+$("#r3").addEventListener("click",build3);
+
+/* ---------- 4: name the problems ---------- */
+const ITEMS=[
+  ["Tom Rees's name and phone number are typed in four different rows.","red","Same data stored more than once."],
+  ["After one edit, Ffion has two different phone numbers in the table.","inc","Copies of a fact no longer match."],
+  ["Cancelling two sessions made the club lose Tom's phone number.","other","That is a different problem: data was lost because it lived inside the bookings."],
+  ["Cara cannot be stored until she has a booking.","other","That is a different problem: you cannot store one fact without another."],
+];
+const OPTS=[["","choose..."],["red","Redundancy"],["inc","Inconsistency"],["other","Something else"]];
+ITEMS.forEach(([t],i)=>{
+  const q=el("div",{class:"q",id:"q"+i});q.appendChild(el("span",{class:"s"},t));
+  const sel=el("select",{id:"sel"+i,"aria-label":"Word for: "+t});OPTS.forEach(([v,l])=>sel.appendChild(el("option",{value:v},l)));
+  q.appendChild(sel);q.appendChild(el("span",{class:"r",id:"why"+i}));$("#qs").appendChild(q);
+});
+$("#c4").addEventListener("click",()=>{
+  let ok=0,blank=0;
+  ITEMS.forEach(([,a,why],i)=>{const v=$("#sel"+i).value,q=$("#q"+i),r=$("#why"+i);
+    q.classList.remove("ok","bad");
+    if(!v){blank++;r.textContent="";return;}
+    if(v===a){ok++;q.classList.add("ok");r.textContent="✓ "+why;}
+    else{q.classList.add("bad");r.textContent="✗ Not quite. Read the two definitions again.";}});
+  const s=$("#s4");s.hidden=false;
+  if(blank)set("#s4","info",`Choose an answer for every sentence (${blank} left).`);
+  else if(ok===ITEMS.length){set("#s4","ok","<b class=\"good\">✓ All four right.</b> Redundancy leads to inconsistency: the more copies there are, the easier it is to miss one.");done(4);}
+  else set("#s4","bad",`${ok} of ${ITEMS.length} right. Fix the red ones.`);
+});
+$("#idea").addEventListener("click",()=>{$("#ideaBox").hidden=false;});
+
+// integrity check of the data used above (fails loudly if the lesson data ever changes)
+console.assert(FLAT.filter(r=>r[4]==="Tom Rees").length===4,"Tom rows");
+console.assert(FLAT.filter(r=>r[1]==="Ffion Hughes").length===3,"Ffion rows");
+build1();build2();build3();
+</script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 7 · Lesson 1 workbook: keys, links and ERDs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --teal:#0F8B8D; --orange:#F28C28; --light:#EEF3F8; --muted:#5A6A85;
+  --red:#B03024; --green:#23724A; --line:#C9D3E0;
+  --sans:"Atkinson Hyperlegible",system-ui,"Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);color:var(--navy);background:#fff;font-size:17px;line-height:1.45}
+header{background:var(--navy);color:#fff;padding:18px 24px 0}
+header h1{margin:0;font-size:24px}
+header p{margin:4px 0 14px;color:#D5DDEA;font-size:15px}
+[role=tablist]{display:flex;gap:6px;flex-wrap:wrap}
+[role=tab]{font:inherit;font-weight:700;border:0;background:#26365C;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;cursor:pointer}
+[role=tab][aria-selected=true]{background:#fff;color:var(--navy)}
+[role=tab] .tick{display:none;color:var(--green);margin-left:6px}
+[role=tab].done .tick{display:inline}
+main{max-width:980px;margin:0 auto;padding:20px 24px 60px}
+[role=tabpanel][hidden]{display:none}
+h2{margin:0 0 4px;font-size:24px}
+h3{margin:22px 0 6px;font-size:19px;color:var(--teal)}
+.lead{color:var(--muted);margin:0 0 14px}
+.mins{display:inline-block;background:var(--orange);color:var(--navy);font-weight:700;border-radius:999px;padding:2px 12px;font-size:14px;margin-left:8px;vertical-align:middle}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+table{border-collapse:collapse;font-size:15px}
+th,td{border:1px solid var(--line);padding:5px 10px;text-align:left}
+thead th{background:var(--navy);color:#fff}
+tbody tr:nth-child(even) td{background:var(--light)}
+td.hl,th.hl{outline:3px solid var(--orange);outline-offset:-3px}
+.tblwrap{overflow-x:auto;margin:6px 0}
+.tname{font-weight:700;color:var(--teal);margin:12px 0 2px}
+.btn{font:inherit;font-weight:700;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer}
+.btn.alt{background:#fff;color:var(--navy)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.fb{margin:10px 0;padding:10px 14px;border-radius:8px;background:var(--light);border:2px solid var(--line)}
+.fb.ok{border-color:var(--green)} .fb.bad{border-color:var(--red)} .fb.info{border-color:var(--teal)}
+.fb ul{margin:4px 0 0;padding-left:0;list-style:none}
+.fb li{margin:3px 0;padding-left:24px;position:relative}
+.fb li::before{position:absolute;left:0;font-weight:700}
+.fb li.ok::before{content:"✓";color:var(--green)} .fb li.bad::before{content:"✗";color:var(--red)} .fb li.info::before{content:"i";color:var(--teal)}
+.fb li.bad{color:var(--red)}
+.fb li.ok{color:var(--green)}
+.fb li.info{color:var(--navy)}
+/* tab 1 */
+.pool,.zone{min-height:54px;border:2px dashed var(--muted);border-radius:10px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;background:#fff}
+.zone.target,.pool.target{background:#FFF3E3;border-color:var(--orange)}
+.chip{font:inherit;font-family:var(--mono);font-size:14px;font-weight:700;background:var(--teal);color:#fff;border:2px solid var(--teal);border-radius:8px;padding:5px 10px;cursor:grab}
+.chip[aria-pressed=true]{background:var(--orange);color:var(--navy);border-color:var(--navy)}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:10px}
+.bin label{font-weight:700;font-size:14px;color:var(--muted);display:block}
+.bin input[type=text]{font:inherit;width:100%;padding:6px 8px;border:2px solid var(--line);border-radius:8px;margin:2px 0 6px}
+/* tab 2 */
+th button.pk{font:inherit;font-weight:700;color:#fff;background:transparent;border:0;cursor:pointer;text-decoration:underline dotted;padding:0}
+th button.pk[aria-pressed=true]{color:var(--orange);text-decoration:underline solid}
+.grid2{display:flex;flex-wrap:wrap;gap:4px 28px;align-items:flex-start}
+select,input[type=text].small{font:inherit;padding:5px 8px;border:2px solid var(--line);border-radius:8px;background:#fff}
+fieldset{border:2px solid var(--line);border-radius:10px;margin:8px 0;padding:8px 14px}
+legend{font-weight:700;padding:0 6px}
+.radios label{margin-right:18px;white-space:nowrap}
+/* diagrams */
+svg.erd{width:100%;max-width:640px;height:auto;background:#fff;border:2px solid var(--line);border-radius:10px;display:block}
+.pair{border:2px solid var(--line);border-radius:12px;padding:12px 16px;margin:12px 0}
+.pair .rule{font-weight:700;margin:0 0 6px}
+.cols{display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,1fr);gap:16px;align-items:start}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.linkrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;border:2px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0}
+.linkrow .who{font-weight:700}
+.scenario{background:var(--light);border-radius:10px;padding:12px 16px;margin:8px 0}
+.mono{font-family:var(--mono)}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Topic 7 · Lesson 1 workbook</h1>
+  <p>Keys, links and ERDs · Unit 1 · Spec 7.1.2 and 7.1.3 · Try each task before we explain it.</p>
+  <div role="tablist" aria-label="Tasks">
+    <button role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true" tabindex="0">1 Split the flat file<span class="tick" aria-label="complete"> ✓</span></button>
+    <button role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1">2 Key detective<span class="tick" aria-label="complete"> ✓</span></button>
+    <button role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1">3 Link builder<span class="tick" aria-label="complete"> ✓</span></button>
+    <button role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1">4 Draw the ERD<span class="tick" aria-label="complete"> ✓</span></button>
+  </div>
+</header>
+<main>
+
+<!-- ============ TAB 1 ============ -->
+<section role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+  <h2>Task 1: Split the flat file <span class="mins">12 min</span></h2>
+  <p class="lead">One big table repeats the same facts. Split it so every table is about ONE thing.</p>
+  <div class="tname">Flat file: Bookings</div>
+  <div class="tblwrap"><table id="flat"></table></div>
+  <h3>Your tables</h3>
+  <p class="lead">Click a column name, then click the table box where it belongs (or drag it). Give each table a name.</p>
+  <div class="tname">Columns still to place</div>
+  <div class="pool" id="pool" role="group" aria-label="Columns still to place" tabindex="0"></div>
+  <div class="bins" id="bins1"></div>
+  <div class="row">
+    <button class="btn" id="check1">Check</button>
+    <button class="btn alt" id="hint1">Hint</button>
+    <button class="btn alt" id="reset1">Start again</button>
+  </div>
+  <div id="fb1" role="status" aria-live="polite"></div>
+  <div id="stretch1" hidden>
+    <h3>Stretch</h3>
+    <p>Booking now has only one column. How does a booking row point to the right member and the right session?</p>
+    <button class="btn alt" id="stretchBtn">Show the idea</button>
+    <div class="fb info" id="stretchAns" hidden>Give every table an ID column, then store that ID in the other table. Next task: you will pick the keys.</div>
+  </div>
+</section>
+
+<!-- ============ TAB 2 ============ -->
+<section role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+  <h2>Task 2: Key detective <span class="mins">12 min</span></h2>
+  <p class="lead">A primary key identifies each row. Test the fields to find which ones qualify.</p>
+  <h3>Part A: choose the primary key</h3>
+  <p>Click a column name to pick it as the primary key. We will test it for you.</p>
+  <div class="grid2" id="partA"></div>
+  <div id="fbA" role="status" aria-live="polite"></div>
+
+  <h3>Part B: foreign keys</h3>
+  <p>These columns hold an ID from another table. Which primary key does each one point to?</p>
+  <div class="grid2" id="refTables"></div>
+  <div id="fkRows"></div>
+  <fieldset class="radios" id="riQ"><legend>Booking B7 is added with MemberID M9, but there is no member M9. What does referential integrity do?</legend>
+    <label><input type="radio" name="ri" value="accept"> Accepts it</label>
+    <label><input type="radio" name="ri" value="refuse"> Refuses it</label>
+    <label><input type="radio" name="ri" value="create"> Creates member M9 automatically</label>
+  </fieldset>
+  <div class="row"><button class="btn" id="checkB">Check Part B</button></div>
+  <div id="fbB" role="status" aria-live="polite"></div>
+
+  <h3>Part C (stretch): composite key</h3>
+  <p>Imagine Booking has no BookingID. Tick the fields you would combine to identify a booking.</p>
+  <div class="tblwrap"><table id="tblC"></table></div>
+  <fieldset class="radios"><legend>Fields to combine</legend>
+    <label><input type="checkbox" id="cMember"> MemberID</label>
+    <label><input type="checkbox" id="cSession"> SessionID</label>
+  </fieldset>
+  <div class="row"><button class="btn" id="checkC">Test my combination</button></div>
+  <div id="fbC" role="status" aria-live="polite"></div>
+</section>
+
+<!-- ============ TAB 3 ============ -->
+<section role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+  <h2>Task 3: Link builder <span class="mins">10 min</span></h2>
+  <p class="lead">Read each rule, then set each end of the line to <b>one</b> or <b>many</b>. A crow's foot marks the MANY end.</p>
+  <div id="pairs"></div>
+  <div id="linkTable" hidden>
+    <h3>A many-to-many cannot be stored directly</h3>
+    <p>Put a new table in the middle. Name it, then set the four ends.</p>
+    <div class="cols">
+      <div>
+        <label for="ltName"><b>Name of the table in the middle</b></label><br>
+        <input type="text" class="small mono" id="ltName" placeholder="e.g. Booking" maxlength="20" autocomplete="off">
+        <div id="ltCtl"></div>
+      </div>
+      <div><svg class="erd" id="svgLT" viewBox="0 0 480 110" role="img" aria-label="Diagram"></svg></div>
+    </div>
+  </div>
+  <div class="row"><button class="btn" id="check3">Check</button><button class="btn alt" id="reset3">Start again</button></div>
+  <div id="fb3" role="status" aria-live="polite"></div>
+</section>
+
+<!-- ============ TAB 4 ============ -->
+<section role="tabpanel" id="panel-4" aria-labelledby="tab-4" hidden>
+  <h2>Task 4: Draw the ERD <span class="mins">8 min</span></h2>
+  <div class="scenario"><b>Paws Clinic</b> stores owners, pets and vets. An owner can have many pets. A pet can be seen by many vets over time, and a vet sees many pets.</div>
+  <h3>1 Add the entities (tables)</h3>
+  <p class="lead">Orange = on your diagram. Click again to remove.</p>
+  <div class="row" id="palette" role="group" aria-label="Entities"></div>
+  <div class="row">
+    <label for="custom">Another table:</label>
+    <input type="text" class="small mono" id="custom" maxlength="20" autocomplete="off">
+    <button class="btn alt" id="addCustom">Add</button>
+  </div>
+  <h3>2 Link them</h3>
+  <div class="row">
+    <label for="selA">From</label><select id="selA"></select>
+    <label for="selB">to</label><select id="selB"></select>
+    <button class="btn alt" id="addLink">Add link</button>
+  </div>
+  <div id="linkList"></div>
+  <svg class="erd" id="svg4" viewBox="0 0 620 270" role="img" aria-label="Your ERD"></svg>
+  <div class="row"><button class="btn" id="check4">Check</button><button class="btn alt" id="reset4">Start again</button></div>
+  <div id="fb4" role="status" aria-live="polite"></div>
+</section>
+</main>
+
+<script>
+"use strict";
+/* ---------------- DATA (matches the lesson slides) ---------------- */
+const members=[["M1","Ffion Hughes","07700 900101"],["M2","Dev Patel","07700 900102"],["M3","Mia Evans","07700 900103"]];
+const instructors=[["I1","Tom Rees","07700 900201"],["I2","Aisha Khan","07700 900202"]];
+const sessions=[["S1","Beginner Wall","03/12","I1"],["S2","Lead Climbing","05/12","I2"],["S3","Bouldering","10/12","I1"]];
+const bookings=[["B1","M1","S1"],["B2","M1","S2"],["B3","M2","S1"],["B4","M1","S3"],["B5","M2","S3"],["B6","M3","S2"]];
+const by=(a,id)=>a.find(r=>r[0]===id);
+const flat=bookings.map(([b,m,s])=>{const mem=by(members,m),ses=by(sessions,s),ins=by(instructors,ses[3]);return [b,mem[1],mem[2],ses[1],ins[1],ins[2],ses[2]];});
+const $=(s,r)=>(r||document).querySelector(s);
+const el=(t,a,txt)=>{const e=document.createElement(t);if(a)for(const k in a){if(k==="class")e.className=a[k];else e.setAttribute(k,a[k]);}if(txt!=null)e.textContent=txt;return e;};
+function feedback(box,kind,title,items){
+  box.innerHTML="";const d=el("div",{class:"fb "+kind});
+  if(title)d.appendChild(el("div",null,title)).style.fontWeight="700";
+  if(items&&items.length){const u=el("ul");items.forEach(([k,t])=>u.appendChild(el("li",{class:k},t)));d.appendChild(u);}
+  box.appendChild(d);
+}
+function markDone(n){$("#tab-"+n).classList.add("done");}
+
+/* ---------------- tabs ---------------- */
+const tabs=[...document.querySelectorAll("[role=tab]")];
+function showTab(i){tabs.forEach((t,k)=>{const on=k===i;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1;$("#"+t.getAttribute("aria-controls")).hidden=!on;});}
+tabs.forEach((t,i)=>{
+  t.addEventListener("click",()=>showTab(i));
+  t.addEventListener("keydown",e=>{let k=null;
+    if(e.key==="ArrowRight")k=(i+1)%tabs.length;else if(e.key==="ArrowLeft")k=(i+tabs.length-1)%tabs.length;
+    else if(e.key==="Home")k=0;else if(e.key==="End")k=tabs.length-1;
+    if(k!=null){e.preventDefault();showTab(k);tabs[k].focus();}});
+});
+
+/* ---------------- shared ERD renderer ---------------- */
+const NS="http://www.w3.org/2000/svg";
+function s(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function edge(n,to){
+  const cx=n.x+n.w/2,cy=n.y+n.h/2,tx=to.x+to.w/2,ty=to.y+to.h/2,dx=tx-cx,dy=ty-cy;
+  const k=Math.min(dx?(n.w/2)/Math.abs(dx):1e9,dy?(n.h/2)/Math.abs(dy):1e9);
+  return {x:cx+dx*k,y:cy+dy*k};
+}
+function drawERD(svg,nodes,links){
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  const byId={};nodes.forEach(n=>byId[n.id]=n);
+  const desc=[];
+  links.forEach(l=>{
+    const A=byId[l.a],B=byId[l.b];if(!A||!B)return;
+    const pa=edge(A,B),pb=edge(B,A);
+    svg.appendChild(s("line",{x1:pa.x,y1:pa.y,x2:pb.x,y2:pb.y,stroke:"#14213D","stroke-width":2.5}));
+    const L=Math.hypot(pb.x-pa.x,pb.y-pa.y)||1,ux=(pb.x-pa.x)/L,uy=(pb.y-pa.y)/L,px=-uy,py=ux;
+    const foot=(p,sgn,many)=>{if(!many)return;const ax=p.x+sgn*ux*20,ay=p.y+sgn*uy*20;
+      [-1,0,1].forEach(k=>svg.appendChild(s("line",{x1:ax,y1:ay,x2:p.x+px*13*k,y2:p.y+py*13*k,stroke:"#14213D","stroke-width":2.5})));};
+    foot(pa,1,l.endA==="many");foot(pb,-1,l.endB==="many");
+    desc.push(`${A.label} ${l.endA} to ${l.endB} ${B.label}`);
+  });
+  nodes.forEach(n=>{
+    svg.appendChild(s("rect",{x:n.x,y:n.y,width:n.w,height:n.h,fill:n.fill||"#fff",stroke:"#14213D","stroke-width":2.5}));
+    const t=s("text",{x:n.x+n.w/2,y:n.y+n.h/2+5,"text-anchor":"middle","font-size":n.label.length>11?14:16,"font-weight":700,fill:"#14213D","font-family":"Atkinson Hyperlegible, system-ui, sans-serif"});
+    t.textContent=n.label;svg.appendChild(t);
+  });
+  svg.setAttribute("aria-label",desc.length?"ERD: "+desc.join("; "):"ERD with "+nodes.length+" tables and no links yet");
+}
+/* radio pair for one end */
+function endRadios(name,label,value,onChange){
+  const f=el("fieldset",{class:"radios"});f.appendChild(el("legend",null,label));
+  ["one","many"].forEach(v=>{
+    const l=el("label");const i=el("input",{type:"radio",name:name,value:v});i.checked=value===v;
+    i.addEventListener("change",()=>onChange(v));l.appendChild(i);l.appendChild(document.createTextNode(" "+(v==="one"?"one":"many (crow's foot)")));f.appendChild(l);
+  });return f;
+}
+
+/* ================= TAB 1 ================= */
+const cols1=[
+  {id:"BookingID",g:"booking"},{id:"MemberName",g:"member"},{id:"MemberPhone",g:"member"},
+  {id:"SessionName",g:"session"},{id:"InstructorName",g:"instructor"},{id:"InstructorPhone",g:"instructor"},{id:"Date",g:"session"}];
+const gLabel={booking:"bookings",member:"members",session:"sessions",instructor:"instructors"};
+const nameWords={member:["member","customer","climber","client"],instructor:["instructor","coach","staff","teacher","tutor"],session:["session","class","activity","lesson","course"],booking:["booking","reservation"]};
+let place1={},sel1=null;
+function reset1(){cols1.forEach(c=>place1[c.id]="pool");sel1=null;for(let i=0;i<4;i++){const inp=$("#bn"+i);if(inp)inp.value="";}render1();$("#fb1").innerHTML="";}
+function build1(){
+  const head=["BookingID","Member","Phone","Session","Instructor","Instr. phone","Date"];
+  const ids=["BookingID","MemberName","MemberPhone","SessionName","InstructorName","InstructorPhone","Date"];
+  const t=$("#flat");const th=el("thead"),tr=el("tr");
+  head.forEach((h,i)=>{const c=el("th",{"data-col":ids[i]},h);tr.appendChild(c);});th.appendChild(tr);t.appendChild(th);
+  const tb=el("tbody");flat.forEach(r=>{const x=el("tr");r.forEach((v,i)=>x.appendChild(el("td",{"data-col":ids[i]},v)));tb.appendChild(x);});t.appendChild(tb);
+  const bins=$("#bins1");
+  for(let i=0;i<4;i++){
+    const b=el("div",{class:"bin"});
+    b.appendChild(el("label",{for:"bn"+i},"Table "+(i+1)+" name"));
+    b.appendChild(el("input",{type:"text",id:"bn"+i,maxlength:"20",autocomplete:"off"}));
+    const z=el("div",{class:"zone",id:"z"+i,role:"group","aria-label":"Columns in table "+(i+1),tabindex:"0"});
+    b.appendChild(z);bins.appendChild(b);
+  }
+  [$("#pool"),...document.querySelectorAll(".zone")].forEach(z=>{
+    const key=z.id==="pool"?"pool":z.id;
+    z.addEventListener("click",e=>{if(e.target.closest(".chip"))return;moveSel(key);});
+    z.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target===z){e.preventDefault();moveSel(key);}});
+    z.addEventListener("dragover",e=>{e.preventDefault();z.classList.add("target");});
+    z.addEventListener("dragleave",()=>z.classList.remove("target"));
+    z.addEventListener("drop",e=>{e.preventDefault();z.classList.remove("target");const id=e.dataTransfer.getData("text/plain");if(place1[id]!==undefined){place1[id]=key;sel1=null;render1();}});
+  });
+}
+function moveSel(key){if(!sel1)return;place1[sel1]=key;sel1=null;render1();}
+function render1(){
+  const zones={pool:$("#pool")};for(let i=0;i<4;i++)zones["z"+i]=$("#z"+i);
+  Object.values(zones).forEach(z=>z.innerHTML="");
+  cols1.forEach(c=>{
+    const b=el("button",{class:"chip",type:"button",draggable:"true","aria-pressed":sel1===c.id},c.id);
+    b.addEventListener("click",()=>{if(sel1&&sel1!==c.id){moveSel(place1[c.id]);return;}sel1=sel1===c.id?null:c.id;render1();});
+    b.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",c.id);});
+    zones[place1[c.id]].appendChild(b);
+  });
+  document.querySelectorAll("#flat [data-col]").forEach(c=>c.classList.toggle("hl",c.dataset.col===sel1));
+}
+function check1(){
+  const left=cols1.filter(c=>place1[c.id]==="pool");
+  if(left.length){feedback($("#fb1"),"info",`Place all 7 columns first (${left.length} still to place).`);return;}
+  const bad=[],ok=[];
+  const binsMap={};cols1.forEach(c=>{(binsMap[place1[c.id]]=binsMap[place1[c.id]]||[]).push(c);});
+  Object.entries(binsMap).forEach(([k,cs])=>{
+    const gs=[...new Set(cs.map(c=>c.g))];
+    const num=+k.slice(1)+1;
+    if(gs.length>1){
+      let msg=`Table ${num} mixes facts about ${gs.map(g=>gLabel[g]).join(" and ")}. Each table should be about ONE thing.`;
+      if(cs.some(c=>c.id==="Date")&&gs.includes("booking"))msg+=" Hint: the date belongs to the session. Two members booking the same session share one date.";
+      bad.push(msg);
+    }
+  });
+  const gSplit={};cols1.forEach(c=>{(gSplit[c.g]=gSplit[c.g]||new Set()).add(place1[c.id]);});
+  Object.entries(gSplit).forEach(([g,set])=>{if(set.size>1){const names=cols1.filter(c=>c.g===g).map(c=>c.id).join(" and ");bad.push(`${names} are facts about the same thing (${gLabel[g]}). Keep them in one table.`);}});
+  if(Object.keys(binsMap).length!==4&&!bad.length)bad.push("You need four tables.");
+  if(!bad.length){
+    // names
+    const items=[];let nameProblem=false;
+    Object.entries(binsMap).forEach(([k,cs])=>{
+      const nm=$("#bn"+k.slice(1)).value.trim();const g=cs[0].g;
+      if(!nm){items.push(["bad",`Table ${+k.slice(1)+1} needs a name.`]);nameProblem=true;}
+      else if(!nameWords[g].some(w=>nm.toLowerCase().includes(w)))items.push(["info",`"${nm}" is fine if it makes sense, but a clearer name for this table would be something like "${nameWords[g][0][0].toUpperCase()+nameWords[g][0].slice(1)}".`]);
+      else items.push(["ok",`${nm}: ${cs.map(c=>c.id).join(", ")}`]);
+    });
+    if(nameProblem){feedback($("#fb1"),"bad","Nearly there: every table needs a name.",items);return;}
+    feedback($("#fb1"),"ok","Every fact is now stored once.",[...items,["info","Ffion's phone number is in one place now. Change it once and it is right everywhere."]]);
+    $("#stretch1").hidden=false;markDone(1);
+  } else feedback($("#fb1"),"bad","Not quite yet:",bad.map(b=>["bad",b]));
+}
+$("#check1").addEventListener("click",check1);
+$("#reset1").addEventListener("click",reset1);
+$("#hint1").addEventListener("click",()=>feedback($("#fb1"),"info","Hint: for each column ask 'who or what is this fact about?' A member, an instructor, a session or a booking?"));
+$("#stretchBtn").addEventListener("click",()=>{$("#stretchAns").hidden=false;});
+build1();reset1();
+
+/* ================= TAB 2 ================= */
+const T2=[
+  {name:"Member",head:["MemberID","Name","Phone"],rows:members,ans:"MemberID"},
+  {name:"Session",head:["SessionID","SessionName","Date","InstructorID"],rows:sessions,ans:"SessionID"},
+  {name:"Booking",head:["BookingID","MemberID","SessionID"],rows:bookings,ans:"BookingID"},
+];
+const why={
+  "Member.Name":"Two members could easily share a name.",
+  "Member.Phone":"Phone numbers change, and family members can share one.",
+  "Session.SessionName":'"Bouldering" runs every week, so the name repeats.',
+  "Session.Date":"Several sessions can run on the same day.",
+  "Session.InstructorID":"One instructor leads many sessions, so it repeats.",
+  "Booking.MemberID":"A member makes many bookings, so it repeats.",
+  "Booking.SessionID":"A session has many bookings, so it repeats.",
+};
+const pickA={};
+function stats(rows,i){
+  const vals=rows.map(r=>r[i]),cnt={};vals.forEach(v=>cnt[v]=(cnt[v]||0)+1);
+  const dups=Object.entries(cnt).filter(([,n])=>n>1).map(([v,n])=>`${v} appears ${n} times`);
+  return {unique:dups.length===0,dups,blank:vals.some(v=>v==="")};
+}
+function buildTable(container,t,opt){
+  const w=el("div");w.appendChild(el("div",{class:"tname"},t.name));
+  const tw=el("div",{class:"tblwrap"}),tb=el("table"),th=el("thead"),tr=el("tr");
+  t.head.forEach((h,i)=>{const c=el("th");
+    if(opt&&opt.pick){const b=el("button",{class:"pk",type:"button","aria-pressed":"false","data-t":t.name,"data-i":i},h);
+      b.setAttribute("aria-label",`Choose ${h} as the primary key of ${t.name}`);c.appendChild(b);}
+    else c.textContent=h;tr.appendChild(c);});
+  th.appendChild(tr);tb.appendChild(th);
+  const body=el("tbody");t.rows.forEach(r=>{const x=el("tr");r.forEach(v=>x.appendChild(el("td",null,v)));body.appendChild(x);});
+  tb.appendChild(body);tw.appendChild(tb);w.appendChild(tw);container.appendChild(w);
+}
+function buildA(){
+  const c=$("#partA");T2.forEach(t=>buildTable(c,t,{pick:true}));
+  c.addEventListener("click",e=>{
+    const b=e.target.closest("button.pk");if(!b)return;
+    const t=T2.find(x=>x.name===b.dataset.t);pickA[t.name]=t.head[+b.dataset.i];
+    c.querySelectorAll(`button.pk[data-t="${t.name}"]`).forEach(x=>x.setAttribute("aria-pressed",x===b));
+    evalA();
+  });
+}
+function evalA(){
+  const items=[];let allOk=true;
+  T2.forEach(t=>{
+    const f=pickA[t.name];if(!f){allOk=false;return;}
+    const i=t.head.indexOf(f),st=stats(t.rows,i),good=f===t.ans;
+    if(!good)allOk=false;
+    items.push(["info",`${t.name}.${f}: ${st.unique?"all values different in this data":"repeats in this data ("+st.dups.join(", ")+")"}; ${st.blank?"has empty values":"no empty values"}.`]);
+    items.push([good?"ok":"bad",good?`${f} is a good primary key for ${t.name}: unique, never empty and never changes.`:`${f} is not suitable. ${why[t.name+"."+f]||""}`]);
+  });
+  const done=T2.every(t=>pickA[t.name]);
+  feedback($("#fbA"),allOk&&done?"ok":"info",allOk&&done?"All three primary keys are right.":"Test results",items);
+  if(allOk&&done){aDone=true;maybeDone2();}
+}
+const FK=[
+  {t:"Session",f:"InstructorID",ans:"Instructor.InstructorID"},
+  {t:"Booking",f:"MemberID",ans:"Member.MemberID"},
+  {t:"Booking",f:"SessionID",ans:"Session.SessionID"},
+];
+const fkOpts=["","Instructor.InstructorID","Member.MemberID","Session.SessionID","Booking.BookingID"];
+let aDone=false,bDone=false;
+function buildB(){
+  buildTable($("#refTables"),{name:"Instructor",head:["InstructorID","Name","Phone"],rows:instructors});
+  const c=$("#fkRows");
+  FK.forEach((r,i)=>{
+    const row=el("div",{class:"linkrow"});
+    row.appendChild(el("span",{class:"who mono"},`${r.t}.${r.f}`));
+    row.appendChild(el("label",{for:"fk"+i},"points to"));
+    const sel=el("select",{id:"fk"+i});
+    fkOpts.forEach(o=>sel.appendChild(el("option",{value:o},o||"choose...")));
+    row.appendChild(sel);c.appendChild(row);
+  });
+}
+$("#checkB").addEventListener("click",()=>{
+  const items=[];let ok=true;
+  FK.forEach((r,i)=>{
+    const v=$("#fk"+i).value;
+    if(!v){ok=false;items.push(["bad",`${r.t}.${r.f}: choose where it points.`]);}
+    else if(v===r.ans)items.push(["ok",`${r.t}.${r.f} is a foreign key: it is the primary key of ${r.ans.split(".")[0]}.`]);
+    else{ok=false;items.push(["bad",`${r.t}.${r.f} does not point to ${v}. Look for the table whose primary key has the same kind of ID (${r.f==="InstructorID"?"I1, I2":r.f==="MemberID"?"M1, M2":"S1, S2"}).`]);}
+  });
+  const ri=document.querySelector("input[name=ri]:checked");
+  if(!ri){ok=false;items.push(["bad","Answer the referential integrity question."]);}
+  else if(ri.value==="refuse")items.push(["ok","Refused: every foreign key value must match a real primary key. No orphan bookings."]);
+  else{ok=false;items.push(["bad","Not that one: referential integrity stops a foreign key pointing at a primary key that does not exist."]);}
+  feedback($("#fbB"),ok?"ok":"bad",ok?"Part B complete.":"Not quite yet:",items);
+  if(ok){bDone=true;maybeDone2();}
+});
+function maybeDone2(){if(aDone&&bDone)markDone(2);}
+function buildC(){
+  const t=$("#tblC");const th=el("thead"),tr=el("tr");["MemberID","SessionID"].forEach(h=>tr.appendChild(el("th",null,h)));th.appendChild(tr);t.appendChild(th);
+  const b=el("tbody");bookings.forEach(r=>{const x=el("tr");x.appendChild(el("td",null,r[1]));x.appendChild(el("td",null,r[2]));b.appendChild(x);});t.appendChild(b);
+}
+$("#checkC").addEventListener("click",()=>{
+  const m=$("#cMember").checked,sx=$("#cSession").checked;
+  if(!m&&!sx){feedback($("#fbC"),"info","Tick at least one field.");return;}
+  const rows=bookings.map(r=>[m?r[1]:"",sx?r[2]:""]);
+  const key=r=>r.join("|"),cnt={};rows.forEach(r=>cnt[key(r)]=(cnt[key(r)]||0)+1);
+  const dups=Object.entries(cnt).filter(([,n])=>n>1).map(([v,n])=>`${v.replace("|"," + ").replace(/^ \+ | \+ $/g,"")} appears ${n} times`);
+  if(dups.length)feedback($("#fbC"),"bad","Not unique:",[["bad",dups.join("; ")+". Two bookings would look the same."]]);
+  else feedback($("#fbC"),"ok","Unique: MemberID and SessionID together identify every booking.",[["info","That is a composite key. It works here only because a member can book a session just once; most designers add a BookingID instead."]]);
+});
+buildA();buildB();buildC();
+
+/* ================= TAB 3 ================= */
+const pairs=[
+  {id:"p1",a:"Member",b:"Card",rule:"Every member is given one membership card. A card is only ever for one member.",ans:["one","one"]},
+  {id:"p2",a:"Instructor",b:"Session",rule:"An instructor leads several sessions. Each session has exactly one instructor.",ans:["one","many"]},
+  {id:"p3",a:"Member",b:"Session",rule:"A member can book several sessions. A session can have several members booked on it.",ans:["many","many"]},
+];
+const ends={p1:["one","one"],p2:["one","one"],p3:["one","one"]};
+const lt={name:"",e:["one","one","one","one"]}; // Member-end, link-end(for Member link), link-end(for Session link), Session-end
+function buildPairs(){
+  const c=$("#pairs");c.innerHTML="";
+  pairs.forEach(p=>{
+    const box=el("div",{class:"pair"});box.appendChild(el("p",{class:"rule"},p.rule));
+    const g=el("div",{class:"cols"});const ctl=el("div");
+    ctl.appendChild(endRadios(p.id+"A",`At the ${p.a} end`,ends[p.id][0],v=>{ends[p.id][0]=v;drawPair(p);ltVis();}));
+    ctl.appendChild(endRadios(p.id+"B",`At the ${p.b} end`,ends[p.id][1],v=>{ends[p.id][1]=v;drawPair(p);ltVis();}));
+    const sv=s("svg",{id:"sv"+p.id,viewBox:"0 0 420 100",class:"erd",role:"img"});
+    g.appendChild(ctl);g.appendChild(sv);box.appendChild(g);c.appendChild(box);drawPair(p);
+  });
+}
+function drawPair(p){
+  drawERD($("#sv"+p.id),[{id:"a",label:p.a,x:25,y:27,w:125,h:46},{id:"b",label:p.b,x:270,y:27,w:125,h:46}],[{a:"a",b:"b",endA:ends[p.id][0],endB:ends[p.id][1]}]);
+}
+function ltVis(){
+  const show=ends.p3[0]==="many"&&ends.p3[1]==="many";
+  $("#linkTable").hidden=!show;
+  if(show)drawLT();
+}
+function drawLT(){
+  const nm=lt.name.trim()||"?";
+  drawERD($("#svgLT"),[{id:"m",label:"Member",x:10,y:32,w:110,h:46},{id:"l",label:nm,x:185,y:32,w:110,h:46,fill:"#EEF3F8"},{id:"s",label:"Session",x:360,y:32,w:110,h:46}],
+    [{a:"m",b:"l",endA:lt.e[0],endB:lt.e[1]},{a:"l",b:"s",endA:lt.e[2],endB:lt.e[3]}]);
+}
+function buildLT(){
+  const c=$("#ltCtl");c.innerHTML="";
+  const defs=[["At the Member end of the first link",0],["At the middle-table end of the first link",1],["At the middle-table end of the second link",2],["At the Session end of the second link",3]];
+  defs.forEach(([lab,i])=>c.appendChild(endRadios("lt"+i,lab,lt.e[i],v=>{lt.e[i]=v;drawLT();})));
+}
+$("#ltName").addEventListener("input",e=>{lt.name=e.target.value;drawLT();});
+$("#check3").addEventListener("click",()=>{
+  const items=[];let ok=true;
+  pairs.forEach(p=>{
+    const [a,b]=ends[p.id],good=a===p.ans[0]&&b===p.ans[1];
+    const nm=`${p.a} and ${p.b}`;
+    if(good)items.push(["ok",`${nm}: ${p.ans[0]==="one"&&p.ans[1]==="one"?"one-to-one":p.ans[0]==="many"&&p.ans[1]==="many"?"many-to-many":"one-to-many"}. Correct.`]);
+    else{ok=false;
+      let msg=`${nm}: not right. Read the rule once from each end: "one ${p.a.toLowerCase()} ... how many ${p.b.toLowerCase()}s?" then "one ${p.b.toLowerCase()} ... how many ${p.a.toLowerCase()}s?"`;
+      if(p.id==="p2"&&a==="many"&&b==="one")msg+=" Your crow's foot is on the wrong end: it goes next to the table that appears many times.";
+      items.push(["bad",msg]);}
+  });
+  if(ends.p3[0]==="many"&&ends.p3[1]==="many"){
+    const nm=lt.name.trim();
+    if(!nm){ok=false;items.push(["bad","Name the table in the middle."]);}
+    else if(["member","session"].includes(nm.toLowerCase())){ok=false;items.push(["bad","The middle table needs its own name, not Member or Session."]);}
+    else if(lt.e[0]==="one"&&lt.e[1]==="many"&&lt.e[2]==="many"&&lt.e[3]==="one")items.push(["ok",`${nm} sits in the middle. Each side is now one-to-many, with the crow's foot at ${nm}. It holds a foreign key for Member AND for Session.`]);
+    else{ok=false;items.push(["bad","Link table ends are not right. Think about Ffion: she appears once in Member but many times in the middle table."]);}
+  } else if(pairs[2]&&!(ends.p3[0]==="many"&&ends.p3[1]==="many")){ /* already flagged above */ }
+  if(ok&&ends.p3[0]==="many"&&ends.p3[1]==="many"){feedback($("#fb3"),"ok","All links are right.",items);markDone(3);}
+  else feedback($("#fb3"),"bad","Not quite yet:",items);
+});
+$("#reset3").addEventListener("click",()=>{pairs.forEach(p=>ends[p.id]=["one","one"]);lt.name="";lt.e=["one","one","one","one"];$("#ltName").value="";buildPairs();buildLT();ltVis();$("#fb3").innerHTML="";});
+buildPairs();buildLT();
+
+/* ================= TAB 4 ================= */
+const palette=["Owner","Pet","Vet","Receptionist"];
+const fixedPos={Owner:[20,30],Pet:[260,30],Vet:[500,30],Receptionist:[20,200]};
+const otherSlots=[[290,190],[450,190],[150,190]];
+let ents=[],links4=[];
+function nodes4(){
+  let k=0;
+  return ents.map(n=>{
+    let p=fixedPos[n];if(!p){p=otherSlots[k%otherSlots.length];k++;}
+    return {id:n,label:n,x:p[0],y:p[1],w:Math.min(130,Math.max(100,n.length*10+24)),h:46,fill:["Owner","Pet","Vet","Receptionist"].includes(n)?"#fff":"#EEF3F8"};
+  });
+}
+function render4(){
+  // palette
+  const pal=$("#palette");pal.innerHTML="";
+  palette.forEach(n=>{const b=el("button",{class:"chip",type:"button","aria-pressed":ents.includes(n)},n);
+    b.addEventListener("click",()=>{if(ents.includes(n)){ents=ents.filter(x=>x!==n);links4=links4.filter(l=>l.a!==n&&l.b!==n);}else ents.push(n);render4();});pal.appendChild(b);});
+  ents.filter(n=>!palette.includes(n)).forEach(n=>{const b=el("button",{class:"chip",type:"button","aria-pressed":"true",title:"Click to remove"},n+" ×");
+    b.addEventListener("click",()=>{ents=ents.filter(x=>x!==n);links4=links4.filter(l=>l.a!==n&&l.b!==n);render4();});pal.appendChild(b);});
+  // selects
+  ["#selA","#selB"].forEach(id=>{const sel=$(id),old=sel.value;sel.innerHTML="";ents.forEach(n=>sel.appendChild(el("option",{value:n},n)));if(ents.includes(old))sel.value=old;});
+  if(ents.length>1&&$("#selA").value===$("#selB").value)$("#selB").value=ents.find(n=>n!==$("#selA").value);
+  // link rows
+  const ll=$("#linkList");ll.innerHTML="";
+  links4.forEach((l,i)=>{
+    const row=el("div",{class:"linkrow"});row.appendChild(el("span",{class:"who"},`${l.a} — ${l.b}`));
+    row.appendChild(endRadios("l4a"+i,`${l.a} end`,l.endA,v=>{l.endA=v;drawERD($("#svg4"),nodes4(),links4);}));
+    row.appendChild(endRadios("l4b"+i,`${l.b} end`,l.endB,v=>{l.endB=v;drawERD($("#svg4"),nodes4(),links4);}));
+    const rm=el("button",{class:"btn alt",type:"button"},"Remove");rm.addEventListener("click",()=>{links4.splice(i,1);render4();});
+    row.appendChild(rm);ll.appendChild(row);
+  });
+  drawERD($("#svg4"),nodes4(),links4);
+}
+$("#addCustom").addEventListener("click",()=>{
+  const v=$("#custom").value.trim();if(!v)return;
+  const cap=v[0].toUpperCase()+v.slice(1);
+  if(!ents.some(n=>n.toLowerCase()===cap.toLowerCase()))ents.push(cap);
+  $("#custom").value="";render4();
+});
+$("#custom").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#addCustom").click();}});
+$("#addLink").addEventListener("click",()=>{
+  const a=$("#selA").value,b=$("#selB").value;
+  if(!a||!b||a===b){feedback($("#fb4"),"info","Choose two different tables to link.");return;}
+  if(links4.some(l=>(l.a===a&&l.b===b)||(l.a===b&&l.b===a))){feedback($("#fb4"),"info","Those two tables are already linked.");return;}
+  links4.push({a,b,endA:"one",endB:"one"});$("#fb4").innerHTML="";render4();
+});
+$("#reset4").addEventListener("click",()=>{ents=[];links4=[];$("#fb4").innerHTML="";render4();});
+function link4(a,b){const l=links4.find(l=>(l.a===a&&l.b===b)||(l.a===b&&l.b===a));if(!l)return null;return l.a===a?{ea:l.endA,eb:l.endB}:{ea:l.endB,eb:l.endA};}
+$("#check4").addEventListener("click",()=>{
+  const items=[];let marks=0;
+  const core=["Owner","Pet","Vet"];
+  const extra=ents.filter(n=>!core.includes(n)&&n!=="Receptionist");
+  // M1 entities
+  const missing=core.filter(n=>!ents.includes(n));
+  if(!missing.length&&extra.length){marks++;items.push(["ok",`Entities: Owner, Pet, Vet and a table in the middle (${extra[0]}). [1]`]);}
+  else if(missing.length)items.push(["bad",`Missing entities: ${missing.join(", ")}.`]);
+  else items.push(["bad","You will need one more table to resolve the many-to-many. What could sit between Pet and Vet?"]);
+  if(ents.includes("Receptionist"))items.push(["bad","Receptionist is not mentioned in the scenario. Only draw what the clinic stores."]);
+  // M2 Owner-Pet
+  const op=link4("Owner","Pet");
+  if(op&&op.ea==="one"&&op.eb==="many"){marks++;items.push(["ok","Owner to Pet is one-to-many with the crow's foot at Pet. [1]"]);}
+  else if(op)items.push(["bad","Owner and Pet: one owner has many pets, but each pet has one owner. The crow's foot goes at Pet only."]);
+  else if(ents.includes("Owner")&&ents.includes("Pet"))items.push(["bad","Link Owner and Pet."]);
+  // direct pet-vet
+  const pv=link4("Pet","Vet");
+  if(pv)items.push(["bad","Pet and Vet are linked directly. A many-to-many cannot be stored directly: remove this link and use the table in the middle."]);
+  // M3/M4 link table
+  const L=extra.find(n=>link4(n,"Pet")&&link4(n,"Vet"));
+  if(L){
+    marks++;items.push(["ok",`${L} is linked to both Pet and Vet. [1]`]);
+    const lp=link4(L,"Pet"),lv=link4(L,"Vet");
+    if(lp.ea==="many"&&lp.eb==="one"&&lv.ea==="many"&&lv.eb==="one"){marks++;items.push(["ok",`Crow's feet are at the ${L} end of both links: each pet and each vet appears many times in ${L}. [1]`]);}
+    else items.push(["bad",`At the ${L} end the line should be MANY, and at the Pet and Vet ends ONE. Ffion's cat appears once in Pet but many times in ${L}.`]);
+  } else if(extra.length)items.push(["bad",`Link ${extra[0]} to both Pet and Vet.`]);
+  const kind=marks===4&&!pv&&!ents.includes("Receptionist")?"ok":"bad";
+  feedback($("#fb4"),kind,`Exam-style score: ${marks} / 4`,items);
+  if(kind==="ok")markDone(4);
+});
+render4();
+</script>
+</body>
+</html>
